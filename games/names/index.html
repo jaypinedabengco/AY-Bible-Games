@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bible Names &mdash; AY Bible Games</title>
+<meta name="description" content="Picture-puzzle game: read the clues out loud and guess the Bible name.">
+<link rel="stylesheet" href="../../assets/theme.css">
+</head>
+<body>
+
+<div class="app">
+
+  <div class="bar">
+    <a class="btn" href="../../index.html">&larr; Games</a>
+    <h1 class="title">Bible Names</h1>
+    <span class="spacer"></span>
+    <span class="progress" id="progress" aria-live="polite">&nbsp;</span>
+    <button class="btn" id="shuffle" type="button">Shuffle</button>
+    <button class="btn" id="full" type="button">Fullscreen</button>
+  </div>
+
+  <main class="stage" id="stage" aria-live="polite"></main>
+
+  <div class="hints">
+    <span><kbd>Space</kbd> reveal / next</span>
+    <span><kbd>&larr;</kbd> back</span>
+    <span><kbd>R</kbd> shuffle</span>
+    <span><kbd>F</kbd> fullscreen</span>
+    <span>or just click the screen</span>
+  </div>
+
+</div>
+
+<script src="../../assets/runner.js"></script>
+<script src="deck.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  var puzzles = window.NAME_PUZZLES || [];
+
+  function esc(s) {
+    return String(s).replace(/[&<>"]/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+    });
+  }
+
+  /* A clue's `img` may be a filename in ./clues/, or a full URL, or a data:
+     URI. Local files are strongly preferred - see the note in deck.js. */
+  function src(img) {
+    return /^(https?:|data:|\.{0,2}\/)/i.test(img) ? img : 'clues/' + img;
+  }
+
+  /* Stage 0: pictures only.  1: the working.  2: the name and reference. */
+  function render(p, stage) {
+    var clues = p.clues.map(function (c) {
+      return '<div class="clue"><img src="' + esc(src(c.img)) +
+             '" alt="picture clue" loading="eager"></div>';
+    }).join('<span class="plus" aria-hidden="true">+</span>');
+
+    var working = p.clues.map(function (c) { return esc(c.word); }).join(' + ');
+
+    return '' +
+      '<div class="clues">' + clues + '</div>' +
+      '<div class="reveal">' +
+        '<div class="working' + (stage >= 1 ? '' : ' is-hidden') + '"' +
+          (stage >= 1 ? '' : ' aria-hidden="true"') + '>' + working + '</div>' +
+        '<div class="answer' + (stage >= 2 ? '' : ' is-hidden') + '"' +
+          (stage >= 2 ? '' : ' aria-hidden="true"') + '>' + esc(p.answer) + '</div>' +
+        '<div class="ref' + (stage >= 2 ? '' : ' is-hidden') + '"' +
+          (stage >= 2 ? '' : ' aria-hidden="true"') + '>' + esc(p.ref || '') + '</div>' +
+      '</div>';
+  }
+
+  var runner = window.Runner.create({
+    items: puzzles,
+    stages: 2,
+    stage: document.getElementById('stage'),
+    render: render,
+    preload: function (p) {
+      return p.clues.map(function (c) { return src(c.img); });
+    },
+    onChange: function (s) {
+      document.getElementById('progress').textContent =
+        s.total ? (s.index + 1) + ' / ' + s.total : '';
+    },
+  });
+
+  document.getElementById('shuffle').addEventListener('click', function (e) {
+    e.stopPropagation();
+    runner.shuffle();
+    this.blur();               // so Space doesn't re-trigger the button
+  });
+
+  document.getElementById('full').addEventListener('click', function (e) {
+    e.stopPropagation();
+    runner.toggleFullscreen();
+    this.blur();
+  });
+}());
+</script>
+
+</body>
+</html>

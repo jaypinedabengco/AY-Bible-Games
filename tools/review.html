@@ -1,0 +1,58 @@
+<!doctype html>
+<!--
+  Review sheet. Renders the real deck.js so what you approve is what ships.
+  Open it in a browser, or screenshot it, to sanity-check every puzzle at once.
+-->
+<html>
+<head>
+<meta charset="utf-8">
+<title>Bible Names - deck review</title>
+<style>
+  :root { --ink:#2E3440; --card:#FBF3E4; --bg:#1B2030; --gold:#E5B23C; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:#F7F3EA;
+         font-family: -apple-system, "Segoe UI", Roboto, sans-serif; padding:20px; }
+  h1 { font-size:26px; margin:0 0 4px; }
+  p.sub { margin:0 0 20px; color:#9AA6BC; font-size:15px; }
+  ol { list-style:none; margin:0; padding:0;
+       display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+  li { background:#262D42; border-radius:14px; padding:14px; }
+  .num { color:#7D8BA8; font-size:13px; font-weight:700; }
+  .row { display:flex; align-items:center; gap:8px; margin:8px 0 10px; }
+  .clue { background:var(--card); border-radius:11px; width:88px; height:88px;
+          display:flex; align-items:center; justify-content:center; flex:0 0 auto; }
+  .clue img { width:100%; height:100%; }
+  .plus { font-size:26px; color:#7D8BA8; font-weight:700; }
+  .work { font-size:14px; color:var(--gold); letter-spacing:.06em; font-weight:700; }
+  .ans { font-size:27px; font-weight:800; letter-spacing:.03em; margin-top:2px; }
+  .ref { font-size:13px; color:#9AA6BC; }
+  .flag { display:inline-block; margin-top:7px; font-size:11px; font-weight:700;
+          padding:3px 9px; border-radius:99px; background:#5A3A2E; color:#F0B49C; }
+</style>
+</head>
+<body>
+  <h1>Bible Names &mdash; deck review</h1>
+  <p class="sub">Rendered from <code>games/names/deck.js</code>. Flagged puzzles are the ones I am least sure about.</p>
+  <ol id="list"></ol>
+
+  <script src="../games/names/deck.js"></script>
+  <script>
+    const list = document.getElementById('list');
+    window.NAME_PUZZLES.forEach((p, i) => {
+      const clues = p.clues.map(c =>
+        `<div class="clue"><img src="../games/names/clues/${c.img}" alt=""></div>`
+      ).join('<span class="plus">+</span>');
+      const work = p.clues.map(c => c.word).join(' + ');
+      list.insertAdjacentHTML('beforeend', `
+        <li>
+          <div class="num">${String(i + 1).padStart(2, '0')}</div>
+          <div class="row">${clues}</div>
+          <div class="work">${work}</div>
+          <div class="ans">${p.answer}</div>
+          <div class="ref">${p.ref}</div>
+          ${p.flag ? `<div class="flag">${p.flag.toUpperCase()}</div>` : ''}
+        </li>`);
+    });
+  </script>
+</body>
+</html>

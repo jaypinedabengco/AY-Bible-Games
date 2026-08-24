@@ -1,0 +1,3 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400" preserveAspectRatio="xMidYMid meet">
+<rect x="48" y="66" width="304" height="268" rx="14" fill="#F7F3EA" stroke="#A9B2BC" stroke-width="8"/><path d="M96,264 Q148,146 200,232 Q252,314 300,176" fill="none" stroke="#3E7F97" stroke-width="15" stroke-linecap="round"/><g transform="translate(286 196) rotate(42)"><polygon points="-16,0 16,0 16,150 -16,150" fill="#E5B23C"/><polygon points="-16,150 16,150 0,196" fill="#F2D2C2"/><polygon points="-6,178 6,178 0,196" fill="#2E3440"/><rect x="-16" y="-40" width="32" height="40" rx="6" fill="#C1523C"/><rect x="-16" y="-4" width="32" height="12" fill="#87919C"/></g>
+</svg>
