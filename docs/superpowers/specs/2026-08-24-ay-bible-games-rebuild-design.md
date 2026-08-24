@@ -61,7 +61,7 @@ Each of these is a bug someone would otherwise hit on a Sunday morning.
 | Deck data is a `.js` global | Same reason. `deck.js` assigns `window.DECK` |
 | Every asset path relative | Pages serves from `/AY-Bible-Games/`. One root-absolute path 404s only after publishing |
 | Missing image → loud placeholder | You catch it at setup, not mid-service |
-| No auto-shuffle | Fixed order so the host can rehearse. `R` shuffles on demand |
+| Randomised by default | The deck must not feel the same twice — see §6.1. `review.html` covers rehearsal, so fixed order is no longer the price of it |
 | Reveal has beats | The working line before the answer, so whoever missed the pun still learns why it worked |
 
 Also retained: `.nojekyll`, so Pages does not try to treat the site as a blog.
@@ -126,12 +126,43 @@ the next stage; advancing past `stagesFor(item)` moves to the next item at stage
 0. `back` walks the same path in reverse. This single counter is what lets one
 engine serve every game format below.
 
-**Controls.** `Space` / click advance · `←` back · `R` shuffle · `F` fullscreen ·
-`Home` restart · `Esc` leave fullscreen. Nothing else is bound, because a
-mis-key in front of a room is worse than a missing feature.
+**Controls.** `Space` / click advance · `←` back · `R` reshuffle · `O` original
+order · `F` fullscreen · `Home` restart · `Esc` leave fullscreen. Nothing else
+is bound, because a mis-key in front of a room is worse than a missing feature.
 
 **Preload.** The next item's images are fetched during the current puzzle, so a
 reveal never waits on a decode.
+
+## 6.1 Randomisation
+
+The previous build shipped a fixed order, reasoning that the host needed to
+rehearse. That reasoning is superseded: `tools/review.html` shows the whole deck
+on one screen, so the host rehearses the **deck** rather than an order. Which
+frees the running order to be random — and it should be, or the second Sunday is
+the first Sunday again.
+
+Three separate settings, because they solve different problems:
+
+**`shuffle: true`** (default) — the running order is randomised on load. `R`
+reshuffles mid-game; `O` drops back to deck order for rehearsal.
+
+**`sessionSize: 15`** — draw *fifteen of thirty-six* rather than reordering all
+thirty-six. This is the setting that actually makes the game feel new: a
+reshuffle of the whole deck is the same puzzles in a new order, whereas a subset
+draw is a different game. Omit it to play the whole deck.
+
+**`difficulty: 1 | 2 | 3`** per puzzle — because pure randomness will eventually
+open the night with HABAKKUK and lose the room in the first thirty seconds. The
+engine shuffles *within* difficulty bands and plays them in ascending order, so
+the ramp survives randomisation: a few gentle ones, then the hard ones once the
+room has warmed up. Puzzles with no `difficulty` default to 2.
+
+**Repeat avoidance is deliberately out of scope.** Remembering which puzzles ran
+last month needs persistence, and `localStorage` is unreliable under `file://` —
+Chrome gives file pages an opaque origin, so it can throw or silently share
+state between unrelated folders. A subset draw over 36 puzzles already makes an
+identical night unlikely, and a host who wants control has `O` and the deck
+file. Revisit only if repeats actually become a complaint.
 
 ## 7. Renderers
 
@@ -280,10 +311,12 @@ over. For a book-names game the reference teaches canon placement instead:
 
 ```js
 window.DECK = {
-  id:        'book-names',
-  title:     'Bible Book Names',
-  imageDirs: ['images-local/', 'images/'],
-  puzzles:   [ /* ... in play order ... */ ],
+  id:          'book-names',
+  title:       'Bible Book Names',
+  imageDirs:   ['images-local/', 'images/'],
+  shuffle:     true,   // randomise running order on load
+  sessionSize: 15,     // draw this many; omit to play the whole deck
+  puzzles:     [ /* ... in deck order; `O` restores it ... */ ],
 };
 ```
 
@@ -325,7 +358,8 @@ old handover's loudest warning was that nobody had playtested the puns.
    answers; `order.correct` is a permutation of `order.items`. A `localOnly`
    puzzle with no image in `images-local/` reports as **skipped, not failed**,
    and the validator prints the resulting deck size so a silent drop is still
-   visible.
+   visible. `difficulty` must be 1, 2 or 3 where present, and `sessionSize`
+   must not exceed the number of playable puzzles.
 2. `tools/review.html` — the whole deck with artwork on one screen, reading the
    real `deck.js`, so it cannot drift from the game.
 3. Headless render pass at 1280×760 and 390×700, over both `file://` and
