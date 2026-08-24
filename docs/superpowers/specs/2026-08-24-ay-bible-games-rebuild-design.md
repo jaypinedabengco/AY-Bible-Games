@@ -318,11 +318,11 @@ deck** rather than rendering a placeholder. Consequences:
 This is a different behaviour from an ordinary missing image, which *should*
 shout at you — a `localOnly` puzzle is absent by design, so silence is correct.
 
-**Two things this needs from you.** Ask Ruth first; a face on a projector in
-front of the congregation is hers to agree to, not ours to assume. And note the
-validator's no-duplicate-answers rule means RUTH is *either* the cameo *or* the
-`root` rebus, not both — `root` stays documented in Appendix A as the committed
-alternative if you would rather the public deck keep a Ruth puzzle.
+**One thing this needs from you.** Ask Ruth first; a face on a projector in
+front of the congregation is hers to agree to, not ours to assume.
+
+RUTH does not have to choose between the cameo and the `root` rebus — see §10.1,
+which lets one puzzle carry both pictures and pick between them per session.
 
 The cameo trick generalises. Book names that double as ordinary first names:
 **Esther, Daniel, Samuel, Mark, John, James, Job, Timothy, Titus.** Any member
@@ -381,6 +381,59 @@ window.GAMES = [
 
 `status: 'parked'` renders greyed out and unclickable. Future games from the
 roadmap appear parked from day one, so the front page shows where this is going.
+
+## 10.1 Variants — more than one picture per answer
+
+Sometimes RUTH should be the member photo and sometimes the `root` rebus. Not as
+two puzzles — the answer is the same, and two puzzles with one answer is the
+duplicate the validator exists to catch. As **one puzzle with two variants**, and
+the engine picks one per session:
+
+```js
+{
+  answer: 'RUTH', answerAlt: 'Ruth', slot: 'late',
+  ref: { testament: 'Old', division: 'Historical', position: 8 },
+  variants: [
+    { type: 'image', img: 'ruth-member.jpg', localOnly: true, weight: 2 },
+    { type: 'rebus', clues: [{ img: 'root.jpg', word: 'ROOT' }] },
+  ],
+}
+```
+
+**The model, stated once:** every puzzle has one or more variants. A puzzle
+written without a `variants` array *is* a puzzle with exactly one — so every
+deck entry elsewhere in this document stays valid, and there is only one code
+path.
+
+What lives where: `answer`, `answerAlt`, `ref`, `slot`, and `lang` belong to the
+**puzzle**, because they describe the thing being guessed. `type`, `clues`,
+`img`, `localOnly`, `flag`, and optionally `difficulty` belong to the
+**variant**, because they describe how it is asked this time.
+
+### Selection
+
+1. Drop variants whose images do not resolve. A `localOnly` variant is absent
+   from the public repo, so the public deck simply plays `root`.
+2. If no variant survives, drop the puzzle — §8.1's rule, now generalised.
+3. Pick one of the survivors at random. `weight` biases the draw; default 1, so
+   `weight: 2` on the cameo makes Ruth twice as likely as the root.
+
+`difficulty` falls back to the puzzle's, then to 2 — a member's face is an
+easier puzzle than a root, and a variant may say so.
+
+### Why this matters beyond Ruth
+
+This is the strongest answer to *"the game shouldn't feel the same"* — stronger
+than reshuffling, and stronger than a subset draw. Those change the **order** and
+the **selection**; variants change the **puzzle itself**. A room that has seen
+ADAM as `A + dam` twice can meet it as an atom diagram the third time and have to
+think again.
+
+For now only RUTH gets variants. The mechanism is deck data, so adding a second
+picture to any puzzle later needs no code.
+
+`tools/review.html` shows every variant of every puzzle, not just the one a
+given session happened to draw.
 
 ## 11. Game 1 content
 
@@ -466,7 +519,11 @@ not automatically harder, and each is banded on its own merits.
    visible. `difficulty` must be 1, 2 or 3 where present; `sessionSize` must not
    exceed the number of playable puzzles; and no `slot` zone may be
    over-subscribed at the configured `sessionSize` — checked against the
-   smallest session the deck permits, not just the configured one.
+   smallest session the deck permits, not just the configured one. Every
+   **variant** is checked for the fields its own `type` requires, and a puzzle
+   whose only variants are `localOnly` reports as **public-invisible** — not an
+   error, but printed, so shipping a puzzle no visitor can ever see is a
+   decision rather than an accident.
 2. `tools/review.html` — the whole deck with artwork on one screen, reading the
    real `deck.js`, so it cannot drift from the game.
 3. Headless render pass at 1280×760 and 390×700, over both `file://` and
@@ -529,7 +586,7 @@ Confidence is my own read, not tested on anyone. **Status** tracks review:
 
 | Book | Clues | Confidence | Status |
 |---|---|---|---|
-| RUTH | photo of a church member named Ruth (§8.1) | solid, `localOnly` + `slot: 'late'` | in |
+| RUTH | 2 variants (§10.1): member photo `localOnly` `weight: 2`, or root | solid, `slot: 'late'` | in |
 | DANIEL | done + yell | solid | in |
 | SAMUEL | sum + well | solid | in |
 | ESTHER | S + tear | solid | in |
