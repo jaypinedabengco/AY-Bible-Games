@@ -1,7 +1,9 @@
 # Image credits
 
-Every committed image needs a row here. Copyrighted images are never committed —
-they belong in a gitignored `games/*/images-local/` folder. See spec §8.
+Every committed image needs a row here. Every clue picture in this project is
+committed; there is no private image tier (see spec §8.1). Two files are
+supplied by hand rather than sourced — `jerry.png`, and `ruth-member.jpg` if the
+cameo is ever enabled — and they need rows here too.
 
 | File | Source | Author | Licence |
 |---|---|---|---|
