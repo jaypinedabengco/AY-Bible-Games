@@ -53,6 +53,16 @@ test('variant difficulty falls back to the puzzle then to 2', () => {
   assert.equal(bare.variants[0].difficulty, 2);
 });
 
+test('an empty clues array survives normalization', () => {
+  const p = normalizePuzzle({ answer: 'X', type: 'rebus', clues: [] });
+  assert.deepEqual(p.variants[0].clues, []);
+});
+
+test('an absent clues key becomes null', () => {
+  const p = normalizePuzzle({ answer: 'Y', type: 'image', img: 'y.jpg' });
+  assert.equal(p.variants[0].clues, null);
+});
+
 test('deck defaults are applied', () => {
   const d = normalizeDeck({ id: 'book-names', title: 'Bible Book Names', puzzles: [] });
   assert.deepEqual(d.imageDirs, ['images/']);
