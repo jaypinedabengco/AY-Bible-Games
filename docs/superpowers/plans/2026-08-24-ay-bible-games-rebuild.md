@@ -21,7 +21,7 @@ Every task's requirements implicitly include this section. Values are copied ver
   `(function (root) { ... })(typeof globalThis !== 'undefined' ? globalThis : window);`
   In a browser `globalThis === window`, so `window.BibleGames` works; under Node the same file attaches to `globalThis.BibleGames` with no shim.
 - **Every asset path relative.** Never `/core/theme.css` — GitHub Pages serves this from `/AY-Bible-Games/` and a root-absolute path 404s only after publishing.
-- **A missing image shows a visible placeholder**, never a blank card — except a `localOnly` variant, whose absence is by design and must be silent.
+- **A missing image always shows a visible placeholder**, never a blank card and never a silently dropped puzzle. The site is published, so a puzzle that vanishes online is harder to notice than one that shouts.
 - **Controls, and nothing else:** `Space` / click advance · `←` back · `R` reshuffle · `O` original order · `F` fullscreen · `Home` restart · `Esc` leave fullscreen. A mis-key in front of a room is worse than a missing feature.
 - **`slot` is a hard constraint; `difficulty` is a preference.** Zones are fractional thirds of the running order. A pinned puzzle is always drawn into the session.
 - **`difficulty`** is 1, 2 or 3; default 2.
@@ -29,7 +29,7 @@ Every task's requirements implicitly include this section. Values are copied ver
 - **Every card carries a visible language badge**, taken from the puzzle's `lang` (`'en'` → "English", `'fil'` → "Filipino").
 - **Reference format:** `Old Testament · Major Prophets · book 24 of 66`.
 - **Page title:** `San Fernando AY Church — AY Bible Games`.
-- **No copyrighted image is ever committed.** `games/*/images-local/` is gitignored. Every committed image gets a row in `CREDITS.md`.
+- **Every clue picture is committed to `games/book-names/images/`.** There is no private image tier — see spec §8.1. Every committed image gets a row in `CREDITS.md`. Two files are supplied by hand rather than sourced (`jerry.png`, and `ruth-member.jpg` only if the cameo is ever enabled); until then JEREMIAH shows a placeholder on its first clue, which is intended.
 - **Tests:** `node --test tests/`, Node 18+, zero dependencies. `package.json` exists only to hold the test script; the game must never need it.
 
 ---
@@ -186,7 +186,7 @@ git commit -m "Add test harness and repo skeleton"
 - Produces: `BibleGames.normalize` with:
   - `normalizePuzzle(puzzle) -> {answer, answerAlt, lang, ref, slot, difficulty, variants: Variant[]}`
   - `normalizeDeck(deck) -> {id, title, imageDirs, shuffle, sessionSize, languages, puzzles}`
-  - `Variant` is `{type, clues, img, prompt, options, items, correct, localOnly, flag, weight, difficulty}` with every key always present (`null` when absent).
+  - `Variant` is `{type, clues, img, prompt, options, items, correct, flag, weight, difficulty}` with every key always present (`null` when absent).
 
 Every later task consumes normalized shapes and may assume defaults are already applied.
 
@@ -223,15 +223,14 @@ test('explicit variants are preserved and defaulted', () => {
   const p = normalizePuzzle({
     answer: 'RUTH', slot: 'late',
     variants: [
-      { type: 'image', img: 'ruth-member.jpg', localOnly: true, weight: 2 },
+      { type: 'image', img: 'ruth-member.jpg', weight: 2 },
       { type: 'rebus', clues: [{ img: 'root.jpg', word: 'ROOT' }] },
     ],
   });
   assert.equal(p.variants.length, 2);
-  assert.equal(p.variants[0].localOnly, true);
   assert.equal(p.variants[0].weight, 2);
-  assert.equal(p.variants[1].localOnly, false);
   assert.equal(p.variants[1].weight, 1);
+  assert.equal(p.variants[1].img, null);
   assert.equal(p.slot, 'late');
 });
 
@@ -285,7 +284,7 @@ Create `core/normalize.js`:
   'use strict';
 
   var VARIANT_KEYS = ['type', 'clues', 'img', 'prompt', 'options', 'items',
-                      'correct', 'localOnly', 'flag', 'weight', 'difficulty'];
+                      'correct', 'flag', 'weight', 'difficulty'];
 
   function normalizeVariant(v, puzzleDifficulty) {
     return {
@@ -296,7 +295,6 @@ Create `core/normalize.js`:
       options: v.options || null,
       items: v.items || null,
       correct: v.correct || null,
-      localOnly: v.localOnly === true,
       flag: v.flag || null,
       weight: v.weight === undefined ? 1 : v.weight,
       difficulty: v.difficulty || puzzleDifficulty || 2,
@@ -354,10 +352,48 @@ Create `core/normalize.js`:
 Run: `node --test tests/normalize.test.js`
 Expected: PASS, 6 tests.
 
-- [ ] **Step 5: Commit**
+- [ ] **Step 5: Retire the obsolete gitignore rule**
+
+Task 1 added `games/*/images-local/` to `.gitignore` under an earlier design that
+kept some clue pictures out of the repo. That design is withdrawn — the site is
+published to GitHub Pages, which deploys only what is committed, so a gitignored
+image would simply be absent from the published game. Every picture is now
+committed.
+
+Delete that one line from `.gitignore`, leaving:
+
+```
+.DS_Store
+node_modules/
+_scratch/
+```
+
+Leaving a rule that ignores a directory nothing writes to would mislead the next
+person into thinking a private image tier exists.
+
+For the same reason, correct `CREDITS.md`'s preamble — Task 1 wrote it under the
+old design. Replace its two prose lines with:
+
+```markdown
+# Image credits
+
+Every committed image needs a row here. Every clue picture in this project is
+committed; there is no private image tier (see spec §8.1). Two files are
+supplied by hand rather than sourced — `jerry.png`, and `ruth-member.jpg` if the
+cameo is ever enabled — and they need rows here too.
+```
+
+Leave the table header and any existing rows untouched.
+
+- [ ] **Step 6: Run the whole suite**
+
+Run: `node --test tests/`
+Expected: PASS — Task 1's tests and this task's, all green.
+
+- [ ] **Step 7: Commit**
 
 ```bash
-git add core/normalize.js tests/normalize.test.js
+git add core/normalize.js tests/normalize.test.js .gitignore
 git commit -m "Add deck and puzzle normalization"
 ```
 
@@ -375,6 +411,10 @@ git commit -m "Add deck and puzzle normalization"
   - `eligible(puzzle, isAvailable) -> Variant[]` where `isAvailable(variant) -> boolean`
   - `pick(variants, rng) -> Variant | null`, `rng` returning `[0, 1)`
 
+`pick` deliberately consumes one `rng` draw even for a single-variant puzzle. Do
+not special-case length 1 to save the draw: determinism is only needed within a
+run, never across deck edits, and the uniform path is easier to reason about.
+
 - [ ] **Step 1: Write the failing test**
 
 Create `tests/variants.test.js`:
@@ -391,30 +431,47 @@ const { eligible, pick } = globalThis.BibleGames.variants;
 const ruth = () => normalizePuzzle({
   answer: 'RUTH', slot: 'late',
   variants: [
-    { type: 'image', img: 'ruth-member.jpg', localOnly: true, weight: 2 },
+    { type: 'image', img: 'ruth-member.jpg', weight: 2 },
     { type: 'rebus', clues: [{ img: 'root.jpg', word: 'ROOT' }] },
   ],
 });
 
-test('an unavailable variant is dropped', () => {
-  const got = eligible(ruth(), (v) => !v.localOnly);
+// In production isAvailable means "every picture this variant names resolved".
+// Here we fake that by naming which files are missing.
+const without = (...missing) => (v) => {
+  const names = v.clues ? v.clues.map((c) => c.img) : (v.img ? [v.img] : []);
+  return names.every((n) => !missing.includes(n));
+};
+
+test('a variant whose picture is missing is dropped', () => {
+  const got = eligible(ruth(), without('ruth-member.jpg'));
   assert.equal(got.length, 1);
   assert.equal(got[0].type, 'rebus');
 });
 
-test('all variants survive when everything is available', () => {
-  assert.equal(eligible(ruth(), () => true).length, 2);
+test('all variants survive when every picture resolved', () => {
+  assert.equal(eligible(ruth(), without()).length, 2);
+});
+
+test('a variant is dropped when any one of its clues is missing', () => {
+  const acts = normalizePuzzle({
+    answer: 'ACTS',
+    clues: [{ img: 'axe.jpg', word: 'AXE' }, { img: 'letter-s.jpg', word: 'S' }],
+  });
+  assert.deepEqual(eligible(acts, without('letter-s.jpg')), []);
+});
+
+test('a variant needing no picture is always available', () => {
+  const verse = normalizePuzzle({ answer: 'X', type: 'text', prompt: 'a ___' });
+  assert.equal(eligible(verse, without('anything.jpg')).length, 1);
 });
 
 test('a puzzle with no surviving variant yields an empty list', () => {
-  const onlyLocal = normalizePuzzle({
-    answer: 'RUTH', variants: [{ type: 'image', img: 'r.jpg', localOnly: true }],
-  });
-  assert.deepEqual(eligible(onlyLocal, (v) => !v.localOnly), []);
+  assert.deepEqual(eligible(ruth(), without('ruth-member.jpg', 'root.jpg')), []);
 });
 
 test('weight biases the pick', () => {
-  const vs = eligible(ruth(), () => true);   // weights 2 and 1, total 3
+  const vs = eligible(ruth(), without());   // weights 2 and 1, total 3
   assert.equal(pick(vs, () => 0.1).type, 'image');  // 0.3 lands in the first
   assert.equal(pick(vs, () => 0.9).type, 'rebus');  // 2.7 lands in the second
 });
@@ -424,7 +481,7 @@ test('pick returns null for an empty list', () => {
 });
 
 test('pick is safe at the top of the range', () => {
-  const vs = eligible(ruth(), () => true);
+  const vs = eligible(ruth(), without());
   assert.ok(pick(vs, () => 0.999999) !== null);
 });
 ```
@@ -442,10 +499,13 @@ Create `core/variants.js`:
 /*
  * Variant eligibility and selection.
  *
- * A puzzle can carry several pictures for one answer - Ruth is a church
- * member's photo one week and a root the next. localOnly variants are
- * absent from the public repo, so eligibility is decided per session
- * against whichever images actually resolved.
+ * A puzzle can carry several pictures for one answer, and one is drawn per
+ * session - which is what stops a deck feeling identical week to week.
+ *
+ * A variant is only eligible if every picture it names actually resolved, so
+ * a puzzle with a working alternative uses it instead of showing a
+ * placeholder. Deciding what to do when NOTHING resolves is boot.js's job,
+ * not this module's: see Task 10.
  */
 (function (root) {
   'use strict';
@@ -1209,11 +1269,11 @@ const assert = require('node:assert/strict');
 require('../core/images.js');
 const { candidates, makeResolver } = globalThis.BibleGames.images;
 
-const DIRS = ['images-local/', 'images/'];
+const DIRS = ['override/', 'images/'];   // generic: the resolver takes any ordered list
 
 test('a bare filename becomes one candidate per directory, in order', () => {
   assert.deepEqual(candidates('jerry.png', DIRS),
-    ['images-local/jerry.png', 'images/jerry.png']);
+    ['override/jerry.png', 'images/jerry.png']);
 });
 
 test('a full URL or data URI is its own only candidate', () => {
@@ -1223,9 +1283,9 @@ test('a full URL or data URI is its own only candidate', () => {
     ['data:image/png;base64,AAA']);
 });
 
-test('the local directory wins when both exist', async () => {
+test('the earlier directory wins when both exist', async () => {
   const resolve = makeResolver(DIRS, () => Promise.resolve(true));
-  assert.equal(await resolve('jerry.png'), 'images-local/jerry.png');
+  assert.equal(await resolve('jerry.png'), 'override/jerry.png');
 });
 
 test('resolution falls through to the committed directory', async () => {
@@ -1253,7 +1313,7 @@ test('candidates are tried in order, not in parallel', async () => {
   const seen = [];
   const load = (url) => { seen.push(url); return Promise.resolve(url.startsWith('images/')); };
   await makeResolver(DIRS, load)('root.jpg');
-  assert.deepEqual(seen, ['images-local/root.jpg', 'images/root.jpg']);
+  assert.deepEqual(seen, ['override/root.jpg', 'images/root.jpg']);
 });
 ```
 
@@ -1270,13 +1330,15 @@ Create `core/images.js`:
 /*
  * Finding a picture.
  *
- * `img: 'jerry.png'` resolves through the deck's imageDirs in order:
+ * `img: 'whale.jpg'` resolves through the deck's imageDirs in order, falling
+ * through on load failure and ending at null:
  *
- *     images-local/jerry.png  ->  images/jerry.png  ->  null
+ *     images/whale.jpg  ->  null
  *
- * So a local copy shows the real Jerry (images-local/ is gitignored and
- * wins), the public repo ships a safe committed stand-in, and a genuinely
- * missing file resolves to null so paint.js can show a loud placeholder.
+ * The shipped deck lists one directory, but the chain stays ordered and
+ * generic because that costs nothing. A file that is in no directory
+ * resolves to null, so paint.js shows a loud placeholder rather than a
+ * blank card.
  *
  * `load` is injected rather than hard-wired to Image, which lets the whole
  * chain be tested under node with a fake loader.
@@ -1717,7 +1779,7 @@ git commit -m "Add key-to-action table and control wiring"
 **Interfaces:**
 - Consumes: everything from Tasks 2–9.
 - Produces: `BibleGames.boot` with:
-  - `buildSession(deck, resolve, rng) -> Promise<{items, srcFor, order}>` — the testable half: normalizes, filters by language, resolves every image, drops puzzles with no eligible variant, picks one variant each, and builds the running order. `items` are `{puzzle, variant}` pairs.
+  - `buildSession(deck, resolve, rng) -> Promise<{deck, items, srcFor}>` — the testable half: normalizes, filters by language, resolves every image, picks one eligible variant per puzzle, and builds the running order. `items` are `{puzzle, variant}` pairs. A puzzle whose variants *all* have missing pictures keeps its first variant rather than being dropped, so the card renders a placeholder instead of vanishing.
   - `start(deck, host) -> Promise<void>` — the browser half: calls `buildSession` with the real resolver, wires the machine, painter and controls.
 
 Splitting `buildSession` out is what makes session assembly — the part with all the rules in it — testable without a DOM.
@@ -1740,15 +1802,14 @@ require('../core/images.js');
 require('../core/boot.js');
 const { buildSession } = globalThis.BibleGames.boot;
 
-// resolve everything except files under images-local/
-const publicResolve = (name) =>
-  Promise.resolve(name === 'ruth-member.jpg' ? null : 'images/' + name);
-const localResolve = (name) =>
-  Promise.resolve(name === 'ruth-member.jpg' ? 'images-local/' + name : 'images/' + name);
+// A resolver that finds everything except the names given.
+const resolverWithout = (...missing) => (name) =>
+  Promise.resolve(missing.includes(name) ? null : 'images/' + name);
+const allPresent = resolverWithout();
 
 const deck = () => ({
   id: 'book-names',
-  imageDirs: ['images-local/', 'images/'],
+  imageDirs: ['images/'],
   languages: ['en'],
   puzzles: [
     { answer: 'JONAH', type: 'image', img: 'whale.jpg', difficulty: 1 },
@@ -1756,51 +1817,51 @@ const deck = () => ({
     {
       answer: 'RUTH', slot: 'late',
       variants: [
-        { type: 'image', img: 'ruth-member.jpg', localOnly: true, weight: 2 },
+        { type: 'image', img: 'ruth-member.jpg', weight: 2 },
         { type: 'rebus', clues: [{ img: 'root.jpg', word: 'ROOT' }] },
       ],
     },
   ],
 });
 
-test('the public build falls back to the root variant', async () => {
-  const s = await buildSession(deck(), publicResolve, seeded(1));
+test('a variant with a missing picture is skipped for one that resolves', async () => {
+  const s = await buildSession(deck(), resolverWithout('ruth-member.jpg'), seeded(1));
   const ruth = s.items.find((i) => i.puzzle.answer === 'RUTH');
   assert.equal(ruth.variant.type, 'rebus');
 });
 
-test('the local build can draw the cameo', async () => {
-  let sawCameo = false;
+test('the weighted variant does get drawn when its picture is present', async () => {
+  let sawImage = false;
   for (let seed = 1; seed <= 30; seed++) {
-    const s = await buildSession(deck(), localResolve, seeded(seed));
+    const s = await buildSession(deck(), allPresent, seeded(seed));
     const ruth = s.items.find((i) => i.puzzle.answer === 'RUTH');
-    if (ruth.variant.localOnly) { sawCameo = true; break; }
+    if (ruth.variant.type === 'image') { sawImage = true; break; }
   }
-  assert.ok(sawCameo, 'weighted cameo never drawn across 30 seeds');
+  assert.ok(sawImage, 'weighted variant never drawn across 30 seeds');
 });
 
-test('a puzzle whose every variant is missing is dropped silently', async () => {
-  const d = deck();
-  d.puzzles.push({
-    answer: 'GHOST', type: 'image', img: 'ruth-member.jpg', localOnly: true,
-  });
-  const s = await buildSession(d, publicResolve, seeded(2));
-  assert.equal(s.items.some((i) => i.puzzle.answer === 'GHOST'), false);
+test('a puzzle whose every picture is missing is kept, not dropped', async () => {
+  // Silence would hide a missing file, and the site is published - a gap
+  // online is harder to notice than a placeholder.
+  const s = await buildSession(deck(), resolverWithout('whale.jpg'), seeded(2));
+  const jonah = s.items.find((i) => i.puzzle.answer === 'JONAH');
+  assert.ok(jonah, 'JONAH was dropped instead of showing a placeholder');
+  assert.equal(s.srcFor('whale.jpg'), null);
 });
 
 test('languages filters the pool', async () => {
   const d = deck();
   d.puzzles.push({ answer: 'HARI', lang: 'fil', type: 'image', img: 'crown.jpg' });
-  const en = await buildSession(d, publicResolve, seeded(3));
+  const en = await buildSession(d, allPresent, seeded(3));
   assert.equal(en.items.some((i) => i.puzzle.answer === 'HARI'), false);
 
   d.languages = ['en', 'fil'];
-  const both = await buildSession(d, publicResolve, seeded(3));
+  const both = await buildSession(d, allPresent, seeded(3));
   assert.equal(both.items.some((i) => i.puzzle.answer === 'HARI'), true);
 });
 
 test('srcFor returns resolved urls and null for the unresolved', async () => {
-  const s = await buildSession(deck(), publicResolve, seeded(4));
+  const s = await buildSession(deck(), resolverWithout('ruth-member.jpg'), seeded(4));
   assert.equal(s.srcFor('whale.jpg'), 'images/whale.jpg');
   assert.equal(s.srcFor('ruth-member.jpg'), null);
 });
@@ -1810,7 +1871,7 @@ test('the pinned puzzle still lands late', async () => {
   for (let i = 0; i < 12; i++) {
     d.puzzles.push({ answer: 'F' + i, type: 'image', img: 'f.jpg' });
   }
-  const s = await buildSession(d, publicResolve, seeded(6));
+  const s = await buildSession(d, allPresent, seeded(6));
   const at = s.items.findIndex((i) => i.puzzle.answer === 'RUTH');
   assert.ok(at >= Math.ceil((s.items.length / 3) * 2), `RUTH landed at ${at} of ${s.items.length}`);
 });
@@ -1832,8 +1893,8 @@ Create `core/boot.js`:
  * buildSession holds all the rules and no DOM, so it can be tested. start()
  * is the thin browser wrapper: real image probing, machine, painter, keys.
  *
- * Every image is resolved up front. That makes localOnly filtering possible
- * (a variant is only eligible if its picture actually exists) and makes
+ * Every image is resolved up front. That is what makes variant eligibility
+ * decidable (a variant is only eligible if its pictures exist) and makes
  * everything after it synchronous, so a reveal never waits on a decode.
  */
 (function (root) {
@@ -1881,8 +1942,12 @@ Create `core/boot.js`:
       var playable = [];
       pool.forEach(function (p) {
         var options = BG.variants.eligible(p, available);
-        var chosen = BG.variants.pick(options, rng);
-        if (chosen) { playable.push({ puzzle: p, variant: chosen }); }
+        // If nothing resolved, keep the first variant anyway so the card
+        // renders a loud placeholder. Dropping the puzzle would hide a
+        // missing file, and this site is published - a silent gap online is
+        // far harder to notice than a red question mark.
+        var chosen = options.length ? BG.variants.pick(options, rng) : p.variants[0];
+        playable.push({ puzzle: p, variant: chosen });
       });
 
       // buildOrder reads slot and difficulty off the puzzle, so pass a view
@@ -1981,7 +2046,7 @@ git commit -m "Add session assembly and browser boot"
 - Consumes: a raw (un-normalized) deck object; normalizes internally via Task 2.
 - Produces: `BibleGames.validate` with `validate(deck) -> {errors: string[], notices: string[], playable: number}`, plus a CLI entry point when run directly.
 
-Errors fail the deck. Notices are printed but pass — a puzzle no visitor can ever see is a decision, not a bug, so it must be *visible* rather than *forbidden*.
+Errors fail the deck. Notices print and pass — a pun flagged `risky` is a decision, not a defect, but it should be in front of you every time you validate, because the spec's loudest warning is that nobody has playtested the puns.
 
 - [ ] **Step 1: Write the failing test**
 
@@ -2093,12 +2158,12 @@ test('an over-subscribed zone is an error', () => {
   assert.match(errs(d), /over-subscribed|late/i);
 });
 
-test('a puzzle with only localOnly variants is a notice, not an error', () => {
+test('a risky flag is a notice, not an error', () => {
   const d = ok();
-  d.puzzles.push({ answer: 'CAMEO', type: 'image', img: 'x.jpg', localOnly: true });
+  d.puzzles.push({ answer: 'LEVITICUS', type: 'image', img: 'x.jpg', flag: 'risky' });
   const r = validate(d);
   assert.deepEqual(r.errors, []);
-  assert.match(r.notices.join(' | '), /public-invisible/i);
+  assert.match(r.notices.join(' | '), /risky/i);
 });
 ```
 
@@ -2117,9 +2182,9 @@ Create `tools/validate.js`:
  *
  *   node tools/validate.js games/book-names/deck.js
  *
- * Errors fail the deck. Notices print and pass: shipping a puzzle no
- * visitor can ever see is a decision, so it has to be visible rather than
- * forbidden.
+ * Errors fail the deck. Notices print and pass: a pun flagged risky is a
+ * decision rather than a defect, but it should be in front of you on every
+ * run, because nobody has playtested these yet.
  */
 (function (root) {
   'use strict';
@@ -2202,9 +2267,11 @@ Create `tools/validate.js`:
 
       p.variants.forEach(function (v, i) { checkVariant(p, v, i, errors); });
 
-      if (p.variants.every(function (v) { return v.localOnly; })) {
-        notices.push('"' + p.answer + '" is public-invisible: every variant is localOnly');
-      }
+      p.variants.forEach(function (v) {
+        if (v.flag === 'risky') {
+          notices.push('"' + p.answer + '" is flagged risky - playtest before a service');
+        }
+      });
     });
 
     var playable = pool.length;
@@ -2339,12 +2406,14 @@ test('the deck is big enough for its session size', () => {
     `${r.playable} playable for sessionSize ${globalThis.DECK.sessionSize}`);
 });
 
-test('Ruth is pinned late and carries both variants', () => {
+test('Ruth ships as the root rebus, cameo not yet enabled', () => {
   const ruth = globalThis.DECK.puzzles.find((p) => p.answer === 'RUTH');
-  assert.equal(ruth.slot, 'late');
-  assert.equal(ruth.variants.length, 2);
-  assert.ok(ruth.variants.some((v) => v.localOnly === true));
-  assert.ok(ruth.variants.some((v) => !v.localOnly));
+  assert.equal(ruth.variants, undefined, 'the cameo should still be commented out');
+  assert.deepEqual(ruth.clues.map((c) => c.word), ['ROOT']);
+});
+
+test('every picture is expected in the one committed directory', () => {
+  assert.deepEqual(globalThis.DECK.imageDirs, ['images/']);
 });
 
 test('every puzzle carries a Filipino name for the reveal', () => {
@@ -2376,10 +2445,14 @@ Create `games/book-names/deck.js`:
  *   lang       which language is being asked; the card says so on screen
  *   slot       pin to a third of the running order. Always drawn.
  *   difficulty 1-3; the running order ramps upward
- *   variants   more than one picture for one answer; one is drawn per session
- *   localOnly  the picture lives in images-local/ and is never committed;
- *              if it is absent the puzzle is dropped, silently and on purpose
- *   flag       a note to yourself: 'risky' or 'local'. The game ignores it.
+ *   variants   more than one picture for one answer; one is drawn per session.
+ *              RUTH below shows the shape, commented out.
+ *   flag       a note to yourself: 'risky' or 'local'. The game ignores it;
+ *              validate.js prints a playtest reminder for 'risky' ones.
+ *
+ * Every picture lives in ./images/ and is committed. There is no private
+ * image tier: this repo publishes to GitHub Pages, which deploys only what
+ * is committed, so a gitignored picture would just be missing online.
  *
  * A .js file assigning a global, not .json: fetch() is blocked on file://,
  * so a JSON deck would work on GitHub Pages and then show a blank screen
@@ -2388,7 +2461,7 @@ Create `games/book-names/deck.js`:
 window.DECK = {
   id: 'book-names',
   title: 'Bible Book Names',
-  imageDirs: ['images-local/', 'images/'],
+  imageDirs: ['images/'],
   shuffle: true,
   sessionSize: 15,
   languages: ['en'],
@@ -2423,14 +2496,24 @@ window.DECK = {
       type: 'image', img: 'gavel.jpg',
     },
     {
-      // The cameo. Late on purpose - it only pays off once the room has
-      // understood the game. See spec 6.2 and 10.1.
-      answer: 'RUTH', answerAlt: 'Ruth', slot: 'late',
+      answer: 'RUTH', answerAlt: 'Ruth', difficulty: 2,
       ref: { testament: 'Old', division: 'Historical', position: 8 },
-      variants: [
-        { type: 'image', img: 'ruth-member.jpg', localOnly: true, weight: 2, difficulty: 1 },
-        { type: 'rebus', clues: [{ img: 'root.jpg', word: 'ROOT' }], difficulty: 2 },
-      ],
+      clues: [{ img: 'root.jpg', word: 'ROOT' }],
+
+      // The church-member cameo is prepared but not enabled. To turn it on:
+      // drop ruth-member.jpg into images/, delete the `clues` and
+      // `difficulty` lines above, and paste these in their place -
+      //
+      //   slot: 'late',
+      //   variants: [
+      //     { type: 'image', img: 'ruth-member.jpg', weight: 2, difficulty: 1 },
+      //     { type: 'rebus', clues: [{ img: 'root.jpg', word: 'ROOT' }], difficulty: 2 },
+      //   ],
+      //
+      // slot: 'late' matters - the cameo only pays off once the room has
+      // understood the game, so it must never land first (spec 6.2).
+      // Ask her first: this site is published to a public URL, which is a
+      // bigger question than a picture on the hall projector.
     },
     {
       answer: 'SAMUEL', answerAlt: '1 Samuel', difficulty: 2,
@@ -2467,14 +2550,12 @@ window.DECK = {
 
     // ---- Major Prophets ------------------------------------------------
     {
-      // Public-invisible by design: Jerry is Warner Bros' character and is
-      // never committed. The validator prints a notice; that is correct.
+      // jerry.png is supplied by hand, not sourced here - it is Warner Bros'
+      // character and this repo publishes publicly. Until it is added, this
+      // card shows a red placeholder on its first clue, which is intended.
       answer: 'JEREMIAH', answerAlt: 'Jeremias', difficulty: 3,
       ref: { testament: 'Old', division: 'Major Prophets', position: 24 },
-      variants: [{
-        type: 'rebus', localOnly: true,
-        clues: [{ img: 'jerry.png', word: 'JERRY' }, { img: 'maya.jpg', word: 'MAYA' }],
-      }],
+      clues: [{ img: 'jerry.png', word: 'JERRY' }, { img: 'maya.jpg', word: 'MAYA' }],
     },
     {
       answer: 'DANIEL', answerAlt: 'Daniel', difficulty: 1,
@@ -2553,7 +2634,7 @@ Run: `node --test tests/deck.test.js`
 Expected: PASS, 4 tests.
 
 Run: `node tools/validate.js games/book-names/deck.js`
-Expected: `playable puzzles: 25`, a `notice:` line for JEREMIAH being public-invisible, then `deck OK`.
+Expected: `playable puzzles: 25`, `notice:` lines for the three puzzles flagged risky (LEVITICUS, LUKE, and any other), then `deck OK`.
 
 - [ ] **Step 5: Write the game page**
 
@@ -2768,7 +2849,6 @@ Create `tools/review.html` — every puzzle and **every variant** on one screen,
         tags.appendChild(tag('d' + v.difficulty));
         tags.appendChild(tag(p.lang === 'fil' ? 'Filipino' : 'English'));
         if (p.slot !== 'anywhere') { tags.appendChild(tag(p.slot)); }
-        if (v.localOnly) { tags.appendChild(tag('local only', 'local')); }
         if (v.flag) { tags.appendChild(tag(v.flag, v.flag)); }
         cell.appendChild(row);
         cell.appendChild(h);
@@ -2837,27 +2917,25 @@ Specifically confirm:
 - A rebus reveals in two beats — working line, then answer with the Filipino name and canon reference.
 - Missing images show the red `?`, not a blank.
 - `R` reshuffles, `O` restores deck order, `←` steps back into the previous puzzle's final stage, `Home` restarts, `F` goes fullscreen.
-- With no `images-local/` folder present, JEREMIAH is absent and RUTH plays the root rebus — silently, with no placeholder card.
+- Any picture not yet sourced shows the red `?` rather than the puzzle disappearing. In particular JEREMIAH shows a placeholder on its `jerry.png` clue and still plays.
 
-- [ ] **Step 3: Check the local-override path**
+- [ ] **Step 3: Check the missing-picture path deliberately**
 
-```bash
-mkdir -p games/book-names/images-local
-```
+Temporarily rename one sourced image aside, reload, and confirm the card shows the red `?` and the puzzle **still plays** — it must not disappear from the deck. Put the file back.
 
-Drop any image in as `ruth-member.jpg`, reload several times, and confirm RUTH sometimes shows that picture instead of the root — and that it never appears in the first two thirds of the running order.
+This is the behaviour the published site depends on: a picture that failed to deploy has to be visible as a broken card, not as a puzzle that quietly never appears.
 
-Then confirm it is not tracked:
+Then confirm nothing untracked is lurking in the image directory:
 
 ```bash
-git status --short games/book-names/images-local
+git status --short games/book-names/
 ```
 
-Expected: no output. If the file shows up, `.gitignore` is wrong — stop and fix it before committing anything.
+Expected: no output once the images are committed. Anything listed here is a picture the published site will not have.
 
 - [ ] **Step 4: Rewrite `README.md`**
 
-This is the host-facing document. It covers, and only covers: what the game is; how to open it; the controls; how to edit `deck.js` (all the field meanings, with the `variants` and `localOnly` examples); how to add your own pictures and why local files beat URLs; the Google Images thumbnail warning; the note that cartoon characters and mascots belong to somebody and a public repo is not a church hall; publishing to Pages and why every path is relative; and what is in each directory.
+This is the host-facing document. It covers, and only covers: what the game is; how to open it; the controls; how to edit `deck.js` (all the field meanings, including the commented-out `variants` cameo on RUTH); how to add your own pictures and why a committed file beats a URL; the Google Images thumbnail warning; the note that cartoon characters and mascots belong to somebody and that this repo publishes publicly, so `jerry.png` is a deliberate choice rather than an oversight; publishing to Pages and why every path is relative; and what is in each directory.
 
 Do not document the engine's internals here. That is what the spec is for.
 
@@ -2908,7 +2986,7 @@ Neither is a checkbox anyone else can tick for you. Do them before the deck meet
 | §6.2 slot zones, pinned always drawn | Task 4 |
 | §7 five renderers | Task 6 (views) + Task 8 (paint) |
 | §8 fallback chain, gitignore, sourcing | Tasks 1, 7; sourcing worklist from Task 13 Step 1 |
-| §8.1 localOnly | Tasks 3, 10 |
+| §8.1 no private image tier; a missing picture always shows | Tasks 2, 3, 10, 12 |
 | §9 reference format | Task 6 |
 | §10 deck format | Tasks 2, 12 |
 | §10.1 variants | Tasks 3, 10, 12 |
@@ -2918,7 +2996,7 @@ Neither is a checkbox anyone else can tick for you. Do them before the deck meet
 | §13 milestones | Task order |
 | §14 future games | `games.js` parked entries (Task 12) |
 
-**One deliberate divergence.** The spec's §6 describes preloading the *next* item's images during the current puzzle. Task 10 resolves every image up front instead, because `localOnly` eligibility has to be known before the running order exists — a variant cannot be picked without knowing whether its picture is there. Up-front resolution satisfies the intent (no reveal ever waits on a decode) with less machinery, and it is why `srcFor` is synchronous. Decks are tens of images, not thousands.
+**One deliberate divergence.** The spec's §6 describes preloading the *next* item's images during the current puzzle. Task 10 resolves every image up front instead, because variant eligibility has to be known before the running order exists — a variant cannot be picked without knowing whether its pictures are there. Up-front resolution satisfies the intent (no reveal ever waits on a decode) with less machinery, and it is why `srcFor` is synchronous. Decks are tens of images, not thousands.
 
 **Two gaps, both stated rather than hidden.** `core/paint.js` has no Node unit test — a DOM implementation is a worse trade than Task 13's browser pass, and paint is kept decision-free so that the untested part is only drawing. `core/controls.js` has its key table tested but not its DOM wiring, covered the same way.
 

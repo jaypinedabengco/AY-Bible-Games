@@ -80,8 +80,7 @@ core/
 games/book-names/
   index.html
   deck.js                the puzzles — the only file a host edits
-  images/                committed: public-domain and free-stock
-  images-local/          gitignored: copyrighted cartoon images
+  images/                every clue picture — all committed
 tools/
   review.html            whole deck on one screen, reads the real deck.js
   validate.js            deck sanity check, runs under node
@@ -173,9 +172,13 @@ with it wastes it.
 So a puzzle may pin itself to a zone of the running order:
 
 ```js
-{ type: 'image', answer: 'RUTH', img: 'ruth.jpg',
-  localOnly: true, slot: 'late', difficulty: 1 }
+{ type: 'image', answer: 'RUTH', img: 'ruth-member.jpg',
+  slot: 'late', difficulty: 1 }
 ```
+
+**The cameo itself is deferred** — RUTH ships as the `root` rebus for now (see
+§10.1). `slot` is built, tested, and kept ready for it, so enabling the cameo
+later is a deck edit and nothing more.
 
 `slot` takes `'early'`, `'middle'`, `'late'`, or `'anywhere'` (the default).
 Zones are **fractional thirds of the running order**, not fixed indices, so a
@@ -276,21 +279,18 @@ still teaches the joke: palms → `PALMS` → **PSALMS**.
 order, and falls through on load failure:
 
 ```
-images-local/jerry.png   →   images/jerry.png   →   red placeholder card
+images/jerry.png   →   red placeholder card
 ```
 
-Consequences, all of which we want:
+**Every picture is committed.** `imageDirs` stays an ordered array because the
+resolver is generic, but the shipped deck lists one directory. A file that is
+not there resolves to null and the card shows a loud placeholder — always, with
+no exceptions, because the site is published and a puzzle that silently vanishes
+online is harder to notice than one that shouts.
 
-- Your local copy shows the real Jerry, because `images-local/` is gitignored
-  and wins the chain.
-- The public repo ships a committed safe stand-in, so anyone cloning it gets a
-  playable game.
-- A genuinely missing file shows a loud placeholder rather than a blank card.
-
-`.gitignore` gains `games/*/images-local/`, so the split cannot be defeated by
-habit. No flags, no config, no build variants — it works on `file://` because it
-is an `<img>` error handler and nothing more. Resolution is memoised per filename so
-the chain is probed once, and the same resolver feeds the engine's preload.
+Resolution is memoised per filename, so the chain is probed once and the same
+resolver feeds the engine's preload. It works on `file://` because it is an
+`<img>` error handler and nothing more.
 
 An `img` value may also be a full URL or a `data:` URI, which is handy while
 trying ideas out — but a URL means that clue needs live internet at the exact
@@ -300,33 +300,33 @@ Specifically banned: Google Images thumbnail links
 (`encrypted-tbn0.gstatic.com/images?q=tbn:...`). Those are rotating cache keys
 that expire, and they are a couple of hundred pixels wide — mush on a projector.
 
-### 8.1 `localOnly` puzzles — in-jokes and real people
+### 8.1 Publishing, and why there is no private image tier
 
-Some puzzles work precisely because they are local: a photo of a church member
-named **Ruth**, and the room shouts her name. These are the best puzzles in the
-deck and the ones that can least afford to be published.
+An earlier draft of this spec had a `localOnly` flag: a puzzle whose picture
+lived in a gitignored `images-local/` and which dropped out of the deck when the
+picture was absent. It existed so a church-member cameo and a copyrighted
+cartoon could play in the hall without being committed.
 
-A puzzle may declare `localOnly: true`. Its image is expected in
-`images-local/`, and if it does not resolve, **the puzzle is dropped from the
-deck** rather than rendering a placeholder. Consequences:
+**That is withdrawn.** The site is published to GitHub Pages, and Pages deploys
+what is in the repo — so a gitignored image is simply absent from the published
+game. Two versions of the deck, differing by which files a laptop happened to
+have, is a worse thing to reason about than one. Every picture is committed, and
+the deck is the same everywhere.
 
-- Your copy plays it. The public repo has 35 puzzles instead of 36 and nobody
-  sees a broken card.
-- A photograph of a private individual is kept out of a public repo by the
-  structure, not by anyone remembering.
+Two consequences worth stating plainly:
 
-This is a different behaviour from an ordinary missing image, which *should*
-shout at you — a `localOnly` puzzle is absent by design, so silence is correct.
+- **Git history is permanent.** Committing a picture to a public repo and
+  deleting it later does not remove it. "Commit now, tidy up later" is not
+  available.
+- **A photograph of a private individual on a public URL is a different ask
+  from the same photograph on a projector in their own church** — indexable,
+  permanent, outside their control. If the RUTH cameo is ever enabled, that is
+  the question to put to her, and it is a larger one than it first looks.
 
-**One thing this needs from you.** Ask Ruth first; a face on a projector in
-front of the congregation is hers to agree to, not ours to assume.
-
-RUTH does not have to choose between the cameo and the `root` rebus — see §10.1,
-which lets one puzzle carry both pictures and pick between them per session.
-
-The cameo trick generalises. Book names that double as ordinary first names:
-**Esther, Daniel, Samuel, Mark, John, James, Job, Timothy, Titus.** Any member
-willing to be on screen is a free puzzle that no other church can copy.
+The cameo trick still generalises, and book names that double as ordinary first
+names are **Esther, Daniel, Samuel, Mark, John, James, Job, Timothy, Titus** —
+any member willing to be on screen is a puzzle no other church can copy. It is
+deferred, not abandoned: see §10.1 for what is already in place for it.
 
 ### Sourcing
 
@@ -336,10 +336,13 @@ Wikimedia Commons for clue objects (a dam, a ham, palms, a gavel). Every
 committed file gets a row in `CREDITS.md`: filename, source URL, author,
 licence.
 
-Copyrighted cartoon and mascot images are never committed. They go in
-`images-local/`, hand-dropped. Running one on a laptop in a church hall is a
-different situation from publishing it to the open web, and this split keeps
-that distinction structural rather than a matter of remembering.
+Two files are supplied by hand rather than sourced here, and they are the two
+this spec will not fetch: `jerry.png`, because it is Warner Bros' character and
+this repo publishes to a public URL, and `ruth-member.jpg` if the cameo is ever
+enabled, because it is a real person's face. Both go in `images/` like any other
+picture — there is no separate tier any more — and both are Jay's to add and
+commit deliberately. Until `jerry.png` is added, JEREMIAH shows a red
+placeholder on its first clue, which is the behaviour we want: visible.
 
 ## 9. The scripture reference
 
@@ -358,7 +361,7 @@ over. For a book-names game the reference teaches canon placement instead:
 window.DECK = {
   id:          'book-names',
   title:       'Bible Book Names',
-  imageDirs:   ['images-local/', 'images/'],
+  imageDirs:   ['images/'],
   shuffle:     true,   // randomise running order on load
   sessionSize: 15,     // draw this many; omit to play the whole deck
   puzzles:     [ /* ... in deck order; `O` restores it ... */ ],
@@ -369,7 +372,6 @@ window.DECK = {
 land, `'local'` for one leaning on Filipino pronunciation or a local product.
 It is a note to yourself; the game ignores it, and `review.html` surfaces it.
 
-`localOnly: true` is different — the game acts on it. See §8.1.
 
 `games.js` stays as it was, because it was already right:
 
@@ -394,11 +396,16 @@ the engine picks one per session:
   answer: 'RUTH', answerAlt: 'Ruth', slot: 'late',
   ref: { testament: 'Old', division: 'Historical', position: 8 },
   variants: [
-    { type: 'image', img: 'ruth-member.jpg', localOnly: true, weight: 2 },
+    { type: 'image', img: 'ruth-member.jpg', weight: 2 },
     { type: 'rebus', clues: [{ img: 'root.jpg', word: 'ROOT' }] },
   ],
 }
 ```
+
+**Not shipped yet.** RUTH ships as the single-variant `root` rebus; the block
+above is what enabling the cameo looks like, and `deck.js` carries it as a
+comment beside the puzzle so nobody has to come back here for it. The mechanism
+below is built and unit-tested regardless — that is what "prepared" means.
 
 **The model, stated once:** every puzzle has one or more variants. A puzzle
 written without a `variants` array *is* a puzzle with exactly one — so every
@@ -407,16 +414,19 @@ path.
 
 What lives where: `answer`, `answerAlt`, `ref`, `slot`, and `lang` belong to the
 **puzzle**, because they describe the thing being guessed. `type`, `clues`,
-`img`, `localOnly`, `flag`, and optionally `difficulty` belong to the
-**variant**, because they describe how it is asked this time.
+`img`, `flag`, and optionally `difficulty` belong to the **variant**, because
+they describe how it is asked this time.
 
 ### Selection
 
-1. Drop variants whose images do not resolve. A `localOnly` variant is absent
-   from the public repo, so the public deck simply plays `root`.
-2. If no variant survives, drop the puzzle — §8.1's rule, now generalised.
+1. Drop variants whose images do not resolve, so a puzzle with a working
+   alternative uses it rather than showing a placeholder.
+2. If **no** variant resolves, keep the first one anyway and let it render its
+   placeholder. Dropping the puzzle would hide a missing file, and with no
+   private tier there is no longer any case where an absent picture is
+   intentional.
 3. Pick one of the survivors at random. `weight` biases the draw; default 1, so
-   `weight: 2` on the cameo makes Ruth twice as likely as the root.
+   `weight: 2` on a cameo would make it twice as likely as the root.
 
 `difficulty` falls back to the puzzle's, then to 2 — a member's face is an
 easier puzzle than a root, and a variant may say so.
@@ -513,17 +523,14 @@ not automatically harder, and each is banded on its own merits.
 
 1. `node tools/validate.js` — every puzzle has a valid `type`, required fields
    for that type, a non-empty answer, and a resolvable image name; no duplicate
-   answers; `order.correct` is a permutation of `order.items`. A `localOnly`
-   puzzle with no image in `images-local/` reports as **skipped, not failed**,
-   and the validator prints the resulting deck size so a silent drop is still
-   visible. `difficulty` must be 1, 2 or 3 where present; `sessionSize` must not
-   exceed the number of playable puzzles; and no `slot` zone may be
-   over-subscribed at the configured `sessionSize` — checked against the
-   smallest session the deck permits, not just the configured one. Every
-   **variant** is checked for the fields its own `type` requires, and a puzzle
-   whose only variants are `localOnly` reports as **public-invisible** — not an
-   error, but printed, so shipping a puzzle no visitor can ever see is a
-   decision rather than an accident.
+   answers; `order.correct` is a permutation of `order.items`. `difficulty` must
+   be 1, 2 or 3 where present; `sessionSize` must not exceed the number of
+   playable puzzles; and no `slot` zone may be over-subscribed at the configured
+   `sessionSize` — checked against the smallest session the deck permits, not
+   just the configured one. Every **variant** is checked for the fields its own
+   `type` requires. Run with `--files <dir>` it also lists pictures the deck
+   names that are not yet in the directory, which is the image-sourcing
+   worklist.
 2. `tools/review.html` — the whole deck with artwork on one screen, reading the
    real `deck.js`, so it cannot drift from the game.
 3. Headless render pass at 1280×760 and 390×700, over both `file://` and
@@ -572,7 +579,7 @@ AY nights want that track; not in scope here.
 | Puns do not land | Approve the list before art; playtest before a service |
 | Image sourcing is slower than expected | Puns approved first, so sourcing is never speculative |
 | Free-stock photos are visually inconsistent | Prefer one source per clue category; crop to a common frame in the renderer |
-| Someone commits a copyrighted image by habit | `images-local/` is gitignored; `CREDITS.md` makes an unsourced file obvious |
+| A copyrighted image is committed without thought | `CREDITS.md` needs a row per file, so an unsourced picture is visible; the two hand-supplied files are named in §8 |
 | A book has no workable pun | Fall back to `image` where a direct depiction exists; otherwise leave it out of v1 |
 
 ---
@@ -586,11 +593,11 @@ Confidence is my own read, not tested on anyone. **Status** tracks review:
 
 | Book | Clues | Confidence | Status |
 |---|---|---|---|
-| RUTH | 2 variants (§10.1): member photo `localOnly` `weight: 2`, or root | solid, `slot: 'late'` | in |
+| RUTH | root — cameo variant prepared but not shipped (§10.1) | solid | in |
 | DANIEL | done + yell | solid | in |
 | SAMUEL | sum + well | solid | in |
 | ESTHER | S + tear | solid | in |
-| JEREMIAH | Jerry + maya | needs the private Jerry image | in |
+| JEREMIAH | Jerry + maya | `jerry.png` supplied by hand (§8) | in |
 
 ### Old Testament — rebus
 
