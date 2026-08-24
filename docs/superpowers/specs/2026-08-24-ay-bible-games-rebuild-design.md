@@ -198,6 +198,12 @@ Step 3 is best-effort by construction — a pinned puzzle can leave the ramp
 slightly uneven, and that is the right trade. The ramp is a nicety; a cameo
 fired at the wrong moment is a wasted moment.
 
+**A pinned puzzle is always drawn.** With `sessionSize: 15` over 36 puzzles, a
+purely random draw would sometimes exclude Ruth entirely and the cameo would
+never fire. So any puzzle with an explicit `slot` is always in the session, and
+the random draw fills only the slots left over. Pinning a puzzle therefore says
+two things — *always play this* and *play it here*.
+
 If a zone is over-subscribed — more puzzles demanding `'late'` than the late
 third has slots — that is a **deck error, not a runtime shrug**. The validator
 catches it, because discovering it live means someone's cameo silently landed
