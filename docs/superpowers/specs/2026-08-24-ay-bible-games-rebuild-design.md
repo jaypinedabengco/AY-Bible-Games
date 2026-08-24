@@ -396,6 +396,66 @@ The full draft list is Appendix A. **The puns get approved before any image is
 sourced** — sourcing pictures for puns that then get cut is wasted work, and the
 old handover's loudest warning was that nobody had playtested the puns.
 
+## 11.1 Filipino book names
+
+The books have Tagalog names — Exodo, Mga Awit, Santiago, Apocalipsis — and
+putting them in the deck adds variety, adds challenge, and teaches something a
+purely English deck cannot. Three ways they enter, in increasing ambition.
+
+### The reveal always shows both
+
+`answerAlt` carries the other language's name and appears on the answer card
+regardless of which language was asked:
+
+> **JAMES** · *Santiago*
+> New Testament · General Epistles · book 59 of 66
+
+Free teaching value on every puzzle in the deck, no new artwork, no new puzzle.
+
+### Filipino-answer puzzles
+
+A puzzle may set `lang: 'fil'`, making the Tagalog name the answer and the pun a
+Tagalog pun. This is where the challenge comes from.
+
+**A hard requirement: the puzzle must say which language it wants.** A crown on
+screen is KINGS in English and HARI in Filipino, and a room shouting the right
+answer to the wrong question is a bug we would have designed in. Every card
+carries a visible language badge, and the renderer takes it from `lang` rather
+than trusting the host to remember.
+
+### The artwork is already paid for
+
+Most direct-image puzzles work in both languages from **one file**: a crown is
+KINGS and HARI, numerals are NUMBERS and BILANG, a gavel is JUDGES and HUKOM, a
+music note is PSALMS and AWIT, a whale is JONAH and JONAS. One image, two
+puzzles, two languages, zero extra sourcing.
+
+Three Tagalog puns also reuse existing clue art outright: APOCALIPSIS takes
+`lips` and `sis`, FILEMON is spelled the Tagalog way already so `fill + lemon`
+serves both, and OSEAS extends `hose`.
+
+### Two problems this fixes
+
+- **TITUS → TITO.** `tie + toes` was flagged risky and barely got there. *Tito*
+  is Filipino for uncle — a photo of an uncle, and the room has it instantly.
+  The Tagalog puzzle is simply better than the English one it replaces.
+- **REVELATION → APOCALIPSIS.** Held undecided because `rev + elation` was a
+  stretch. *A + polka + lips + sis* reads cleanly and reuses two existing clue
+  images.
+
+### Deck configuration
+
+```js
+window.DECK = {
+  languages:   ['en', 'fil'],  // which puzzles are eligible for a session
+  ...
+};
+```
+
+Omitting `languages` plays English only, so a Tagalog-light congregation is one
+edit away. Language is **independent of `difficulty`** — a Filipino puzzle is
+not automatically harder, and each is banded on its own merits.
+
 ## 12. Verification
 
 1. `node tools/validate.js` — every puzzle has a valid `type`, required fields
@@ -508,7 +568,7 @@ Confidence is my own read, not tested on anyone. **Status** tracks review:
 | HEBREWS | he + brews (coffee brewing) | medium | in |
 | LUKE | look (eyes) | medium — leans on pronunciation | in |
 | TIMOTHY | clock (time) + moth | medium | proposed |
-| TITUS | tie + toes | risky | in — easy cut |
+| TITUS | tie + toes | risky | **cut** — superseded by TITO |
 
 ### Direct pictures, no pun (`image`)
 
@@ -521,6 +581,38 @@ Confidence is my own read, not tested on anyone. **Status** tracks review:
 | ROMANS | a Roman soldier | solid | proposed |
 | JOB | a hard hat / a worker | medium — "job" as work | in |
 
+### Filipino-answer candidates (`lang: 'fil'`)
+
+Rebus, reusing existing clue art where noted.
+
+| Book | Clues | Reuses | Confidence | Status |
+|---|---|---|---|---|
+| APOCALIPSIS | A + polka (dots) + lips + sis | `lips`, `sis` | solid | proposed |
+| JUAN | the numeral 1 (*juan* ≈ *one*) | — | solid | proposed |
+| EXODO | XO candy + do (musical note) | `xo` | solid | proposed |
+| FILEMON | fill + lemon (same spelling) | `fill`, `lemon` | solid | proposed |
+| OSEAS | hose + A + S | `hose` | medium | proposed |
+| MIKAS | mic + as | `mic` | medium | proposed |
+| JEREMIAS | Jerry + maya + S | `jerry`, `maya` | medium | proposed |
+| HEBREO | he + brews + O | `he`, `brews` | medium | proposed |
+
+Direct pictures — **each shares its image file with the English puzzle**.
+
+| Book | Image | Shares with | Confidence | Status |
+|---|---|---|---|---|
+| TITO | a photo of an uncle | — | solid | proposed |
+| HARI | a crown | KINGS | solid | proposed |
+| BILANG | numerals | NUMBERS | solid | proposed |
+| HUKOM | a gavel | JUDGES | solid | proposed |
+| AWIT | a music note | — | solid | proposed |
+| JONAS | a whale | JONAH | solid | proposed |
+| GAWA | hands at work | — | medium | proposed |
+| PANAGHOY | someone weeping | — | medium | proposed |
+
+Deliberately not attempted: DEUTERONOMIO, ECLESIASTES, KAWIKAAN, and the
+Tagalog epistle names (Efeso, Colosas, Galacia) — no clean pun, no iconic
+image. Left out rather than forced.
+
 ### Cut on review
 
 | Book | Clues | Why |
@@ -532,7 +624,7 @@ Confidence is my own read, not tested on anyone. **Status** tracks review:
 
 | Book | Clues | Note |
 |---|---|---|
-| REVELATION | rev (tachometer) + elation | Flagged uncertain. Either convert to a direct `image` — the four horsemen, or a sealed scroll — or cut it. |
+| REVELATION | rev (tachometer) + elation | **Resolved** — superseded by APOCALIPSIS (A + polka + lips + sis), which reads better and reuses existing art. |
 
 **Asset reuse worth noting.** NEHEMIAH reuses `maya` from JEREMIAH, and
 SONG OF SOLOMON reuses `solo` + `moon` from the parked SOLOMON puzzle in
