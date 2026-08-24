@@ -1,0 +1,9 @@
+{
+  "name": "ay-bible-games",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Picture games for San Fernando AY Church. The game itself needs no npm.",
+  "scripts": {
+    "test": "node --test tests/"
+  }
+}
