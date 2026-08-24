@@ -164,6 +164,45 @@ state between unrelated folders. A subset draw over 36 puzzles already makes an
 identical night unlikely, and a host who wants control has `O` and the deck
 file. Revisit only if repeats actually become a complaint.
 
+## 6.2 Placement constraints
+
+Randomisation is not enough on its own. The Ruth cameo has to land *late* — it
+is a payoff, and it only pays off once the room has understood the game. Opening
+with it wastes it.
+
+So a puzzle may pin itself to a zone of the running order:
+
+```js
+{ type: 'image', answer: 'RUTH', img: 'ruth.jpg',
+  localOnly: true, slot: 'late', difficulty: 1 }
+```
+
+`slot` takes `'early'`, `'middle'`, `'late'`, or `'anywhere'` (the default).
+Zones are **fractional thirds of the running order**, not fixed indices, so a
+constraint written once holds whether the night runs 10 puzzles or 36.
+
+### Two axes, and which one wins
+
+This deliberately conflicts with §6.1. `difficulty` is a *cognitive* ramp —
+don't fry the room early. `slot` is *dramatic* placement — spend the good stuff
+when it counts. Ruth is difficulty 1 and slot late: easy, but saved.
+
+**`slot` is a hard constraint; `difficulty` is a preference.** Placement runs:
+
+1. Partition the running order into early / middle / late thirds.
+2. Place every `slot`-constrained puzzle into its zone, shuffled within it.
+3. Fill the remaining slots from the rest, ascending by difficulty as far as the
+   free slots allow.
+
+Step 3 is best-effort by construction — a pinned puzzle can leave the ramp
+slightly uneven, and that is the right trade. The ramp is a nicety; a cameo
+fired at the wrong moment is a wasted moment.
+
+If a zone is over-subscribed — more puzzles demanding `'late'` than the late
+third has slots — that is a **deck error, not a runtime shrug**. The validator
+catches it, because discovering it live means someone's cameo silently landed
+second.
+
 ## 7. Renderers
 
 `core/renderers.js` exports `BibleGames.renderers`, keyed by puzzle `type`. Each
@@ -358,8 +397,10 @@ old handover's loudest warning was that nobody had playtested the puns.
    answers; `order.correct` is a permutation of `order.items`. A `localOnly`
    puzzle with no image in `images-local/` reports as **skipped, not failed**,
    and the validator prints the resulting deck size so a silent drop is still
-   visible. `difficulty` must be 1, 2 or 3 where present, and `sessionSize`
-   must not exceed the number of playable puzzles.
+   visible. `difficulty` must be 1, 2 or 3 where present; `sessionSize` must not
+   exceed the number of playable puzzles; and no `slot` zone may be
+   over-subscribed at the configured `sessionSize` — checked against the
+   smallest session the deck permits, not just the configured one.
 2. `tools/review.html` — the whole deck with artwork on one screen, reading the
    real `deck.js`, so it cannot drift from the game.
 3. Headless render pass at 1280×760 and 390×700, over both `file://` and
@@ -422,7 +463,7 @@ Confidence is my own read, not tested on anyone. **Status** tracks review:
 
 | Book | Clues | Confidence | Status |
 |---|---|---|---|
-| RUTH | photo of a church member named Ruth (see §8.1) | solid, `localOnly` | in |
+| RUTH | photo of a church member named Ruth (§8.1) | solid, `localOnly` + `slot: 'late'` | in |
 | DANIEL | done + yell | solid | in |
 | SAMUEL | sum + well | solid | in |
 | ESTHER | S + tear | solid | in |
