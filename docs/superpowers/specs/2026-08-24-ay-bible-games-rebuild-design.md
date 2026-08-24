@@ -276,9 +276,9 @@ roadmap appear parked from day one, so the front page shows where this is going.
 
 ## 11. Game 1 content
 
-Appendix A drafts **28 candidates**; expect roughly 24 to survive the cut. The
-deck grows toward 66 over later rounds. Pun rules, both inherited from puns the
-previous session correctly rejected:
+Appendix A drafts **36 candidates** across both testaments; expect roughly 30 to
+survive the cut. The deck grows toward 66 over later rounds. Pun rules, both
+inherited from puns the previous session correctly rejected:
 
 - **No American slang.** "Cup of joe" for Jonah was cut for this reason.
 - **No outside knowledge.** Abra-the-province lost to abracadabra because the
@@ -348,50 +348,86 @@ AY nights want that track; not in scope here.
 
 ## Appendix A — Game 1 draft puns
 
-Pending approval. Confidence is my own read, not tested on anyone.
+Confidence is my own read, not tested on anyone. **Status** tracks review:
+`in` = kept, `proposed` = awaiting a decision, `cut` = removed.
 
 ### Salvaged from the old deck
 
-| Book | Clues | Confidence |
+| Book | Clues | Confidence | Status |
+|---|---|---|---|
+| RUTH | root | solid | in |
+| DANIEL | done + yell | solid | in |
+| SAMUEL | sum + well | solid | in |
+| ESTHER | S + tear | solid | in |
+| JEREMIAH | Jerry + maya | needs the private Jerry image | in |
+
+### Old Testament — rebus
+
+| Book | Clues | Confidence | Status |
+|---|---|---|---|
+| GENESIS | gene (DNA helix) + sis (sister) | solid | in |
+| EXODUS | XO coffee candy + dos (2) | solid, flag `local` | in |
+| PSALMS | palms | solid | in |
+| AMOS | A + moss | solid | in |
+| HOSEA | hose + A | solid | in |
+| JOEL | jewel | solid | in |
+| MICAH | mic + ah | solid | in |
+| MALACHI | mall + A + key | solid | in |
+| ISAIAH | eye + sigh + ah | solid | proposed |
+| NEHEMIAH | knee + he + maya | solid | proposed |
+| HAGGAI | hug + guy | solid | proposed |
+| SONG OF SOLOMON | music note + solo + moon | solid | proposed |
+| PROVERBS | pro (thumbs up) + verbs | medium | in |
+| HABAKKUK | ha (laughing) + back + cook | medium | proposed |
+| LEVITICUS | Levi's jeans + tick + us | risky | in — easy cut |
+
+### New Testament — rebus
+
+| Book | Clues | Confidence | Status |
+|---|---|---|---|
+| ACTS | axe + S | solid | in |
+| JAMES | jam + S | solid | in |
+| MARK | a mark / tick | solid | in |
+| MATTHEW | mat + chew | solid | proposed |
+| PHILEMON | fill + lemon | solid | proposed |
+| PETER | pea + tear | solid | proposed |
+| HEBREWS | he + brews (coffee brewing) | medium | in |
+| LUKE | look (eyes) | medium — leans on pronunciation | in |
+| TIMOTHY | clock (time) + moth | medium | proposed |
+| TITUS | tie + toes | risky | in — easy cut |
+
+### Direct pictures, no pun (`image`)
+
+| Book | Image | Confidence | Status |
+|---|---|---|---|
+| JONAH | a whale | solid | in |
+| KINGS | a crown | solid | in |
+| JUDGES | a gavel | solid | in |
+| NUMBERS | numerals | solid | in |
+| ROMANS | a Roman soldier | solid | proposed |
+| JOB | a hard hat / a worker | medium — "job" as work | in |
+
+### Cut on review
+
+| Book | Clues | Why |
 |---|---|---|
-| RUTH | root | solid |
-| DANIEL | done + yell | solid |
-| SAMUEL | sum + well | solid |
-| ESTHER | S + tear | solid |
-| JEREMIAH | Jerry + maya | needs the private Jerry image |
+| PHILIPPIANS | fill + lip | cut |
+| NAHUM | nah (head shake) + hum | cut |
 
-### New — rebus
+### Undecided
 
-| Book | Clues | Confidence |
+| Book | Clues | Note |
 |---|---|---|
-| GENESIS | gene (DNA helix) + sis (sister) | solid |
-| PSALMS | palms | solid |
-| ACTS | axe + S | solid |
-| AMOS | A + moss | solid |
-| HOSEA | hose + A | solid |
-| JAMES | jam + S | solid |
-| JOEL | jewel | solid |
-| MICAH | mic + ah | solid |
-| MALACHI | mall + A + key | solid |
-| MARK | a mark / tick | solid |
-| REVELATION | rev (tachometer) + elation | medium |
-| HEBREWS | he + brews (coffee brewing) | medium |
-| PROVERBS | pro (thumbs up) + verbs | medium |
-| LUKE | look (eyes) | medium — leans on pronunciation |
-| PHILIPPIANS | fill + lip | medium |
-| NAHUM | nah (head shake) + hum | medium |
-| LEVITICUS | Levi's jeans + tick + us | risky |
-| TITUS | tie + toes | risky |
+| REVELATION | rev (tachometer) + elation | Flagged uncertain. Either convert to a direct `image` — the four horsemen, or a sealed scroll — or cut it. |
 
-### New — direct depiction (`image`)
+**Asset reuse worth noting.** NEHEMIAH reuses `maya` from JEREMIAH, and
+SONG OF SOLOMON reuses `solo` + `moon` from the parked SOLOMON puzzle in
+Appendix B. Three books, no new sourcing.
 
-| Book | Image | Confidence |
-|---|---|---|
-| JONAH | a whale | solid |
-| KINGS | a crown | solid |
-| JUDGES | a gavel | solid |
-| NUMBERS | numerals | solid |
-| JOB | a hard hat / a worker | medium — "job" as work |
+**Held, not dead: PHILIPPIANS.** `fill + lip` is weak, but there is a much
+stronger local option — a Philippine flag, since PHILIPPIANS and PHILIPPINES
+differ by a single letter. Out of the deck for now; worth revisiting before v1
+ships.
 
 ## Appendix B — character puns held for Game 2
 
