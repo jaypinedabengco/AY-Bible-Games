@@ -224,6 +224,34 @@ Specifically banned: Google Images thumbnail links
 (`encrypted-tbn0.gstatic.com/images?q=tbn:...`). Those are rotating cache keys
 that expire, and they are a couple of hundred pixels wide — mush on a projector.
 
+### 8.1 `localOnly` puzzles — in-jokes and real people
+
+Some puzzles work precisely because they are local: a photo of a church member
+named **Ruth**, and the room shouts her name. These are the best puzzles in the
+deck and the ones that can least afford to be published.
+
+A puzzle may declare `localOnly: true`. Its image is expected in
+`images-local/`, and if it does not resolve, **the puzzle is dropped from the
+deck** rather than rendering a placeholder. Consequences:
+
+- Your copy plays it. The public repo has 35 puzzles instead of 36 and nobody
+  sees a broken card.
+- A photograph of a private individual is kept out of a public repo by the
+  structure, not by anyone remembering.
+
+This is a different behaviour from an ordinary missing image, which *should*
+shout at you — a `localOnly` puzzle is absent by design, so silence is correct.
+
+**Two things this needs from you.** Ask Ruth first; a face on a projector in
+front of the congregation is hers to agree to, not ours to assume. And note the
+validator's no-duplicate-answers rule means RUTH is *either* the cameo *or* the
+`root` rebus, not both — `root` stays documented in Appendix A as the committed
+alternative if you would rather the public deck keep a Ruth puzzle.
+
+The cameo trick generalises. Book names that double as ordinary first names:
+**Esther, Daniel, Samuel, Mark, John, James, Job, Timothy, Titus.** Any member
+willing to be on screen is a free puzzle that no other church can copy.
+
 ### Sourcing
 
 Committed images come from public-domain and free-stock sources: Doré
@@ -260,8 +288,10 @@ window.DECK = {
 ```
 
 `flag` is optional on **any** puzzle type — `'risky'` for a pun that may not
-land, `'local'` for one leaning on Filipino pronunciation. It is a note to
-yourself; the game ignores it, and `review.html` surfaces it.
+land, `'local'` for one leaning on Filipino pronunciation or a local product.
+It is a note to yourself; the game ignores it, and `review.html` surfaces it.
+
+`localOnly: true` is different — the game acts on it. See §8.1.
 
 `games.js` stays as it was, because it was already right:
 
@@ -292,7 +322,10 @@ old handover's loudest warning was that nobody had playtested the puns.
 
 1. `node tools/validate.js` — every puzzle has a valid `type`, required fields
    for that type, a non-empty answer, and a resolvable image name; no duplicate
-   answers; `order.correct` is a permutation of `order.items`.
+   answers; `order.correct` is a permutation of `order.items`. A `localOnly`
+   puzzle with no image in `images-local/` reports as **skipped, not failed**,
+   and the validator prints the resulting deck size so a silent drop is still
+   visible.
 2. `tools/review.html` — the whole deck with artwork on one screen, reading the
    real `deck.js`, so it cannot drift from the game.
 3. Headless render pass at 1280×760 and 390×700, over both `file://` and
@@ -355,7 +388,7 @@ Confidence is my own read, not tested on anyone. **Status** tracks review:
 
 | Book | Clues | Confidence | Status |
 |---|---|---|---|
-| RUTH | root | solid | in |
+| RUTH | photo of a church member named Ruth (see §8.1) | solid, `localOnly` | in |
 | DANIEL | done + yell | solid | in |
 | SAMUEL | sum + well | solid | in |
 | ESTHER | S + tear | solid | in |
