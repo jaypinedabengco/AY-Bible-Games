@@ -52,9 +52,12 @@ window.DECK = {
       clues: [{ img: 'xo.jpg', word: 'XO' }, { img: 'dos.jpg', word: 'DOS' }],
     },
     {
+      // The Levi's LOGO, not a pair of jeans - bn-01 Genesis uses plain jeans
+      // for JEANS, so a garment here would teach the room two words from one
+      // picture. A wordmark and a garment cannot be confused at hall distance.
       id: 'bn-03', answer: 'LEVITICUS', answerAlt: 'Levitico', difficulty: 3, flag: 'risky',
       ref: { testament: 'Old', division: 'Law', position: 3 },
-      clues: [{ img: 'levi.jpg', word: 'LEVI' }, { img: 'tick.jpg', word: 'TICK' },
+      clues: [{ img: 'levis-logo.jpg', word: 'LEVI' }, { img: 'tick.jpg', word: 'TICK' },
               { img: 'us.jpg', word: 'US' }],
     },
     {
