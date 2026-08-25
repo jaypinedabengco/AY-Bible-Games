@@ -2392,13 +2392,21 @@ Create `tools/validate.js`:
     var notices = [];
     var seen = {};
 
+    // Structural checks run over EVERY puzzle; playability checks run over the
+    // ones this session would actually play.
+    //
+    // The distinction matters. A typo'd lang like 'es' silently drops a puzzle
+    // out of the pool, so validating only the pool would hide exactly the
+    // mistake most worth catching: the author sees a deck that passes and a
+    // puzzle that never appears. A deliberate 'fil' puzzle in an English-only
+    // deck is a different thing - uncounted, not unchecked.
     var pool = normalized.puzzles.filter(function (p) {
       return normalized.languages.indexOf(p.lang) !== -1;
     });
 
     var seenIds = {};
 
-    pool.forEach(function (p) {
+    normalized.puzzles.forEach(function (p) {
       if (!p.answer) { errors.push('a puzzle is missing its answer'); return; }
       if (!p.id) {
         errors.push('"' + p.answer + '": missing id');
@@ -2436,6 +2444,7 @@ Create `tools/validate.js`:
       });
     });
 
+    // From here down the session is what matters, so these use the pool.
     var playable = pool.length;
     var size = normalized.sessionSize || playable;
     if (normalized.sessionSize && normalized.sessionSize > playable) {
