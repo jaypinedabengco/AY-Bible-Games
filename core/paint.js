@@ -50,7 +50,12 @@
 
   function render(host, view, srcFor, meta) {
     host.innerHTML = '';
-    host.appendChild(el('div', 'badge', view.badge));
+    // Only worth showing when the deck actually asks in more than one
+    // language. With a single language it is the same word on every card -
+    // clutter on a projector, and it tells the room nothing.
+    if (!meta || meta.showBadge !== false) {
+      host.appendChild(el('div', 'badge', view.badge));
+    }
 
     // The stamp is how the Game Master finds this puzzle on their phone: the
     // id names one puzzle no matter how the deck was shuffled, so nothing has

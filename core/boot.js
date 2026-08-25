@@ -102,6 +102,7 @@
         BG.paint.render(host, BG.views.viewForItem(s.item, s.stage), session.srcFor, {
           position: s.index + 1,
           total: items.length,
+          showBadge: session.deck.languages.length > 1,
         });
       }
 

@@ -10,6 +10,8 @@
  *              id. It must never contain the answer: it is on a screen in
  *              front of the room, so 'ruth-08' would give the game away.
  *   answer     the book, revealed at the end
+ *   answerAlt  its Filipino name, shown under the answer on the reveal. This is
+ *              teaching value only - the question is always the English name.
  *   answerAlt  its Filipino name, shown alongside on the reveal
  *   ref        canon placement, NOT a chapter - "Daniel 6" under DANIEL
  *              would print the answer beneath the answer
@@ -36,7 +38,7 @@ window.DECK = {
   idPrefix: 'bn',   // puzzle ids are shown on the projector; see spec 16
   shuffle: true,
   sessionSize: 20,
-  languages: ['en', 'fil'],
+  languages: ['en'],
   puzzles: [
     // ---- Law -----------------------------------------------------------
     {
@@ -257,69 +259,5 @@ window.DECK = {
       type: 'image', img: 'colossus.jpg',
     },
 
-    // ---- Filipino answers -------------------------------------------------
-    // Only names that genuinely differ from the English, per spec 11.1. The
-    // room is told which language is wanted by the badge on every card - a
-    // crown is KINGS in one puzzle and MGA HARI in another, same picture.
-    {
-      id: 'bn-37', answer: 'SANTIAGO', answerAlt: 'James', lang: 'fil',
-      difficulty: 3, flag: 'risky',
-      ref: { testament: 'New', division: 'General Epistles', position: 59 },
-      clues: [{ img: 'santa.jpg', word: 'SANTA' }, { img: 'go.jpg', word: 'GO' }],
-    },
-    {
-      id: 'bn-38', answer: 'APOCALIPSIS', answerAlt: 'Revelation', lang: 'fil',
-      difficulty: 2,
-      ref: { testament: 'New', division: 'Prophecy', position: 66 },
-      clues: [{ img: 'letter-a.jpg', word: 'A' }, { img: 'polka.jpg', word: 'POLKA' },
-              { img: 'lips.jpg', word: 'LIPS' }, { img: 'sis.jpg', word: 'SIS' }],
-    },
-    {
-      id: 'bn-39', answer: 'JUAN', answerAlt: 'John', lang: 'fil', difficulty: 2,
-      ref: { testament: 'New', division: 'Gospels', position: 43 },
-      clues: [{ img: 'numeral-1.jpg', word: 'ONE' }],
-    },
-    {
-      id: 'bn-40', answer: 'MGA HARI', answerAlt: 'Kings', lang: 'fil', difficulty: 1,
-      ref: { testament: 'Old', division: 'Historical', position: 11 },
-      type: 'image', img: 'crown.jpg',
-    },
-    {
-      id: 'bn-41', answer: 'MGA BILANG', answerAlt: 'Numbers', lang: 'fil', difficulty: 1,
-      ref: { testament: 'Old', division: 'Law', position: 4 },
-      type: 'image', img: 'numerals.jpg',
-    },
-    {
-      id: 'bn-42', answer: 'MGA HUKOM', answerAlt: 'Judges', lang: 'fil', difficulty: 1,
-      ref: { testament: 'Old', division: 'Historical', position: 7 },
-      type: 'image', img: 'gavel.jpg',
-    },
-    {
-      id: 'bn-43', answer: 'MGA AWIT', answerAlt: 'Psalms', lang: 'fil', difficulty: 1,
-      ref: { testament: 'Old', division: 'Poetry', position: 19 },
-      type: 'image', img: 'note.jpg',
-    },
-    {
-      id: 'bn-44', answer: 'MGA GAWA', answerAlt: 'Acts', lang: 'fil', difficulty: 2,
-      ref: { testament: 'New', division: 'History', position: 44 },
-      type: 'image', img: 'hands-work.jpg',
-    },
-    {
-      id: 'bn-45', answer: 'MGA PANAGHOY', answerAlt: 'Lamentations', lang: 'fil',
-      difficulty: 2,
-      ref: { testament: 'Old', division: 'Major Prophets', position: 25 },
-      type: 'image', img: 'weeping.jpg',
-    },
-    {
-      id: 'bn-46', answer: 'MANGANGARAL', answerAlt: 'Ecclesiastes', lang: 'fil',
-      difficulty: 2,
-      ref: { testament: 'Old', division: 'Poetry', position: 21 },
-      type: 'image', img: 'preacher.jpg',
-    },
-    {
-      id: 'bn-47', answer: 'TITO', answerAlt: 'Titus', lang: 'fil', difficulty: 2,
-      ref: { testament: 'New', division: 'Epistles', position: 56 },
-      type: 'image', img: 'uncle.jpg',
-    },
   ],
 };

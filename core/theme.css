@@ -124,3 +124,18 @@ html, body {
 .option-correct { background: var(--good); color: var(--bg); }
 
 .order-list { display: flex; flex-direction: column; gap: 1.2vmin; font-size: 5vmin; }
+
+/* Startup failure, shown on the projector rather than hidden in a console. */
+.startup-error {
+  display: flex;
+  flex-direction: column;
+  gap: 2vmin;
+  max-width: 80vw;
+  text-align: center;
+  color: var(--fg);
+  font-size: 3vmin;
+  line-height: 1.5;
+}
+
+.startup-error strong { font-size: 5vmin; color: var(--bad); }
+.startup-error span:last-child { color: var(--dim); font-size: 2.2vmin; }
