@@ -68,7 +68,10 @@
     // Pinned puzzles are always drawn; the random draw fills what is left.
     var fill = (doShuffle ? shuffle(free, rng) : free.slice())
       .slice(0, size - pinned.length);
-    var ramp = byDifficulty(fill, rng, doShuffle);
+    // With shuffle off, "original order" has to mean the order written in
+    // deck.js. Applying the difficulty ramp anyway would regroup it and make
+    // the O key a lie - the host presses it to rehearse against the file.
+    var ramp = doShuffle ? byDifficulty(fill, rng, true) : fill;
 
     var slots = new Array(size);
     for (var i = 0; i < size; i++) { slots[i] = null; }

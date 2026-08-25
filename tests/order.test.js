@@ -119,6 +119,16 @@ test('the same seed gives the same order', () => {
   assert.deepEqual(answers(one), answers(two));
 });
 
+test('shuffle false keeps deck order even across difficulty bands', () => {
+  // The O key promises the order written in the deck file. Banding by
+  // difficulty would reorder it, which is what this pins down.
+  const pool = [
+    p('HARD', { difficulty: 3 }), p('EASY', { difficulty: 1 }), p('MID', { difficulty: 2 }),
+  ];
+  const out = buildOrder(pool, { rng: seeded(1), shuffle: false });
+  assert.deepEqual(answers(out), ['HARD', 'EASY', 'MID']);
+});
+
 test('shuffle false keeps deck order', () => {
   const pool = ['A', 'B', 'C'].map((a) => p(a));
   const out = buildOrder(pool, { rng: seeded(1), shuffle: false });

@@ -78,7 +78,7 @@ window.DECK = {
     {
       id: 'bn-06', answer: 'RUTH', difficulty: 2,
       ref: { testament: 'Old', division: 'Historical', position: 8 },
-      clues: [{ img: 'root.jpg', word: 'ROOT' }],
+      clues: [{ img: 'root.svg', word: 'ROOT' }],
 
       // The church-member cameo is prepared but not enabled. To turn it on:
       // drop ruth-member.jpg into images/, delete the `clues` and
@@ -226,7 +226,7 @@ window.DECK = {
     {
       id: 'bn-31', answer: 'MATTHEW', difficulty: 1,
       ref: { testament: 'New', division: 'Gospels', position: 40 },
-      clues: [{ img: 'mat.jpg', word: 'MAT' }, { img: 'chew.jpg', word: 'CHEW' }],
+      clues: [{ img: 'mat.jpg', word: 'MAT' }, { img: 'chew.svg', word: 'CHEW' }],
     },
     {
       id: 'bn-32', answer: 'PHILEMON', difficulty: 2,
