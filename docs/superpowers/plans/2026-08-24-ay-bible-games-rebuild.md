@@ -1471,9 +1471,9 @@ git commit -m "Add image candidate resolution with local-override fallback"
 
 **Interfaces:**
 - Consumes: view objects from Task 6; a `srcFor(name) -> string | null` lookup supplied by Task 10 (already resolved, synchronous).
-- Produces: `BibleGames.paint.render(host, view, srcFor) -> void`.
+- Produces: `BibleGames.paint.render(host, view, srcFor, meta) -> void`. `meta` is `{position, total}` from the session (Task 10) and may be omitted; `view.id` comes from the view itself.
 
-**On testing:** `paint.js` is the one module with no Node unit test. Testing it would mean a DOM implementation, and a dependency is a worse trade than covering it in Task 13's headless browser pass, which asserts on real rendered output. This is a deliberate gap, stated here so nobody assumes it was an oversight. Keep `paint.js` free of decisions — everything it draws is decided in `views.js`, which *is* tested. If you find yourself writing an `if` about game rules here, it belongs in `views.js`.
+**On testing:** `paint.js` is the one module with no Node unit test. Testing it would mean a DOM implementation, and a dependency is a worse trade than covering it in Task 14's headless browser pass, which asserts on real rendered output. This is a deliberate gap, stated here so nobody assumes it was an oversight. Keep `paint.js` free of decisions — everything it draws is decided in `views.js`, which *is* tested. If you find yourself writing an `if` about game rules here, it belongs in `views.js`.
 
 - [ ] **Step 1: Write the implementation**
 
@@ -1530,9 +1530,23 @@ Create `core/paint.js`:
     return block;
   }
 
-  function render(host, view, srcFor) {
+  function render(host, view, srcFor, meta) {
     host.innerHTML = '';
     host.appendChild(el('div', 'badge', view.badge));
+
+    // The stamp is how the Game Master finds this puzzle on their phone: the
+    // id names one puzzle no matter how the deck was shuffled, so nothing has
+    // to be synchronised between the projector and the phone (spec 16).
+    // Small and dim on purpose - the room should not be reading it.
+    if (view.id || meta) {
+      var stamp = el('div', 'stamp');
+      if (view.id) { stamp.appendChild(el('span', 'stamp-id', '#' + view.id)); }
+      if (meta && meta.total) {
+        stamp.appendChild(el('span', 'stamp-pos', meta.position + ' / ' + meta.total));
+      }
+      host.appendChild(stamp);
+    }
+
     var body = el('div', 'body');
 
     if (view.kind === 'rebus') {
@@ -1624,6 +1638,22 @@ html, body {
   padding: 0.8vmin 2vmin;
   border-radius: 10vmin;
 }
+
+/* Bottom-right: puzzle id and position. Deliberately faint - the Game Master
+   reads it off the screen; the room should not notice it. */
+.stamp {
+  position: fixed;
+  bottom: 2vmin;
+  right: 2vmin;
+  display: flex;
+  gap: 1.5vmin;
+  font-size: 1.8vmin;
+  letter-spacing: 0.18em;
+  color: var(--dim);
+  opacity: 0.55;
+}
+
+.stamp-id { text-transform: uppercase; }
 
 .body { display: flex; flex-direction: column; align-items: center; gap: 3vmin; }
 
@@ -2049,7 +2079,10 @@ Create `core/boot.js`:
 
       function draw() {
         var s = machine.state();
-        BG.paint.render(host, BG.views.viewForItem(s.item, s.stage), session.srcFor);
+        BG.paint.render(host, BG.views.viewForItem(s.item, s.stage), session.srcFor, {
+          position: s.index + 1,
+          total: items.length,
+        });
       }
 
       function rebuild(shuffle) {
@@ -2522,6 +2555,19 @@ test('Ruth ships as the root rebus, cameo not yet enabled', () => {
   assert.deepEqual(ruth.clues.map((c) => c.word), ['ROOT']);
 });
 
+test('every puzzle has a unique id that does not leak its answer', () => {
+  const seen = new Set();
+  globalThis.DECK.puzzles.forEach((p) => {
+    assert.ok(p.id, `${p.answer} has no id`);
+    assert.ok(!seen.has(p.id), `duplicate id ${p.id}`);
+    seen.add(p.id);
+    assert.ok(
+      !p.id.toLowerCase().includes(String(p.answer).toLowerCase()),
+      `id ${p.id} leaks its answer on the projector`,
+    );
+  });
+});
+
 test('every picture is expected in the one committed directory', () => {
   assert.deepEqual(globalThis.DECK.imageDirs, ['images/']);
 });
@@ -2548,6 +2594,12 @@ Create `games/book-names/deck.js`:
  *
  * EDIT THIS FILE to change the game. Nothing else needs touching.
  *
+ *   id         a stable handle like 'bn-07', printed small on the projector.
+ *              The Game Master looks it up on their phone to see the answer,
+ *              so it works no matter how the deck was shuffled. Authored once
+ *              and NEVER renumbered - inserting a puzzle takes the next unused
+ *              id. It must never contain the answer: it is on a screen in
+ *              front of the room, so 'ruth-08' would give the game away.
  *   answer     the book, revealed at the end
  *   answerAlt  its Filipino name, shown alongside on the reveal
  *   ref        canon placement, NOT a chapter - "Daniel 6" under DANIEL
@@ -2572,41 +2624,42 @@ window.DECK = {
   id: 'book-names',
   title: 'Bible Book Names',
   imageDirs: ['images/'],
+  idPrefix: 'bn',   // puzzle ids are shown on the projector; see spec 16
   shuffle: true,
   sessionSize: 15,
   languages: ['en'],
   puzzles: [
     // ---- Law -----------------------------------------------------------
     {
-      answer: 'GENESIS', answerAlt: 'Genesis', difficulty: 2,
+      id: 'bn-01', answer: 'GENESIS', answerAlt: 'Genesis', difficulty: 2,
       ref: { testament: 'Old', division: 'Law', position: 1 },
       clues: [{ img: 'gene.jpg', word: 'GENE' }, { img: 'sis.jpg', word: 'SIS' }],
     },
     {
-      answer: 'EXODUS', answerAlt: 'Exodo', difficulty: 2, flag: 'local',
+      id: 'bn-02', answer: 'EXODUS', answerAlt: 'Exodo', difficulty: 2, flag: 'local',
       ref: { testament: 'Old', division: 'Law', position: 2 },
       clues: [{ img: 'xo.jpg', word: 'XO' }, { img: 'dos.jpg', word: 'DOS' }],
     },
     {
-      answer: 'LEVITICUS', answerAlt: 'Levitico', difficulty: 3, flag: 'risky',
+      id: 'bn-03', answer: 'LEVITICUS', answerAlt: 'Levitico', difficulty: 3, flag: 'risky',
       ref: { testament: 'Old', division: 'Law', position: 3 },
       clues: [{ img: 'levi.jpg', word: 'LEVI' }, { img: 'tick.jpg', word: 'TICK' },
               { img: 'us.jpg', word: 'US' }],
     },
     {
-      answer: 'NUMBERS', answerAlt: 'Mga Bilang', difficulty: 1,
+      id: 'bn-04', answer: 'NUMBERS', answerAlt: 'Mga Bilang', difficulty: 1,
       ref: { testament: 'Old', division: 'Law', position: 4 },
       type: 'image', img: 'numerals.jpg',
     },
 
     // ---- Historical ----------------------------------------------------
     {
-      answer: 'JUDGES', answerAlt: 'Mga Hukom', difficulty: 1,
+      id: 'bn-05', answer: 'JUDGES', answerAlt: 'Mga Hukom', difficulty: 1,
       ref: { testament: 'Old', division: 'Historical', position: 7 },
       type: 'image', img: 'gavel.jpg',
     },
     {
-      answer: 'RUTH', answerAlt: 'Ruth', difficulty: 2,
+      id: 'bn-06', answer: 'RUTH', answerAlt: 'Ruth', difficulty: 2,
       ref: { testament: 'Old', division: 'Historical', position: 8 },
       clues: [{ img: 'root.jpg', word: 'ROOT' }],
 
@@ -2626,34 +2679,34 @@ window.DECK = {
       // bigger question than a picture on the hall projector.
     },
     {
-      answer: 'SAMUEL', answerAlt: '1 Samuel', difficulty: 2,
+      id: 'bn-07', answer: 'SAMUEL', answerAlt: '1 Samuel', difficulty: 2,
       ref: { testament: 'Old', division: 'Historical', position: 9 },
       clues: [{ img: 'sum.jpg', word: 'SUM' }, { img: 'well.jpg', word: 'WELL' }],
     },
     {
-      answer: 'KINGS', answerAlt: 'Mga Hari', difficulty: 1,
+      id: 'bn-08', answer: 'KINGS', answerAlt: 'Mga Hari', difficulty: 1,
       ref: { testament: 'Old', division: 'Historical', position: 11 },
       type: 'image', img: 'crown.jpg',
     },
     {
-      answer: 'ESTHER', answerAlt: 'Ester', difficulty: 2,
+      id: 'bn-09', answer: 'ESTHER', answerAlt: 'Ester', difficulty: 2,
       ref: { testament: 'Old', division: 'Historical', position: 17 },
       clues: [{ img: 'letter-s.jpg', word: 'S' }, { img: 'tear.jpg', word: 'TEAR' }],
     },
 
     // ---- Poetry --------------------------------------------------------
     {
-      answer: 'JOB', answerAlt: 'Job', difficulty: 2,
+      id: 'bn-10', answer: 'JOB', answerAlt: 'Job', difficulty: 2,
       ref: { testament: 'Old', division: 'Poetry', position: 18 },
       type: 'image', img: 'hardhat.jpg',
     },
     {
-      answer: 'PSALMS', answerAlt: 'Mga Awit', difficulty: 1,
+      id: 'bn-11', answer: 'PSALMS', answerAlt: 'Mga Awit', difficulty: 1,
       ref: { testament: 'Old', division: 'Poetry', position: 19 },
       clues: [{ img: 'palms.jpg', word: 'PALMS' }],
     },
     {
-      answer: 'PROVERBS', answerAlt: 'Mga Kawikaan', difficulty: 3,
+      id: 'bn-12', answer: 'PROVERBS', answerAlt: 'Mga Kawikaan', difficulty: 3,
       ref: { testament: 'Old', division: 'Poetry', position: 20 },
       clues: [{ img: 'pro.jpg', word: 'PRO' }, { img: 'verbs.jpg', word: 'VERBS' }],
     },
@@ -2663,44 +2716,44 @@ window.DECK = {
       // jerry.png is supplied by hand, not sourced here - it is Warner Bros'
       // character and this repo publishes publicly. Until it is added, this
       // card shows a red placeholder on its first clue, which is intended.
-      answer: 'JEREMIAH', answerAlt: 'Jeremias', difficulty: 3,
+      id: 'bn-13', answer: 'JEREMIAH', answerAlt: 'Jeremias', difficulty: 3,
       ref: { testament: 'Old', division: 'Major Prophets', position: 24 },
       clues: [{ img: 'jerry.png', word: 'JERRY' }, { img: 'maya.jpg', word: 'MAYA' }],
     },
     {
-      answer: 'DANIEL', answerAlt: 'Daniel', difficulty: 1,
+      id: 'bn-14', answer: 'DANIEL', answerAlt: 'Daniel', difficulty: 1,
       ref: { testament: 'Old', division: 'Major Prophets', position: 27 },
       clues: [{ img: 'done.jpg', word: 'DONE' }, { img: 'yell.jpg', word: 'YELL' }],
     },
 
     // ---- Minor Prophets ------------------------------------------------
     {
-      answer: 'HOSEA', answerAlt: 'Oseas', difficulty: 2,
+      id: 'bn-15', answer: 'HOSEA', answerAlt: 'Oseas', difficulty: 2,
       ref: { testament: 'Old', division: 'Minor Prophets', position: 28 },
       clues: [{ img: 'hose.jpg', word: 'HOSE' }, { img: 'letter-a.jpg', word: 'A' }],
     },
     {
-      answer: 'JOEL', answerAlt: 'Joel', difficulty: 2,
+      id: 'bn-16', answer: 'JOEL', answerAlt: 'Joel', difficulty: 2,
       ref: { testament: 'Old', division: 'Minor Prophets', position: 29 },
       clues: [{ img: 'jewel.jpg', word: 'JEWEL' }],
     },
     {
-      answer: 'AMOS', answerAlt: 'Amos', difficulty: 2,
+      id: 'bn-17', answer: 'AMOS', answerAlt: 'Amos', difficulty: 2,
       ref: { testament: 'Old', division: 'Minor Prophets', position: 30 },
       clues: [{ img: 'letter-a.jpg', word: 'A' }, { img: 'moss.jpg', word: 'MOSS' }],
     },
     {
-      answer: 'JONAH', answerAlt: 'Jonas', difficulty: 1,
+      id: 'bn-18', answer: 'JONAH', answerAlt: 'Jonas', difficulty: 1,
       ref: { testament: 'Old', division: 'Minor Prophets', position: 32 },
       type: 'image', img: 'whale.jpg',
     },
     {
-      answer: 'MICAH', answerAlt: 'Mikas', difficulty: 2,
+      id: 'bn-19', answer: 'MICAH', answerAlt: 'Mikas', difficulty: 2,
       ref: { testament: 'Old', division: 'Minor Prophets', position: 33 },
       clues: [{ img: 'mic.jpg', word: 'MIC' }, { img: 'ah.jpg', word: 'AH' }],
     },
     {
-      answer: 'MALACHI', answerAlt: 'Malakias', difficulty: 2,
+      id: 'bn-20', answer: 'MALACHI', answerAlt: 'Malakias', difficulty: 2,
       ref: { testament: 'Old', division: 'Minor Prophets', position: 39 },
       clues: [{ img: 'mall.jpg', word: 'MALL' }, { img: 'letter-a.jpg', word: 'A' },
               { img: 'key.jpg', word: 'KEY' }],
@@ -2708,27 +2761,27 @@ window.DECK = {
 
     // ---- Gospels and after ---------------------------------------------
     {
-      answer: 'MARK', answerAlt: 'Marcos', difficulty: 1,
+      id: 'bn-21', answer: 'MARK', answerAlt: 'Marcos', difficulty: 1,
       ref: { testament: 'New', division: 'Gospels', position: 41 },
       clues: [{ img: 'mark.jpg', word: 'MARK' }],
     },
     {
-      answer: 'LUKE', answerAlt: 'Lucas', difficulty: 3, flag: 'risky',
+      id: 'bn-22', answer: 'LUKE', answerAlt: 'Lucas', difficulty: 3, flag: 'risky',
       ref: { testament: 'New', division: 'Gospels', position: 42 },
       clues: [{ img: 'look.jpg', word: 'LOOK' }],
     },
     {
-      answer: 'ACTS', answerAlt: 'Mga Gawa', difficulty: 2,
+      id: 'bn-23', answer: 'ACTS', answerAlt: 'Mga Gawa', difficulty: 2,
       ref: { testament: 'New', division: 'History', position: 44 },
       clues: [{ img: 'axe.jpg', word: 'AXE' }, { img: 'letter-s.jpg', word: 'S' }],
     },
     {
-      answer: 'HEBREWS', answerAlt: 'Hebreo', difficulty: 3,
+      id: 'bn-24', answer: 'HEBREWS', answerAlt: 'Hebreo', difficulty: 3,
       ref: { testament: 'New', division: 'General Epistles', position: 58 },
       clues: [{ img: 'he.jpg', word: 'HE' }, { img: 'brews.jpg', word: 'BREWS' }],
     },
     {
-      answer: 'JAMES', answerAlt: 'Santiago', difficulty: 2,
+      id: 'bn-25', answer: 'JAMES', answerAlt: 'Santiago', difficulty: 2,
       ref: { testament: 'New', division: 'General Epistles', position: 59 },
       clues: [{ img: 'jam.jpg', word: 'JAM' }, { img: 'letter-s.jpg', word: 'S' }],
     },
@@ -2852,6 +2905,8 @@ Create `index.html`:
   .card p { margin: 0 0 1rem; color: var(--dim); line-height: 1.5; }
   .meta { font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase;
           color: var(--accent); }
+  .gm-link { margin-top: 3rem; font-size: 0.8rem; }
+  .gm-link a { color: var(--dim); }
 </style>
 </head>
 <body>
@@ -2862,6 +2917,7 @@ Create `index.html`:
   person clicks to reveal. No typing, no sign-in, and no internet needed —
   open it straight from the folder.</p>
   <div class="cards" id="cards"></div>
+  <p class="gm-link"><a href="games/book-names/gm.html">Game master</a></p>
 </div>
 
 <script src="games.js"></script>
@@ -2992,7 +3048,349 @@ git commit -m "Add Bible Book Names deck, game page, front page and review page"
 
 ---
 
-### Task 13: Verification and documentation
+### Task 13: The Game Master view
+
+**Files:**
+- Create: `core/gm.js`
+- Create: `gm-config.js`
+- Create: `tools/gm-hash.js`
+- Create: `games/book-names/gm.html`
+- Test: `tests/gm.test.js`
+
+**Interfaces:**
+- Consumes: `BibleGames.normalize.normalizeDeck` (Task 2), `BibleGames.views.formatRef` (Task 6), and `window.DECK` (Task 12).
+- Produces: `BibleGames.gm` with `hashCode(text) -> number`, `matches(input, hash) -> boolean`, and `rows(deck) -> Row[]` where a `Row` is `{id, answer, answerAlt, ref, working, lang, flags}` sorted by `id`.
+
+The projector prints `#bn-07`; the GM finds that row on their phone. Because ids never move, nothing is synchronised between the two devices and reshuffling costs nothing. See spec §16.
+
+- [ ] **Step 1: Write the failing test**
+
+Create `tests/gm.test.js`:
+
+```js
+'use strict';
+const test = require('node:test');
+const assert = require('node:assert/strict');
+require('../core/normalize.js');
+require('../core/views.js');
+require('../core/gm.js');
+const { hashCode, matches, rows } = globalThis.BibleGames.gm;
+
+const deck = () => ({
+  id: 'book-names',
+  languages: ['en', 'fil'],
+  puzzles: [
+    {
+      id: 'bn-02', answer: 'JEREMIAH', answerAlt: 'Jeremias', flag: 'risky',
+      ref: { testament: 'Old', division: 'Major Prophets', position: 24 },
+      clues: [{ img: 'jerry.png', word: 'JERRY' }, { img: 'maya.jpg', word: 'MAYA' }],
+    },
+    { id: 'bn-01', answer: 'JONAH', answerAlt: 'Jonas', type: 'image', img: 'whale.jpg',
+      ref: { testament: 'Old', division: 'Minor Prophets', position: 32 } },
+    { id: 'bn-03', answer: 'HARI', lang: 'fil', type: 'image', img: 'crown.jpg' },
+  ],
+});
+
+test('hashing is deterministic and ignores case and surrounding space', () => {
+  assert.equal(hashCode('Sabbath1844'), hashCode('Sabbath1844'));
+  assert.equal(hashCode('  sabbath1844  '), hashCode('SABBATH1844'));
+});
+
+test('different codes hash differently', () => {
+  assert.notEqual(hashCode('alpha'), hashCode('omega'));
+});
+
+test('hashing returns an unsigned 32-bit integer', () => {
+  const h = hashCode('anything');
+  assert.ok(Number.isInteger(h) && h >= 0 && h <= 0xffffffff, `got ${h}`);
+});
+
+test('matches accepts the right code and rejects the wrong one', () => {
+  const stored = hashCode('sabbath1844');
+  assert.equal(matches('sabbath1844', stored), true);
+  assert.equal(matches(' Sabbath1844 ', stored), true);
+  assert.equal(matches('sabbath1845', stored), false);
+  assert.equal(matches('', stored), false);
+});
+
+test('rows are sorted by id, not by deck order', () => {
+  assert.deepEqual(rows(deck()).map((r) => r.id), ['bn-01', 'bn-02', 'bn-03']);
+});
+
+test('a row carries what the game master needs to run the puzzle', () => {
+  const r = rows(deck()).find((x) => x.id === 'bn-02');
+  assert.equal(r.answer, 'JEREMIAH');
+  assert.equal(r.answerAlt, 'Jeremias');
+  assert.equal(r.ref, 'Old Testament · Major Prophets · book 24 of 66');
+  assert.equal(r.working, 'JERRY + MAYA');
+  assert.equal(r.lang, 'en');
+  assert.deepEqual(r.flags, ['risky']);
+});
+
+test('a direct-picture puzzle has no working line', () => {
+  assert.equal(rows(deck()).find((x) => x.id === 'bn-01').working, null);
+});
+
+test('the language being asked is carried through', () => {
+  assert.equal(rows(deck()).find((x) => x.id === 'bn-03').lang, 'fil');
+});
+
+test('every puzzle in the deck gets a row, in every language', () => {
+  assert.equal(rows(deck()).length, 3);
+});
+```
+
+- [ ] **Step 2: Run test to verify it fails**
+
+Run: `node --test tests/gm.test.js`
+Expected: FAIL — `Cannot find module '../core/gm.js'`
+
+- [ ] **Step 3: Write the module**
+
+Create `core/gm.js`:
+
+```js
+/*
+ * The Game Master view's data and its gate.
+ *
+ * The room sees the projector; whoever is running the game needs the answers
+ * on their own phone. Every puzzle carries a stable id that the projector
+ * prints in a corner, so the GM looks up one row and never needs to know the
+ * running order. Reshuffling costs nothing, and they can join halfway through.
+ */
+(function (root) {
+  'use strict';
+
+  var BG = root.BibleGames;
+
+  // FNV-1a, 32-bit. NOT cryptographic, and not pretending to be: knowing the
+  // code is the whole gate, and the threat model is a curious teenager with a
+  // phone. The hash exists only so the code is not sitting in plain text in a
+  // public repository, which would defeat the one purpose it has.
+  function hashCode(text) {
+    var s = String(text == null ? '' : text).trim().toLowerCase();
+    var h = 0x811c9dc5;
+    for (var i = 0; i < s.length; i++) {
+      h ^= s.charCodeAt(i);
+      h = (h + ((h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24))) >>> 0;
+    }
+    return h >>> 0;
+  }
+
+  function matches(input, hash) {
+    if (!String(input == null ? '' : input).trim()) { return false; }
+    return hashCode(input) === hash;
+  }
+
+  function rows(deck) {
+    var normalized = BG.normalize.normalizeDeck(deck);
+    return normalized.puzzles.map(function (p) {
+      var v = p.variants[0];
+      var flags = [];
+      p.variants.forEach(function (each) {
+        if (each.flag && flags.indexOf(each.flag) === -1) { flags.push(each.flag); }
+      });
+      return {
+        id: p.id,
+        answer: p.answer,
+        answerAlt: p.answerAlt,
+        ref: BG.views.formatRef(p.ref),
+        working: v.clues
+          ? v.clues.map(function (c) { return c.word; }).join(' + ')
+          : null,
+        lang: p.lang,
+        flags: flags,
+      };
+    }).sort(function (a, b) {
+      return String(a.id) < String(b.id) ? -1 : (String(a.id) > String(b.id) ? 1 : 0);
+    });
+  }
+
+  root.BibleGames = root.BibleGames || {};
+  root.BibleGames.gm = { hashCode: hashCode, matches: matches, rows: rows };
+})(typeof globalThis !== 'undefined' ? globalThis : window);
+```
+
+- [ ] **Step 4: Run test to verify it passes**
+
+Run: `node --test tests/gm.test.js`
+Expected: PASS, 9 tests.
+
+- [ ] **Step 5: Write the hash tool and the config**
+
+Create `tools/gm-hash.js`:
+
+```js
+/*
+ * Print the hash for a game master access code.
+ *
+ *   node tools/gm-hash.js "sabbath1844"
+ *
+ * Paste the number it prints into gm-config.js. The code itself is never
+ * committed anywhere.
+ */
+'use strict';
+require('../core/gm.js');
+var code = process.argv[2];
+if (!code) {
+  console.error('usage: node tools/gm-hash.js "<access code>"');
+  process.exit(2);
+}
+console.log(globalThis.BibleGames.gm.hashCode(code));
+```
+
+Create `gm-config.js`. Run `node tools/gm-hash.js "changeme"` and paste the number it prints:
+
+```js
+/*
+ * Who may see the answers.
+ *
+ * Knowing the code is the whole gate. This is obscurity, not security - see
+ * spec 8.1 and 16. Change it with:  node tools/gm-hash.js "your code"
+ */
+window.GM_CONFIG = { codeHash: 0 };   // <- replace with the printed number
+```
+
+- [ ] **Step 6: Write the Game Master page**
+
+Create `games/book-names/gm.html`. Every path relative, as everywhere else.
+
+```html
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Game master — Bible Book Names</title>
+<link rel="stylesheet" href="../../core/theme.css">
+<style>
+  body { overflow: auto; }
+  .wrap { max-width: 44rem; margin: 0 auto; padding: 1.5rem 1rem 4rem; }
+  h1 { font-size: 1.5rem; margin: 0 0 0.25rem; }
+  .sub { color: var(--dim); font-size: 0.85rem; margin: 0 0 1.5rem; }
+  input { width: 100%; font-size: 1.1rem; padding: 0.7rem 0.9rem; border-radius: 0.6rem;
+          border: 1px solid #2c3444; background: var(--card); color: var(--fg); }
+  .row { background: var(--card); border-radius: 0.7rem; padding: 0.8rem 1rem;
+         margin-top: 0.6rem; }
+  .rid { font-size: 0.7rem; letter-spacing: 0.2em; color: var(--dim);
+         text-transform: uppercase; }
+  .ranswer { font-size: 1.6rem; font-weight: 700; }
+  .ralt { color: var(--accent); font-style: italic; }
+  .rmeta { font-size: 0.75rem; color: var(--dim); margin-top: 0.3rem; }
+  .rwork { font-size: 0.9rem; letter-spacing: 0.08em; color: var(--accent); }
+  .tag { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.15em;
+         padding: 0.1rem 0.45rem; border-radius: 1rem; background: var(--bg);
+         color: var(--dim); margin-right: 0.3rem; }
+  .tag.risky { background: var(--bad); color: #fff; }
+  .hide { display: none; }
+  .note { color: var(--dim); font-size: 0.8rem; margin-top: 0.6rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Game master</h1>
+  <p class="sub">Bible Book Names — San Fernando AY Church</p>
+
+  <div id="gate">
+    <input id="code" type="password" placeholder="Access code" autocomplete="off">
+    <p class="note" id="gate-note">The projector shows a puzzle id like
+      <strong>#bn-07</strong> in the bottom corner. Enter the code, then find that id.</p>
+  </div>
+
+  <div id="list" class="hide">
+    <input id="filter" type="search" placeholder="Filter by id or answer — e.g. bn-07"
+           autocomplete="off">
+    <div id="rows"></div>
+  </div>
+</div>
+
+<script src="../../core/normalize.js"></script>
+<script src="../../core/views.js"></script>
+<script src="../../core/gm.js"></script>
+<script src="../../gm-config.js"></script>
+<script src="deck.js"></script>
+<script>
+  (function () {
+    var gate = document.getElementById('gate');
+    var list = document.getElementById('list');
+    var codeBox = document.getElementById('code');
+    var note = document.getElementById('gate-note');
+    var rowsHost = document.getElementById('rows');
+    var filter = document.getElementById('filter');
+    var all = BibleGames.gm.rows(window.DECK);
+
+    function el(tag, cls, text) {
+      var n = document.createElement(tag);
+      if (cls) { n.className = cls; }
+      if (text != null) { n.textContent = text; }
+      return n;
+    }
+
+    function draw(term) {
+      rowsHost.innerHTML = '';
+      var q = String(term || '').trim().toLowerCase();
+      all.filter(function (r) {
+        return !q || r.id.toLowerCase().indexOf(q) !== -1
+          || r.answer.toLowerCase().indexOf(q) !== -1;
+      }).forEach(function (r) {
+        var box = el('div', 'row');
+        box.appendChild(el('div', 'rid', '#' + r.id));
+        box.appendChild(el('div', 'ranswer', r.answer));
+        if (r.answerAlt) { box.appendChild(el('div', 'ralt', r.answerAlt)); }
+        if (r.working) { box.appendChild(el('div', 'rwork', r.working)); }
+        var meta = el('div', 'rmeta');
+        meta.appendChild(el('span', 'tag', r.lang === 'fil' ? 'Filipino' : 'English'));
+        r.flags.forEach(function (f) { meta.appendChild(el('span', 'tag ' + f, f)); });
+        if (r.ref) { meta.appendChild(document.createTextNode(r.ref)); }
+        box.appendChild(meta);
+        rowsHost.appendChild(box);
+      });
+    }
+
+    function unlock() {
+      gate.classList.add('hide');
+      list.classList.remove('hide');
+      draw('');
+    }
+
+    function tryCode(value) {
+      if (BibleGames.gm.matches(value, window.GM_CONFIG.codeHash)) {
+        try { sessionStorage.setItem('gm', '1'); } catch (e) { /* private mode */ }
+        unlock();
+      } else {
+        note.textContent = 'That code is not right. Ask whoever set the game up.';
+      }
+    }
+
+    try {
+      if (sessionStorage.getItem('gm') === '1') { unlock(); }
+    } catch (e) { /* private mode: just ask for the code */ }
+
+    codeBox.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { tryCode(codeBox.value); }
+    });
+    filter.addEventListener('input', function () { draw(filter.value); });
+  })();
+</script>
+</body>
+</html>
+```
+
+- [ ] **Step 7: Run the whole suite**
+
+Run: `node --test tests/`
+Expected: PASS, every test from Tasks 1–13.
+
+- [ ] **Step 8: Commit**
+
+```bash
+git add core/gm.js gm-config.js tools/gm-hash.js games/book-names/gm.html tests/gm.test.js
+git commit -m "Add the game master view"
+```
+
+---
+
+### Task 14: Verification and documentation
 
 **Files:**
 - Modify: `README.md` (replace wholesale)
@@ -3102,7 +3500,8 @@ Neither is a checkbox anyone else can tick for you. Do them before the deck meet
 | §10.1 variants | Tasks 3, 10, 12 |
 | §11 deck content | Task 12 |
 | §11.1 Filipino names, badge | Tasks 6, 12 |
-| §12 verification | Tasks 11, 13 |
+| §12 verification | Tasks 11, 14 |
+| §16 game master view | Tasks 6, 8, 11, 12, 13 |
 | §13 milestones | Task order |
 | §14 future games | `games.js` parked entries (Task 12) |
 
@@ -3110,7 +3509,7 @@ Neither is a checkbox anyone else can tick for you. Do them before the deck meet
 
 **Two gaps, both stated rather than hidden.** `core/paint.js` has no Node unit test — a DOM implementation is a worse trade than Task 13's browser pass, and paint is kept decision-free so that the untested part is only drawing. `core/controls.js` has its key table tested but not its DOM wiring, covered the same way.
 
-**Placeholder scan.** No "TBD", no "add error handling", no "similar to Task N". Every code step carries the real code. Task 13's prose steps describe document contents rather than code, which is correct for a documentation task — but where a decision was needed (what leaves the handover, what stays) the plan makes it rather than deferring it.
+**Placeholder scan.** No "TBD", no "add error handling", no "similar to Task N". Every code step carries the real code. Task 14's prose steps describe document contents rather than code, which is correct for a documentation task — but where a decision was needed (what leaves the handover, what stays) the plan makes it rather than deferring it.
 
 **Type consistency.** Checked across tasks: `normalizePuzzle`/`normalizeDeck` (T2) → `eligible`/`pick` (T3) → `zoneRange`/`shuffle`/`byDifficulty`/`buildOrder` (T4) → `createMachine` (T5) → `formatRef`/`badgeFor`/`byType`/`stagesForItem`/`viewForItem` (T6) → `candidates`/`makeResolver`/`browserLoad` (T7) → `render(host, view, srcFor)` (T8) → `actionFor`/`attach`/`toggleFullscreen` (T9) → `buildSession`/`start` (T10) → `validate` (T11). Names and arities match at every call site.
 
