@@ -9,8 +9,8 @@ const { validate } = globalThis.BibleGames.validate;
 const ok = () => ({
   id: 'book-names',
   puzzles: [
-    { answer: 'JONAH', type: 'image', img: 'whale.jpg' },
-    { answer: 'ACTS', clues: [{ img: 'axe.jpg', word: 'AXE' }] },
+    { id: 'bn-01', answer: 'JONAH', type: 'image', img: 'whale.jpg' },
+    { id: 'bn-02', answer: 'ACTS', clues: [{ img: 'axe.jpg', word: 'AXE' }] },
   ],
 });
 
@@ -60,6 +60,15 @@ test('order correct must be a permutation of items', () => {
   assert.match(errs(d), /permutation/i);
 });
 
+test('a non-positive weight is an error', () => {
+  const d = ok();
+  d.puzzles.push({ answer: 'X', type: 'image', img: 'x.jpg', weight: 0 });
+  assert.match(errs(d), /weight/i);
+  const neg = ok();
+  neg.puzzles.push({ answer: 'Y', type: 'image', img: 'y.jpg', weight: -1 });
+  assert.match(errs(neg), /weight/i);
+});
+
 test('a bad difficulty is an error', () => {
   const d = ok();
   d.puzzles.push({ answer: 'X', type: 'image', img: 'x.jpg', difficulty: 7 });
@@ -74,6 +83,23 @@ test('an unknown lang or slot is an error', () => {
   const badSlot = ok();
   badSlot.puzzles.push({ answer: 'Y', type: 'image', img: 'y.jpg', slot: 'end' });
   assert.match(errs(badSlot), /slot/i);
+});
+
+test('a missing or duplicate id is an error', () => {
+  const missing = ok();
+  missing.puzzles.push({ answer: 'X', type: 'image', img: 'x.jpg' });
+  assert.match(errs(missing), /id/i);
+
+  const dup = ok();
+  dup.puzzles[1].id = dup.puzzles[0].id;
+  assert.match(errs(dup), /duplicate id/i);
+});
+
+test('an id containing its own answer is an error', () => {
+  // The id is printed on a projector in front of the room.
+  const d = ok();
+  d.puzzles.push({ id: 'ruth-08', answer: 'RUTH', type: 'image', img: 'r.jpg' });
+  assert.match(errs(d), /id .*answer|leak/i);
 });
 
 test('duplicate answers in the same language are an error', () => {

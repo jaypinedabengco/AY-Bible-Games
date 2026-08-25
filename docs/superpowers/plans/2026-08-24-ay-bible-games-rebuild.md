@@ -2279,7 +2279,7 @@ test('duplicate answers in the same language are an error', () => {
 
 test('the same answer in two languages is allowed', () => {
   const d = ok();
-  d.puzzles.push({ answer: 'JONAH', lang: 'fil', type: 'image', img: 'whale.jpg' });
+  d.puzzles.push({ id: 'bn-03', answer: 'JONAH', lang: 'fil', type: 'image', img: 'whale.jpg' });
   d.languages = ['en', 'fil'];
   assert.deepEqual(validate(d).errors, []);
 });
@@ -2300,7 +2300,7 @@ test('an over-subscribed zone is an error', () => {
 
 test('a risky flag is a notice, not an error', () => {
   const d = ok();
-  d.puzzles.push({ answer: 'LEVITICUS', type: 'image', img: 'x.jpg', flag: 'risky' });
+  d.puzzles.push({ id: 'bn-04', answer: 'LEVITICUS', type: 'image', img: 'x.jpg', flag: 'risky' });
   const r = validate(d);
   assert.deepEqual(r.errors, []);
   assert.match(r.notices.join(' | '), /risky/i);

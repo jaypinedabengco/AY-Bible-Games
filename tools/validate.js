@@ -25,6 +25,14 @@
     if ([1, 2, 3].indexOf(v.difficulty) === -1) {
       errors.push(where + ': difficulty must be 1, 2 or 3 (got ' + v.difficulty + ')');
     }
+    // A weight of 0 would make pick() degenerate silently: total is 0, the
+    // cumulative subtraction never goes negative, and the floating-point
+    // backstop returns the last variant every time regardless of the draw.
+    // Catch it here, where deck-authoring mistakes belong, rather than
+    // guarding the hot path.
+    if (typeof v.weight !== 'number' || !(v.weight > 0)) {
+      errors.push(where + ': weight must be a positive number (got ' + v.weight + ')');
+    }
     if (v.type === 'rebus') {
       if (!v.clues || !v.clues.length) {
         errors.push(where + ': rebus needs a non-empty clues array');
@@ -65,12 +73,34 @@
     var notices = [];
     var seen = {};
 
+    // Structural checks run over EVERY puzzle; playability checks run over the
+    // ones this session would actually play.
+    //
+    // The distinction matters. A typo'd lang like 'es' silently drops a puzzle
+    // out of the pool, so validating only the pool would hide exactly the
+    // mistake most worth catching: the author sees a deck that passes and a
+    // puzzle that never appears. A deliberate 'fil' puzzle in an English-only
+    // deck is a different thing - uncounted, not unchecked.
     var pool = normalized.puzzles.filter(function (p) {
       return normalized.languages.indexOf(p.lang) !== -1;
     });
 
-    pool.forEach(function (p) {
+    var seenIds = {};
+
+    normalized.puzzles.forEach(function (p) {
       if (!p.answer) { errors.push('a puzzle is missing its answer'); return; }
+      if (!p.id) {
+        errors.push('"' + p.answer + '": missing id');
+      } else {
+        if (seenIds[p.id]) { errors.push('duplicate id "' + p.id + '"'); }
+        seenIds[p.id] = true;
+        // The id is displayed on a projector in front of the room, so an id
+        // that contains its own answer hands the answer over. See spec 16.
+        if (p.id.toLowerCase().indexOf(String(p.answer).toLowerCase()) !== -1) {
+          errors.push('id "' + p.id + '" contains its own answer "' + p.answer +
+                      '" and would leak it on screen');
+        }
+      }
       if (LANGS.indexOf(p.lang) === -1) {
         errors.push('"' + p.answer + '": unknown lang "' + p.lang + '"');
       }
@@ -95,6 +125,7 @@
       });
     });
 
+    // From here down the session is what matters, so these use the pool.
     var playable = pool.length;
     var size = normalized.sessionSize || playable;
     if (normalized.sessionSize && normalized.sessionSize > playable) {
