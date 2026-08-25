@@ -81,6 +81,7 @@ games/book-names/
   index.html
   deck.js                the puzzles — the only file a host edits
   images/                every clue picture — all committed
+  gm.html                the Game Master view — answers on a phone (§16)
 tools/
   review.html            whole deck on one screen, reads the real deck.js
   validate.js            deck sanity check, runs under node
@@ -583,6 +584,78 @@ AY nights want that track; not in scope here.
 | A book has no workable pun | Fall back to `image` where a direct depiction exists; otherwise leave it out of v1 |
 
 ---
+
+## 16. The Game Master view
+
+Added after the rebuild began. The room sees the projector; the person running
+the game needs to see the answers, on their own phone, on the same site.
+
+### The problem is sync, not the password
+
+The projector and the phone are two browsers with no backend between them, and
+the running order is randomised per session — so a GM holding a plain list of
+answers would be holding it in the wrong order.
+
+The fix is already half-built: `buildOrder` takes an injectable `rng`
+(§6.1), which exists so the order can be made reproducible.
+
+**A session is a seed.** On load the game derives a short **session code** —
+six characters, base36 — and seeds every random decision from it: the shuffle,
+the subset draw, and the variant picks. The code is displayed small and dim in
+a corner alongside a `7 / 15` position counter.
+
+The GM enters that code on their phone. Their device re-runs the same
+`buildSession` from the same seed against the same committed deck, and
+reproduces the identical running order — offline, with the two devices never
+exchanging a byte. The projector shows `7 / 15`; the GM reads item 7.
+
+Nothing can desync, because nothing is being synchronised. A phone that sleeps,
+loses signal, or is closed and reopened recovers completely from the six
+characters on the wall.
+
+### What the GM sees
+
+The running order, numbered to match the projector's counter, each row carrying:
+the answer, the `answerAlt` Filipino name, the canon reference, the clue working
+(`JERRY + MAYA`), the language being asked, and any `flag` — so the GM knows
+which puns are risky and can feed the room a hint before one dies in silence.
+
+### The access code
+
+Site-wide, in `gm-config.js`, and gated by nothing more than knowing it. The
+threat model is a curious teenager with a phone, not an adversary.
+
+It is stored as a **non-cryptographic hash**, not the literal string. Not
+because that is secure — it is not, and this document will not pretend
+otherwise — but because this repo is public, and a plain-text code sitting in it
+is discoverable by anyone who thinks to look, which defeats the only purpose the
+code has. A hash makes casual discovery meaningfully harder at identical cost.
+
+Once entered, it is remembered in `sessionStorage` so the GM does not retype it
+between screens.
+
+### The reshuffle wrinkle, stated rather than hidden
+
+Pressing `R` mid-game rebuilds the session, which means a **new** session code.
+The GM's list becomes wrong at that moment. The projector's code changes on
+screen, and the GM view says in plain words that a changed code must be
+re-entered. Better a visible instruction than a silent drift into reading out
+the wrong answer.
+
+### Structure
+
+```
+gm-config.js                 the access-code hash, site-wide
+core/rng.js                  the seeded PRNG, shared by game and GM view
+games/book-names/gm.html     the GM view for this deck
+```
+
+`core/rng.js` is the same mulberry32 generator the tests already use. It moves
+out of `tests/helpers/` into `core/` because the browser now needs it too;
+`tests/helpers/rng.js` re-exports it so every existing test keeps working
+unchanged. One generator, one behaviour, two callers — the projector and the
+phone **must** agree exactly, or the whole scheme silently produces two
+different orders.
 
 ## Appendix A — Game 1 draft puns
 

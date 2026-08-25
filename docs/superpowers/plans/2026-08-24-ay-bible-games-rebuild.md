@@ -587,7 +587,29 @@ test('zones are fractional thirds', () => {
 test('zones degrade safely at tiny sizes', () => {
   assert.deepEqual(zoneRange('early', 3), [0, 1]);
   assert.deepEqual(zoneRange('late', 3), [2, 3]);
-  assert.deepEqual(zoneRange('late', 1), [1, 1]);   // empty: nothing can be late
+  assert.deepEqual(zoneRange('late', 1), [0, 1]);   // the only puzzle is the last one
+});
+
+// Property tests, because point assertions missed an empty `late` zone at
+// sizes 2 and 4 - which would throw at startup and leave a blank projector.
+test('late always contains the final slot, at every size', () => {
+  for (let size = 1; size <= 40; size++) {
+    const [start, end] = zoneRange('late', size);
+    assert.equal(end, size, `late must end at size for size ${size}`);
+    assert.ok(start < size, `late is empty at size ${size}`);
+  }
+});
+
+test('the three zones tile the running order exactly, at every size', () => {
+  for (let size = 1; size <= 40; size++) {
+    const e = zoneRange('early', size);
+    const m = zoneRange('middle', size);
+    const l = zoneRange('late', size);
+    assert.equal(e[0], 0, `early must start at 0 for size ${size}`);
+    assert.equal(e[1], m[0], `early must meet middle for size ${size}`);
+    assert.equal(m[1], l[0], `middle must meet late for size ${size}`);
+    assert.equal(l[1], size, `late must end at size for size ${size}`);
+  }
 });
 
 test('shuffle copies rather than mutating', () => {
@@ -702,12 +724,19 @@ Create `core/order.js`:
   'use strict';
 
   function zoneRange(zone, size) {
+    if (size <= 0) { return [0, 0]; }
     var third = Math.ceil(size / 3);
-    var one = Math.min(third, size);
-    var two = Math.min(2 * third, size);
-    if (zone === 'early') { return [0, one]; }
-    if (zone === 'middle') { return [one, two]; }
-    if (zone === 'late') { return [two, size]; }
+    // Anchor `late` to the END of the order rather than measuring two thirds
+    // forward from the start. Measuring forward overshoots: at size 4,
+    // 2 * ceil(4/3) is 4, so `late` became the empty range [4,4) and a pinned
+    // puzzle threw at startup - a blank projector in front of a room, which is
+    // the exact failure this project exists to avoid. Anchoring backwards
+    // guarantees `late` always holds at least the final slot.
+    var lateStart = Math.max(0, size - third);
+    var earlyEnd = Math.min(third, lateStart);
+    if (zone === 'early') { return [0, earlyEnd]; }
+    if (zone === 'middle') { return [earlyEnd, lateStart]; }
+    if (zone === 'late') { return [lateStart, size]; }
     return [0, size];
   }
 
@@ -783,7 +812,7 @@ Create `core/order.js`:
 - [ ] **Step 4: Run test to verify it passes**
 
 Run: `node --test tests/order.test.js`
-Expected: PASS, 12 tests.
+Expected: PASS, 14 tests.
 
 - [ ] **Step 5: Commit**
 
