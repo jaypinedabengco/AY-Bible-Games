@@ -7,3 +7,4 @@ cameo is ever enabled — and they need rows here too.
 
 | File | Source | Author | Licence |
 |---|---|---|---|
+| `ph-flag.jpg` | [Flag of the Philippines (bordered)1.PNG](https://commons.wikimedia.org/wiki/File:Flag_of_the_Philippines_(bordered)1.PNG) | --Edgar Allan Poe | Public domain |
