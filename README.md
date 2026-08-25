@@ -1,94 +1,153 @@
-# AY Bible Games
+# AY Bible Games — San Fernando Adventist Church
 
-Simple picture games for church. Put one on the projector, the room shouts the
-answer, you click to reveal. Nobody has to type anything.
+Picture games for church, projected in the hall. The room shouts the answer;
+one person drives with the spacebar. No typing, no sign-in, no internet.
 
-**Bible Names** is the game that's ready: a rebus. Pictures stand for syllables,
-and the answer is a Bible name.
+**Bible Book Names** is the game that's ready. Pictures stand for syllables, and
+the answer is a book of the Bible.
 
-    [✓ done] + [😱 yell]   →   DONE + YELL   →   DANIEL
-    [A]      + [dam]       →   A + DAM       →   ADAM
-    [magic]  + [ham]       →   ABRA + HAM    →   ABRAHAM
+    [jeans] + [sis]        →  JEANS + SIS   →  GENESIS
+    [XO candy] + [2]       →  XO + DOS      →  EXODUS
+    [✓ done] + [😱 yell]   →  DONE + YELL   →  DANIEL
+
+42 of the 66 books, drawing 20 per session so no two nights are the same.
 
 ---
 
 ## Playing it
 
-**No internet needed.** Open `index.html` from the folder — double-click it.
-That's the whole install. Copy the folder to a USB stick and it works on any
-laptop in the building, wifi or no wifi.
-
-Once it's open:
+**Double-click `index.html`.** That's the whole install. Copy the folder to a
+USB stick and it runs on any laptop in the building, wifi or not.
 
 | Key | What it does |
 |-----|--------------|
-| `Space` / click | reveal the working, then the name, then next puzzle |
+| `Space` / click | reveal the working, then the answer, then next |
 | `←` | back |
-| `R` | shuffle the deck |
+| `R` | reshuffle |
+| `O` | back to the order written in `deck.js` |
 | `F` | fullscreen |
-| `Home` | back to the first puzzle |
+| `Home` | first puzzle |
 
-The reveal has two beats on purpose. The first click shows `DONE + YELL`, which
-gives the room a moment to get there themselves; the second shows `DANIEL`. If
-you reveal the name straight away, anyone who didn't get the pun never finds out
-why it worked.
+Nothing else is bound. Every extra key is a chance to derail a service by
+leaning on the keyboard.
 
-The deck starts in a fixed order rather than shuffling itself, so you can run
-through it beforehand and know what's coming. Press `R` when you want it random.
+**The reveal has two beats on purpose.** The first click shows `DONE + YELL`,
+which gives the room a moment to get there themselves; the second shows
+`DANIEL`. Reveal the answer straight away and anyone who missed the pun never
+finds out why it worked.
+
+**A session draws 20 of the 42 books, shuffled, easiest first.** Press `R` for a
+new draw mid-game, or `O` to walk the deck in file order when you're rehearsing.
+
+---
+
+## The Game Master view
+
+The room watches the projector. Whoever is running the game opens
+**`games/book-names/gm.html` on their phone** to see the answers.
+
+Every card prints a small id in the bottom corner — `#bn-13`. Type that id into
+the Game Master view and you get the answer, the working, and where the book
+sits in the canon. You can search by book name too.
+
+Nothing is synchronised between the projector and the phone, so reshuffling
+costs nothing and you can join halfway through. The ids never move.
+
+**Username `GM`, password `Adventist`.** Change them before a service:
+
+```sh
+node tools/gm-hash.js YourUser YourPassword
+```
+
+Paste the number it prints into `gm-config.js`. The credentials themselves are
+never written to a file. This is a lock on a door, not a safe — it stops a
+curious teenager, nothing more, and the file says so.
 
 ---
 
 ## Changing the puzzles
 
-Everything is in **`games/names/deck.js`**. Open it in any text editor. One
-puzzle looks like this:
+Everything is in **`games/book-names/deck.js`**. Open it in any text editor.
 
 ```js
 {
-  answer: 'DANIEL', ref: 'Daniel 6',
-  clues: [{ img: 'done.svg', word: 'DONE' }, { img: 'yell.svg', word: 'YELL' }],
+  id: 'bn-14', answer: 'DANIEL', difficulty: 1,
+  ref: { testament: 'Old', division: 'Major Prophets', position: 27 },
+  clues: [{ img: 'done.jpg', word: 'DONE' }, { img: 'yell.jpg', word: 'YELL' }],
 },
 ```
 
-- `answer` — the name shown at the end
-- `ref` — where to find them, shown underneath
+- `answer` — the book, shown at the end
+- `id` — the handle printed on the projector so the Game Master can look it up.
+  **Never put the answer in the id.** It is on a screen in front of the room, so
+  `ruth-08` would give the game away. The validator refuses those.
+- `ref` — where the book sits: testament, division, and its number out of 66.
+  Deliberately *not* a chapter — printing `Daniel 6` under DANIEL hands the
+  answer over.
 - `clues` — the pictures, left to right. `word` is the syllable that picture
   stands for; it's hidden until the reveal.
-- `img` — a file in `games/names/clues/`
+- `difficulty` — 1, 2 or 3. A session plays easiest first so the room isn't
+  fried in the first minute.
+- `flag: 'risky'` — a note to yourself for a pun that might not land. The game
+  ignores it; the validator lists it every run.
+- `type: 'image'` — for a picture that *is* the answer rather than a syllable,
+  like a whale for Jonah. No working line.
 
-To **remove** a puzzle, delete its block. To **reorder**, move the blocks
-around. No other file needs touching.
+To remove a puzzle, delete its block. To reorder, move the blocks. Nothing else
+needs touching.
+
+**After editing, always run:**
+
+```sh
+node tools/validate.js games/book-names/deck.js
+```
+
+It catches a missing id, a duplicate, an id that leaks its answer, a bad
+difficulty, and a session size larger than the deck.
 
 ### Using your own pictures
 
-Drop the image into `games/names/clues/` and name it in the deck:
+Drop the file into `games/book-names/images/` and name it in the deck:
 
 ```js
-clues: [{ img: 'jerry.png', word: 'JERRY' }, { img: 'maya.svg', word: 'MAYA' }],
+clues: [{ img: 'my-picture.jpg', word: 'JAM' }],
 ```
 
-A full URL also works, which is handy while you're trying ideas out:
+**Aim for 1000px wide or more.** Anything smaller turns to mush on a projector.
 
-```js
-clues: [{ img: 'https://example.com/beaver-dam.jpg', word: 'DAM' }],
-```
+If an image is missing the card shows a red `?` rather than sitting blank, so
+you notice during setup instead of mid-service. If a *script* fails to load the
+page says so on screen — it never shows a blank rectangle.
 
-**But use local files for anything you'll actually play.** A URL means that clue
-needs working internet at the exact moment it appears on screen, and it breaks
-permanently if whoever owns that page moves or deletes the picture. Google
-Images thumbnail links (`encrypted-tbn0.gstatic.com/images?q=tbn:...`) are the
-worst case — those are temporary cache keys that expire, and they're only a
-couple of hundred pixels wide, so they look like mush blown up on a projector.
-Save the real file into `clues/` instead.
-
-If an image is missing, the card shows a red `?` rather than sitting blank — so
-you notice during setup instead of mid-service.
+**Two hard-won lessons about sourcing.** Photograph archives are useless for
+abstract words: a search for "done" returned a Japanese railway ticket, "tick"
+an entomological specimen, and "letter A" someone's correspondence. Use a
+graphic — an emoji or a drawn tile — for anything that isn't a physical object.
+And avoid Google Images thumbnail links entirely; they're rotating cache keys
+that expire, and only a couple of hundred pixels wide.
 
 ### A note on what you put in there
 
 Cartoon characters, logos and brand mascots belong to somebody. Using one on a
-laptop in a church hall is one thing; committing it to a public repo that
-publishes to the open web is another. Worth a thought before you push.
+laptop in a church hall is one thing; committing it to a public repository that
+publishes to the open web is another. `CREDITS.md` records the source and
+licence of every picture — keep it accurate.
+
+---
+
+## Checking the deck
+
+```sh
+open tools/review.html
+```
+
+Every puzzle with its real artwork on one screen, the clue word and filename
+under each picture. Filter by id, answer or filename. Click a card to mark it as
+needing a better picture; the marks persist and collect into a copyable list, so
+a review pass produces a worklist instead of a memory.
+
+This is the fastest way to spot a clue that doesn't read before it reaches a
+projector.
 
 ---
 
@@ -97,17 +156,20 @@ publishes to the open web is another. Worth a thought before you push.
 The game does not need this. It's only so people can open it from a phone.
 
 1. Commit and push to `main`.
-2. On GitHub: **Settings → Pages**, source **Deploy from a branch**,
-   branch `main`, folder `/ (root)`.
+2. On GitHub: **Settings → Pages**, source **Deploy from a branch**, branch
+   `main`, folder `/ (root)`.
 3. It appears at `https://jaypinedabengco.github.io/AY-Bible-Games/`.
 
-Every path in this project is **relative** (`assets/theme.css`, not
-`/assets/theme.css`). That's deliberate: Pages serves this from a subfolder, and
-a single root-absolute path would 404 there while still working fine locally —
-the nastiest kind of bug, because it only appears after you publish. If you add
-files, keep the paths relative.
+Every path in this project is **relative** (`core/theme.css`, not
+`/core/theme.css`). That's deliberate: Pages serves this from a subfolder, and a
+single root-absolute path would 404 there while working fine locally — the
+nastiest kind of bug, because it only appears after you publish. Keep paths
+relative when you add files.
 
-`.nojekyll` is there to stop GitHub trying to process the site as a blog.
+`.nojekyll` stops GitHub trying to process the site as a blog.
+
+**Pages deploys what is committed.** There is no private image folder: a picture
+that isn't in the repo simply isn't on the published site.
 
 ---
 
@@ -116,58 +178,54 @@ files, keep the paths relative.
 ```
 index.html              front page, lists the games
 games.js                the list of games — add a line to add a game
-assets/
-  theme.css             shared look; colours and sizes are at the top
-  runner.js             the shared engine: reveal stages, keyboard, shuffle
-games/names/
-  index.html            the Bible Names game
+gm-config.js            the Game Master login hash
+core/
+  normalize.js          deck and puzzle defaults
+  variants.js           picking between several pictures for one answer
+  order.js              the running order: shuffle, subset, difficulty, zones
+  machine.js            which puzzle, and how much of it is showing
+  views.js              turning a puzzle into what belongs on screen
+  images.js             finding a picture, ending at a visible placeholder
+  paint.js              drawing it
+  controls.js           the keys
+  boot.js               assembling a session
+  theme.css             the look; colours and sizes are at the top
+games/book-names/
+  index.html            the game
   deck.js               ← THE PUZZLES. This is the file you'll edit.
-  clues/*.svg           clue artwork
-games/characters/
-  images/*.svg          artwork for a second game — see "Parked" below
+  images/*              clue artwork
+  gm.html               the Game Master view
 tools/
-  common.py             shared palette for the drawing scripts
-  gen_clues.py          redraws games/names/clues/
-  gen_images.py         redraws games/characters/images/
-  review.html           all puzzles on one page, for checking the deck
+  validate.js           deck checker — run this after editing
+  review.html           the whole deck on one screen
+  fetch-images.js       source pictures from Wikimedia Commons
+  make-letters.js       draw the letter and number tiles
+  make-graphics.js      draw the clues no search returns cleanly
+  gm-hash.js            hash a Game Master username and password
+tests/                  108 tests, zero dependencies
+CREDITS.md              source and licence for every picture
 ```
 
-`tools/review.html` is worth knowing about: open it and you see every puzzle
-with its artwork and answer on one screen. It reads the same `deck.js` the game
-does, so it's the fastest way to sanity-check the deck after editing.
+### Why it's built this way
 
-### Redrawing the artwork
+**No build step, no framework, no `fetch()`.** All three are blocked or broken
+on `file://`, and the game has to run by double-clicking a file on a laptop with
+no wifi. `deck.js` assigns a global and loads with a plain `<script>`, which
+works everywhere. A JSON deck loaded by `fetch` would work on GitHub Pages and
+then show a blank screen from a USB stick — the worst kind of bug, because it
+only appears where you can't debug it.
 
-The clue pictures are generated, not hand-drawn, so the whole set shares one
-palette. You only need this if you want to change how they look:
+**The engine handles any "show something, reveal it in stages, move on" game**,
+so a new game is mostly data: copy `games/book-names/`, edit its deck, add a
+line to `games.js`.
+
+---
+
+## Running the tests
 
 ```sh
-python3 tools/gen_clues.py     # → games/names/clues/
-python3 tools/gen_images.py    # → games/characters/images/
+node --test tests/
 ```
 
-Colours live in `tools/common.py`. Change one there and every picture follows.
-
----
-
-## Parked: Bible Characters
-
-A second game, half-built: a scene from a Bible story appears and the room
-guesses who it is (an ark with a rainbow → Noah). The 18 illustrations are done
-and in `games/characters/images/`, but the game page isn't written, so the front
-page shows it greyed out.
-
-To pick it up later: copy `games/names/index.html` and its `deck.js`, point them
-at `images/`, use one reveal stage instead of two, and flip `status` to
-`'ready'` in `games.js`.
-
----
-
-## Adding a whole new game
-
-1. Copy `games/names/` to `games/your-game/`.
-2. Edit its `deck.js` and `index.html`.
-3. Add an entry to `games.js`.
-
-The engine in `assets/runner.js` handles any "show something, reveal it in
-stages, move on" game, so most new games are just data.
+108 tests, no dependencies, Node 18 or newer. `package.json` exists only to hold
+that command — the game itself never needs npm.

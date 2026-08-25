@@ -1,232 +1,138 @@
 # Handover — AY Bible Games
 
-Written 2026-08-24. Picking this up in Claude Code? Read this, then
-`games/names/deck.js`, then `README.md`.
+Written 2026-08-25. Picking this up? Read `README.md` first — it covers how to
+run and edit the game. This file is only what `README.md` cannot be: the
+current state, the decisions that would otherwise be re-argued, and what is
+still undone.
 
 ---
 
-## What this is
+## Where it stands
 
-Picture games for church, projected in the hall. The room shouts answers; one
-person drives with the spacebar. No typing, no sign-in, no internet required.
+**Bible Book Names is finished and playable.** 42 of the 66 books, drawing 20
+per session. All 64 pictures are in place. 108 tests pass with
+`node --test tests/`.
 
-**Game 1 — Bible Names (built, playable).** A rebus. Pictures stand for
-syllables and the answer is a Bible name.
+The Game Master view works: the projector prints an id like `#bn-13`, the
+person running the game types it on their phone and gets the answer. Username
+`GM`, password `Adventist` — **change these before a service.**
 
-    [A] + [dam]            →  A + DAM        →  ADAM
-    [magic hat] + [ham]    →  ABRA + HAM     →  ABRAHAM
-    [✓ done] + [yelling]   →  DONE + YELL    →  DANIEL
+**Two things have never been done, and no test can do them:**
 
-**Game 2 — Bible Characters (parked).** A scene from a story appears, the room
-names the person. 18 illustrations are drawn and in
-`games/characters/images/`, but the game page was never written. The front page
-shows it greyed out. Parked deliberately, to finish one game properly first.
+1. **A dry run on the real projector and laptop.** Everything has been checked
+   in a browser at desktop and phone sizes, on `file://` and `http://`, with no
+   console errors. It has never been on a hall screen. The one picture I would
+   watch is Revelation's Dürer woodcut — it is dense, and dense art that reads
+   on a monitor can turn to mud at the back of a room.
+2. **Playtesting the puns.** This remains the riskiest thing in the project. A
+   pun that doesn't land dies in silence. Try these on two or three people
+   before Sunday: **EZEKIEL,EZRA LUKE,NAHUM TITUS**, and **MALACHI** — see below.
 
 ---
 
 ## Decisions already made, and why
 
-Please don't undo these without reading the reason — each one is a bug someone
-would otherwise hit on a Sunday morning.
+Please don't undo these without reading the reason. Each one was arrived at the
+hard way.
 
-**The game does not need hosting.** Original plan was to serve the HTML and
-images from a public Google Drive folder. That does not work: Google removed
-static web hosting from Drive in 2016, so a public `.html` there downloads or
-renders as escaped text instead of running. Drive image hotlinks
-(`uc?id=...`) are rate-limited and break periodically. More importantly, church
-wifi is unreliable and a picture-reveal game has no reason to need a network.
-So: a plain folder that runs by double-clicking `index.html`. Publishing to
-GitHub Pages is a convenience on top, never a requirement.
+**It's a picture game. No verses.** An earlier draft reached 56 books by asking
+some of them with a famous line — "Vanity of vanities" for Ecclesiastes, the
+valley of dry bones for Ezekiel. It worked and it cost nothing to draw, but it
+turned half a session into a verse quiz, which is a different game. The verse
+clues were removed and eleven books went with them.
 
-**Deck data is a `.js` global, not `.json`.** Browsers block `fetch()` on
-`file://` URLs. A JSON deck loaded by fetch would work on GitHub Pages and then
-show a blank screen when someone opens it from a USB stick — the worst kind of
-bug, because it only appears in the place you can't debug. `deck.js` assigns
-`window.NAME_PUZZLES` and is loaded with a plain `<script>`, which works
-everywhere.
+**English only.** A Filipino-answer round was built and then withdrawn: it
+doubled the deck but meant every card had to announce which language it wanted,
+and the Tagalog names are mostly descriptive (*mga hari* is literally *kings*),
+so those puzzles played as recognition rather than wordplay. The drafts survive
+in the spec's Appendix A if anyone wants them back.
 
-**No ES modules, no build step, no framework.** Same reason: `import` is blocked
-on `file://`. `assets/runner.js` is an old-fashioned IIFE on purpose.
+**Graphics, not photographs, for anything abstract.** This is the single most
+useful thing learned. A photograph archive cannot illustrate a word: searching
+returned a Japanese railway ticket for "done", an entomological specimen for
+"tick", an Axe deodorant for "axe", a Burmese numeral chart for "numerals", and
+someone's correspondence for "letter A". Emoji and drawn tiles read instantly on
+a projector and weigh a fraction as much. Photographs are for physical objects
+only.
 
-**Every asset path is relative.** GitHub Pages will serve this from
-`jaypinedabengco.github.io/AY-Bible-Games/` — a subpath. One root-absolute path
-(`/assets/theme.css`) would work locally and 404 once published. Keep paths
-relative when adding files.
+**Letters, digits and a few objects are drawn, not sourced.**
+`tools/make-letters.js` and `tools/make-graphics.js` produce them. No licence
+question, no hunting, legible at any size.
 
-**The reveal has two beats.** First click shows the working (`DONE + YELL`),
-second shows the name. If you reveal the name immediately, anyone who missed the
-pun never learns why it worked, and the joke dies.
+**The id must never contain the answer.** It is printed on the projector. The
+validator refuses an id containing its own answer, because `ruth-08` would hand
+the game over and somebody will eventually think that's more readable.
 
-**The deck does not auto-shuffle.** Fixed order so the host can rehearse and
-know what's coming. `R` shuffles when you want it.
+**The reference is canon placement, not a chapter.** Printing `Daniel 6` under
+DANIEL prints the answer beneath the answer. It shows testament, division and
+number out of 66 instead, which teaches something without spoiling anything.
 
-**Clue art is generated, not hand-drawn.** `tools/gen_clues.py` +
-`tools/common.py`. One shared palette means the set looks like a set, and
-restyling everything is a one-line change. Regenerate with
-`python3 tools/gen_clues.py`.
+**A missing picture always shows a red `?`, and a failed script says so on
+screen.** Silence is never correct: the site is published, and a puzzle that
+quietly vanishes online is far harder to notice than a broken card. The startup
+guard exists because a dropped script once rendered a black rectangle with the
+reason only in the browser console — the worst thing this game could do in front
+of a room.
 
----
-
-## The deck: 15 puzzles
-
-Ordered as they appear. Open `tools/review.html` in a browser to see all of them
-with their artwork on one screen — it reads the real `deck.js`, so it is always
-in sync.
-
-| # | Clues | Answer | Status |
-|---|-------|--------|--------|
-| 01 | A + dam | ADAM | ok |
-| 02 | root | RUTH | ok — single clue |
-| 03 | eye + sack | ISAAC | ok |
-| 04 | done + yell | DANIEL | ok — Jay's original example |
-| 05 | sea + moon | SIMON | ok |
-| 06 | solo + moon | SOLOMON | ok |
-| 07 | fill + lips | PHILIP | ok |
-| 08 | & + drew | ANDREW | ok |
-| 09 | sum + well | SAMUEL | ok — Jay's idea, better than my first try |
-| 10 | S + tear | ESTHER | ok |
-| 11 | day + vid | DAVID | **flagged `risky`** |
-| 12 | toe + mass | THOMAS | ok — chalice reads as "mass" for a church crowd |
-| 13 | abra + ham | ABRAHAM | ok |
-| 14 | barn + A + bus | BARNABAS | ok — only 3-clue puzzle |
-| 15 | Jerry + maya | JEREMIAH | **flagged `risky`** — needs a real Jerry image |
-
-### Open items on the deck
-
-**11 DAVID — two soft clues in one puzzle.** The calendar may read "calendar" or
-"date" rather than "day", and the camcorder may read "camera" rather than "vid".
-Either find a better pair or cut him. Not yet resolved.
-
-**15 JEREMIAH — the mouse is a placeholder.** Jay wants the actual Jerry from
-Tom & Jerry. I did not source it: Jerry is Warner Bros' copyrighted character
-and this repo publishes to a public URL, so I won't fetch or commit his image.
-Jay said he'd find it himself. The mechanism is ready — see below. Note the
-`maya` clue *is* correct now: it's drawn as the Eurasian tree sparrow, the bird
-Filipinos actually call maya (chestnut crown, black cheek patch, streaked wing).
-
-**Rejected ideas, don't re-propose:**
-- *Jonah = cup of "joe" + "nah"* — "joe" for coffee is American slang, not used
-  in the Philippines. Jay cut it.
-- *Abraham via Abra the province* — needs geography knowledge. The shipped
-  `abra.svg` is a magician's top hat and wand (abra*cadabra*), which needs none.
-- *Gideon = signpost ("guide") + ON switch* — a signpost reads "sign" or "this
-  way", not "guide". Too clever; cut.
-- *Samuel = sum + Yule tree* — Jay's sum + well is better.
+**Nothing here needs a server, a build step, or the internet.** See the last
+section of `README.md` for why. `import` and `fetch()` are both blocked on
+`file://`.
 
 ---
 
-## Using your own images
+## Open items
 
-`img` accepts a filename in `clues/`, a full URL, or a `data:` URI. Local files
-are strongly preferred:
+**MALACHI is the one I would test first.** Its clue is the SM logo standing for
+"MALL". A Filipino room will very likely shout "SM" rather than "mall", and
+"SM + A + KEY" does not reach Malachi. It may be fine — SM effectively *means*
+the mall — but ten seconds with one person settles it.
 
-```js
-clues: [{ img: 'jerry.png', word: 'JERRY' }, { img: 'maya.svg', word: 'MAYA' }],
-```
+**Twenty-four books have no puzzle.** Obadiah, Zephaniah and Jude were dropped
+for having neither a workable pun nor a recognisable picture; the rest went with
+the verse clues. The spec's Appendix C records what was tried for the hardest
+ones and why each failed, so nobody repeats the work. Ezra's blocker is worth
+knowing: every *picture* of Ezra looks exactly like Nehemiah, which is why it is
+now a rebus instead.
 
-A URL means that clue needs live internet the moment it hits the screen, and
-breaks permanently if the owner moves the file.
+**Two mechanisms are built, tested and unused.** `variants` (several pictures
+for one answer, drawn at random) and the `text` renderer. Both were used and
+then removed as the deck changed. They are small, and `deck.js` carries a
+commented example, so switching one on is deck data — but don't be surprised
+they're dormant.
 
-**Specifically avoid Google Images thumbnail links** —
-`encrypted-tbn0.gstatic.com/images?q=tbn:ANd9Gc...`. Those are temporary cache
-keys that rotate and expire, and they are only a couple of hundred pixels wide,
-so they turn to mush on a projector. Save the real file into `clues/`.
-
-Missing images render a red `?` on the card rather than a blank, so you catch it
-during setup rather than mid-service.
-
----
-
-## Known rough edges
-
-**`clues/ham.svg`** — readable, but the protruding bone looks a bit like a
-balloon knot. Cosmetic.
-
-**`clues/dam.svg`** — third attempt. It is now a side cross-section (water high
-on one side, low on the other, spilling over the crest) which finally reads as a
-dam. The two earlier attempts read as a table and a bathtub respectively. If you
-touch it, check it at small size before shipping. A fallback idea if it still
-bothers you: drop the dam entirely and make ADAM a single `atom` clue — an atom
-diagram is instantly readable and "atom" sits very close to "Adam".
-
-**`clues/toe.svg`** — now a footprint (separated toe pads, big toe ringed in
-red), which reads much better than the foot silhouette it replaced.
-
-**Not tested on real hardware.** Everything was verified in headless Chromium at
-1280×760 and 390×700, on both `file://` and `http://`, with no console errors
-and no broken images. It has never been on an actual projector. Do one dry run
-before a service.
-
-**Nobody has playtested the puns.** The riskiest thing in the project. Try the
-deck on one or two people before Sunday; a pun that doesn't land dies in silence.
+**Three future games are listed on the front page, greyed out**: Old or New?,
+Finish the Verse, Bible Character Names. The engine already handles all three;
+each needs a deck and one line in `games.js`.
 
 ---
 
-## Repo state — READ THIS
+## Ideas already rejected — don't re-propose
 
-There is one commit, `4341bfd`, containing all 59 project files. It has **not
-been pushed**. The remote is `git@github.com:jaypinedabengco/AY-Bible-Games.git`,
-branch `main`.
-
-**Two things need cleaning up, and I could not do them from this session** — the
-sandbox I was working in cannot delete files, only create and move them, so git
-kept leaving lock files I was unable to remove.
-
-1. **`_incoming.tar.gz` was committed by mistake.** It was the transfer archive.
-   It is already in `.gitignore` and moved to `_to_delete/`, but it is still in
-   commit `4341bfd`.
-2. **`_to_delete/` holds junk to remove**, including `_to_delete/stale-git/`
-   with ~74 orphaned git temp objects and lock files I moved out of `.git/`.
-
-From a normal terminal, this fixes both:
-
-```sh
-cd ~/Developer/Personal/AY-Bible-Games
-rm -rf _to_delete .git/index.lock .git/HEAD.lock
-git reset                 # rebuild the index from HEAD
-git add -A
-git commit --amend --no-edit
-git fsck                  # expect only "dangling commit", which is harmless
-git ls-files | wc -l      # expect 59, and no _incoming.tar.gz
-git push -u origin main
-```
-
-If `git fsck` reports anything worse than a dangling commit, the simplest
-recovery is a clean start — the working tree is complete and correct, so
-`rm -rf .git && git init && git remote add origin
-git@github.com:jaypinedabengco/AY-Bible-Games.git && git add -A &&
-git commit && git push -u origin main` loses nothing but the one local commit.
-
-To publish afterwards: GitHub **Settings → Pages**, deploy from branch `main`,
-folder `/ (root)`.
-
----
-
-## Suggested next steps, in order
-
-1. Clean up the repo as above and push.
-2. Playtest the 15 puns on a couple of people. Cut whatever doesn't land.
-3. Resolve #11 DAVID and #15 JEREMIAH.
-4. Do one dry run on the actual projector and laptop.
-5. Only then consider unparking Bible Characters. To do it: copy
-   `games/names/index.html` and `deck.js` into `games/characters/`, point them
-   at `images/`, use `stages: 1` instead of `2` (one reveal, no working line),
-   and flip `status` to `'ready'` in `games.js`. The 18 pictures and their
-   answers are: abraham, baptist (John the Baptist), daniel, david, elijah,
-   esther, goliath, jonah, joseph, lazarus, moses, noah, paul, peter, ruth,
-   samson, solomon, zacchaeus.
+- *Verse clues* — worked, but turned a picture game into half a verse quiz.
+- *Filipino answers* — see above.
+- *Jonah as cup of "joe" + "nah"* — "joe" for coffee is American slang, not
+  used in the Philippines.
+- *Leviticus as Levi's + tick + us* — the tick photographed as a spider and "us"
+  needed another country's flag. It is the wordmark alone now; LEVI fits exactly
+  one book.
+- *Ruth as a church member's photo* — a lovely idea, and the mechanism is still
+  there. Withdrawn because the site publishes to a public URL, which is a
+  different question from a face on a hall projector, and it's hers to answer.
+- *A shared session code so the Game Master's phone could mirror the projector's
+  running order* — solved a problem that stable ids remove entirely.
 
 ---
 
 ## Quick reference
 
 ```sh
-open index.html                      # play it, no server needed
-open tools/review.html               # see the whole deck at once
-python3 tools/gen_clues.py           # redraw games/names/clues/
-python3 tools/gen_images.py          # redraw games/characters/images/
-python3 -m http.server 8000          # if you want to test over http
+open index.html                                   # play it, no server needed
+open tools/review.html                            # the whole deck on one screen
+open games/book-names/gm.html                     # the Game Master view
+node tools/validate.js games/book-names/deck.js   # check the deck after editing
+node --test tests/                                # 108 tests
+node tools/gm-hash.js GM Adventist                # new Game Master credentials
 ```
 
-Controls: `Space`/click reveal & advance · `←` back · `R` shuffle ·
-`F` fullscreen · `Home` restart.
+If a picture you just added doesn't appear, **hard-reload** — the browser caches
+`deck.js`, and that has already caused one false alarm.
