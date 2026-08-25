@@ -137,3 +137,4 @@ Flickr uploader BPL | Public domain |
 | `look.jpg` | [Twemoji 1f50d.svg](https://commons.wikimedia.org/wiki/File:Twemoji_1f50d.svg) | Twitter | CC BY 4.0 |
 | `chew.jpg` | [Twemoji 1f60b.svg](https://commons.wikimedia.org/wiki/File:Twemoji_1f60b.svg) | Twitter | CC BY 4.0 |
 | `babylon-beast.jpg` | [Houghton Typ Inc 2121A - Dürer, Apocalypse, 43.jpg](https://commons.wikimedia.org/wiki/File:Houghton_Typ_Inc_2121A_-_D%C3%BCrer,_Apocalypse,_43.jpg) | Albrecht Dürer | Public domain |
+| `adventist-logo.png` | [Adventist Symbol.svg](https://commons.wikimedia.org/wiki/File:Adventist_Symbol.svg) | Unknown authorUnknown author | Public domain |

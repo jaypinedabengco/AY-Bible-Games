@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>San Fernando AY Church — AY Bible Games</title>
+<title>San Fernando Adventist Church — AY Bible Games</title>
 <link rel="stylesheet" href="core/theme.css">
 <style>
   body { overflow: auto; }
@@ -11,7 +11,9 @@
   .church { font-size: 2vmin; letter-spacing: 0.3em; text-transform: uppercase;
             color: var(--accent); }
   h1 { font-size: 7vmin; margin: 1vmin 0 1rem; }
-  .lead { color: var(--dim); font-size: 2.4vmin; max-width: 40rem; line-height: 1.6; }
+  .brand { display: flex; align-items: center; gap: 1.2rem; }
+  .logo { width: 5.5rem; height: 5.5rem; flex: none; padding: 0.5rem;
+          background: var(--fg); border-radius: 50%; }
   .cards { display: grid; gap: 1.5rem; margin-top: 3rem;
            grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); }
   .card { display: block; background: var(--card); border-radius: 1rem;
@@ -27,11 +29,14 @@
 </head>
 <body>
 <div class="front">
-  <div class="church">San Fernando AY Church</div>
-  <h1>AY Bible Games</h1>
-  <p class="lead">Put one on the projector. The room shouts the answer, one
-  person clicks to reveal. No typing, no sign-in, and no internet needed —
-  open it straight from the folder.</p>
+  <div class="brand">
+    <img class="logo" src="games/book-names/images/adventist-logo.png"
+         alt="Seventh-day Adventist Church">
+    <div>
+      <div class="church">San Fernando Adventist Church</div>
+      <h1>AY Bible Games</h1>
+    </div>
+  </div>
   <div class="cards" id="cards"></div>
   <p class="gm-link"><a href="games/book-names/gm.html">Game master</a></p>
 </div>

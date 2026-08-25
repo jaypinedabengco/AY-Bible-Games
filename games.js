@@ -12,7 +12,7 @@ window.GAMES = [
   {
     title: 'Bible Book Names',
     href: 'games/book-names/index.html',
-    blurb: 'Picture clues combine into a book of the Bible. Gene + sis. XO + dos.',
+    blurb: 'Picture clues combine into a book of the Bible. Jeans + sis. XO + dos.',
     meta: 'Ready to play',
     status: 'ready',
   },
