@@ -98,3 +98,4 @@ cameo is ever enabled — and they need rows here too.
 | `easy.jpg` | [Noto Color Emoji From Each Unicode Emoji Category.jpg](https://commons.wikimedia.org/wiki/File:Noto_Color_Emoji_From_Each_Unicode_Emoji_Category.jpg) | Unknown authorUnknown author | CC BY-SA 4.0 |
 | `pro.jpg` | [Twemoji 1f3c6.svg](https://commons.wikimedia.org/wiki/File:Twemoji_1f3c6.svg) | Twitter | CC BY 4.0 |
 | `he.jpg` | [Twemoji12 1f469-1f3fb-200d-1f91d-200d-1f468-1f3fd.svg](https://commons.wikimedia.org/wiki/File:Twemoji12_1f469-1f3fb-200d-1f91d-200d-1f468-1f3fd.svg) | Twitter | CC BY 4.0 |
+| `tear.jpg` | [Phantom Open Emoji 1f63f.svg](https://commons.wikimedia.org/wiki/File:Phantom_Open_Emoji_1f63f.svg) | https://github.com/break24/PhantomOpenEmoji/graphs/contribut | CC BY 3.0 |

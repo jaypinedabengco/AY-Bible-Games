@@ -120,7 +120,7 @@ window.DECK = {
     {
       id: 'bn-09', answer: 'ESTHER', difficulty: 2,
       ref: { testament: 'Old', division: 'Historical', position: 17 },
-      clues: [{ img: 'letter-s.jpg', word: 'S' }, { img: 'tear.jpg', word: 'TEAR' }],
+      clues: [{ img: 'letter-s.svg', word: 'S' }, { img: 'tear.jpg', word: 'TEAR' }],
     },
 
     // ---- Poetry --------------------------------------------------------
@@ -159,7 +159,7 @@ window.DECK = {
     {
       id: 'bn-15', answer: 'HOSEA', difficulty: 2,
       ref: { testament: 'Old', division: 'Minor Prophets', position: 28 },
-      clues: [{ img: 'hose.jpg', word: 'HOSE' }, { img: 'letter-a.jpg', word: 'A' }],
+      clues: [{ img: 'hose.jpg', word: 'HOSE' }, { img: 'letter-a.svg', word: 'A' }],
     },
     {
       id: 'bn-16', answer: 'JOEL', difficulty: 2,
@@ -169,7 +169,7 @@ window.DECK = {
     {
       id: 'bn-17', answer: 'AMOS', difficulty: 2,
       ref: { testament: 'Old', division: 'Minor Prophets', position: 30 },
-      clues: [{ img: 'letter-a.jpg', word: 'A' }, { img: 'moss.jpg', word: 'MOSS' }],
+      clues: [{ img: 'letter-a.svg', word: 'A' }, { img: 'moss.jpg', word: 'MOSS' }],
     },
     {
       id: 'bn-18', answer: 'JONAH', difficulty: 1,
@@ -184,7 +184,7 @@ window.DECK = {
     {
       id: 'bn-20', answer: 'MALACHI', difficulty: 2,
       ref: { testament: 'Old', division: 'Minor Prophets', position: 39 },
-      clues: [{ img: 'mall.jpg', word: 'MALL' }, { img: 'letter-a.jpg', word: 'A' },
+      clues: [{ img: 'mall.jpg', word: 'MALL' }, { img: 'letter-a.svg', word: 'A' },
               { img: 'key.jpg', word: 'KEY' }],
     },
 
@@ -202,7 +202,7 @@ window.DECK = {
     {
       id: 'bn-23', answer: 'ACTS', difficulty: 2,
       ref: { testament: 'New', division: 'History', position: 44 },
-      clues: [{ img: 'axe.jpg', word: 'AXE' }, { img: 'letter-s.jpg', word: 'S' }],
+      clues: [{ img: 'axe.jpg', word: 'AXE' }, { img: 'letter-s.svg', word: 'S' }],
     },
     {
       id: 'bn-24', answer: 'HEBREWS', difficulty: 3,
@@ -212,7 +212,7 @@ window.DECK = {
     {
       id: 'bn-25', answer: 'JAMES', difficulty: 2,
       ref: { testament: 'New', division: 'General Epistles', position: 59 },
-      clues: [{ img: 'jam.jpg', word: 'JAM' }, { img: 'letter-s.jpg', word: 'S' }],
+      clues: [{ img: 'jam.jpg', word: 'JAM' }, { img: 'letter-s.svg', word: 'S' }],
     },
 
     // ---- English: drafted in spec Appendix A, not yet playtested ----------
