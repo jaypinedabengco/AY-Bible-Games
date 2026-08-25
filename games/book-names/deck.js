@@ -140,7 +140,7 @@ window.DECK = {
       // card shows a red placeholder on its first clue, which is intended.
       id: 'bn-13', answer: 'JEREMIAH', difficulty: 3,
       ref: { testament: 'Old', division: 'Major Prophets', position: 24 },
-      clues: [{ img: 'Jerry_Mouse.png', word: 'JERRY' }, { img: 'maya.jpg', word: 'MAYA' }],
+      clues: [{ img: 'Jerry_Mouse.webp', word: 'JERRY' }, { img: 'maya.jpg', word: 'MAYA' }],
     },
     {
       id: 'bn-14', answer: 'DANIEL', difficulty: 1,
