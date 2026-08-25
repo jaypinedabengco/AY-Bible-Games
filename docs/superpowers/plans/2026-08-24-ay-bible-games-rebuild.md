@@ -27,6 +27,7 @@ Every task's requirements implicitly include this section. Values are copied ver
 - **`difficulty`** is 1, 2 or 3; default 2.
 - **Every puzzle has one or more variants.** A puzzle written without a `variants` array is a puzzle with exactly one. One code path.
 - **Every card carries a visible language badge**, taken from the puzzle's `lang` (`'en'` → "English", `'fil'` → "Filipino").
+- **Every puzzle carries a stable `id`** (`bn-07`), shown small on the projector so the Game Master can look the answer up on their phone (spec §16). Ids are authored once and never renumbered. **An id must never contain its own answer** — it is on a screen in front of the room.
 - **Reference format:** `Old Testament · Major Prophets · book 24 of 66`.
 - **Page title:** `San Fernando AY Church — AY Bible Games`.
 - **Every clue picture is committed to `games/book-names/images/`.** There is no private image tier — see spec §8.1. Every committed image gets a row in `CREDITS.md`. Two files are supplied by hand rather than sourced (`jerry.png`, and `ruth-member.jpg` only if the cameo is ever enabled); until then JEREMIAH shows a placeholder on its first clue, which is intended.
@@ -995,7 +996,9 @@ These are pure functions from `(puzzle, variant, stage)` to a plain description 
 
 **Files:**
 - Create: `core/views.js`
+- Modify: `core/normalize.js` (add the `id` passthrough — see Step 0)
 - Test: `tests/views.test.js`
+- Test: `tests/normalize.test.js` (one added case)
 
 **Interfaces:**
 - Consumes: normalized puzzles and variants from Task 2.
@@ -1006,6 +1009,27 @@ These are pure functions from `(puzzle, variant, stage)` to a plain description 
   - `stagesForItem({puzzle, variant}) -> number` — the callback Task 5's machine and Task 10's boot both need
 
 Every view object has `kind`, `badge`, and `answered` (either `{answer, answerAlt, ref}` or `null`).
+
+- [ ] **Step 0: Carry the puzzle `id` through normalization**
+
+`normalizePuzzle` returns an explicit object, so any key it does not name is silently dropped — and it does not currently name `id`. Every view needs the id, so add it as the first field of the returned puzzle in `core/normalize.js`:
+
+```js
+    return {
+      id: p.id || null,
+      answer: p.answer,
+```
+
+Add this case to `tests/normalize.test.js`, since a dropped id would be invisible until it reached a projector:
+
+```js
+test('the puzzle id survives normalization', () => {
+  assert.equal(normalizePuzzle({ id: 'bn-07', answer: 'JONAH' }).id, 'bn-07');
+  assert.equal(normalizePuzzle({ answer: 'JONAH' }).id, null);
+});
+```
+
+Run: `node --test tests/normalize.test.js` — expected PASS, 9 tests.
 
 - [ ] **Step 1: Write the failing test**
 
@@ -1122,6 +1146,12 @@ test('order shows the scrambled items and reveals the sequence', () => {
   assert.deepEqual(byType.order.view(p, v, 1).correct, ['Matthew', 'Mark', 'Luke', 'John']);
 });
 
+test('every view carries the puzzle id for the projector corner', () => {
+  const p = normalizePuzzle({ id: 'bn-07', answer: 'JONAH', type: 'image', img: 'whale.jpg' });
+  assert.equal(byType.image.view(p, p.variants[0], 0).id, 'bn-07');
+  assert.equal(byType.image.view(p, p.variants[0], 1).id, 'bn-07');
+});
+
 test('stagesForItem dispatches on the variant type', () => {
   const rebus = normalizePuzzle({ answer: 'A', clues: [{ img: 'a.jpg', word: 'A' }] });
   const image = normalizePuzzle({ answer: 'B', type: 'image', img: 'b.jpg' });
@@ -1181,7 +1211,10 @@ Create `core/views.js`:
   }
 
   function base(kind, puzzle) {
-    return { kind: kind, badge: badgeFor(puzzle.lang) };
+    // `id` rides on every view because the projector prints it in a corner:
+    // it is how the Game Master finds this puzzle's answer on their phone
+    // without needing to know the running order at all (spec 16).
+    return { kind: kind, id: puzzle.id, badge: badgeFor(puzzle.lang) };
   }
 
   var byType = {
@@ -1261,7 +1294,7 @@ Create `core/views.js`:
 - [ ] **Step 4: Run test to verify it passes**
 
 Run: `node --test tests/views.test.js`
-Expected: PASS, 11 tests.
+Expected: PASS, 12 tests.
 
 - [ ] **Step 5: Commit**
 
@@ -2093,8 +2126,8 @@ const { validate } = globalThis.BibleGames.validate;
 const ok = () => ({
   id: 'book-names',
   puzzles: [
-    { answer: 'JONAH', type: 'image', img: 'whale.jpg' },
-    { answer: 'ACTS', clues: [{ img: 'axe.jpg', word: 'AXE' }] },
+    { id: 'bn-01', answer: 'JONAH', type: 'image', img: 'whale.jpg' },
+    { id: 'bn-02', answer: 'ACTS', clues: [{ img: 'axe.jpg', word: 'AXE' }] },
   ],
 });
 
@@ -2167,6 +2200,23 @@ test('an unknown lang or slot is an error', () => {
   const badSlot = ok();
   badSlot.puzzles.push({ answer: 'Y', type: 'image', img: 'y.jpg', slot: 'end' });
   assert.match(errs(badSlot), /slot/i);
+});
+
+test('a missing or duplicate id is an error', () => {
+  const missing = ok();
+  missing.puzzles.push({ answer: 'X', type: 'image', img: 'x.jpg' });
+  assert.match(errs(missing), /id/i);
+
+  const dup = ok();
+  dup.puzzles[1].id = dup.puzzles[0].id;
+  assert.match(errs(dup), /duplicate id/i);
+});
+
+test('an id containing its own answer is an error', () => {
+  // The id is printed on a projector in front of the room.
+  const d = ok();
+  d.puzzles.push({ id: 'ruth-08', answer: 'RUTH', type: 'image', img: 'r.jpg' });
+  assert.match(errs(d), /id .*answer|leak/i);
 });
 
 test('duplicate answers in the same language are an error', () => {
@@ -2294,8 +2344,22 @@ Create `tools/validate.js`:
       return normalized.languages.indexOf(p.lang) !== -1;
     });
 
+    var seenIds = {};
+
     pool.forEach(function (p) {
       if (!p.answer) { errors.push('a puzzle is missing its answer'); return; }
+      if (!p.id) {
+        errors.push('"' + p.answer + '": missing id');
+      } else {
+        if (seenIds[p.id]) { errors.push('duplicate id "' + p.id + '"'); }
+        seenIds[p.id] = true;
+        // The id is displayed on a projector in front of the room, so an id
+        // that contains its own answer hands the answer over. See spec 16.
+        if (p.id.toLowerCase().indexOf(String(p.answer).toLowerCase()) !== -1) {
+          errors.push('id "' + p.id + '" contains its own answer "' + p.answer +
+                      '" and would leak it on screen');
+        }
+      }
       if (LANGS.indexOf(p.lang) === -1) {
         errors.push('"' + p.answer + '": unknown lang "' + p.lang + '"');
       }
@@ -2398,7 +2462,7 @@ if (typeof require !== 'undefined' && typeof module !== 'undefined' && require.m
 - [ ] **Step 4: Run test to verify it passes**
 
 Run: `node --test tests/validate.test.js`
-Expected: PASS, 15 tests.
+Expected: PASS, 17 tests.
 
 - [ ] **Step 5: Commit**
 
