@@ -2115,6 +2115,15 @@ test('order correct must be a permutation of items', () => {
   assert.match(errs(d), /permutation/i);
 });
 
+test('a non-positive weight is an error', () => {
+  const d = ok();
+  d.puzzles.push({ answer: 'X', type: 'image', img: 'x.jpg', weight: 0 });
+  assert.match(errs(d), /weight/i);
+  const neg = ok();
+  neg.puzzles.push({ answer: 'Y', type: 'image', img: 'y.jpg', weight: -1 });
+  assert.match(errs(neg), /weight/i);
+});
+
 test('a bad difficulty is an error', () => {
   const d = ok();
   d.puzzles.push({ answer: 'X', type: 'image', img: 'x.jpg', difficulty: 7 });
@@ -2203,6 +2212,14 @@ Create `tools/validate.js`:
     }
     if ([1, 2, 3].indexOf(v.difficulty) === -1) {
       errors.push(where + ': difficulty must be 1, 2 or 3 (got ' + v.difficulty + ')');
+    }
+    // A weight of 0 would make pick() degenerate silently: total is 0, the
+    // cumulative subtraction never goes negative, and the floating-point
+    // backstop returns the last variant every time regardless of the draw.
+    // Catch it here, where deck-authoring mistakes belong, rather than
+    // guarding the hot path.
+    if (typeof v.weight !== 'number' || !(v.weight > 0)) {
+      errors.push(where + ': weight must be a positive number (got ' + v.weight + ')');
     }
     if (v.type === 'rebus') {
       if (!v.clues || !v.clues.length) {
@@ -2352,7 +2369,7 @@ if (typeof require !== 'undefined' && typeof module !== 'undefined' && require.m
 - [ ] **Step 4: Run test to verify it passes**
 
 Run: `node --test tests/validate.test.js`
-Expected: PASS, 14 tests.
+Expected: PASS, 15 tests.
 
 - [ ] **Step 5: Commit**
 
