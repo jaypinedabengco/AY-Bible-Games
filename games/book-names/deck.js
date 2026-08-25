@@ -286,7 +286,7 @@ window.DECK = {
     {
       id: 'bn-37', answer: 'DEUTERONOMY', answerAlt: 'Deuteronomio', difficulty: 3,
       ref: { testament: 'Old', division: 'Law', position: 5 },
-      type: 'text', prompt: '“Hear, O Israel: the LORD our God, the LORD is one.”',
+      type: 'text', prompt: '“Moses reviews the law one last time, and dies before the people cross over.”',
     },
     {
       id: 'bn-38', answer: 'JOSHUA', answerAlt: 'Josue', difficulty: 2,
@@ -307,12 +307,14 @@ window.DECK = {
     {
       id: 'bn-41', answer: 'ECCLESIASTES', answerAlt: 'Mangangaral', difficulty: 2,
       ref: { testament: 'Old', division: 'Poetry', position: 21 },
-      type: 'text', prompt: '“For everything there is a season, and a time for every matter under heaven.”',
+      type: 'text', prompt: '“Vanity of vanities; all is vanity.”',
     },
     {
-      id: 'bn-42', answer: 'LAMENTATIONS', answerAlt: 'Mga Panaghoy', difficulty: 3,
+      // A weeping face says "lamentation" with no words at all - far better
+      // than a verse the room has to place.
+      id: 'bn-42', answer: 'LAMENTATIONS', answerAlt: 'Mga Panaghoy', difficulty: 1,
       ref: { testament: 'Old', division: 'Major Prophets', position: 25 },
-      type: 'text', prompt: '“How lonely sits the city that once was full of people.”',
+      type: 'image', img: 'weeping.jpg',
     },
     {
       id: 'bn-43', answer: 'EZEKIEL', answerAlt: 'Ezekiel', difficulty: 1,
@@ -345,7 +347,7 @@ window.DECK = {
     {
       id: 'bn-48', answer: 'JOHN', answerAlt: 'Juan', difficulty: 1,
       ref: { testament: 'New', division: 'Gospels', position: 43 },
-      type: 'text', prompt: '“For God so loved the world, that he gave his only begotten Son.”',
+      type: 'text', prompt: '“Written by the disciple whom Jesus loved.”',
     },
     {
       id: 'bn-49', answer: 'CORINTHIANS', answerAlt: 'Mga Taga-Corinto', difficulty: 1,
@@ -385,9 +387,16 @@ window.DECK = {
       type: 'text', prompt: '“A single chapter, and the only book that quotes Enoch.”',
     },
     {
-      id: 'bn-56', answer: 'REVELATION', answerAlt: 'Apocalipsis', difficulty: 1,
+      // Two variants. The first is where it was written: an exile alone on a
+      // rocky island. The second is what the word itself means - apokalypsis
+      // is an unveiling, so a curtain drawn back IS the answer.
+      id: 'bn-56', answer: 'REVELATION', answerAlt: 'Apocalipsis',
       ref: { testament: 'New', division: 'Prophecy', position: 66 },
-      type: 'text', prompt: '“I am the Alpha and the Omega, the beginning and the end.”',
+      variants: [
+        { type: 'text', difficulty: 2,
+          prompt: '“Written by an exile on a lonely island, full of visions and beasts.”' },
+        { type: 'image', img: 'unveiling.jpg', difficulty: 1 },
+      ],
     },
   ],
 };
