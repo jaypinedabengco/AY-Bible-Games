@@ -42,9 +42,22 @@ window.DECK = {
   puzzles: [
     // ---- Law -----------------------------------------------------------
     {
-      id: 'bn-01', answer: 'GENESIS', answerAlt: 'Genesis', difficulty: 2,
+      // Two variants, so Genesis is not the same puzzle every time.
+      //
+      // The first asks it by meaning rather than by sound: Genesis means
+      // beginning, and "In the beginning" is the most quoted opening in the
+      // Bible, so an AY room gets there instantly - which makes it a good
+      // opener. It also needs no picture at all, so it is the one puzzle
+      // that plays before any art is sourced.
+      //
+      // The second is the rebus, for a room that has met the first one.
+      id: 'bn-01', answer: 'GENESIS', answerAlt: 'Genesis',
       ref: { testament: 'Old', division: 'Law', position: 1 },
-      clues: [{ img: 'jeans.jpg', word: 'JEANS' }, { img: 'sis.jpg', word: 'SIS' }],
+      variants: [
+        { type: 'text', prompt: '\u201cIn the beginning\u2026\u201d', difficulty: 1 },
+        { type: 'rebus', difficulty: 2,
+          clues: [{ img: 'jeans.jpg', word: 'JEANS' }, { img: 'sis.jpg', word: 'SIS' }] },
+      ],
     },
     {
       id: 'bn-02', answer: 'EXODUS', answerAlt: 'Exodo', difficulty: 2, flag: 'local',
