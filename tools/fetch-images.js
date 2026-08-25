@@ -95,6 +95,10 @@ async function one(name) {
   if (!query) { return { name, status: 'no query defined' }; }
   const dest = path.join(IMAGES, name);
   if (fs.existsSync(dest)) { return { name, status: 'already present' }; }
+  // Commons may hand back a PNG for a name ending .jpg. Saving it under the
+  // wrong extension works in a browser, which sniffs content, but it is a lie
+  // on disk and confuses anyone looking at the folder.
+  const wantExt = path.extname(name).toLowerCase();
 
   let list;
   try { list = await candidates(query); }
@@ -104,7 +108,8 @@ async function one(name) {
   if (!usable.length) {
     return { name, status: 'no freely licensed result (' + list.length + ' seen)' };
   }
-  const pick = usable[0];
+  const pick = usable.find(c => path.extname(new URL(c.url).pathname).toLowerCase() === wantExt)
+    || usable[0];
   try {
     const bytes = await fetchBinary(pick.url, dest);
     if (bytes < 4000) { fs.unlinkSync(dest); return { name, status: 'file too small' }; }

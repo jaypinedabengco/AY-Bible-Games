@@ -57,7 +57,7 @@ window.DECK = {
     {
       id: 'bn-02', answer: 'EXODUS', difficulty: 2, flag: 'local',
       ref: { testament: 'Old', division: 'Law', position: 2 },
-      clues: [{ img: 'xo.jpg', word: 'XO' }, { img: 'dos.jpg', word: 'DOS' }],
+      clues: [{ img: 'XO_Candy.jpg', word: 'XO' }, { img: 'dos.jpg', word: 'DOS' }],
     },
     {
       // The Levi's LOGO, not a pair of jeans - bn-01 Genesis uses plain jeans
@@ -65,7 +65,7 @@ window.DECK = {
       // picture. A wordmark and a garment cannot be confused at hall distance.
       id: 'bn-03', answer: 'LEVITICUS', difficulty: 3, flag: 'risky',
       ref: { testament: 'Old', division: 'Law', position: 3 },
-      clues: [{ img: 'levis-logo.jpg', word: 'LEVI' }, { img: 'tick.jpg', word: 'TICK' },
+      clues: [{ img: 'Levis.png', word: 'LEVI' }, { img: 'tick.jpg', word: 'TICK' },
               { img: 'us.jpg', word: 'US' }],
     },
     {
@@ -140,7 +140,7 @@ window.DECK = {
       // card shows a red placeholder on its first clue, which is intended.
       id: 'bn-13', answer: 'JEREMIAH', difficulty: 3,
       ref: { testament: 'Old', division: 'Major Prophets', position: 24 },
-      clues: [{ img: 'jerry.png', word: 'JERRY' }, { img: 'maya.jpg', word: 'MAYA' }],
+      clues: [{ img: 'Jerry_Mouse.png', word: 'JERRY' }, { img: 'maya.jpg', word: 'MAYA' }],
     },
     {
       id: 'bn-14', answer: 'DANIEL', difficulty: 1,
@@ -353,7 +353,7 @@ window.DECK = {
       id: 'bn-48', answer: 'PHILIPPIANS', difficulty: 2,
       flag: 'local',
       ref: { testament: 'New', division: 'Epistles', position: 50 },
-      type: 'image', img: 'ph-flag.jpg',
+      type: 'image', img: 'ph-flag.png',
     },
     {
       // A trumpet in the clouds - the second coming passage.
