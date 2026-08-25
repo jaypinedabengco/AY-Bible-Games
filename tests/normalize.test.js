@@ -74,3 +74,8 @@ test('deck defaults are applied', () => {
 test('deck shuffle can be switched off explicitly', () => {
   assert.equal(normalizeDeck({ shuffle: false, puzzles: [] }).shuffle, false);
 });
+
+test('the puzzle id survives normalization', () => {
+  assert.equal(normalizePuzzle({ id: 'bn-07', answer: 'JONAH' }).id, 'bn-07');
+  assert.equal(normalizePuzzle({ answer: 'JONAH' }).id, null);
+});

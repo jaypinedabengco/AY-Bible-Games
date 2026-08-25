@@ -39,6 +39,7 @@
     }
     var difficulty = p.difficulty || 2;
     return {
+      id: p.id || null,
       answer: p.answer,
       answerAlt: p.answerAlt || null,
       lang: p.lang || 'en',
