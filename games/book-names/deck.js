@@ -42,7 +42,7 @@ window.DECK = {
     {
       id: 'bn-01', answer: 'GENESIS', answerAlt: 'Genesis', difficulty: 2,
       ref: { testament: 'Old', division: 'Law', position: 1 },
-      clues: [{ img: 'gene.jpg', word: 'GENE' }, { img: 'sis.jpg', word: 'SIS' }],
+      clues: [{ img: 'jeans.jpg', word: 'JEANS' }, { img: 'sis.jpg', word: 'SIS' }],
     },
     {
       id: 'bn-02', answer: 'EXODUS', answerAlt: 'Exodo', difficulty: 2, flag: 'local',
