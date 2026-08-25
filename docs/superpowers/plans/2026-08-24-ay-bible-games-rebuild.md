@@ -2271,6 +2271,13 @@ test('an id containing its own answer is an error', () => {
   assert.match(errs(d), /id .*answer|leak/i);
 });
 
+test('an id containing the Filipino answer leaks it too', () => {
+  const d = ok();
+  d.puzzles.push({ id: 'hari-11', answer: 'KINGS', answerAlt: 'Hari',
+                   type: 'image', img: 'crown.jpg' });
+  assert.match(errs(d), /leak/i);
+});
+
 test('duplicate answers in the same language are an error', () => {
   const d = ok();
   d.puzzles.push({ answer: 'JONAH', type: 'image', img: 'other.jpg' });
@@ -2415,8 +2422,14 @@ Create `tools/validate.js`:
         seenIds[p.id] = true;
         // The id is displayed on a projector in front of the room, so an id
         // that contains its own answer hands the answer over. See spec 16.
-        if (p.id.toLowerCase().indexOf(String(p.answer).toLowerCase()) !== -1) {
-          errors.push('id "' + p.id + '" contains its own answer "' + p.answer +
+        // Both names leak: a Filipino-answer puzzle is given away by an id
+        // containing its answerAlt just as surely as by one containing its
+        // answer. The id is on a projector in front of the room.
+        var leaked = [p.answer, p.answerAlt].filter(Boolean).filter(function (name) {
+          return p.id.toLowerCase().indexOf(String(name).toLowerCase()) !== -1;
+        });
+        if (leaked.length) {
+          errors.push('id "' + p.id + '" contains its own answer "' + leaked[0] +
                       '" and would leak it on screen');
         }
       }
@@ -2523,7 +2536,7 @@ if (typeof require !== 'undefined' && typeof module !== 'undefined' && require.m
 - [ ] **Step 4: Run test to verify it passes**
 
 Run: `node --test tests/validate.test.js`
-Expected: PASS, 17 tests.
+Expected: PASS, 18 tests.
 
 - [ ] **Step 5: Commit**
 
