@@ -362,6 +362,7 @@ over. For a book-names game the reference teaches canon placement instead:
 window.DECK = {
   id:          'book-names',
   title:       'Bible Book Names',
+  idPrefix:    'bn',   // puzzle ids are <idPrefix>-NN, shown on the projector
   imageDirs:   ['images/'],
   shuffle:     true,   // randomise running order on load
   sessionSize: 15,     // draw this many; omit to play the whole deck
@@ -529,9 +530,11 @@ not automatically harder, and each is banded on its own merits.
    playable puzzles; and no `slot` zone may be over-subscribed at the configured
    `sessionSize` — checked against the smallest session the deck permits, not
    just the configured one. Every **variant** is checked for the fields its own
-   `type` requires. Run with `--files <dir>` it also lists pictures the deck
-   names that are not yet in the directory, which is the image-sourcing
-   worklist.
+   `type` requires. Every puzzle needs a unique `id`, and an id that contains
+   its own answer is an **error** — the id is displayed on a projector in front
+   of the room, so `ruth-08` would hand the answer over (§16). Run with
+   `--files <dir>` it also lists pictures the deck names that are not yet in the
+   directory, which is the image-sourcing worklist.
 2. `tools/review.html` — the whole deck with artwork on one screen, reading the
    real `deck.js`, so it cannot drift from the game.
 3. Headless render pass at 1280×760 and 390×700, over both `file://` and
@@ -590,40 +593,54 @@ AY nights want that track; not in scope here.
 Added after the rebuild began. The room sees the projector; the person running
 the game needs to see the answers, on their own phone, on the same site.
 
-### The problem is sync, not the password
+### Stable IDs, not a shared session
 
-The projector and the phone are two browsers with no backend between them, and
-the running order is randomised per session — so a GM holding a plain list of
-answers would be holding it in the wrong order.
+An earlier draft of this section had the projector mint a session code that
+seeded every random decision, so the GM's phone could reproduce the identical
+running order. **That is withdrawn.** It solved the wrong problem — it tried to
+synchronise two devices when nothing needs synchronising.
 
-The fix is already half-built: `buildOrder` takes an injectable `rng`
-(§6.1), which exists so the order can be made reproducible.
+Every puzzle instead carries a short **`id` that never changes**: `bn-07`. The
+projector shows it small and dim in a corner. The randomiser reorders puzzles as
+freely as it likes; the id on screen still names exactly one of them, so the GM
+never needs to know the running order.
 
-**A session is a seed.** On load the game derives a short **session code** —
-six characters, base36 — and seeds every random decision from it: the shuffle,
-the subset draw, and the variant picks. The code is displayed small and dim in
-a corner alongside a `7 / 15` position counter.
+What that buys, measured against the withdrawn design:
 
-The GM enters that code on their phone. Their device re-runs the same
-`buildSession` from the same seed against the same committed deck, and
-reproduces the identical running order — offline, with the two devices never
-exchanging a byte. The projector shows `7 / 15`; the GM reads item 7.
+- No seeded PRNG shared across devices, and no requirement that two browsers
+  reproduce a shuffle byte-identically.
+- **Pressing `R` costs nothing.** Reshuffle all night — ids do not move. The
+  withdrawn design went stale the instant anyone reshuffled, and needed a
+  written warning about it.
+- The GM can join halfway through, close the tab, or arrive late.
+- One less module, and `core/rng.js` never has to exist.
 
-Nothing can desync, because nothing is being synchronised. A phone that sleeps,
-loses signal, or is closed and reopened recovers completely from the six
-characters on the wall.
+### The id must not leak the answer
+
+The id is on a projector in front of the room, so `ruth-08` would hand the
+answer to anyone looking. Ids stay opaque — a deck prefix and a number — and
+the validator (§12) **rejects any id that contains its own answer**,
+case-insensitively, so nobody opens that hole by accident in six months.
+
+Ids are stable, not positional: they are authored once and never renumbered.
+Inserting a puzzle means giving it the next unused id, not resequencing the
+deck. The validator enforces uniqueness, not contiguity.
 
 ### What the GM sees
 
-The running order, numbered to match the projector's counter, each row carrying:
-the answer, the `answerAlt` Filipino name, the canon reference, the clue working
+The whole deck, sorted by id, each row carrying: the id, the answer, the
+`answerAlt` Filipino name, the canon reference, the clue working
 (`JERRY + MAYA`), the language being asked, and any `flag` — so the GM knows
 which puns are risky and can feed the room a hint before one dies in silence.
 
+A filter box at the top jumps to an id. Typing is optional: three characters
+finds the row, or the GM simply scans for it. Nothing has to be typed per
+question, which matters when the alternative is fumbling a phone mid-service.
+
 ### The access code
 
-Site-wide, in `gm-config.js`, and gated by nothing more than knowing it. The
-threat model is a curious teenager with a phone, not an adversary.
+Site-wide, in `gm-config.js`, gated by nothing more than knowing it. The threat
+model is a curious teenager with a phone, not an adversary.
 
 It is stored as a **non-cryptographic hash**, not the literal string. Not
 because that is secure — it is not, and this document will not pretend
@@ -631,31 +648,18 @@ otherwise — but because this repo is public, and a plain-text code sitting in 
 is discoverable by anyone who thinks to look, which defeats the only purpose the
 code has. A hash makes casual discovery meaningfully harder at identical cost.
 
-Once entered, it is remembered in `sessionStorage` so the GM does not retype it
-between screens.
-
-### The reshuffle wrinkle, stated rather than hidden
-
-Pressing `R` mid-game rebuilds the session, which means a **new** session code.
-The GM's list becomes wrong at that moment. The projector's code changes on
-screen, and the GM view says in plain words that a changed code must be
-re-entered. Better a visible instruction than a silent drift into reading out
-the wrong answer.
+Once entered it is remembered in `sessionStorage`, so the GM does not retype it
+moving between screens.
 
 ### Structure
 
 ```
 gm-config.js                 the access-code hash, site-wide
-core/rng.js                  the seeded PRNG, shared by game and GM view
 games/book-names/gm.html     the GM view for this deck
 ```
 
-`core/rng.js` is the same mulberry32 generator the tests already use. It moves
-out of `tests/helpers/` into `core/` because the browser now needs it too;
-`tests/helpers/rng.js` re-exports it so every existing test keeps working
-unchanged. One generator, one behaviour, two callers — the projector and the
-phone **must** agree exactly, or the whole scheme silently produces two
-different orders.
+Two files. The withdrawn design needed four, plus a change to every test that
+imported the PRNG.
 
 ## Appendix A — Game 1 draft puns
 
