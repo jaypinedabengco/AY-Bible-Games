@@ -63,9 +63,13 @@ function meta(v) { return (v && v.value ? String(v.value) : '').replace(/<[^>]*>
 
 async function candidates(query) {
   const url = 'https://commons.wikimedia.org/w/api.php?action=query&format=json'
-    // filetype:bitmap is essential - Commons full-text search otherwise
-    // returns scanned PDFs whose PAGES contain the words.
-    + '&generator=search&gsrsearch=' + encodeURIComponent(query + ' filetype:bitmap')
+    // Exclude documents rather than restricting to bitmaps: Commons
+    // full-text search otherwise returns scanned PDFs whose PAGES contain the
+    // words, but filetype:bitmap would also exclude SVG - and the emoji and
+    // clipart sets that read best on a projector are all SVG. Commons renders
+    // an SVG to a PNG thumbnail, which is exactly what we want anyway.
+    + '&generator=search&gsrsearch='
+    + encodeURIComponent(query + ' -filemime:pdf -filemime:djvu')
     + '&gsrnamespace=6&gsrlimit=8&prop=imageinfo'
     + '&iiprop=url|extmetadata|size&iiurlwidth=1400';
   const data = JSON.parse(await fetchText(url));

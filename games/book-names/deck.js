@@ -63,10 +63,17 @@ window.DECK = {
       // The Levi's LOGO, not a pair of jeans - bn-01 Genesis uses plain jeans
       // for JEANS, so a garment here would teach the room two words from one
       // picture. A wordmark and a garment cannot be confused at hall distance.
-      id: 'bn-03', answer: 'LEVITICUS', difficulty: 3, flag: 'risky',
+      id: 'bn-03', answer: 'LEVITICUS', difficulty: 2,
       ref: { testament: 'Old', division: 'Law', position: 3 },
-      clues: [{ img: 'Levis.png', word: 'LEVI' }, { img: 'tick.jpg', word: 'TICK' },
-              { img: 'us.jpg', word: 'US' }],
+      // The wordmark alone. LEVI fits exactly one book, so the room gets there
+      // without two more clues that photograph badly - a tick read as "spider",
+      // and "us" needed the flag of another country.
+      //
+      // To go back to LEVI + TICK, add a ticked checkbox as a second clue:
+      //   { img: 'tick.jpg', word: 'TICK' }
+      // tick.jpg is already sourced. A checkbox reads "tick" far better than
+      // the arachnid did.
+      clues: [{ img: 'Levis.png', word: 'LEVI' }],
     },
     {
       id: 'bn-04', answer: 'NUMBERS', difficulty: 1,
@@ -311,9 +318,17 @@ window.DECK = {
     },
     {
       // The valley of dry bones belongs to no other book.
-      id: 'bn-42', answer: 'EZEKIEL', difficulty: 1,
+      // Two variants. The dry bones belong to no other book, and easy + kill
+      // is closer in sound than the picture is obvious - so the deck plays
+      // both. The easy clue is shared with EZRA, which is easy + ra.
+      id: 'bn-42', answer: 'EZEKIEL',
       ref: { testament: 'Old', division: 'Major Prophets', position: 26 },
-      type: 'image', img: 'dry-bones.jpg',
+      variants: [
+        { type: 'image', img: 'dry-bones.jpg', difficulty: 1 },
+        { type: 'rebus', difficulty: 3, flag: 'risky',
+          clues: [{ img: 'easy.jpg', word: 'EASY' },
+                  { img: 'kill-bug.jpg', word: 'KILL' }] },
+      ],
     },
     {
       // A king riding a donkey - the Palm Sunday prophecy.
