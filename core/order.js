@@ -17,12 +17,19 @@
   'use strict';
 
   function zoneRange(zone, size) {
+    if (size <= 0) { return [0, 0]; }
     var third = Math.ceil(size / 3);
-    var one = Math.min(third, size);
-    var two = Math.min(2 * third, size);
-    if (zone === 'early') { return [0, one]; }
-    if (zone === 'middle') { return [one, two]; }
-    if (zone === 'late') { return [two, size]; }
+    // Anchor `late` to the END of the order rather than measuring two thirds
+    // forward from the start. Measuring forward overshoots: at size 4,
+    // 2 * ceil(4/3) is 4, so `late` became the empty range [4,4) and a pinned
+    // puzzle threw at startup - a blank projector in front of a room, which is
+    // the exact failure this project exists to avoid. Anchoring backwards
+    // guarantees `late` always holds at least the final slot.
+    var lateStart = Math.max(0, size - third);
+    var earlyEnd = Math.min(third, lateStart);
+    if (zone === 'early') { return [0, earlyEnd]; }
+    if (zone === 'middle') { return [earlyEnd, lateStart]; }
+    if (zone === 'late') { return [lateStart, size]; }
     return [0, size];
   }
 

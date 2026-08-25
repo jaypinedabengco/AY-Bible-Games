@@ -20,7 +20,27 @@ test('zones are fractional thirds', () => {
 test('zones degrade safely at tiny sizes', () => {
   assert.deepEqual(zoneRange('early', 3), [0, 1]);
   assert.deepEqual(zoneRange('late', 3), [2, 3]);
-  assert.deepEqual(zoneRange('late', 1), [1, 1]);   // empty: nothing can be late
+  assert.deepEqual(zoneRange('late', 1), [0, 1]);   // the only puzzle is the last one
+});
+
+test('late always contains the final slot, at every size', () => {
+  for (let size = 1; size <= 40; size++) {
+    const [start, end] = zoneRange('late', size);
+    assert.equal(end, size, `late must end at size for size ${size}`);
+    assert.ok(start < size, `late is empty at size ${size}`);
+  }
+});
+
+test('the three zones tile the running order exactly, at every size', () => {
+  for (let size = 1; size <= 40; size++) {
+    const e = zoneRange('early', size);
+    const m = zoneRange('middle', size);
+    const l = zoneRange('late', size);
+    assert.equal(e[0], 0, `early must start at 0 for size ${size}`);
+    assert.equal(e[1], m[0], `early must meet middle for size ${size}`);
+    assert.equal(m[1], l[0], `middle must meet late for size ${size}`);
+    assert.equal(l[1], size, `late must end at size for size ${size}`);
+  }
 });
 
 test('shuffle copies rather than mutating', () => {
