@@ -45,16 +45,14 @@ window.DECK = {
       // Two variants, so Genesis is not the same puzzle every time.
       //
       // The first asks it by meaning rather than by sound: Genesis means
-      // beginning, and "In the beginning" is the most quoted opening in the
-      // Bible, so an AY room gets there instantly - which makes it a good
-      // opener. It also needs no picture at all, so it is the one puzzle
-      // that plays before any art is sourced.
+      // beginning - so a sunrise IS the answer, not a hint toward it. Instant
+      // for any room, which makes it a good opener.
       //
       // The second is the rebus, for a room that has met the first one.
       id: 'bn-01', answer: 'GENESIS', answerAlt: 'Genesis',
       ref: { testament: 'Old', division: 'Law', position: 1 },
       variants: [
-        { type: 'text', prompt: '\u201cIn the beginning\u2026\u201d', difficulty: 1 },
+        { type: 'image', img: 'sunrise.jpg', difficulty: 1 },
         { type: 'rebus', difficulty: 2,
           clues: [{ img: 'jeans.jpg', word: 'JEANS' }, { img: 'sis.jpg', word: 'SIS' }] },
       ],
@@ -275,128 +273,103 @@ window.DECK = {
       type: 'image', img: 'colossus.jpg',
     },
 
-    // ---- Asked by meaning or by a famous line -----------------------------
-    // These reach the books that resist a rebus: Deuteronomy and Ecclesiastes
-    // have no workable pun, but a room that knows the words gets there at once.
+    // ---- Asked by a picture of what the book is about ---------------------
+    // No verses anywhere: this is a picture game. These are direct depictions
+    // rather than puns, for books whose names will not pun.
     //
-    // They also need NO artwork, which is why they exist - sourcing pictures
-    // is the bottleneck, and these play the day they are written.
-    //
-    // Rule: the line must never contain the book's own name.
+    // Six books were dropped rather than forced - Ezra, Obadiah, Nahum,
+    // Zephaniah, Titus and Jude have neither a workable pun nor a picture a
+    // room would recognise. A bad clue is worse than a missing book.
     {
+      // Moses on the mountain looking over a land he will not enter - the only book that records his death.
       id: 'bn-37', answer: 'DEUTERONOMY', answerAlt: 'Deuteronomio', difficulty: 3,
+      flag: 'risky',
       ref: { testament: 'Old', division: 'Law', position: 5 },
-      type: 'text', prompt: '“Moses reviews the law one last time, and dies before the people cross over.”',
+      type: 'image', img: 'moses-nebo.jpg',
     },
     {
+      // Walls coming down.
       id: 'bn-38', answer: 'JOSHUA', answerAlt: 'Josue', difficulty: 2,
       ref: { testament: 'Old', division: 'Historical', position: 6 },
-      type: 'text', prompt: '“Be strong and courageous… for the LORD your God is with you wherever you go.”',
+      type: 'image', img: 'jericho.jpg',
     },
     {
+      // A chronicle is a record. Weakest picture in the deck - cut it if it does not land.
       id: 'bn-39', answer: 'CHRONICLES', answerAlt: 'Mga Cronica', difficulty: 3,
-      ref: { testament: 'Old', division: 'Historical', position: 13 },
-      type: 'text', prompt: '“If my people, who are called by my name, will humble themselves and pray…”',
-    },
-    {
-      id: 'bn-40', answer: 'EZRA', answerAlt: 'Ezra', difficulty: 3,
       flag: 'risky',
-      ref: { testament: 'Old', division: 'Historical', position: 15 },
-      type: 'text', prompt: '“The scribe who set his heart to study the Law of the LORD, and to teach it.”',
+      ref: { testament: 'Old', division: 'Historical', position: 13 },
+      type: 'image', img: 'record-book.jpg',
     },
     {
-      id: 'bn-41', answer: 'ECCLESIASTES', answerAlt: 'Mangangaral', difficulty: 2,
+      // Ecclesiastes means the Preacher - which is also its Filipino name, Mangangaral.
+      id: 'bn-40', answer: 'ECCLESIASTES', answerAlt: 'Mangangaral', difficulty: 3,
       ref: { testament: 'Old', division: 'Poetry', position: 21 },
-      type: 'text', prompt: '“Vanity of vanities; all is vanity.”',
+      type: 'image', img: 'preacher.jpg',
     },
     {
-      // A weeping face says "lamentation" with no words at all - far better
-      // than a verse the room has to place.
-      id: 'bn-42', answer: 'LAMENTATIONS', answerAlt: 'Mga Panaghoy', difficulty: 1,
+      // A weeping face says lamentation with no words at all.
+      id: 'bn-41', answer: 'LAMENTATIONS', answerAlt: 'Mga Panaghoy', difficulty: 1,
       ref: { testament: 'Old', division: 'Major Prophets', position: 25 },
       type: 'image', img: 'weeping.jpg',
     },
     {
-      id: 'bn-43', answer: 'EZEKIEL', answerAlt: 'Ezekiel', difficulty: 1,
+      // The valley of dry bones belongs to no other book.
+      id: 'bn-42', answer: 'EZEKIEL', answerAlt: 'Ezekiel', difficulty: 1,
       ref: { testament: 'Old', division: 'Major Prophets', position: 26 },
-      type: 'text', prompt: '“A valley of dry bones, and the question: can these bones live?”',
+      type: 'image', img: 'dry-bones.jpg',
     },
     {
-      id: 'bn-44', answer: 'OBADIAH', answerAlt: 'Obadias', difficulty: 3,
+      // A king riding a donkey - the Palm Sunday prophecy.
+      id: 'bn-43', answer: 'ZECHARIAH', answerAlt: 'Zacarias', difficulty: 3,
       flag: 'risky',
-      ref: { testament: 'Old', division: 'Minor Prophets', position: 31 },
-      type: 'text', prompt: '“The shortest book in the Old Testament — one chapter, against Edom.”',
-    },
-    {
-      id: 'bn-45', answer: 'NAHUM', answerAlt: 'Nahum', difficulty: 3,
-      flag: 'risky',
-      ref: { testament: 'Old', division: 'Minor Prophets', position: 34 },
-      type: 'text', prompt: '“A prophecy against Nineveh — the city Jonah had once warned.”',
-    },
-    {
-      id: 'bn-46', answer: 'ZEPHANIAH', answerAlt: 'Zefanias', difficulty: 3,
-      flag: 'risky',
-      ref: { testament: 'Old', division: 'Minor Prophets', position: 36 },
-      type: 'text', prompt: '“He will rejoice over you with singing.”',
-    },
-    {
-      id: 'bn-47', answer: 'ZECHARIAH', answerAlt: 'Zacarias', difficulty: 3,
       ref: { testament: 'Old', division: 'Minor Prophets', position: 38 },
-      type: 'text', prompt: '“Behold, your king comes to you… humble, and riding on a donkey.”',
+      type: 'image', img: 'donkey-king.jpg',
     },
     {
-      id: 'bn-48', answer: 'JOHN', answerAlt: 'Juan', difficulty: 1,
+      // The eagle is the traditional church symbol for John. Needs that knowledge - watch it.
+      id: 'bn-44', answer: 'JOHN', answerAlt: 'Juan', difficulty: 3,
+      flag: 'risky',
       ref: { testament: 'New', division: 'Gospels', position: 43 },
-      type: 'text', prompt: '“Written by the disciple whom Jesus loved.”',
+      type: 'image', img: 'eagle.jpg',
     },
     {
-      id: 'bn-49', answer: 'CORINTHIANS', answerAlt: 'Mga Taga-Corinto', difficulty: 1,
+      // Love is patient, love is kind - the passage read at weddings.
+      id: 'bn-45', answer: 'CORINTHIANS', answerAlt: 'Mga Taga-Corinto', difficulty: 3,
+      flag: 'risky',
       ref: { testament: 'New', division: 'Epistles', position: 46 },
-      type: 'text', prompt: '“Love is patient, love is kind. It does not envy, it does not boast.”',
+      type: 'image', img: 'wedding-rings.jpg',
     },
     {
-      id: 'bn-50', answer: 'GALATIANS', answerAlt: 'Mga Taga-Galacia', difficulty: 2,
+      // The fruit of the Spirit.
+      id: 'bn-46', answer: 'GALATIANS', answerAlt: 'Mga Taga-Galacia', difficulty: 3,
       ref: { testament: 'New', division: 'Epistles', position: 48 },
-      type: 'text', prompt: '“The fruit of the Spirit is love, joy, peace, patience, kindness…”',
+      type: 'image', img: 'fruit.jpg',
     },
     {
-      id: 'bn-51', answer: 'EPHESIANS', answerAlt: 'Mga Taga-Efeso', difficulty: 1,
+      // The whole armour of God. A suit of armour is unmistakable.
+      id: 'bn-47', answer: 'EPHESIANS', answerAlt: 'Mga Taga-Efeso', difficulty: 1,
       ref: { testament: 'New', division: 'Epistles', position: 49 },
-      type: 'text', prompt: '“Put on the whole armour of God.”',
+      type: 'image', img: 'armour.jpg',
     },
     {
-      id: 'bn-52', answer: 'PHILIPPIANS', answerAlt: 'Mga Taga-Filipos', difficulty: 1,
+      // PHILIPPIANS and PHILIPPINES differ by a single letter. The strongest local clue in the deck.
+      id: 'bn-48', answer: 'PHILIPPIANS', answerAlt: 'Mga Taga-Filipos', difficulty: 2,
+      flag: 'local',
       ref: { testament: 'New', division: 'Epistles', position: 50 },
-      type: 'text', prompt: '“I can do all things through Christ who strengthens me.”',
+      type: 'image', img: 'ph-flag.jpg',
     },
     {
-      id: 'bn-53', answer: 'THESSALONIANS', answerAlt: 'Mga Taga-Tesalonica', difficulty: 2,
+      // A trumpet in the clouds - the second coming passage.
+      id: 'bn-49', answer: 'THESSALONIANS', answerAlt: 'Mga Taga-Tesalonica', difficulty: 3,
+      flag: 'risky',
       ref: { testament: 'New', division: 'Epistles', position: 52 },
-      type: 'text', prompt: '“The Lord himself will come down from heaven, and the dead in Christ will rise first.”',
+      type: 'image', img: 'trumpet-clouds.jpg',
     },
     {
-      id: 'bn-54', answer: 'TITUS', answerAlt: 'Tito', difficulty: 3,
-      flag: 'risky',
-      ref: { testament: 'New', division: 'Epistles', position: 56 },
-      type: 'text', prompt: '“A letter to a young pastor left behind on Crete.”',
-    },
-    {
-      id: 'bn-55', answer: 'JUDE', answerAlt: 'Judas', difficulty: 3,
-      flag: 'risky',
-      ref: { testament: 'New', division: 'General Epistles', position: 65 },
-      type: 'text', prompt: '“A single chapter, and the only book that quotes Enoch.”',
-    },
-    {
-      // Two variants. The first is where it was written: an exile alone on a
-      // rocky island. The second is what the word itself means - apokalypsis
-      // is an unveiling, so a curtain drawn back IS the answer.
-      id: 'bn-56', answer: 'REVELATION', answerAlt: 'Apocalipsis',
+      // A curtain drawn back. Apokalypsis literally means an uncovering, so this IS the answer, not a hint toward it.
+      id: 'bn-50', answer: 'REVELATION', answerAlt: 'Apocalipsis', difficulty: 1,
       ref: { testament: 'New', division: 'Prophecy', position: 66 },
-      variants: [
-        { type: 'text', difficulty: 2,
-          prompt: '“Written by an exile on a lonely island, full of visions and beasts.”' },
-        { type: 'image', img: 'unveiling.jpg', difficulty: 1 },
-      ],
+      type: 'image', img: 'unveiling.jpg',
     },
   ],
 };
