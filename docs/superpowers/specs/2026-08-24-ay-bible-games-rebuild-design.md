@@ -680,6 +680,64 @@ games/book-names/gm.html     the GM view for this deck
 Two files. The withdrawn design needed four, plus a change to every test that
 imported the PRNG.
 
+## Appendix C — The six books with no clue yet
+
+Dropped from the deck rather than forced. Recorded here so the attempts are not
+repeated and so anyone can pick them up. For each: the sounds, what the book is
+about, its Filipino name, and what already failed.
+
+### EZRA · Old Testament, Historical, book 15 · *Ezra*
+Sounds: EZ-ra. Attempted `easy (EZ) + ra`, which fails because "EZ" is text on
+a picture, not a picture. About: the scribe who led the return from exile and
+read the Law aloud. **The real blocker is not the pun — it is that every picture
+of Ezra (a scribe, a scroll, rebuilding) is indistinguishable from NEHEMIAH,
+which is already in the deck.**
+
+### OBADIAH · Old Testament, Minor Prophets, book 31 · *Obadias*
+Sounds: O-ba-DI-ah. Attempted `obey + dia`; "dia" has no picture. About: the
+shortest book in the Old Testament, one chapter of judgement on Edom. Nothing
+about Edom is visually distinctive.
+
+### NAHUM · Old Testament, Minor Prophets, book 34 · *Nahum*
+Sounds: NAH-hum. Attempted `nah (a head shake) + hum (humming)` — cut early on
+review, because two gestures are very hard to photograph unambiguously. About:
+the fall of Nineveh, the city Jonah had warned. A burning city looks like every
+other judgement prophecy.
+
+### ZEPHANIAH · Old Testament, Minor Prophets, book 36 · *Zefanias*
+Sounds: zef-a-NIGH-ah. No workable split found; "zef" has no picture. About: the
+day of the LORD, and "he will rejoice over you with singing". Nothing distinctive
+to depict.
+
+### TITUS · New Testament, Epistles, book 56 · *Tito*
+Sounds: TIE-tus. Attempted `tie + toes`, flagged risky and barely arriving.
+**The most rescuable of the six** — see the note on Tagalog clues below.
+
+### JUDE · New Testament, General Epistles, book 65 · *Judas*
+Sounds: JOOD. About: one chapter; the only book quoting Enoch; "contend for the
+faith". Leaning on *Judas* would teach an error, since Jude is a different
+person from Judas Iscariot. "Hey Jude" is universally known but is a song, not a
+picture.
+
+## Appendix D — A Tagalog clue can have an English answer
+
+Removing Tagalog *answers* (§11.1) did not remove Tagalog *clues*. The picture
+may read as a Filipino word while the answer stays the English book name — the
+game is still pictures-only, and a bilingual room does the translation without
+being asked to.
+
+Two live candidates, both stronger than what is currently shipped:
+
+- **TITUS** — a photo of an uncle reads *tito*. This is a better clue than
+  `tie + toes` and it rescues one of Appendix C's six.
+- **JOHN** — the numeral 1 reads *Juan*, which for a Filipino room simply *is*
+  John. Currently shipped as an eagle, which needs church-symbol knowledge that
+  an AY crowd may not have.
+
+The risk to weigh: a clue in one language for an answer in another asks the room
+to switch mid-puzzle. Worth trying on two or three people before a service —
+which is the same advice as every other pun in this deck.
+
 ## Appendix A — Game 1 draft puns
 
 Confidence is my own read, not tested on anyone. **Status** tracks review:
