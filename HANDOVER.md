@@ -26,7 +26,7 @@ person running the game types it on their phone and gets the answer. Username
    on a monitor can turn to mud at the back of a room.
 2. **Playtesting the puns.** This remains the riskiest thing in the project. A
    pun that doesn't land dies in silence. Try these on two or three people
-   before Sunday: **EZEKIEL,EZRA LUKE,NAHUM TITUS**, and **MALACHI** — see below.
+   before Sunday: **EZEKIEL, EZRA, LUKE, NAHUM, TITUS**, and **MALACHI** — see below.
 
 ---
 
