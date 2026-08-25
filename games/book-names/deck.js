@@ -46,7 +46,7 @@ window.DECK = {
     {
       id: 'bn-02', answer: 'EXODUS', difficulty: 2, flag: 'local',
       ref: { testament: 'Old', division: 'Law', position: 2 },
-      clues: [{ img: 'XO_Candy.jpg', word: 'XO' }, { img: 'dos.jpg', word: 'DOS' }],
+      clues: [{ img: 'XO_Candy.jpg', word: 'XO' }, { img: 'numeral-2.svg', word: 'DOS' }],
     },
     {
       // The Levi's LOGO, not a pair of jeans - bn-01 Genesis uses plain jeans

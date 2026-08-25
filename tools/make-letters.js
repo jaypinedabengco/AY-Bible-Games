@@ -13,7 +13,8 @@ const path = require('path');
 
 const OUT = path.join(__dirname, '..', 'games', 'book-names', 'images');
 const TILES = { 'letter-a.svg': 'A', 'letter-s.svg': 'S', 'numeral-1.svg': '1',
-                'letters-ra.svg': 'RA', 'sum.svg': '1+1' };
+                'letters-ra.svg': 'RA', 'sum.svg': '1+1',
+                'numeral-2.svg': '2' };
 
 const BG = '#1b202b', FG = '#f7f3e8';
 
