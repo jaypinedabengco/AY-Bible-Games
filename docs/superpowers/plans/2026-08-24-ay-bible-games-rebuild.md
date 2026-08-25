@@ -2117,12 +2117,31 @@ Create `core/boot.js`:
 Run: `node --test tests/boot.test.js`
 Expected: PASS, 6 tests.
 
-- [ ] **Step 5: Run the whole suite**
+- [ ] **Step 5: Cover `viewForItem` at its point of first use**
+
+`core/views.js` exports `viewForItem(item, stage)` but nothing tested it directly — Task 6's review accepted that on the grounds it would be exercised the moment a consumer appeared. This task is that consumer, so add the missing assertion to `tests/boot.test.js`:
+
+```js
+test('viewForItem dispatches to the right builder for a session item', () => {
+  const rebus = normalizePuzzle({
+    id: 'bn-01', answer: 'ACTS',
+    clues: [{ img: 'axe.jpg', word: 'AXE' }, { img: 'letter-s.jpg', word: 'S' }],
+  });
+  const item = { puzzle: rebus, variant: rebus.variants[0] };
+  assert.equal(globalThis.BibleGames.views.viewForItem(item, 0).kind, 'rebus');
+  assert.equal(globalThis.BibleGames.views.viewForItem(item, 1).working, 'AXE + S');
+  assert.equal(globalThis.BibleGames.views.viewForItem(item, 2).answered.answer, 'ACTS');
+});
+```
+
+This needs `normalizePuzzle` in scope — add it to the requires at the top of the file if it is not already there.
+
+- [ ] **Step 6: Run the whole suite**
 
 Run: `node --test tests/`
 Expected: PASS, all tests from Tasks 1–10.
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 7: Commit**
 
 ```bash
 git add core/boot.js tests/boot.test.js
