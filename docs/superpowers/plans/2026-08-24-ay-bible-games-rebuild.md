@@ -2603,6 +2603,20 @@ test('every puzzle carries a Filipino name for the reveal', () => {
 Run: `node --test tests/deck.test.js`
 Expected: FAIL — `Cannot find module '../games/book-names/deck.js'`
 
+- [ ] **Step 2b: Delete the old game**
+
+The spec's §5 says the previous structure is dropped, but no task has actually removed it — so the repo still holds a complete second game, and the front page you are about to write would sit beside the one it replaces. Remove it now, before writing the new files, so nothing is ambiguous about which game a path refers to:
+
+```bash
+git rm -r --quiet games/names games/characters assets tools/gen_clues.py tools/gen_images.py tools/common.py
+```
+
+That removes: the old character-rebus deck and its 28 clue SVGs, the 18 character pictograms, `assets/runner.js` and `assets/theme.css` (superseded by `core/`), and the three Python generators that drew the pictograms the rebuild replaces with real photographs.
+
+Nothing is lost — all of it stays reachable in commit `64a218a`, and the ten character puns are preserved in the spec's Appendix B for the future Bible Character Names game.
+
+Leaving `assets/theme.css` beside `core/theme.css` in particular would guarantee somebody edits the wrong one.
+
 - [ ] **Step 3: Write the deck**
 
 Create `games/book-names/deck.js`:
