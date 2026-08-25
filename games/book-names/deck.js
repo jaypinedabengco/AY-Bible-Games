@@ -275,5 +275,119 @@ window.DECK = {
       type: 'image', img: 'colossus.jpg',
     },
 
+    // ---- Asked by meaning or by a famous line -----------------------------
+    // These reach the books that resist a rebus: Deuteronomy and Ecclesiastes
+    // have no workable pun, but a room that knows the words gets there at once.
+    //
+    // They also need NO artwork, which is why they exist - sourcing pictures
+    // is the bottleneck, and these play the day they are written.
+    //
+    // Rule: the line must never contain the book's own name.
+    {
+      id: 'bn-37', answer: 'DEUTERONOMY', answerAlt: 'Deuteronomio', difficulty: 3,
+      ref: { testament: 'Old', division: 'Law', position: 5 },
+      type: 'text', prompt: '“Hear, O Israel: the LORD our God, the LORD is one.”',
+    },
+    {
+      id: 'bn-38', answer: 'JOSHUA', answerAlt: 'Josue', difficulty: 2,
+      ref: { testament: 'Old', division: 'Historical', position: 6 },
+      type: 'text', prompt: '“Be strong and courageous… for the LORD your God is with you wherever you go.”',
+    },
+    {
+      id: 'bn-39', answer: 'CHRONICLES', answerAlt: 'Mga Cronica', difficulty: 3,
+      ref: { testament: 'Old', division: 'Historical', position: 13 },
+      type: 'text', prompt: '“If my people, who are called by my name, will humble themselves and pray…”',
+    },
+    {
+      id: 'bn-40', answer: 'EZRA', answerAlt: 'Ezra', difficulty: 3,
+      flag: 'risky',
+      ref: { testament: 'Old', division: 'Historical', position: 15 },
+      type: 'text', prompt: '“The scribe who set his heart to study the Law of the LORD, and to teach it.”',
+    },
+    {
+      id: 'bn-41', answer: 'ECCLESIASTES', answerAlt: 'Mangangaral', difficulty: 2,
+      ref: { testament: 'Old', division: 'Poetry', position: 21 },
+      type: 'text', prompt: '“For everything there is a season, and a time for every matter under heaven.”',
+    },
+    {
+      id: 'bn-42', answer: 'LAMENTATIONS', answerAlt: 'Mga Panaghoy', difficulty: 3,
+      ref: { testament: 'Old', division: 'Major Prophets', position: 25 },
+      type: 'text', prompt: '“How lonely sits the city that once was full of people.”',
+    },
+    {
+      id: 'bn-43', answer: 'EZEKIEL', answerAlt: 'Ezekiel', difficulty: 1,
+      ref: { testament: 'Old', division: 'Major Prophets', position: 26 },
+      type: 'text', prompt: '“A valley of dry bones, and the question: can these bones live?”',
+    },
+    {
+      id: 'bn-44', answer: 'OBADIAH', answerAlt: 'Obadias', difficulty: 3,
+      flag: 'risky',
+      ref: { testament: 'Old', division: 'Minor Prophets', position: 31 },
+      type: 'text', prompt: '“The shortest book in the Old Testament — one chapter, against Edom.”',
+    },
+    {
+      id: 'bn-45', answer: 'NAHUM', answerAlt: 'Nahum', difficulty: 3,
+      flag: 'risky',
+      ref: { testament: 'Old', division: 'Minor Prophets', position: 34 },
+      type: 'text', prompt: '“A prophecy against Nineveh — the city Jonah had once warned.”',
+    },
+    {
+      id: 'bn-46', answer: 'ZEPHANIAH', answerAlt: 'Zefanias', difficulty: 3,
+      flag: 'risky',
+      ref: { testament: 'Old', division: 'Minor Prophets', position: 36 },
+      type: 'text', prompt: '“He will rejoice over you with singing.”',
+    },
+    {
+      id: 'bn-47', answer: 'ZECHARIAH', answerAlt: 'Zacarias', difficulty: 3,
+      ref: { testament: 'Old', division: 'Minor Prophets', position: 38 },
+      type: 'text', prompt: '“Behold, your king comes to you… humble, and riding on a donkey.”',
+    },
+    {
+      id: 'bn-48', answer: 'JOHN', answerAlt: 'Juan', difficulty: 1,
+      ref: { testament: 'New', division: 'Gospels', position: 43 },
+      type: 'text', prompt: '“For God so loved the world, that he gave his only begotten Son.”',
+    },
+    {
+      id: 'bn-49', answer: 'CORINTHIANS', answerAlt: 'Mga Taga-Corinto', difficulty: 1,
+      ref: { testament: 'New', division: 'Epistles', position: 46 },
+      type: 'text', prompt: '“Love is patient, love is kind. It does not envy, it does not boast.”',
+    },
+    {
+      id: 'bn-50', answer: 'GALATIANS', answerAlt: 'Mga Taga-Galacia', difficulty: 2,
+      ref: { testament: 'New', division: 'Epistles', position: 48 },
+      type: 'text', prompt: '“The fruit of the Spirit is love, joy, peace, patience, kindness…”',
+    },
+    {
+      id: 'bn-51', answer: 'EPHESIANS', answerAlt: 'Mga Taga-Efeso', difficulty: 1,
+      ref: { testament: 'New', division: 'Epistles', position: 49 },
+      type: 'text', prompt: '“Put on the whole armour of God.”',
+    },
+    {
+      id: 'bn-52', answer: 'PHILIPPIANS', answerAlt: 'Mga Taga-Filipos', difficulty: 1,
+      ref: { testament: 'New', division: 'Epistles', position: 50 },
+      type: 'text', prompt: '“I can do all things through Christ who strengthens me.”',
+    },
+    {
+      id: 'bn-53', answer: 'THESSALONIANS', answerAlt: 'Mga Taga-Tesalonica', difficulty: 2,
+      ref: { testament: 'New', division: 'Epistles', position: 52 },
+      type: 'text', prompt: '“The Lord himself will come down from heaven, and the dead in Christ will rise first.”',
+    },
+    {
+      id: 'bn-54', answer: 'TITUS', answerAlt: 'Tito', difficulty: 3,
+      flag: 'risky',
+      ref: { testament: 'New', division: 'Epistles', position: 56 },
+      type: 'text', prompt: '“A letter to a young pastor left behind on Crete.”',
+    },
+    {
+      id: 'bn-55', answer: 'JUDE', answerAlt: 'Judas', difficulty: 3,
+      flag: 'risky',
+      ref: { testament: 'New', division: 'General Epistles', position: 65 },
+      type: 'text', prompt: '“A single chapter, and the only book that quotes Enoch.”',
+    },
+    {
+      id: 'bn-56', answer: 'REVELATION', answerAlt: 'Apocalipsis', difficulty: 1,
+      ref: { testament: 'New', division: 'Prophecy', position: 66 },
+      type: 'text', prompt: '“I am the Alpha and the Omega, the beginning and the end.”',
+    },
   ],
 };
