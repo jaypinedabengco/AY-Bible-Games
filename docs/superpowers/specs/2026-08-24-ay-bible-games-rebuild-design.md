@@ -482,6 +482,23 @@ Free teaching value on every puzzle in the deck, no new artwork, no new puzzle.
 A puzzle may set `lang: 'fil'`, making the Tagalog name the answer and the pun a
 Tagalog pun. This is where the challenge comes from.
 
+**The selection rule, and it is strict: a Tagalog puzzle earns a slot only when
+the Tagalog name is substantially different from the English one.**
+
+Most book names barely change — Daniel is Daniel, Ruth is Ruth, Job is Job,
+Exodus is Exodo, Jonah is Jonas, Philemon is spelled Filemon. Making those into
+second puzzles does not add a question; it asks the same question twice and the
+room notices. An earlier draft of Appendix A did exactly that, padding the list
+with near-identical names.
+
+Where the names genuinely part company, the Tagalog name is a real second
+puzzle. **James is Santiago.** Nobody reasons from `jam + S` to Santiago — it is
+a different word, a different pun, a different moment in the room. Same for
+Revelation and Apocalipsis, Acts and Mga Gawa, Ecclesiastes and Mangangaral.
+
+That test — *would a room that just answered the English one still have to
+think?* — is the whole filter.
+
 **A hard requirement: the puzzle must say which language it wants.** A crown on
 screen is KINGS in English and HARI in Filipino, and a room shouting the right
 answer to the wrong question is a bug we would have designed in. Every card
@@ -503,7 +520,9 @@ serves both, and OSEAS extends `hose`.
 
 - **TITUS → TITO.** `tie + toes` was flagged risky and barely got there. *Tito*
   is Filipino for uncle — a photo of an uncle, and the room has it instantly.
-  The Tagalog puzzle is simply better than the English one it replaces.
+  The Tagalog puzzle is simply better than the English one it replaces, and it
+  passes the §11.1 test: Titus and Tito are different enough to be a real
+  second question.
 - **REVELATION → APOCALIPSIS.** Held undecided because `rev + elation` was a
   stretch. *A + polka + lips + sis* reads cleanly and reuses two existing clue
   images.
@@ -724,37 +743,48 @@ Confidence is my own read, not tested on anyone. **Status** tracks review:
 
 ### Filipino-answer candidates (`lang: 'fil'`)
 
-Rebus, reusing existing clue art where noted.
+Only names that genuinely part company with the English, per the rule in §11.1.
 
-| Book | Clues | Reuses | Confidence | Status |
+Rebus:
+
+| Book (Tagalog) | English | Clues | Confidence | Status |
 |---|---|---|---|---|
-| APOCALIPSIS | A + polka (dots) + lips + sis | `lips`, `sis` | solid | proposed |
-| JUAN | the numeral 1 (*juan* ≈ *one*) | — | solid | proposed |
-| EXODO | XO candy + do (musical note) | `xo` | solid | proposed |
-| FILEMON | fill + lemon (same spelling) | `fill`, `lemon` | solid | proposed |
-| OSEAS | hose + A + S | `hose` | medium | proposed |
-| MIKAS | mic + as | `mic` | medium | proposed |
-| JEREMIAS | Jerry + maya + S | `jerry`, `maya` | medium | proposed |
-| HEBREO | he + brews + O | `he`, `brews` | medium | proposed |
+| SANTIAGO | James | Santa (Claus) + GO (green light) | medium | proposed |
+| APOCALIPSIS | Revelation | A + polka (dots) + lips + sis | solid | proposed |
+| JUAN | John | the numeral 1 (*Juan* ≈ *one*) | solid | proposed |
 
-Direct pictures — **each shares its image file with the English puzzle**.
+Direct pictures — several share their image file with the English puzzle, so
+the badge is the only thing telling the room which answer is wanted.
 
-| Book | Image | Shares with | Confidence | Status |
+| Book (Tagalog) | English | Image | Shares with | Status |
 |---|---|---|---|---|
-| TITO | a photo of an uncle | — | solid | proposed |
-| HARI | a crown | KINGS | solid | proposed |
-| BILANG | numerals | NUMBERS | solid | proposed |
-| HUKOM | a gavel | JUDGES | solid | proposed |
-| AWIT | a music note | — | solid | proposed |
-| JONAS | a whale | JONAH | solid | proposed |
-| GAWA | hands at work | — | medium | proposed |
-| PANAGHOY | someone weeping | — | medium | proposed |
+| MGA HARI | Kings | a crown | KINGS | proposed |
+| MGA BILANG | Numbers | numerals | NUMBERS | proposed |
+| MGA HUKOM | Judges | a gavel | JUDGES | proposed |
+| MGA AWIT | Psalms | a music note | — | proposed |
+| MGA GAWA | Acts | hands at work (*gawa* = deed) | — | proposed |
+| MGA PANAGHOY | Lamentations | someone weeping | — | proposed |
+| MANGANGARAL | Ecclesiastes | a preacher at a pulpit | — | proposed |
+| TITO | Titus | a photo of an uncle | — | proposed |
+| PEDRO | Peter | a rock | — | medium — needs *Pedro* = *bato* |
+| JUDAS | Jude | — | — | risky — no clean clue found |
 
-Deliberately not attempted: DEUTERONOMIO, ECLESIASTES, KAWIKAAN, and the
-Tagalog epistle names (Efeso, Colosas, Galacia) — no clean pun, no iconic
-image. Left out rather than forced.
+### Cut — Tagalog name too close to the English
 
-### Cut on review
+These were in an earlier draft and are withdrawn: they ask the same question
+twice, which the room will notice before we do.
+
+EXODO (Exodus) · OSEAS (Hosea) · MIKAS (Micah) · JEREMIAS (Jeremiah) ·
+HEBREO (Hebrews) · JONAS (Jonah) · FILEMON (Philemon — identical spelling)
+
+**A consequence worth stating.** Most surviving Tagalog puzzles are direct
+pictures rather than rebuses, because Tagalog book names are mostly descriptive
+(*mga hari* is literally *kings*) and descriptive words do not pun. That is
+fine, and it is cheap: a crown already drawn for KINGS serves HARI for free.
+It does mean the Tagalog round plays differently from the English one — more
+recognition, less wordplay — which is worth knowing before it meets a room.
+
+### Cut on review### Cut on review
 
 | Book | Clues | Why |
 |---|---|---|
