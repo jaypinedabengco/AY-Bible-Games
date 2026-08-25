@@ -1,0 +1,126 @@
+/* Projector-first. Every size is in vmin so one stylesheet fits a hall
+   screen and a phone without media queries. */
+:root {
+  --bg: #10131a;
+  --fg: #f7f3e8;
+  --dim: #9aa3b2;
+  --accent: #e8b53c;
+  --good: #5fbf7f;
+  --bad: #d9534f;
+  --card: #1b202b;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: "Trebuchet MS", "Segoe UI", system-ui, sans-serif;
+  overflow: hidden;
+}
+
+.host {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2vmin;
+  padding: 3vmin;
+  cursor: pointer;
+}
+
+.badge {
+  position: fixed;
+  top: 2vmin;
+  right: 2vmin;
+  font-size: 2vmin;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--bg);
+  background: var(--accent);
+  padding: 0.8vmin 2vmin;
+  border-radius: 10vmin;
+}
+
+/* Bottom-right: puzzle id and position. Deliberately faint - the Game Master
+   reads it off the screen; the room should not notice it. */
+.stamp {
+  position: fixed;
+  bottom: 2vmin;
+  right: 2vmin;
+  display: flex;
+  gap: 1.5vmin;
+  font-size: 1.8vmin;
+  letter-spacing: 0.18em;
+  color: var(--dim);
+  opacity: 0.55;
+}
+
+.stamp-id { text-transform: uppercase; }
+
+.body { display: flex; flex-direction: column; align-items: center; gap: 3vmin; }
+
+.clue-row { display: flex; align-items: center; gap: 2vmin; }
+
+.clue { display: flex; flex-direction: column; align-items: center; gap: 1.5vmin; }
+
+.clue img {
+  height: 34vmin;
+  max-width: 34vmin;
+  object-fit: contain;
+  background: var(--card);
+  border-radius: 2vmin;
+  padding: 1.5vmin;
+}
+
+.clue-missing {
+  height: 34vmin;
+  width: 34vmin;
+  display: grid;
+  place-items: center;
+  font-size: 16vmin;
+  color: var(--bad);
+  border: 0.6vmin dashed var(--bad);
+  border-radius: 2vmin;
+}
+
+.clue-word, .plus {
+  font-size: 4vmin;
+  letter-spacing: 0.08em;
+  color: var(--dim);
+}
+
+.plus { font-size: 6vmin; color: var(--accent); }
+
+.working {
+  font-size: 7vmin;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+}
+
+.prompt { font-size: 5.5vmin; max-width: 80vw; text-align: center; line-height: 1.4; }
+
+.answer-block { text-align: center; }
+
+.answer { font-size: 12vmin; font-weight: 700; letter-spacing: 0.04em; }
+
+.answer-alt { font-size: 5vmin; font-style: italic; color: var(--accent); }
+
+.ref { font-size: 2.6vmin; color: var(--dim); letter-spacing: 0.14em; text-transform: uppercase; }
+
+.options { display: flex; gap: 4vmin; }
+
+.option {
+  font-size: 6vmin;
+  padding: 1.5vmin 4vmin;
+  border-radius: 2vmin;
+  background: var(--card);
+  color: var(--dim);
+}
+
+.option-correct { background: var(--good); color: var(--bg); }
+
+.order-list { display: flex; flex-direction: column; gap: 1.2vmin; font-size: 5vmin; }
