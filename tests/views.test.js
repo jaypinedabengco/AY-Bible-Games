@@ -29,7 +29,7 @@ test('the badge names the language being asked', () => {
 
 test('rebus hides clue words until the working is shown', () => {
   const p = normalizePuzzle({
-    answer: 'JEREMIAH', answerAlt: 'Jeremias',
+    answer: 'JEREMIAH',
     ref: { testament: 'Old', division: 'Major Prophets', position: 24 },
     clues: [{ img: 'jerry.png', word: 'JERRY' }, { img: 'maya.jpg', word: 'MAYA' }],
   });
@@ -53,7 +53,6 @@ test('rebus hides clue words until the working is shown', () => {
   const s2 = r.view(p, v, 2);
   assert.equal(s2.working, 'JERRY + MAYA');
   assert.equal(s2.answered.answer, 'JEREMIAH');
-  assert.equal(s2.answered.answerAlt, 'Jeremias');
   assert.equal(s2.answered.ref, 'Old Testament · Major Prophets · book 24 of 66');
 });
 

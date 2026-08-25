@@ -70,12 +70,6 @@
         if (v.flag) { tags.appendChild(tag(v.flag, v.flag)); }
         cell.appendChild(row);
         cell.appendChild(h);
-        if (p.answerAlt) {
-          var alt = document.createElement('div');
-          alt.style.color = 'var(--accent)';
-          alt.textContent = p.answerAlt;
-          cell.appendChild(alt);
-        }
         cell.appendChild(tags);
         grid.appendChild(cell);
       });

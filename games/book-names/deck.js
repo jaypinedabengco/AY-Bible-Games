@@ -10,9 +10,6 @@
  *              id. It must never contain the answer: it is on a screen in
  *              front of the room, so 'ruth-08' would give the game away.
  *   answer     the book, revealed at the end
- *   answerAlt  its Filipino name, shown under the answer on the reveal. This is
- *              teaching value only - the question is always the English name.
- *   answerAlt  its Filipino name, shown alongside on the reveal
  *   ref        canon placement, NOT a chapter - "Daniel 6" under DANIEL
  *              would print the answer beneath the answer
  *   lang       which language is being asked; the card says so on screen
@@ -49,7 +46,7 @@ window.DECK = {
       // for any room, which makes it a good opener.
       //
       // The second is the rebus, for a room that has met the first one.
-      id: 'bn-01', answer: 'GENESIS', answerAlt: 'Genesis',
+      id: 'bn-01', answer: 'GENESIS',
       ref: { testament: 'Old', division: 'Law', position: 1 },
       variants: [
         { type: 'image', img: 'sunrise.jpg', difficulty: 1 },
@@ -58,7 +55,7 @@ window.DECK = {
       ],
     },
     {
-      id: 'bn-02', answer: 'EXODUS', answerAlt: 'Exodo', difficulty: 2, flag: 'local',
+      id: 'bn-02', answer: 'EXODUS', difficulty: 2, flag: 'local',
       ref: { testament: 'Old', division: 'Law', position: 2 },
       clues: [{ img: 'xo.jpg', word: 'XO' }, { img: 'dos.jpg', word: 'DOS' }],
     },
@@ -66,25 +63,25 @@ window.DECK = {
       // The Levi's LOGO, not a pair of jeans - bn-01 Genesis uses plain jeans
       // for JEANS, so a garment here would teach the room two words from one
       // picture. A wordmark and a garment cannot be confused at hall distance.
-      id: 'bn-03', answer: 'LEVITICUS', answerAlt: 'Levitico', difficulty: 3, flag: 'risky',
+      id: 'bn-03', answer: 'LEVITICUS', difficulty: 3, flag: 'risky',
       ref: { testament: 'Old', division: 'Law', position: 3 },
       clues: [{ img: 'levis-logo.jpg', word: 'LEVI' }, { img: 'tick.jpg', word: 'TICK' },
               { img: 'us.jpg', word: 'US' }],
     },
     {
-      id: 'bn-04', answer: 'NUMBERS', answerAlt: 'Mga Bilang', difficulty: 1,
+      id: 'bn-04', answer: 'NUMBERS', difficulty: 1,
       ref: { testament: 'Old', division: 'Law', position: 4 },
       type: 'image', img: 'numerals.jpg',
     },
 
     // ---- Historical ----------------------------------------------------
     {
-      id: 'bn-05', answer: 'JUDGES', answerAlt: 'Mga Hukom', difficulty: 1,
+      id: 'bn-05', answer: 'JUDGES', difficulty: 1,
       ref: { testament: 'Old', division: 'Historical', position: 7 },
       type: 'image', img: 'gavel.jpg',
     },
     {
-      id: 'bn-06', answer: 'RUTH', answerAlt: 'Ruth', difficulty: 2,
+      id: 'bn-06', answer: 'RUTH', difficulty: 2,
       ref: { testament: 'Old', division: 'Historical', position: 8 },
       clues: [{ img: 'root.jpg', word: 'ROOT' }],
 
@@ -104,34 +101,34 @@ window.DECK = {
       // bigger question than a picture on the hall projector.
     },
     {
-      id: 'bn-07', answer: 'SAMUEL', answerAlt: '1 Samuel', difficulty: 2,
+      id: 'bn-07', answer: 'SAMUEL', difficulty: 2,
       ref: { testament: 'Old', division: 'Historical', position: 9 },
       clues: [{ img: 'sum.jpg', word: 'SUM' }, { img: 'well.jpg', word: 'WELL' }],
     },
     {
-      id: 'bn-08', answer: 'KINGS', answerAlt: 'Mga Hari', difficulty: 1,
+      id: 'bn-08', answer: 'KINGS', difficulty: 1,
       ref: { testament: 'Old', division: 'Historical', position: 11 },
       type: 'image', img: 'crown.jpg',
     },
     {
-      id: 'bn-09', answer: 'ESTHER', answerAlt: 'Ester', difficulty: 2,
+      id: 'bn-09', answer: 'ESTHER', difficulty: 2,
       ref: { testament: 'Old', division: 'Historical', position: 17 },
       clues: [{ img: 'letter-s.jpg', word: 'S' }, { img: 'tear.jpg', word: 'TEAR' }],
     },
 
     // ---- Poetry --------------------------------------------------------
     {
-      id: 'bn-10', answer: 'JOB', answerAlt: 'Job', difficulty: 2,
+      id: 'bn-10', answer: 'JOB', difficulty: 2,
       ref: { testament: 'Old', division: 'Poetry', position: 18 },
       type: 'image', img: 'hardhat.jpg',
     },
     {
-      id: 'bn-11', answer: 'PSALMS', answerAlt: 'Mga Awit', difficulty: 1,
+      id: 'bn-11', answer: 'PSALMS', difficulty: 1,
       ref: { testament: 'Old', division: 'Poetry', position: 19 },
       clues: [{ img: 'palms.jpg', word: 'PALMS' }],
     },
     {
-      id: 'bn-12', answer: 'PROVERBS', answerAlt: 'Mga Kawikaan', difficulty: 3,
+      id: 'bn-12', answer: 'PROVERBS', difficulty: 3,
       ref: { testament: 'Old', division: 'Poetry', position: 20 },
       clues: [{ img: 'pro.jpg', word: 'PRO' }, { img: 'verbs.jpg', word: 'VERBS' }],
     },
@@ -141,44 +138,44 @@ window.DECK = {
       // jerry.png is supplied by hand, not sourced here - it is Warner Bros'
       // character and this repo publishes publicly. Until it is added, this
       // card shows a red placeholder on its first clue, which is intended.
-      id: 'bn-13', answer: 'JEREMIAH', answerAlt: 'Jeremias', difficulty: 3,
+      id: 'bn-13', answer: 'JEREMIAH', difficulty: 3,
       ref: { testament: 'Old', division: 'Major Prophets', position: 24 },
       clues: [{ img: 'jerry.png', word: 'JERRY' }, { img: 'maya.jpg', word: 'MAYA' }],
     },
     {
-      id: 'bn-14', answer: 'DANIEL', answerAlt: 'Daniel', difficulty: 1,
+      id: 'bn-14', answer: 'DANIEL', difficulty: 1,
       ref: { testament: 'Old', division: 'Major Prophets', position: 27 },
       clues: [{ img: 'done.jpg', word: 'DONE' }, { img: 'yell.jpg', word: 'YELL' }],
     },
 
     // ---- Minor Prophets ------------------------------------------------
     {
-      id: 'bn-15', answer: 'HOSEA', answerAlt: 'Oseas', difficulty: 2,
+      id: 'bn-15', answer: 'HOSEA', difficulty: 2,
       ref: { testament: 'Old', division: 'Minor Prophets', position: 28 },
       clues: [{ img: 'hose.jpg', word: 'HOSE' }, { img: 'letter-a.jpg', word: 'A' }],
     },
     {
-      id: 'bn-16', answer: 'JOEL', answerAlt: 'Joel', difficulty: 2,
+      id: 'bn-16', answer: 'JOEL', difficulty: 2,
       ref: { testament: 'Old', division: 'Minor Prophets', position: 29 },
       clues: [{ img: 'jewel.jpg', word: 'JEWEL' }],
     },
     {
-      id: 'bn-17', answer: 'AMOS', answerAlt: 'Amos', difficulty: 2,
+      id: 'bn-17', answer: 'AMOS', difficulty: 2,
       ref: { testament: 'Old', division: 'Minor Prophets', position: 30 },
       clues: [{ img: 'letter-a.jpg', word: 'A' }, { img: 'moss.jpg', word: 'MOSS' }],
     },
     {
-      id: 'bn-18', answer: 'JONAH', answerAlt: 'Jonas', difficulty: 1,
+      id: 'bn-18', answer: 'JONAH', difficulty: 1,
       ref: { testament: 'Old', division: 'Minor Prophets', position: 32 },
       type: 'image', img: 'whale.jpg',
     },
     {
-      id: 'bn-19', answer: 'MICAH', answerAlt: 'Mikas', difficulty: 2,
+      id: 'bn-19', answer: 'MICAH', difficulty: 2,
       ref: { testament: 'Old', division: 'Minor Prophets', position: 33 },
       clues: [{ img: 'mic.jpg', word: 'MIC' }, { img: 'ah.jpg', word: 'AH' }],
     },
     {
-      id: 'bn-20', answer: 'MALACHI', answerAlt: 'Malakias', difficulty: 2,
+      id: 'bn-20', answer: 'MALACHI', difficulty: 2,
       ref: { testament: 'Old', division: 'Minor Prophets', position: 39 },
       clues: [{ img: 'mall.jpg', word: 'MALL' }, { img: 'letter-a.jpg', word: 'A' },
               { img: 'key.jpg', word: 'KEY' }],
@@ -186,88 +183,88 @@ window.DECK = {
 
     // ---- Gospels and after ---------------------------------------------
     {
-      id: 'bn-21', answer: 'MARK', answerAlt: 'Marcos', difficulty: 1,
+      id: 'bn-21', answer: 'MARK', difficulty: 1,
       ref: { testament: 'New', division: 'Gospels', position: 41 },
       clues: [{ img: 'mark.jpg', word: 'MARK' }],
     },
     {
-      id: 'bn-22', answer: 'LUKE', answerAlt: 'Lucas', difficulty: 3, flag: 'risky',
+      id: 'bn-22', answer: 'LUKE', difficulty: 3, flag: 'risky',
       ref: { testament: 'New', division: 'Gospels', position: 42 },
       clues: [{ img: 'look.jpg', word: 'LOOK' }],
     },
     {
-      id: 'bn-23', answer: 'ACTS', answerAlt: 'Mga Gawa', difficulty: 2,
+      id: 'bn-23', answer: 'ACTS', difficulty: 2,
       ref: { testament: 'New', division: 'History', position: 44 },
       clues: [{ img: 'axe.jpg', word: 'AXE' }, { img: 'letter-s.jpg', word: 'S' }],
     },
     {
-      id: 'bn-24', answer: 'HEBREWS', answerAlt: 'Hebreo', difficulty: 3,
+      id: 'bn-24', answer: 'HEBREWS', difficulty: 3,
       ref: { testament: 'New', division: 'General Epistles', position: 58 },
       clues: [{ img: 'he.jpg', word: 'HE' }, { img: 'brews.jpg', word: 'BREWS' }],
     },
     {
-      id: 'bn-25', answer: 'JAMES', answerAlt: 'Santiago', difficulty: 2,
+      id: 'bn-25', answer: 'JAMES', difficulty: 2,
       ref: { testament: 'New', division: 'General Epistles', position: 59 },
       clues: [{ img: 'jam.jpg', word: 'JAM' }, { img: 'letter-s.jpg', word: 'S' }],
     },
 
     // ---- English: drafted in spec Appendix A, not yet playtested ----------
     {
-      id: 'bn-26', answer: 'ISAIAH', answerAlt: 'Isaias', difficulty: 2,
+      id: 'bn-26', answer: 'ISAIAH', difficulty: 2,
       ref: { testament: 'Old', division: 'Major Prophets', position: 23 },
       clues: [{ img: 'eye.jpg', word: 'EYE' }, { img: 'sigh.jpg', word: 'SIGH' },
               { img: 'ah.jpg', word: 'AH' }],
     },
     {
-      id: 'bn-27', answer: 'NEHEMIAH', answerAlt: 'Nehemias', difficulty: 2,
+      id: 'bn-27', answer: 'NEHEMIAH', difficulty: 2,
       ref: { testament: 'Old', division: 'Historical', position: 16 },
       clues: [{ img: 'knee.jpg', word: 'KNEE' }, { img: 'he.jpg', word: 'HE' },
               { img: 'maya.jpg', word: 'MAYA' }],
     },
     {
-      id: 'bn-28', answer: 'HAGGAI', answerAlt: 'Hagai', difficulty: 2,
+      id: 'bn-28', answer: 'HAGGAI', difficulty: 2,
       ref: { testament: 'Old', division: 'Minor Prophets', position: 37 },
       clues: [{ img: 'hug.jpg', word: 'HUG' }, { img: 'guy.jpg', word: 'GUY' }],
     },
     {
-      id: 'bn-29', answer: 'SONG OF SOLOMON', answerAlt: 'Awit ni Solomon', difficulty: 2,
+      id: 'bn-29', answer: 'SONG OF SOLOMON', difficulty: 2,
       ref: { testament: 'Old', division: 'Poetry', position: 22 },
       clues: [{ img: 'note.jpg', word: 'SONG' }, { img: 'solo.jpg', word: 'SOLO' },
               { img: 'moon.jpg', word: 'MOON' }],
     },
     {
-      id: 'bn-30', answer: 'HABAKKUK', answerAlt: 'Habacuc', difficulty: 3,
+      id: 'bn-30', answer: 'HABAKKUK', difficulty: 3,
       ref: { testament: 'Old', division: 'Minor Prophets', position: 35 },
       clues: [{ img: 'ha.jpg', word: 'HA' }, { img: 'back.jpg', word: 'BACK' },
               { img: 'cook.jpg', word: 'COOK' }],
     },
     {
-      id: 'bn-31', answer: 'MATTHEW', answerAlt: 'Mateo', difficulty: 1,
+      id: 'bn-31', answer: 'MATTHEW', difficulty: 1,
       ref: { testament: 'New', division: 'Gospels', position: 40 },
       clues: [{ img: 'mat.jpg', word: 'MAT' }, { img: 'chew.jpg', word: 'CHEW' }],
     },
     {
-      id: 'bn-32', answer: 'PHILEMON', answerAlt: 'Filemon', difficulty: 2,
+      id: 'bn-32', answer: 'PHILEMON', difficulty: 2,
       ref: { testament: 'New', division: 'Epistles', position: 57 },
       clues: [{ img: 'fill.jpg', word: 'FILL' }, { img: 'lemon.jpg', word: 'LEMON' }],
     },
     {
-      id: 'bn-33', answer: 'PETER', answerAlt: 'Pedro', difficulty: 2,
+      id: 'bn-33', answer: 'PETER', difficulty: 2,
       ref: { testament: 'New', division: 'General Epistles', position: 60 },
       clues: [{ img: 'pea.jpg', word: 'PEA' }, { img: 'tear.jpg', word: 'TEAR' }],
     },
     {
-      id: 'bn-34', answer: 'TIMOTHY', answerAlt: 'Timoteo', difficulty: 3,
+      id: 'bn-34', answer: 'TIMOTHY', difficulty: 3,
       ref: { testament: 'New', division: 'Epistles', position: 54 },
       clues: [{ img: 'clock.jpg', word: 'TIME' }, { img: 'moth.jpg', word: 'MOTH' }],
     },
     {
-      id: 'bn-35', answer: 'ROMANS', answerAlt: 'Mga Taga-Roma', difficulty: 1,
+      id: 'bn-35', answer: 'ROMANS', difficulty: 1,
       ref: { testament: 'New', division: 'Epistles', position: 45 },
       type: 'image', img: 'roman-soldier.jpg',
     },
     {
-      id: 'bn-36', answer: 'COLOSSIANS', answerAlt: 'Mga Taga-Colosas', difficulty: 3,
+      id: 'bn-36', answer: 'COLOSSIANS', difficulty: 3,
       flag: 'risky',
       ref: { testament: 'New', division: 'Epistles', position: 51 },
       type: 'image', img: 'colossus.jpg',
@@ -282,94 +279,115 @@ window.DECK = {
     // room would recognise. A bad clue is worse than a missing book.
     {
       // Moses on the mountain looking over a land he will not enter - the only book that records his death.
-      id: 'bn-37', answer: 'DEUTERONOMY', answerAlt: 'Deuteronomio', difficulty: 3,
+      id: 'bn-37', answer: 'DEUTERONOMY', difficulty: 3,
       flag: 'risky',
       ref: { testament: 'Old', division: 'Law', position: 5 },
       type: 'image', img: 'moses-nebo.jpg',
     },
     {
       // Walls coming down.
-      id: 'bn-38', answer: 'JOSHUA', answerAlt: 'Josue', difficulty: 2,
+      id: 'bn-38', answer: 'JOSHUA', difficulty: 2,
       ref: { testament: 'Old', division: 'Historical', position: 6 },
       type: 'image', img: 'jericho.jpg',
     },
     {
       // A chronicle is a record. Weakest picture in the deck - cut it if it does not land.
-      id: 'bn-39', answer: 'CHRONICLES', answerAlt: 'Mga Cronica', difficulty: 3,
+      id: 'bn-39', answer: 'CHRONICLES', difficulty: 3,
       flag: 'risky',
       ref: { testament: 'Old', division: 'Historical', position: 13 },
       type: 'image', img: 'record-book.jpg',
     },
     {
       // Ecclesiastes means the Preacher - which is also its Filipino name, Mangangaral.
-      id: 'bn-40', answer: 'ECCLESIASTES', answerAlt: 'Mangangaral', difficulty: 3,
+      id: 'bn-40', answer: 'ECCLESIASTES', difficulty: 3,
       ref: { testament: 'Old', division: 'Poetry', position: 21 },
       type: 'image', img: 'preacher.jpg',
     },
     {
       // A weeping face says lamentation with no words at all.
-      id: 'bn-41', answer: 'LAMENTATIONS', answerAlt: 'Mga Panaghoy', difficulty: 1,
+      id: 'bn-41', answer: 'LAMENTATIONS', difficulty: 1,
       ref: { testament: 'Old', division: 'Major Prophets', position: 25 },
       type: 'image', img: 'weeping.jpg',
     },
     {
       // The valley of dry bones belongs to no other book.
-      id: 'bn-42', answer: 'EZEKIEL', answerAlt: 'Ezekiel', difficulty: 1,
+      id: 'bn-42', answer: 'EZEKIEL', difficulty: 1,
       ref: { testament: 'Old', division: 'Major Prophets', position: 26 },
       type: 'image', img: 'dry-bones.jpg',
     },
     {
       // A king riding a donkey - the Palm Sunday prophecy.
-      id: 'bn-43', answer: 'ZECHARIAH', answerAlt: 'Zacarias', difficulty: 3,
+      id: 'bn-43', answer: 'ZECHARIAH', difficulty: 3,
       flag: 'risky',
       ref: { testament: 'Old', division: 'Minor Prophets', position: 38 },
       type: 'image', img: 'donkey-king.jpg',
     },
     {
       // The eagle is the traditional church symbol for John. Needs that knowledge - watch it.
-      id: 'bn-44', answer: 'JOHN', answerAlt: 'Juan', difficulty: 3,
+      id: 'bn-44', answer: 'JOHN', difficulty: 3,
       flag: 'risky',
       ref: { testament: 'New', division: 'Gospels', position: 43 },
       type: 'image', img: 'eagle.jpg',
     },
     {
       // Love is patient, love is kind - the passage read at weddings.
-      id: 'bn-45', answer: 'CORINTHIANS', answerAlt: 'Mga Taga-Corinto', difficulty: 3,
+      id: 'bn-45', answer: 'CORINTHIANS', difficulty: 3,
       flag: 'risky',
       ref: { testament: 'New', division: 'Epistles', position: 46 },
       type: 'image', img: 'wedding-rings.jpg',
     },
     {
       // The fruit of the Spirit.
-      id: 'bn-46', answer: 'GALATIANS', answerAlt: 'Mga Taga-Galacia', difficulty: 3,
+      id: 'bn-46', answer: 'GALATIANS', difficulty: 3,
       ref: { testament: 'New', division: 'Epistles', position: 48 },
       type: 'image', img: 'fruit.jpg',
     },
     {
       // The whole armour of God. A suit of armour is unmistakable.
-      id: 'bn-47', answer: 'EPHESIANS', answerAlt: 'Mga Taga-Efeso', difficulty: 1,
+      id: 'bn-47', answer: 'EPHESIANS', difficulty: 1,
       ref: { testament: 'New', division: 'Epistles', position: 49 },
       type: 'image', img: 'armour.jpg',
     },
     {
       // PHILIPPIANS and PHILIPPINES differ by a single letter. The strongest local clue in the deck.
-      id: 'bn-48', answer: 'PHILIPPIANS', answerAlt: 'Mga Taga-Filipos', difficulty: 2,
+      id: 'bn-48', answer: 'PHILIPPIANS', difficulty: 2,
       flag: 'local',
       ref: { testament: 'New', division: 'Epistles', position: 50 },
       type: 'image', img: 'ph-flag.jpg',
     },
     {
       // A trumpet in the clouds - the second coming passage.
-      id: 'bn-49', answer: 'THESSALONIANS', answerAlt: 'Mga Taga-Tesalonica', difficulty: 3,
+      id: 'bn-49', answer: 'THESSALONIANS', difficulty: 3,
       flag: 'risky',
       ref: { testament: 'New', division: 'Epistles', position: 52 },
       type: 'image', img: 'trumpet-clouds.jpg',
     },
     {
       // A curtain drawn back. Apokalypsis literally means an uncovering, so this IS the answer, not a hint toward it.
-      id: 'bn-50', answer: 'REVELATION', answerAlt: 'Apocalipsis', difficulty: 1,
+      id: 'bn-50', answer: 'REVELATION', difficulty: 1,
       ref: { testament: 'New', division: 'Prophecy', position: 66 },
       type: 'image', img: 'unveiling.jpg',
+    },
+
+    // ---- Rescued on review ------------------------------------------------
+    {
+      // A rebus sidesteps the reason Ezra was dropped: any *depiction* of Ezra
+      // looks exactly like Nehemiah, but a pun does not depict him at all.
+      id: 'bn-51', answer: 'EZRA', difficulty: 3, flag: 'risky',
+      ref: { testament: 'Old', division: 'Historical', position: 15 },
+      clues: [{ img: 'easy.jpg', word: 'EASY' }, { img: 'ra-sun.jpg', word: 'RA' }],
+    },
+    {
+      // nah + HAM, not nah + hum. A ham photographs; humming does not, which
+      // is exactly why the earlier version was cut.
+      id: 'bn-52', answer: 'NAHUM', difficulty: 3, flag: 'risky',
+      ref: { testament: 'Old', division: 'Minor Prophets', position: 34 },
+      clues: [{ img: 'nah.jpg', word: 'NAH' }, { img: 'ham.jpg', word: 'HAM' }],
+    },
+    {
+      id: 'bn-53', answer: 'TITUS', difficulty: 3, flag: 'risky',
+      ref: { testament: 'New', division: 'Epistles', position: 56 },
+      clues: [{ img: 'tie.jpg', word: 'TIE' }, { img: 'toes.jpg', word: 'TOES' }],
     },
   ],
 };

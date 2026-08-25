@@ -43,7 +43,6 @@
   function answerBlock(a) {
     var block = el('div', 'answer-block');
     block.appendChild(el('div', 'answer', a.answer));
-    if (a.answerAlt) { block.appendChild(el('div', 'answer-alt', a.answerAlt)); }
     if (a.ref) { block.appendChild(el('div', 'ref', a.ref)); }
     return block;
   }

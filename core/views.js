@@ -33,7 +33,6 @@
     if (stage < revealAt) { return null; }
     return {
       answer: puzzle.answer,
-      answerAlt: puzzle.answerAlt,
       ref: formatRef(puzzle.ref),
     };
   }

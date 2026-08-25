@@ -102,13 +102,6 @@ test('an id containing its own answer is an error', () => {
   assert.match(errs(d), /id .*answer|leak/i);
 });
 
-test('an id containing the Filipino answer leaks it too', () => {
-  const d = ok();
-  d.puzzles.push({ id: 'hari-11', answer: 'KINGS', answerAlt: 'Hari',
-                   type: 'image', img: 'crown.jpg' });
-  assert.match(errs(d), /leak/i);
-});
-
 test('duplicate answers in the same language are an error', () => {
   const d = ok();
   d.puzzles.push({ answer: 'JONAH', type: 'image', img: 'other.jpg' });

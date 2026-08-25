@@ -42,8 +42,10 @@ test('every picture is expected in the one committed directory', () => {
   assert.deepEqual(globalThis.DECK.imageDirs, ['images/']);
 });
 
-test('every puzzle carries a Filipino name for the reveal', () => {
+test('no puzzle carries a second-language name', () => {
+  // English only, by decision - see spec 11.1.
   globalThis.DECK.puzzles.forEach((p) => {
-    assert.ok(p.answerAlt, `${p.answer} has no answerAlt`);
+    assert.equal(p.answerAlt, undefined, `${p.answer} still has answerAlt`);
+    assert.equal(p.lang, undefined, `${p.answer} still has lang`);
   });
 });

@@ -18,7 +18,6 @@ test('puzzle defaults are applied', () => {
   assert.equal(p.lang, 'en');
   assert.equal(p.slot, 'anywhere');
   assert.equal(p.difficulty, 2);
-  assert.equal(p.answerAlt, null);
   assert.equal(p.ref, null);
 });
 

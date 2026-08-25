@@ -41,7 +41,6 @@
     return {
       id: p.id || null,
       answer: p.answer,
-      answerAlt: p.answerAlt || null,
       lang: p.lang || 'en',
       ref: p.ref === undefined ? null : p.ref,
       slot: p.slot || 'anywhere',

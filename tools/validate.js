@@ -96,14 +96,8 @@
         seenIds[p.id] = true;
         // The id is displayed on a projector in front of the room, so an id
         // that contains its own answer hands the answer over. See spec 16.
-        // Both names leak: a Filipino-answer puzzle is given away by an id
-        // containing its answerAlt just as surely as by one containing its
-        // answer. The id is on a projector in front of the room.
-        var leaked = [p.answer, p.answerAlt].filter(Boolean).filter(function (name) {
-          return p.id.toLowerCase().indexOf(String(name).toLowerCase()) !== -1;
-        });
-        if (leaked.length) {
-          errors.push('id "' + p.id + '" contains its own answer "' + leaked[0] +
+        if (p.id.toLowerCase().indexOf(String(p.answer).toLowerCase()) !== -1) {
+          errors.push('id "' + p.id + '" contains its own answer "' + p.answer +
                       '" and would leak it on screen');
         }
       }
