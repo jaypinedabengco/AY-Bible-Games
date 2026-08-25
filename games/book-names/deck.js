@@ -39,20 +39,9 @@ window.DECK = {
   puzzles: [
     // ---- Law -----------------------------------------------------------
     {
-      // Two variants, so Genesis is not the same puzzle every time.
-      //
-      // The first asks it by meaning rather than by sound: Genesis means
-      // beginning - so the start of a race IS the answer, not a hint toward
-      // it. Instant for any room, which makes it a good opener.
-      //
-      // The second is the rebus, for a room that has met the first one.
-      id: 'bn-01', answer: 'GENESIS',
+      id: 'bn-01', answer: 'GENESIS', difficulty: 2,
       ref: { testament: 'Old', division: 'Law', position: 1 },
-      variants: [
-        { type: 'image', img: 'start.jpg', difficulty: 1 },
-        { type: 'rebus', difficulty: 2,
-          clues: [{ img: 'jeans.jpg', word: 'JEANS' }, { img: 'sis.jpg', word: 'SIS' }] },
-      ],
+      clues: [{ img: 'jeans.jpg', word: 'JEANS' }, { img: 'sis.jpg', word: 'SIS' }],
     },
     {
       id: 'bn-02', answer: 'EXODUS', difficulty: 2, flag: 'local',
