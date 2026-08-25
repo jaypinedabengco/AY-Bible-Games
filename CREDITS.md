@@ -133,3 +133,7 @@ Flickr uploader BPL | Public domain |
 | `numerals.jpg` | [Twemoji 1f522.svg](https://commons.wikimedia.org/wiki/File:Twemoji_1f522.svg) | Twitter | CC BY 4.0 |
 | `unveiling.jpg` | [Twemoji 1f381.svg](https://commons.wikimedia.org/wiki/File:Twemoji_1f381.svg) | Twitter | CC BY 4.0 |
 | `start.jpg` | [Twemoji 1f3c1.svg](https://commons.wikimedia.org/wiki/File:Twemoji_1f3c1.svg) | Twitter | CC BY 4.0 |
+| `whale.jpg` | [Twemoji 1f433.svg](https://commons.wikimedia.org/wiki/File:Twemoji_1f433.svg) | Twitter | CC BY 4.0 |
+| `look.jpg` | [Twemoji 1f50d.svg](https://commons.wikimedia.org/wiki/File:Twemoji_1f50d.svg) | Twitter | CC BY 4.0 |
+| `chew.jpg` | [Twemoji 1f60b.svg](https://commons.wikimedia.org/wiki/File:Twemoji_1f60b.svg) | Twitter | CC BY 4.0 |
+| `babylon-beast.jpg` | [Houghton Typ Inc 2121A - Dürer, Apocalypse, 43.jpg](https://commons.wikimedia.org/wiki/File:Houghton_Typ_Inc_2121A_-_D%C3%BCrer,_Apocalypse,_43.jpg) | Albrecht Dürer | Public domain |

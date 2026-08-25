@@ -98,7 +98,7 @@ window.DECK = {
     {
       id: 'bn-07', answer: 'SAMUEL', difficulty: 2,
       ref: { testament: 'Old', division: 'Historical', position: 9 },
-      clues: [{ img: 'sum.jpg', word: 'SUM' }, { img: 'well.jpg', word: 'WELL' }],
+      clues: [{ img: 'sum.svg', word: 'SUM' }, { img: 'well.jpg', word: 'WELL' }],
     },
     {
       id: 'bn-08', answer: 'KINGS', difficulty: 1,
@@ -149,7 +149,7 @@ window.DECK = {
     {
       id: 'bn-17', answer: 'AMOS', difficulty: 2,
       ref: { testament: 'Old', division: 'Minor Prophets', position: 30 },
-      clues: [{ img: 'letter-a.svg', word: 'A' }, { img: 'moss.jpg', word: 'MOSS' }],
+      clues: [{ img: 'letter-a.svg', word: 'A' }, { img: 'moss-supplied.png', word: 'MOSS' }],
     },
     {
       id: 'bn-18', answer: 'JONAH', difficulty: 1,
@@ -181,7 +181,7 @@ window.DECK = {
     {
       id: 'bn-23', answer: 'ACTS', difficulty: 2,
       ref: { testament: 'New', division: 'History', position: 44 },
-      clues: [{ img: 'axe.jpg', word: 'AXE' }, { img: 'letter-s.svg', word: 'S' }],
+      clues: [{ img: 'axe.svg', word: 'AXE' }, { img: 'letter-s.svg', word: 'S' }],
     },
     {
       id: 'bn-24', answer: 'HEBREWS', difficulty: 3,
@@ -209,7 +209,7 @@ window.DECK = {
     {
       id: 'bn-28', answer: 'HAGGAI', difficulty: 2,
       ref: { testament: 'Old', division: 'Minor Prophets', position: 37 },
-      clues: [{ img: 'hug.jpg', word: 'HUG' }, { img: 'guy.jpg', word: 'GUY' }],
+      clues: [{ img: 'hug.jpg', word: 'HUG' }, { img: 'guy.svg', word: 'GUY' }],
     },
     {
       id: 'bn-29', answer: 'SONG OF SOLOMON', difficulty: 2,
@@ -286,10 +286,11 @@ window.DECK = {
       type: 'image', img: 'ph-flag.png',
     },
     {
-      // A curtain drawn back. Apokalypsis literally means an uncovering, so this IS the answer, not a hint toward it.
+      // The woman riding the seven-headed beast - Durer's Apocalypse woodcut.
+      // Unmistakably this book and nothing else.
       id: 'bn-50', answer: 'REVELATION', difficulty: 1,
       ref: { testament: 'New', division: 'Prophecy', position: 66 },
-      type: 'image', img: 'unveiling.jpg',
+      type: 'image', img: 'babylon-beast.jpg',
     },
     // ---- Rescued on review ------------------------------------------------
     {

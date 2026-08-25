@@ -20,7 +20,8 @@ const path = require('path');
 
 const IMAGES = path.join(__dirname, '..', 'games', 'book-names', 'images');
 const CREDITS = path.join(__dirname, '..', 'CREDITS.md');
-const BY_HAND = ['Jerry_Mouse.webp', 'Levis.png', 'XO_Candy.jpg', 'sm-mall.png'];
+const BY_HAND = ['Jerry_Mouse.webp', 'Levis.png', 'XO_Candy.jpg', 'sm-mall.png',
+                 'moss-supplied.png'];
 
 // Licences we will commit. Anything else is skipped and reported.
 const OK_LICENCE = /public domain|^cc0|^cc[ -]by|^pd|no restrictions/i;
