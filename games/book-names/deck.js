@@ -42,14 +42,14 @@ window.DECK = {
       // Two variants, so Genesis is not the same puzzle every time.
       //
       // The first asks it by meaning rather than by sound: Genesis means
-      // beginning - so a sunrise IS the answer, not a hint toward it. Instant
-      // for any room, which makes it a good opener.
+      // beginning - so the start of a race IS the answer, not a hint toward
+      // it. Instant for any room, which makes it a good opener.
       //
       // The second is the rebus, for a room that has met the first one.
       id: 'bn-01', answer: 'GENESIS',
       ref: { testament: 'Old', division: 'Law', position: 1 },
       variants: [
-        { type: 'image', img: 'sunrise.jpg', difficulty: 1 },
+        { type: 'image', img: 'start.jpg', difficulty: 1 },
         { type: 'rebus', difficulty: 2,
           clues: [{ img: 'jeans.jpg', word: 'JEANS' }, { img: 'sis.jpg', word: 'SIS' }] },
       ],
@@ -80,7 +80,6 @@ window.DECK = {
       ref: { testament: 'Old', division: 'Law', position: 4 },
       type: 'image', img: 'numerals.jpg',
     },
-
     // ---- Historical ----------------------------------------------------
     {
       id: 'bn-05', answer: 'JUDGES', difficulty: 1,
@@ -122,7 +121,6 @@ window.DECK = {
       ref: { testament: 'Old', division: 'Historical', position: 17 },
       clues: [{ img: 'letter-s.svg', word: 'S' }, { img: 'tear.jpg', word: 'TEAR' }],
     },
-
     // ---- Poetry --------------------------------------------------------
     {
       id: 'bn-10', answer: 'JOB', difficulty: 2,
@@ -134,12 +132,6 @@ window.DECK = {
       ref: { testament: 'Old', division: 'Poetry', position: 19 },
       clues: [{ img: 'palms.jpg', word: 'PALMS' }],
     },
-    {
-      id: 'bn-12', answer: 'PROVERBS', difficulty: 3,
-      ref: { testament: 'Old', division: 'Poetry', position: 20 },
-      clues: [{ img: 'pro.jpg', word: 'PRO' }, { img: 'verbs.jpg', word: 'VERBS' }],
-    },
-
     // ---- Major Prophets ------------------------------------------------
     {
       // jerry.png is supplied by hand, not sourced here - it is Warner Bros'
@@ -154,7 +146,6 @@ window.DECK = {
       ref: { testament: 'Old', division: 'Major Prophets', position: 27 },
       clues: [{ img: 'done.jpg', word: 'DONE' }, { img: 'yell.jpg', word: 'YELL' }],
     },
-
     // ---- Minor Prophets ------------------------------------------------
     {
       id: 'bn-15', answer: 'HOSEA', difficulty: 2,
@@ -184,10 +175,9 @@ window.DECK = {
     {
       id: 'bn-20', answer: 'MALACHI', difficulty: 2,
       ref: { testament: 'Old', division: 'Minor Prophets', position: 39 },
-      clues: [{ img: 'mall.jpg', word: 'MALL' }, { img: 'letter-a.svg', word: 'A' },
+      clues: [{ img: 'sm-mall.png', word: 'MALL' }, { img: 'letter-a.svg', word: 'A' },
               { img: 'key.jpg', word: 'KEY' }],
     },
-
     // ---- Gospels and after ---------------------------------------------
     {
       id: 'bn-21', answer: 'MARK', difficulty: 1,
@@ -214,7 +204,6 @@ window.DECK = {
       ref: { testament: 'New', division: 'General Epistles', position: 59 },
       clues: [{ img: 'jam.jpg', word: 'JAM' }, { img: 'letter-s.svg', word: 'S' }],
     },
-
     // ---- English: drafted in spec Appendix A, not yet playtested ----------
     {
       id: 'bn-26', answer: 'ISAIAH', difficulty: 2,
@@ -270,13 +259,6 @@ window.DECK = {
       ref: { testament: 'New', division: 'Epistles', position: 45 },
       type: 'image', img: 'roman-soldier.jpg',
     },
-    {
-      id: 'bn-36', answer: 'COLOSSIANS', difficulty: 3,
-      flag: 'risky',
-      ref: { testament: 'New', division: 'Epistles', position: 51 },
-      type: 'image', img: 'colossus.jpg',
-    },
-
     // ---- Asked by a picture of what the book is about ---------------------
     // No verses anywhere: this is a picture game. These are direct depictions
     // rather than puns, for books whose names will not pun.
@@ -285,30 +267,10 @@ window.DECK = {
     // Zephaniah, Titus and Jude have neither a workable pun nor a picture a
     // room would recognise. A bad clue is worse than a missing book.
     {
-      // Moses on the mountain looking over a land he will not enter - the only book that records his death.
-      id: 'bn-37', answer: 'DEUTERONOMY', difficulty: 3,
-      flag: 'risky',
-      ref: { testament: 'Old', division: 'Law', position: 5 },
-      type: 'image', img: 'moses-nebo.jpg',
-    },
-    {
       // Walls coming down.
       id: 'bn-38', answer: 'JOSHUA', difficulty: 2,
       ref: { testament: 'Old', division: 'Historical', position: 6 },
       type: 'image', img: 'jericho.jpg',
-    },
-    {
-      // A chronicle is a record. Weakest picture in the deck - cut it if it does not land.
-      id: 'bn-39', answer: 'CHRONICLES', difficulty: 3,
-      flag: 'risky',
-      ref: { testament: 'Old', division: 'Historical', position: 13 },
-      type: 'image', img: 'record-book.jpg',
-    },
-    {
-      // Ecclesiastes means the Preacher - which is also its Filipino name, Mangangaral.
-      id: 'bn-40', answer: 'ECCLESIASTES', difficulty: 3,
-      ref: { testament: 'Old', division: 'Poetry', position: 21 },
-      type: 'image', img: 'preacher.jpg',
     },
     {
       // A weeping face says lamentation with no words at all.
@@ -323,45 +285,9 @@ window.DECK = {
       // both. The easy clue is shared with EZRA, which is easy + ra.
       id: 'bn-42', answer: 'EZEKIEL',
       ref: { testament: 'Old', division: 'Major Prophets', position: 26 },
-      variants: [
-        { type: 'image', img: 'dry-bones.jpg', difficulty: 1 },
-        { type: 'rebus', difficulty: 3, flag: 'risky',
-          clues: [{ img: 'easy.jpg', word: 'EASY' },
-                  { img: 'kill-bug.jpg', word: 'KILL' }] },
-      ],
-    },
-    {
-      // A king riding a donkey - the Palm Sunday prophecy.
-      id: 'bn-43', answer: 'ZECHARIAH', difficulty: 3,
-      flag: 'risky',
-      ref: { testament: 'Old', division: 'Minor Prophets', position: 38 },
-      type: 'image', img: 'donkey-king.jpg',
-    },
-    {
-      // The eagle is the traditional church symbol for John. Needs that knowledge - watch it.
-      id: 'bn-44', answer: 'JOHN', difficulty: 3,
-      flag: 'risky',
-      ref: { testament: 'New', division: 'Gospels', position: 43 },
-      type: 'image', img: 'eagle.jpg',
-    },
-    {
-      // Love is patient, love is kind - the passage read at weddings.
-      id: 'bn-45', answer: 'CORINTHIANS', difficulty: 3,
-      flag: 'risky',
-      ref: { testament: 'New', division: 'Epistles', position: 46 },
-      type: 'image', img: 'wedding-rings.jpg',
-    },
-    {
-      // The fruit of the Spirit.
-      id: 'bn-46', answer: 'GALATIANS', difficulty: 3,
-      ref: { testament: 'New', division: 'Epistles', position: 48 },
-      type: 'image', img: 'fruit.jpg',
-    },
-    {
-      // The whole armour of God. A suit of armour is unmistakable.
-      id: 'bn-47', answer: 'EPHESIANS', difficulty: 1,
-      ref: { testament: 'New', division: 'Epistles', position: 49 },
-      type: 'image', img: 'armour.jpg',
+      difficulty: 3, flag: 'risky',
+      clues: [{ img: 'easy.jpg', word: 'EASY' },
+              { img: 'kill-bug.jpg', word: 'KILL' }],
     },
     {
       // PHILIPPIANS and PHILIPPINES differ by a single letter. The strongest local clue in the deck.
@@ -371,26 +297,18 @@ window.DECK = {
       type: 'image', img: 'ph-flag.png',
     },
     {
-      // A trumpet in the clouds - the second coming passage.
-      id: 'bn-49', answer: 'THESSALONIANS', difficulty: 3,
-      flag: 'risky',
-      ref: { testament: 'New', division: 'Epistles', position: 52 },
-      type: 'image', img: 'trumpet-clouds.jpg',
-    },
-    {
       // A curtain drawn back. Apokalypsis literally means an uncovering, so this IS the answer, not a hint toward it.
       id: 'bn-50', answer: 'REVELATION', difficulty: 1,
       ref: { testament: 'New', division: 'Prophecy', position: 66 },
       type: 'image', img: 'unveiling.jpg',
     },
-
     // ---- Rescued on review ------------------------------------------------
     {
       // A rebus sidesteps the reason Ezra was dropped: any *depiction* of Ezra
       // looks exactly like Nehemiah, but a pun does not depict him at all.
       id: 'bn-51', answer: 'EZRA', difficulty: 3, flag: 'risky',
       ref: { testament: 'Old', division: 'Historical', position: 15 },
-      clues: [{ img: 'easy.jpg', word: 'EASY' }, { img: 'ra-sun.jpg', word: 'RA' }],
+      clues: [{ img: 'easy.jpg', word: 'EASY' }, { img: 'letters-ra.svg', word: 'RA' }],
     },
     {
       // nah + HAM, not nah + hum. A ham photographs; humming does not, which

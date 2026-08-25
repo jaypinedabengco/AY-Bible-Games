@@ -99,3 +99,37 @@ cameo is ever enabled — and they need rows here too.
 | `pro.jpg` | [Twemoji 1f3c6.svg](https://commons.wikimedia.org/wiki/File:Twemoji_1f3c6.svg) | Twitter | CC BY 4.0 |
 | `he.jpg` | [Twemoji12 1f469-1f3fb-200d-1f91d-200d-1f468-1f3fd.svg](https://commons.wikimedia.org/wiki/File:Twemoji12_1f469-1f3fb-200d-1f91d-200d-1f468-1f3fd.svg) | Twitter | CC BY 4.0 |
 | `tear.jpg` | [Phantom Open Emoji 1f63f.svg](https://commons.wikimedia.org/wiki/File:Phantom_Open_Emoji_1f63f.svg) | https://github.com/break24/PhantomOpenEmoji/graphs/contribut | CC BY 3.0 |
+| `us.jpg` | [Apollo 15 flag, rover, LM, Irwin.jpg](https://commons.wikimedia.org/wiki/File:Apollo_15_flag,_rover,_LM,_Irwin.jpg) | Astronaut David R. Scott, Apollo 15 commander. | Public domain |
+| `axe.jpg` | [Letra-h.png](https://commons.wikimedia.org/wiki/File:Letra-h.png) | Box (Kuswanto)
+Twitter
+Fat Cow web hosting
+SoujanyaaB
+WikiVo | CC0 |
+| `back.jpg` | [Twemoji 2194.svg](https://commons.wikimedia.org/wiki/File:Twemoji_2194.svg) | Twitter | CC BY 4.0 |
+| `chew.jpg` | [Wrigley Field? (4677535518).jpg](https://commons.wikimedia.org/wiki/File:Wrigley_Field%3F_(4677535518).jpg) | PandamicPhoto.com from Lindenhurst, IL, USA | CC BY-SA 2.0 |
+| `he.jpg` | [TGFT06 restroom sign for men - Taylor Guitar Factory.jpg](https://commons.wikimedia.org/wiki/File:TGFT06_restroom_sign_for_men_-_Taylor_Guitar_Factory.jpg) | Marcin Wichary | CC BY 2.0 |
+| `jam.jpg` | [Cream tea scone at Highdown Gardens, Worthing, West Sussex, England.jpg](https://commons.wikimedia.org/wiki/File:Cream_tea_scone_at_Highdown_Gardens,_Worthing,_West_Sussex,_England.jpg) | Acabashi | CC BY-SA 4.0 |
+| `moss.jpg` | [Icones muscorum, or, Figures and descriptions of most of those mosses peculiar to North America which have not yet been figured (1874) (14589726809).jpg](https://commons.wikimedia.org/wiki/File:Icones_muscorum,_or,_Figures_and_descriptions_of_most_of_those_mosses_peculiar_to_North_America_which_have_not_yet_been_figured_(1874)_(14589726809).jpg) | Sullivant, William Starling, 1803-1873 | No restrictions |
+| `moth.jpg` | [Emperor Gum Moth.jpg](https://commons.wikimedia.org/wiki/File:Emperor_Gum_Moth.jpg) | Fir0002 at English Wikipedia | CC BY-SA 3.0 |
+| `root.jpg` | [Mangroves Are Losing Their Resilience (153655 - mangroveconditions oli 2017 lrg).jpg](https://commons.wikimedia.org/wiki/File:Mangroves_Are_Losing_Their_Resilience_(153655_-_mangroveconditions_oli_2017_lrg).jpg) | NASA Earth Observatory image by Lauren Dauphin, using data f | Public domain |
+| `sum.jpg` | [Twemoji 2795.svg](https://commons.wikimedia.org/wiki/File:Twemoji_2795.svg) | Twitter | CC BY 4.0 |
+| `jericho.jpg` | [Vernietiging van Jericho, RP-P-OB-102.895.jpg](https://commons.wikimedia.org/wiki/File:Vernietiging_van_Jericho,_RP-P-OB-102.895.jpg) | Rijksmuseum | CC0 |
+| `mat.jpg` | [Welcome doormat.JPG](https://commons.wikimedia.org/wiki/File:Welcome_doormat.JPG) | LeeGer | CC BY-SA 3.0 |
+| `cook.jpg` | [Twemoji 1f373.svg](https://commons.wikimedia.org/wiki/File:Twemoji_1f373.svg) | Twitter | CC BY 4.0 |
+| `easy.jpg` | [Twemoji 1f44c.svg](https://commons.wikimedia.org/wiki/File:Twemoji_1f44c.svg) | Twitter | CC BY 4.0 |
+| `ham.jpg` | [Twemoji 1f356.svg](https://commons.wikimedia.org/wiki/File:Twemoji_1f356.svg) | Twitter | CC BY 4.0 |
+| `jam.jpg` | [Twemoji 1f36f.svg](https://commons.wikimedia.org/wiki/File:Twemoji_1f36f.svg) | Twitter | CC BY 4.0 |
+| `jeans.jpg` | [Twemoji 1f456.svg](https://commons.wikimedia.org/wiki/File:Twemoji_1f456.svg) | Twitter | CC BY 4.0 |
+| `mark.jpg` | [Twemoji2 1f58a.svg](https://commons.wikimedia.org/wiki/File:Twemoji2_1f58a.svg) | Twitter | CC BY 4.0 |
+| `mic.jpg` | [Twemoji 1f3a4.svg](https://commons.wikimedia.org/wiki/File:Twemoji_1f3a4.svg) | Twitter | CC BY 4.0 |
+| `palms.jpg` | [Twemoji 1f334.svg](https://commons.wikimedia.org/wiki/File:Twemoji_1f334.svg) | Twitter | CC BY 4.0 |
+| `sis.jpg` | [Twemoji 1f46d.svg](https://commons.wikimedia.org/wiki/File:Twemoji_1f46d.svg) | Twitter | CC BY 4.0 |
+| `solo.jpg` | [Twemoji12 1f9cd-1f3fc-200d-2640-fe0f.svg](https://commons.wikimedia.org/wiki/File:Twemoji12_1f9cd-1f3fc-200d-2640-fe0f.svg) | Twitter | CC BY 4.0 |
+| `sum.jpg` | [Twemoji 2795.svg](https://commons.wikimedia.org/wiki/File:Twemoji_2795.svg) | Twitter | CC BY 4.0 |
+| `well.jpg` | [Algerian man and boy drawing water from a well (circa 1892).jpg](https://commons.wikimedia.org/wiki/File:Algerian_man_and_boy_drawing_water_from_a_well_(circa_1892).jpg) | William Vaughn Tupper
+
+Flickr uploader BPL | Public domain |
+| `hardhat.jpg` | [Twemoji 1f477.svg](https://commons.wikimedia.org/wiki/File:Twemoji_1f477.svg) | Twitter | CC BY 4.0 |
+| `numerals.jpg` | [Twemoji 1f522.svg](https://commons.wikimedia.org/wiki/File:Twemoji_1f522.svg) | Twitter | CC BY 4.0 |
+| `unveiling.jpg` | [Twemoji 1f381.svg](https://commons.wikimedia.org/wiki/File:Twemoji_1f381.svg) | Twitter | CC BY 4.0 |
+| `start.jpg` | [Twemoji 1f3c1.svg](https://commons.wikimedia.org/wiki/File:Twemoji_1f3c1.svg) | Twitter | CC BY 4.0 |
