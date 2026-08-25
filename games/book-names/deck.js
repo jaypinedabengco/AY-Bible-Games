@@ -35,8 +35,8 @@ window.DECK = {
   imageDirs: ['images/'],
   idPrefix: 'bn',   // puzzle ids are shown on the projector; see spec 16
   shuffle: true,
-  sessionSize: 15,
-  languages: ['en'],
+  sessionSize: 20,
+  languages: ['en', 'fil'],
   puzzles: [
     // ---- Law -----------------------------------------------------------
     {
@@ -193,6 +193,133 @@ window.DECK = {
       id: 'bn-25', answer: 'JAMES', answerAlt: 'Santiago', difficulty: 2,
       ref: { testament: 'New', division: 'General Epistles', position: 59 },
       clues: [{ img: 'jam.jpg', word: 'JAM' }, { img: 'letter-s.jpg', word: 'S' }],
+    },
+
+    // ---- English: drafted in spec Appendix A, not yet playtested ----------
+    {
+      id: 'bn-26', answer: 'ISAIAH', answerAlt: 'Isaias', difficulty: 2,
+      ref: { testament: 'Old', division: 'Major Prophets', position: 23 },
+      clues: [{ img: 'eye.jpg', word: 'EYE' }, { img: 'sigh.jpg', word: 'SIGH' },
+              { img: 'ah.jpg', word: 'AH' }],
+    },
+    {
+      id: 'bn-27', answer: 'NEHEMIAH', answerAlt: 'Nehemias', difficulty: 2,
+      ref: { testament: 'Old', division: 'Historical', position: 16 },
+      clues: [{ img: 'knee.jpg', word: 'KNEE' }, { img: 'he.jpg', word: 'HE' },
+              { img: 'maya.jpg', word: 'MAYA' }],
+    },
+    {
+      id: 'bn-28', answer: 'HAGGAI', answerAlt: 'Hagai', difficulty: 2,
+      ref: { testament: 'Old', division: 'Minor Prophets', position: 37 },
+      clues: [{ img: 'hug.jpg', word: 'HUG' }, { img: 'guy.jpg', word: 'GUY' }],
+    },
+    {
+      id: 'bn-29', answer: 'SONG OF SOLOMON', answerAlt: 'Awit ni Solomon', difficulty: 2,
+      ref: { testament: 'Old', division: 'Poetry', position: 22 },
+      clues: [{ img: 'note.jpg', word: 'SONG' }, { img: 'solo.jpg', word: 'SOLO' },
+              { img: 'moon.jpg', word: 'MOON' }],
+    },
+    {
+      id: 'bn-30', answer: 'HABAKKUK', answerAlt: 'Habacuc', difficulty: 3,
+      ref: { testament: 'Old', division: 'Minor Prophets', position: 35 },
+      clues: [{ img: 'ha.jpg', word: 'HA' }, { img: 'back.jpg', word: 'BACK' },
+              { img: 'cook.jpg', word: 'COOK' }],
+    },
+    {
+      id: 'bn-31', answer: 'MATTHEW', answerAlt: 'Mateo', difficulty: 1,
+      ref: { testament: 'New', division: 'Gospels', position: 40 },
+      clues: [{ img: 'mat.jpg', word: 'MAT' }, { img: 'chew.jpg', word: 'CHEW' }],
+    },
+    {
+      id: 'bn-32', answer: 'PHILEMON', answerAlt: 'Filemon', difficulty: 2,
+      ref: { testament: 'New', division: 'Epistles', position: 57 },
+      clues: [{ img: 'fill.jpg', word: 'FILL' }, { img: 'lemon.jpg', word: 'LEMON' }],
+    },
+    {
+      id: 'bn-33', answer: 'PETER', answerAlt: 'Pedro', difficulty: 2,
+      ref: { testament: 'New', division: 'General Epistles', position: 60 },
+      clues: [{ img: 'pea.jpg', word: 'PEA' }, { img: 'tear.jpg', word: 'TEAR' }],
+    },
+    {
+      id: 'bn-34', answer: 'TIMOTHY', answerAlt: 'Timoteo', difficulty: 3,
+      ref: { testament: 'New', division: 'Epistles', position: 54 },
+      clues: [{ img: 'clock.jpg', word: 'TIME' }, { img: 'moth.jpg', word: 'MOTH' }],
+    },
+    {
+      id: 'bn-35', answer: 'ROMANS', answerAlt: 'Mga Taga-Roma', difficulty: 1,
+      ref: { testament: 'New', division: 'Epistles', position: 45 },
+      type: 'image', img: 'roman-soldier.jpg',
+    },
+    {
+      id: 'bn-36', answer: 'COLOSSIANS', answerAlt: 'Mga Taga-Colosas', difficulty: 3,
+      flag: 'risky',
+      ref: { testament: 'New', division: 'Epistles', position: 51 },
+      type: 'image', img: 'colossus.jpg',
+    },
+
+    // ---- Filipino answers -------------------------------------------------
+    // Only names that genuinely differ from the English, per spec 11.1. The
+    // room is told which language is wanted by the badge on every card - a
+    // crown is KINGS in one puzzle and MGA HARI in another, same picture.
+    {
+      id: 'bn-37', answer: 'SANTIAGO', answerAlt: 'James', lang: 'fil',
+      difficulty: 3, flag: 'risky',
+      ref: { testament: 'New', division: 'General Epistles', position: 59 },
+      clues: [{ img: 'santa.jpg', word: 'SANTA' }, { img: 'go.jpg', word: 'GO' }],
+    },
+    {
+      id: 'bn-38', answer: 'APOCALIPSIS', answerAlt: 'Revelation', lang: 'fil',
+      difficulty: 2,
+      ref: { testament: 'New', division: 'Prophecy', position: 66 },
+      clues: [{ img: 'letter-a.jpg', word: 'A' }, { img: 'polka.jpg', word: 'POLKA' },
+              { img: 'lips.jpg', word: 'LIPS' }, { img: 'sis.jpg', word: 'SIS' }],
+    },
+    {
+      id: 'bn-39', answer: 'JUAN', answerAlt: 'John', lang: 'fil', difficulty: 2,
+      ref: { testament: 'New', division: 'Gospels', position: 43 },
+      clues: [{ img: 'numeral-1.jpg', word: 'ONE' }],
+    },
+    {
+      id: 'bn-40', answer: 'MGA HARI', answerAlt: 'Kings', lang: 'fil', difficulty: 1,
+      ref: { testament: 'Old', division: 'Historical', position: 11 },
+      type: 'image', img: 'crown.jpg',
+    },
+    {
+      id: 'bn-41', answer: 'MGA BILANG', answerAlt: 'Numbers', lang: 'fil', difficulty: 1,
+      ref: { testament: 'Old', division: 'Law', position: 4 },
+      type: 'image', img: 'numerals.jpg',
+    },
+    {
+      id: 'bn-42', answer: 'MGA HUKOM', answerAlt: 'Judges', lang: 'fil', difficulty: 1,
+      ref: { testament: 'Old', division: 'Historical', position: 7 },
+      type: 'image', img: 'gavel.jpg',
+    },
+    {
+      id: 'bn-43', answer: 'MGA AWIT', answerAlt: 'Psalms', lang: 'fil', difficulty: 1,
+      ref: { testament: 'Old', division: 'Poetry', position: 19 },
+      type: 'image', img: 'note.jpg',
+    },
+    {
+      id: 'bn-44', answer: 'MGA GAWA', answerAlt: 'Acts', lang: 'fil', difficulty: 2,
+      ref: { testament: 'New', division: 'History', position: 44 },
+      type: 'image', img: 'hands-work.jpg',
+    },
+    {
+      id: 'bn-45', answer: 'MGA PANAGHOY', answerAlt: 'Lamentations', lang: 'fil',
+      difficulty: 2,
+      ref: { testament: 'Old', division: 'Major Prophets', position: 25 },
+      type: 'image', img: 'weeping.jpg',
+    },
+    {
+      id: 'bn-46', answer: 'MANGANGARAL', answerAlt: 'Ecclesiastes', lang: 'fil',
+      difficulty: 2,
+      ref: { testament: 'Old', division: 'Poetry', position: 21 },
+      type: 'image', img: 'preacher.jpg',
+    },
+    {
+      id: 'bn-47', answer: 'TITO', answerAlt: 'Titus', lang: 'fil', difficulty: 2,
+      ref: { testament: 'New', division: 'Epistles', position: 56 },
+      type: 'image', img: 'uncle.jpg',
     },
   ],
 };
