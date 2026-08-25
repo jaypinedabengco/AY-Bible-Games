@@ -149,7 +149,7 @@ window.DECK = {
     {
       id: 'bn-17', answer: 'AMOS', difficulty: 2,
       ref: { testament: 'Old', division: 'Minor Prophets', position: 30 },
-      clues: [{ img: 'letter-a.svg', word: 'A' }, { img: 'moss-supplied.png', word: 'MOSS' }],
+      clues: [{ img: 'letter-a.svg', word: 'A' }, { img: 'moss.jpeg', word: 'MOSS' }],
     },
     {
       id: 'bn-18', answer: 'JONAH', difficulty: 1,
@@ -164,7 +164,7 @@ window.DECK = {
     {
       id: 'bn-20', answer: 'MALACHI', difficulty: 2,
       ref: { testament: 'Old', division: 'Minor Prophets', position: 39 },
-      clues: [{ img: 'sm-mall.png', word: 'MALL' }, { img: 'letter-a.svg', word: 'A' },
+      clues: [{ img: 'sm.jpeg', word: 'MALL' }, { img: 'letter-a.svg', word: 'A' },
               { img: 'key.jpg', word: 'KEY' }],
     },
     // ---- Gospels and after ---------------------------------------------
