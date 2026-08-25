@@ -1,58 +1,86 @@
 <!doctype html>
-<!--
-  Review sheet. Renders the real deck.js so what you approve is what ships.
-  Open it in a browser, or screenshot it, to sanity-check every puzzle at once.
--->
-<html>
+<html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Bible Names - deck review</title>
+<title>Deck review — Bible Book Names</title>
+<link rel="stylesheet" href="../core/theme.css">
 <style>
-  :root { --ink:#2E3440; --card:#FBF3E4; --bg:#1B2030; --gold:#E5B23C; }
-  * { box-sizing: border-box; }
-  body { margin:0; background:var(--bg); color:#F7F3EA;
-         font-family: -apple-system, "Segoe UI", Roboto, sans-serif; padding:20px; }
-  h1 { font-size:26px; margin:0 0 4px; }
-  p.sub { margin:0 0 20px; color:#9AA6BC; font-size:15px; }
-  ol { list-style:none; margin:0; padding:0;
-       display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
-  li { background:#262D42; border-radius:14px; padding:14px; }
-  .num { color:#7D8BA8; font-size:13px; font-weight:700; }
-  .row { display:flex; align-items:center; gap:8px; margin:8px 0 10px; }
-  .clue { background:var(--card); border-radius:11px; width:88px; height:88px;
-          display:flex; align-items:center; justify-content:center; flex:0 0 auto; }
-  .clue img { width:100%; height:100%; }
-  .plus { font-size:26px; color:#7D8BA8; font-weight:700; }
-  .work { font-size:14px; color:var(--gold); letter-spacing:.06em; font-weight:700; }
-  .ans { font-size:27px; font-weight:800; letter-spacing:.03em; margin-top:2px; }
-  .ref { font-size:13px; color:#9AA6BC; }
-  .flag { display:inline-block; margin-top:7px; font-size:11px; font-weight:700;
-          padding:3px 9px; border-radius:99px; background:#5A3A2E; color:#F0B49C; }
+  body { overflow: auto; }
+  .grid { display: grid; gap: 1rem; padding: 2rem;
+          grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr)); }
+  .cell { background: var(--card); border-radius: 0.8rem; padding: 1rem; }
+  .cell img { height: 5rem; background: #0d1017; border-radius: 0.4rem; padding: 0.3rem; }
+  .cell .row { display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap; }
+  .cell h3 { margin: 0.6rem 0 0.2rem; font-size: 1.3rem; }
+  .tag { font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase;
+         padding: 0.15rem 0.5rem; border-radius: 1rem; background: var(--bg);
+         color: var(--dim); }
+  .tag.risky { background: var(--bad); color: #fff; }
+  .tag.local { background: var(--accent); color: var(--bg); }
+  .miss { color: var(--bad); font-size: 2rem; }
 </style>
 </head>
 <body>
-  <h1>Bible Names &mdash; deck review</h1>
-  <p class="sub">Rendered from <code>games/names/deck.js</code>. Flagged puzzles are the ones I am least sure about.</p>
-  <ol id="list"></ol>
+<div class="grid" id="grid"></div>
 
-  <script src="../games/names/deck.js"></script>
-  <script>
-    const list = document.getElementById('list');
-    window.NAME_PUZZLES.forEach((p, i) => {
-      const clues = p.clues.map(c =>
-        `<div class="clue"><img src="../games/names/clues/${c.img}" alt=""></div>`
-      ).join('<span class="plus">+</span>');
-      const work = p.clues.map(c => c.word).join(' + ');
-      list.insertAdjacentHTML('beforeend', `
-        <li>
-          <div class="num">${String(i + 1).padStart(2, '0')}</div>
-          <div class="row">${clues}</div>
-          <div class="work">${work}</div>
-          <div class="ans">${p.answer}</div>
-          <div class="ref">${p.ref}</div>
-          ${p.flag ? `<div class="flag">${p.flag.toUpperCase()}</div>` : ''}
-        </li>`);
+<script src="../core/normalize.js"></script>
+<script src="../games/book-names/deck.js"></script>
+<script>
+  (function () {
+    var deck = BibleGames.normalize.normalizeDeck(window.DECK);
+    var grid = document.getElementById('grid');
+    var dirs = deck.imageDirs;
+
+    function tag(text, cls) {
+      var t = document.createElement('span');
+      t.className = 'tag' + (cls ? ' ' + cls : '');
+      t.textContent = text;
+      return t;
+    }
+
+    deck.puzzles.forEach(function (p) {
+      p.variants.forEach(function (v, i) {
+        var cell = document.createElement('div');
+        cell.className = 'cell';
+        var row = document.createElement('div');
+        row.className = 'row';
+        var names = v.clues ? v.clues.map(function (c) { return c.img; })
+                            : (v.img ? [v.img] : []);
+        names.forEach(function (n) {
+          var img = document.createElement('img');
+          img.src = dirs[dirs.length - 1] + n;   // committed dir; review is for the public deck
+          img.alt = n;
+          img.onerror = function () {
+            var miss = document.createElement('span');
+            miss.className = 'miss';
+            miss.textContent = '?';
+            miss.title = n + ' not found';
+            img.replaceWith(miss);
+          };
+          row.appendChild(img);
+        });
+        var h = document.createElement('h3');
+        h.textContent = p.answer + (p.variants.length > 1 ? ' · variant ' + (i + 1) : '');
+        var tags = document.createElement('div');
+        tags.className = 'row';
+        tags.appendChild(tag(v.type));
+        tags.appendChild(tag('d' + v.difficulty));
+        tags.appendChild(tag(p.lang === 'fil' ? 'Filipino' : 'English'));
+        if (p.slot !== 'anywhere') { tags.appendChild(tag(p.slot)); }
+        if (v.flag) { tags.appendChild(tag(v.flag, v.flag)); }
+        cell.appendChild(row);
+        cell.appendChild(h);
+        if (p.answerAlt) {
+          var alt = document.createElement('div');
+          alt.style.color = 'var(--accent)';
+          alt.textContent = p.answerAlt;
+          cell.appendChild(alt);
+        }
+        cell.appendChild(tags);
+        grid.appendChild(cell);
+      });
     });
-  </script>
+  })();
+</script>
 </body>
 </html>

@@ -3,67 +3,55 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>AY Bible Games</title>
-<meta name="description" content="Simple picture games for church. No sign-in, no typing, works offline.">
-<link rel="stylesheet" href="assets/theme.css">
+<title>San Fernando AY Church — AY Bible Games</title>
+<link rel="stylesheet" href="core/theme.css">
+<style>
+  body { overflow: auto; }
+  .front { max-width: 60rem; margin: 0 auto; padding: 6vmin 5vmin; }
+  .church { font-size: 2vmin; letter-spacing: 0.3em; text-transform: uppercase;
+            color: var(--accent); }
+  h1 { font-size: 7vmin; margin: 1vmin 0 1rem; }
+  .lead { color: var(--dim); font-size: 2.4vmin; max-width: 40rem; line-height: 1.6; }
+  .cards { display: grid; gap: 1.5rem; margin-top: 3rem;
+           grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); }
+  .card { display: block; background: var(--card); border-radius: 1rem;
+          padding: 1.5rem; text-decoration: none; color: inherit; }
+  .card.parked { opacity: 0.45; pointer-events: none; }
+  .card h2 { margin: 0 0 0.5rem; font-size: 1.5rem; }
+  .card p { margin: 0 0 1rem; color: var(--dim); line-height: 1.5; }
+  .meta { font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase;
+          color: var(--accent); }
+  .gm-link { margin-top: 3rem; font-size: 0.8rem; }
+  .gm-link a { color: var(--dim); }
+</style>
 </head>
 <body>
-
-<div class="hub">
-
-  <header>
-    <h1>AY Bible Games</h1>
-    <p class="lede">
-      Picture games for the hall. Put one on the projector, let the room shout
-      the answers, and click to reveal. Nothing to type, nothing to sign into.
-    </p>
-  </header>
-
-  <ul class="games" id="games"></ul>
-
-  <footer>
-    <p>
-      Works with no internet &mdash; open <code>index.html</code> straight from
-      the folder. Everything is a plain file you can edit.
-    </p>
-  </footer>
-
+<div class="front">
+  <div class="church">San Fernando AY Church</div>
+  <h1>AY Bible Games</h1>
+  <p class="lead">Put one on the projector. The room shouts the answer, one
+  person clicks to reveal. No typing, no sign-in, and no internet needed —
+  open it straight from the folder.</p>
+  <div class="cards" id="cards"></div>
+  <p class="gm-link"><a href="games/book-names/gm.html">Game master</a></p>
 </div>
 
 <script src="games.js"></script>
 <script>
-(function () {
-  'use strict';
-
-  var list = document.getElementById('games');
-  var games = window.GAMES || [];
-
-  function esc(s) {
-    return String(s).replace(/[&<>"]/g, function (c) {
-      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+  (function () {
+    var host = document.getElementById('cards');
+    window.GAMES.forEach(function (g) {
+      var ready = g.status === 'ready';
+      var card = document.createElement(ready ? 'a' : 'div');
+      card.className = ready ? 'card' : 'card parked';
+      if (ready) { card.href = g.href; }
+      var h = document.createElement('h2'); h.textContent = g.title;
+      var p = document.createElement('p'); p.textContent = g.blurb;
+      var m = document.createElement('div'); m.className = 'meta'; m.textContent = g.meta;
+      card.appendChild(h); card.appendChild(p); card.appendChild(m);
+      host.appendChild(card);
     });
-  }
-
-  if (!games.length) {
-    list.innerHTML = '<li class="game"><p>No games listed yet. ' +
-                     'Add one to <code>games.js</code>.</p></li>';
-    return;
-  }
-
-  games.forEach(function (g) {
-    var parked = g.status === 'parked';
-    var body =
-      '<h2>' + esc(g.title) + '</h2>' +
-      '<p>' + esc(g.blurb) + '</p>' +
-      '<span class="meta">' + esc(g.meta || '') + '</span>';
-
-    // A parked game is a <li>, not a link - nothing to click, nothing to break.
-    list.insertAdjacentHTML('beforeend', parked
-      ? '<li class="game parked" aria-disabled="true">' + body + '</li>'
-      : '<li><a class="game" href="' + esc(g.href) + '">' + body + '</a></li>');
-  });
-}());
+  })();
 </script>
-
 </body>
 </html>

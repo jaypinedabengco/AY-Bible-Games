@@ -1,27 +1,40 @@
 /*
- * The list of games shown on the front page.
+ * The games on the front page.
  *
- * To add a game: copy games/names/ to games/your-game/, edit it, then add an
- * entry here. That is the whole wiring.
+ * To add one: copy games/book-names/ to games/your-game/, edit its deck,
+ * then add an entry here. That is the whole wiring - the engine handles any
+ * "show a prompt, reveal in stages, move on" game.
  *
- * status: 'ready'  - shown as a playable link
- *         'parked' - shown greyed out, not clickable (built but not finished)
+ * status: 'ready'  - a playable link
+ *         'parked' - greyed out and not clickable
  */
 window.GAMES = [
   {
-    title: 'Bible Names',
-    href: 'games/names/index.html',
-    blurb: 'Read the picture clues out loud and shout the name. ' +
-           'A + dam. Sea + moon. Abra + ham.',
+    title: 'Bible Book Names',
+    href: 'games/book-names/index.html',
+    blurb: 'Picture clues combine into a book of the Bible. Gene + sis. XO + dos.',
     meta: 'Ready to play',
     status: 'ready',
   },
   {
-    title: 'Bible Characters',
-    href: 'games/characters/index.html',
-    blurb: 'A scene from a Bible story appears; the room guesses who it is. ' +
-           'Artwork is drawn, the game page is not built yet.',
-    meta: 'Parked',
+    title: 'Old or New?',
+    href: 'games/old-or-new/index.html',
+    blurb: 'A book flashes up; the room shouts which testament. A fast warm-up.',
+    meta: 'Planned',
+    status: 'parked',
+  },
+  {
+    title: 'Finish the Verse',
+    href: 'games/finish-the-verse/index.html',
+    blurb: 'A familiar verse appears with the ending missing.',
+    meta: 'Planned',
+    status: 'parked',
+  },
+  {
+    title: 'Bible Character Names',
+    href: 'games/character-names/index.html',
+    blurb: 'A picture of a person from a story; the room names them.',
+    meta: 'Planned',
     status: 'parked',
   },
 ];
