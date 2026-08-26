@@ -67,24 +67,34 @@ html, body {
 
 .clue { display: flex; flex-direction: column; align-items: center; gap: 1.5vmin; }
 
-.clue img {
-  height: 34vmin;
-  max-width: 34vmin;
+.clue img,
+.clue-missing {
+  height: var(--clue);
+  max-width: var(--clue-wide);
   object-fit: contain;
   background: var(--card);
   border-radius: 2vmin;
   padding: 1.5vmin;
 }
 
+/* One picture should own the screen; four still have to sit side by side.
+   --clue is the height, --clue-wide the width cap. They differ because a
+   landscape picture - an engraving, a wide photo - should be allowed to use
+   the widest part of the screen instead of being squeezed into a square. */
+.clue-row { --clue: 34vmin; --clue-wide: 34vmin; }
+.clue-row.clues-1 { --clue: 60vmin; --clue-wide: 82vw; }
+.clue-row.clues-2 { --clue: 46vmin; --clue-wide: 40vw; }
+.clue-row.clues-3 { --clue: 34vmin; --clue-wide: 27vw; }
+.clue-row.clues-4 { --clue: 26vmin; --clue-wide: 21vw; }
+
 .clue-missing {
-  height: 34vmin;
-  width: 34vmin;
+  width: var(--clue);
   display: grid;
   place-items: center;
   font-size: 16vmin;
   color: var(--bad);
   border: 0.6vmin dashed var(--bad);
-  border-radius: 2vmin;
+  background: none;
 }
 
 .clue-word, .plus {

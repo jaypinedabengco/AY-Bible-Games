@@ -32,7 +32,9 @@
   }
 
   function clueRow(clues, srcFor) {
-    var row = el('div', 'clue-row');
+    // The count drives the size: one picture should fill a projector, four
+    // must still fit side by side. CSS cannot count siblings, so say it here.
+    var row = el('div', 'clue-row clues-' + Math.min(clues.length, 4));
     clues.forEach(function (c, i) {
       if (i > 0) { row.appendChild(el('div', 'plus', '+')); }
       row.appendChild(clueCard(c.img, c.word, srcFor));
