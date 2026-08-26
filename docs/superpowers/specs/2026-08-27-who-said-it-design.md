@@ -160,6 +160,80 @@ It is deliberately tiny and beside the existing stamp, not a banner. If it
 reads as clutter on a 55" screen it can come out with one CSS rule and one
 line of paint.js.
 
+## Two languages
+
+Tagalog was deliberately REMOVED from Bible Book Names earlier, to cut
+complexity. This is not that decision being re-argued: it is a different game
+where the objection does not apply.
+
+In the book game, Tagalog changed the puzzle itself. Santiago is not "Jam + S";
+the pictures stopped working, so a Tagalog book was a whole second puzzle
+wearing the same answer. Here a Tagalog quote is simply a different line by the
+same person — which is exactly what a variant already is.
+
+### Language belongs to the variant
+
+`lang` currently sits on the PUZZLE, and the pool is filtered by it. For this
+game it moves to the variant, along with an optional answer, because the person
+is the same and only the wording differs:
+
+```js
+{
+  id: 'qs-05', answer: 'PETER',
+  variants: [
+    { type: 'quote', lang: 'en',
+      quote: 'You are the Christ, the Son of the living God.',
+      verse: 'Matthew 16:16', clue: 'a fisherman; Jesus called him a rock' },
+    { type: 'quote', lang: 'fil', answer: 'PEDRO',
+      quote: null, verse: 'Mateo 16:16',
+      clue: 'isang mangingisda; tinawag siyang bato ni Jesus' },
+  ],
+}
+```
+
+One person, one puzzle, one game-master row showing both languages. The answer
+falls back to the puzzle's when a variant does not override it, so every
+existing deck keeps working untouched.
+
+Puzzle-level `lang` stays exactly as it is for the two picture games. A variant
+with no `lang` inherits the puzzle's, which inherits `'en'` — so nothing that
+exists today changes behaviour.
+
+### One language per round, chosen on the start screen
+
+The start screen gains a language picker beside the round-length dropdown, and
+it appears only when the deck declares more than one language. A single choice,
+never "both": a mixed round leaves the room unsure which language it is meant
+to be shouting.
+
+The existing language badge — built, then unused when the book deck narrowed to
+English — comes back into use here, so the card itself says which language is
+being asked.
+
+### A quote with no text is dormant
+
+The MBB text is copyrighted by the Philippine Bible Society, so it is not
+drafted into this repo. What IS drafted is everything around it: the Tagalog
+name, the reference, and the clue, which is our own words rather than
+scripture. The line itself is pasted in through the manager.
+
+Until then that variant is DORMANT — never drawn, exactly as a variant whose
+picture file is missing is never drawn. That mechanism already exists and is
+the reason placeholder variants do not need blank files; a quote variant with
+no text is the same idea with text instead of pictures.
+
+`validate.js` reports them as a NOTICE, not an error: "18 Tagalog quotes
+waiting for their text" is a normal state for a deck being filled in, and a
+deck half-translated must still validate and still play in English.
+
+### Attribution
+
+The MBB credit line goes in the page footer alongside the NKJV one, and shows
+only when a Tagalog round is being played. The exact wording the Philippine
+Bible Society requires should be taken from their own permissions page before
+the first public use — do not assume the placeholder in `CREDITS.md` is what
+they ask for.
+
 ## Start screen — shared by all three games
 
 Requested for this game and for the two name games, so it belongs in
@@ -200,6 +274,17 @@ This needs one small change under the hood: `buildSession` must accept a
 `sessionSize` override in its options, rather than only reading it off the
 deck. `buildOrder` already takes the size as an argument, so the override just
 has to be threaded through.
+
+### Language — shown only when there is a choice
+
+The picker is rendered only when the deck's `languages` has more than one
+entry, so the two picture games show no language row at all. The choice is
+remembered per game the same way the size is, and applies to every round of the
+evening.
+
+A language with nothing playable in it is not offered. A deck whose Tagalog
+variants are all still waiting for their text offers English only, rather than
+offering a choice that leads to an empty round.
 
 ### How it works — text from the deck
 
