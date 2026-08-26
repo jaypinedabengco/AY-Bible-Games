@@ -168,7 +168,7 @@ window.DECK = {
       id: 'bn-20', answer: 'MALACHI', difficulty: 2,
       ref: { testament: 'Old', division: 'Minor Prophets', position: 39 },
       clues: [{ img: 'sm.jpeg', word: 'MALL' }, { img: 'letter-a.svg', word: 'A' },
-              { img: 'key.jpg', word: 'KEY' }],
+      { img: 'key.jpg', word: 'KEY' }],
     },
     // ---- Gospels and after ---------------------------------------------
     {
@@ -201,35 +201,35 @@ window.DECK = {
       id: 'bn-26', answer: 'ISAIAH', difficulty: 2,
       ref: { testament: 'Old', division: 'Major Prophets', position: 23 },
       clues: [{ img: 'eye.jpg', word: 'EYE' }, { img: 'sigh.jpg', word: 'SIGH' },
-              { img: 'ah.jpg', word: 'AH' }],
+      { img: 'ah.jpg', word: 'AH' }],
     },
     {
       id: 'bn-27', answer: 'NEHEMIAH', difficulty: 2,
       ref: { testament: 'Old', division: 'Historical', position: 16 },
       clues: [{ img: 'knee.jpg', word: 'KNEE' }, { img: 'he.jpg', word: 'HE' },
-              { img: 'maya.jpg', word: 'MAYA' }],
+      { img: 'maya.jpg', word: 'MAYA' }],
     },
     {
       id: 'bn-28', answer: 'HAGGAI', difficulty: 2,
       ref: { testament: 'Old', division: 'Minor Prophets', position: 37 },
-      clues: [{ img: 'hug.jpg', word: 'HUG' }, { img: 'guy.svg', word: 'GUY' }],
+      clues: [{ img: 'hug.jpg', word: 'HUG' }, { img: 'guy.avif', word: 'GUY' }],
     },
     {
       id: 'bn-29', answer: 'SONG OF SOLOMON', difficulty: 2,
       ref: { testament: 'Old', division: 'Poetry', position: 22 },
       clues: [{ img: 'note.jpg', word: 'SONG' }, { img: 'solo.jpg', word: 'SOLO' },
-              { img: 'moon.jpg', word: 'MOON' }],
+      { img: 'moon.jpg', word: 'MOON' }],
     },
     {
       id: 'bn-30', answer: 'HABAKKUK', difficulty: 3,
       ref: { testament: 'Old', division: 'Minor Prophets', position: 35 },
       clues: [{ img: 'ha.jpg', word: 'HA' }, { img: 'back.jpg', word: 'BACK' },
-              { img: 'cook.jpg', word: 'COOK' }],
+      { img: 'cook.jpg', word: 'COOK' }],
     },
     {
       id: 'bn-31', answer: 'MATTHEW', difficulty: 1,
       ref: { testament: 'New', division: 'Gospels', position: 40 },
-      clues: [{ img: 'mat.jpg', word: 'MAT' }, { img: 'chew.svg', word: 'CHEW' }],
+      clues: [{ img: 'mat.jpg', word: 'MAT' }, { img: 'chew.gif', word: 'CHEW' }],
     },
     {
       id: 'bn-32', answer: 'PHILEMON', difficulty: 2,
@@ -268,7 +268,7 @@ window.DECK = {
       // A weeping face says lamentation with no words at all.
       id: 'bn-41', answer: 'LAMENTATIONS', difficulty: 1,
       ref: { testament: 'Old', division: 'Major Prophets', position: 25 },
-      type: 'image', img: 'weeping.jpg',
+      type: 'image', img: 'lamentations.webp',
     },
     {
       // The valley of dry bones belongs to no other book.
@@ -279,7 +279,7 @@ window.DECK = {
       ref: { testament: 'Old', division: 'Major Prophets', position: 26 },
       difficulty: 3, flag: 'risky',
       clues: [{ img: 'easy.jpg', word: 'EASY' },
-              { img: 'kill-bug.jpg', word: 'KILL' }],
+      { img: 'kill.jpg', word: 'KILL' }],
     },
     {
       // PHILIPPIANS and PHILIPPINES differ by a single letter. The strongest local clue in the deck.
@@ -308,7 +308,7 @@ window.DECK = {
       // is exactly why the earlier version was cut.
       id: 'bn-52', answer: 'NAHUM', difficulty: 3, flag: 'risky',
       ref: { testament: 'Old', division: 'Minor Prophets', position: 34 },
-      clues: [{ img: 'nah.jpg', word: 'NAH' }, { img: 'ham.svg', word: 'HAM' }],
+      clues: [{ img: 'nah.jpg', word: 'NAH' }, { img: 'ham.jpg', word: 'HAM' }],
     },
     {
       id: 'bn-53', answer: 'TITUS', difficulty: 3, flag: 'risky',
