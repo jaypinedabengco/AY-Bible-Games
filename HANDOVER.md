@@ -26,7 +26,7 @@ person running the game types it on their phone and gets the answer. Username
    on a monitor can turn to mud at the back of a room.
 2. **Playtesting the puns.** This remains the riskiest thing in the project. A
    pun that doesn't land dies in silence. Try these on two or three people
-   before Sunday: **EZEKIEL, EZRA, LUKE, NAHUM, TITUS**, and **MALACHI** — see below.
+   before Sunday: **EZEKIEL, EZRA, LUKE, NAHUM, TITUS**.
 
 ---
 
@@ -82,10 +82,10 @@ section of `README.md` for why. `import` and `fetch()` are both blocked on
 
 ## Open items
 
-**MALACHI is the one I would test first.** Its clue is the SM logo standing for
-"MALL". A Filipino room will very likely shout "SM" rather than "mall", and
-"SM + A + KEY" does not reach Malachi. It may be fine — SM effectively *means*
-the mall — but ten seconds with one person settles it.
+**MALACHI is settled, and was queried once.** Its clue is the SM logo standing
+for "MALL". I flagged that a room might shout "SM" instead; the answer from
+someone who knows the audience is that Filipinos link SM to *mall* automatically,
+so it reads. Recorded here so it isn't raised a third time.
 
 **Twenty-four books have no puzzle.** Obadiah, Zephaniah and Jude were dropped
 for having neither a workable pun nor a recognisable picture; the rest went with

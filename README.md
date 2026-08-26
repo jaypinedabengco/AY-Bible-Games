@@ -63,6 +63,10 @@ Paste the number it prints into `gm-config.js`. The credentials themselves are
 never written to a file. This is a lock on a door, not a safe — it stops a
 curious teenager, nothing more, and the file says so.
 
+That level is deliberate and sufficient. This is a church game; the answers are
+the only thing behind the door, and the worst case is somebody spoiling a puzzle
+for themselves.
+
 ---
 
 ## Changing the puzzles
