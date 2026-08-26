@@ -30,8 +30,25 @@ const path = require('path');
 const { execFileSync } = require('child_process');
 
 const ROOT = path.join(__dirname, '..');
-const IMAGES = path.join(ROOT, 'games', 'book-names', 'images');
-const DECK = path.join(ROOT, 'games', 'book-names', 'deck.js');
+// The games this manages. Both use the same engine and the same deck shape, so
+// the manager is the same tool pointed at a different folder. A game with a
+// `canon` gets a dropdown of what is missing from it; one without takes a
+// typed-in name, because there is no closed list of Bible characters.
+const GAMES = [
+  { slug: 'book-names', title: 'Bible Book Names', canon: 'books' },
+  { slug: 'character-names', title: 'Bible Character Names', canon: null },
+];
+
+function pickGame(slug) {
+  const g = GAMES.find((x) => x.slug === slug) || GAMES[0];
+  return {
+    slug: g.slug,
+    title: g.title,
+    canon: g.canon,
+    images: path.join(ROOT, 'games', g.slug, 'images'),
+    deck: path.join(ROOT, 'games', g.slug, 'deck.js'),
+  };
+}
 const PORT = Number(process.env.PORT || 8900);
 const MAX_UPLOAD = 25 * 1024 * 1024;
 
@@ -43,16 +60,16 @@ const TYPES = {
   '.avif': 'image/avif',
 };
 
-function loadDeck() {
+function loadDeck(g) {
   // deck.js assigns window.DECK; give it a window and read it back.
-  delete require.cache[require.resolve(DECK)];
+  delete require.cache[require.resolve(g.deck)];
   globalThis.window = globalThis;
-  require(DECK);
+  require(g.deck);
   return globalThis.DECK;
 }
 
-function clueList() {
-  const deck = loadDeck();
+function clueList(g) {
+  const deck = loadDeck(g);
   const out = [];
   deck.puzzles.forEach((p) => {
     (p.variants || [p]).forEach((v, vi) => {
@@ -62,7 +79,7 @@ function clueList() {
           id: p.id, answer: p.answer, variant: vi, clue: ci,
           file: c.img, word: c.word,
           many: (p.variants || [p]).length > 1,
-          missing: !fs.existsSync(path.join(IMAGES, c.img)),
+          missing: !fs.existsSync(path.join(g.images, c.img)),
         });
       });
     });
@@ -81,12 +98,12 @@ function shrink(file) {
 
 // Replace one img: '...' string in deck.js, matched by its current filename and
 // the answer it belongs to, so an identical filename used twice is not confused.
-function repointDeck(oldName, newName) {
+function repointDeck(g, oldName, newName) {
   if (oldName === newName) { return 'deck.js unchanged'; }
-  const src = fs.readFileSync(DECK, 'utf8');
+  const src = fs.readFileSync(g.deck, 'utf8');
   const needle = "'" + oldName + "'";
   if (src.indexOf(needle) === -1) { throw new Error(oldName + ' not found in deck.js'); }
-  fs.writeFileSync(DECK, src.replace(needle, "'" + newName + "'"));
+  fs.writeFileSync(g.deck, src.replace(needle, "'" + newName + "'"));
   return 'deck.js now points at ' + newName;
 }
 
@@ -117,12 +134,12 @@ function findBlock(src, id) {
 // Write deck.js, then prove it still loads and still has every puzzle. If not,
 // put the old file back - a manager that can corrupt the deck is worse than
 // editing by hand.
-function writeDeckSafely(next, expectCount) {
-  const before = fs.readFileSync(DECK, 'utf8');
-  const countBefore = expectCount === undefined ? loadDeck().puzzles.length : expectCount;
-  fs.writeFileSync(DECK, next);
+function writeDeckSafely(g, next, expectCount) {
+  const before = fs.readFileSync(g.deck, 'utf8');
+  const countBefore = expectCount === undefined ? loadDeck(g).puzzles.length : expectCount;
+  fs.writeFileSync(g.deck, next);
   try {
-    const after = loadDeck();
+    const after = loadDeck(g);
     if (!after || !Array.isArray(after.puzzles)) { throw new Error('deck did not load'); }
     if (after.puzzles.length !== countBefore) {
       throw new Error('puzzle count changed from ' + countBefore + ' to ' + after.puzzles.length);
@@ -132,16 +149,16 @@ function writeDeckSafely(next, expectCount) {
     });
     return after;
   } catch (e) {
-    fs.writeFileSync(DECK, before);
-    loadDeck();
+    fs.writeFileSync(g.deck, before);
+    loadDeck(g);
     throw new Error('edit rejected and rolled back: ' + e.message);
   }
 }
 
 // clues is [{ file, word }]. One entry with no word is a whole-picture variant;
 // one or more with words is a rebus, which is how most of this deck works.
-function addVariant(id, clues, note, weight, difficulty) {
-  const src = fs.readFileSync(DECK, 'utf8');
+function addVariant(g, id, clues, note, weight, difficulty) {
+  const src = fs.readFileSync(g.deck, 'utf8');
   const { lines, start, end } = findBlock(src, id);
   const block = lines.slice(start, end + 1);
   const body = block.join('\n');
@@ -205,7 +222,7 @@ function addVariant(id, clues, note, weight, difficulty) {
   }
 
   const nextLines = lines.slice(0, start).concat(out, lines.slice(end + 1));
-  return writeDeckSafely(nextLines.join('\n'));
+  return writeDeckSafely(g, nextLines.join('\n'));
 }
 
 // Change weight or difficulty on one variant. Only works on a variant written
@@ -254,8 +271,8 @@ function clueSpan(block) {
   return { from, to };
 }
 
-function setVariant(id, index, fields) {
-  const src = fs.readFileSync(DECK, 'utf8');
+function setVariant(g, id, index, fields) {
+  const src = fs.readFileSync(g.deck, 'utf8');
   const { lines, start, end } = findBlock(src, id);
   const block = lines.slice(start, end + 1);
 
@@ -290,7 +307,7 @@ function setVariant(id, index, fields) {
       applyWords(block, span.from, span.to, fields.words);
     }
     const nextLines = lines.slice(0, start).concat(block, lines.slice(end + 1));
-    return writeDeckSafely(nextLines.join('\n'));
+    return writeDeckSafely(g, nextLines.join('\n'));
   }
 
   // collect the top-level variant lines of the array
@@ -328,7 +345,7 @@ function setVariant(id, index, fields) {
     applyWords(block, at, at, fields.words);
   }
   const nextLines = lines.slice(0, start).concat(block, lines.slice(end + 1));
-  return writeDeckSafely(nextLines.join('\n'));
+  return writeDeckSafely(g, nextLines.join('\n'));
 }
 
 
@@ -373,20 +390,38 @@ const CANON = [
 // Append a new book to the puzzles array. Appended rather than slotted into
 // canon order: play order is shuffled anyway, and inserting into the middle
 // would mean guessing which of the division comments it belongs under.
-function addBook(answer, clues, weight, difficulty) {
-  const entry = CANON.find((c) => c[0] === answer);
-  if (!entry) { throw new Error(answer + ' is not one of the 66 books'); }
+function addBook(g, answer, clues, weight, difficulty, ref) {
+  // Books come from the canon, so their reference is looked up and cannot be
+  // wrong. Characters have no closed list: the name is typed, and the note
+  // beside it is whatever the game master wants the room to be told after the
+  // reveal - so it is checked for shape only.
+  const entry = g.canon === 'books' ? CANON.find((c) => c[0] === answer) : null;
+  if (g.canon === 'books' && !entry) {
+    throw new Error(answer + ' is not one of the 66 books');
+  }
+  if (!g.canon && !/^[A-Z][A-Z0-9 '.-]{1,28}$/.test(answer)) {
+    throw new Error('"' + answer + '" will not do as a name - letters, numbers, spaces and \' . - only');
+  }
+  // An apostrophe is fine in a name or a note - "Abraham's servant" - but it
+  // would close the single-quoted literal it is written into, so it is escaped
+  // on the way in rather than banned.
+  const quoted = (t) => String(t).replace(/'/g, "\\'");
+  const note = String(ref === null || ref === undefined ? '' : ref).trim();
+  if (note && !/^[A-Za-z0-9 ,.;:'()&\u00b7-]{1,60}$/.test(note)) {
+    throw new Error('that note has characters that would break the deck file');
+  }
 
-  const deck = loadDeck();
+  const deck = loadDeck(g);
   if (deck.puzzles.some((p) => String(p.answer).toUpperCase() === answer)) {
     throw new Error(answer + ' is already in the deck');
   }
 
-  // next free id
+  // next free id, in the deck's own prefix
+  const prefix = deck.idPrefix || 'bn';
   let n = 1;
   const used = new Set(deck.puzzles.map((p) => p.id));
-  while (used.has('bn-' + String(n).padStart(2, '0'))) { n++; }
-  const id = 'bn-' + String(n).padStart(2, '0');
+  while (used.has(prefix + '-' + String(n).padStart(2, '0'))) { n++; }
+  const id = prefix + '-' + String(n).padStart(2, '0');
 
   const anyWord = clues.some((c) => c.word);
   const clueBits = anyWord
@@ -398,22 +433,24 @@ function addBook(answer, clues, weight, difficulty) {
   const block = [
     '    {',
     '      // added with the deck manager',
-    "      id: '" + id + "', answer: '" + answer + "', difficulty: " + difficulty + ","
+    "      id: '" + id + "', answer: '" + quoted(answer) + "', difficulty: " + difficulty + ","
       + (weight > 1 ? ' weight: ' + weight + ',' : ''),
-    "      ref: { testament: '" + entry[1] + "', division: '" + entry[2]
-      + "', position: " + entry[3] + ' },',
+    entry
+      ? "      ref: { testament: '" + entry[1] + "', division: '" + entry[2]
+        + "', position: " + entry[3] + ' },'
+      : (note ? "      ref: '" + quoted(note) + "'," : null),
     clueBits,
     '    },',
-  ];
+  ].filter((l) => l !== null);
 
-  const src = fs.readFileSync(DECK, 'utf8');
+  const src = fs.readFileSync(g.deck, 'utf8');
   const lines = src.split('\n');
   // the puzzles array closes with a line that is exactly "  ],"
   const close = lines.findIndex((l) => l === '  ],');
   if (close === -1) { throw new Error('could not find the end of the puzzles array'); }
 
   const next = lines.slice(0, close).concat(block, lines.slice(close));
-  const after = writeDeckSafely(next.join('\n'), deck.puzzles.length + 1);
+  const after = writeDeckSafely(g, next.join('\n'), deck.puzzles.length + 1);
   return { id: id, answer: answer, total: after.puzzles.length };
 }
 
@@ -435,21 +472,36 @@ function serveStatic(req, res) {
 }
 
 http.createServer((req, res) => {
-  if (req.method === 'GET' && req.url === '/api/clues') {
-    try { return send(res, 200, JSON.stringify(clueList())); }
+  // Resolved once, here, and closed over by the body callbacks below: if a
+  // later request switched a shared variable mid-upload, one game's picture
+  // could land in the other game's deck.
+  const route = req.url.split('?')[0];
+  const query = new URLSearchParams(req.url.split('?')[1] || '');
+  const g = pickGame(query.get('game'));
+
+  if (req.method === 'GET' && route === '/api/games') {
+    return send(res, 200, JSON.stringify(GAMES.map((x) => ({
+      slug: x.slug, title: x.title, canon: x.canon,
+      exists: fs.existsSync(path.join(ROOT, 'games', x.slug, 'deck.js')),
+    }))));
+  }
+
+  if (req.method === 'GET' && route === '/api/clues') {
+    try { return send(res, 200, JSON.stringify(clueList(g))); }
     catch (e) { return send(res, 500, JSON.stringify({ error: e.message })); }
   }
 
-  if (req.method === 'GET' && req.url === '/api/missing-books') {
+  if (req.method === 'GET' && route === '/api/missing-books') {
     try {
-      const have = new Set(loadDeck().puzzles.map((p) => String(p.answer).toUpperCase()));
+      if (g.canon !== 'books') { return send(res, 200, JSON.stringify([])); }
+      const have = new Set(loadDeck(g).puzzles.map((p) => String(p.answer).toUpperCase()));
       return send(res, 200, JSON.stringify(CANON
         .filter((c) => !have.has(c[0]))
         .map((c) => ({ answer: c[0], testament: c[1], division: c[2], position: c[3] }))));
     } catch (e) { return send(res, 500, JSON.stringify({ error: e.message })); }
   }
 
-  if (req.method === 'POST' && req.url === '/api/add-book') {
+  if (req.method === 'POST' && route === '/api/add-book') {
     const chunks = [];
     let size = 0;
     req.on('data', (c) => {
@@ -476,20 +528,20 @@ http.createServer((req, res) => {
           if (!bytes.length) { throw new Error('one of the files was empty'); }
           let name = incoming.length === 1 ? base + ext : base + '-' + (i + 1) + ext;
           let k = 1;
-          while (fs.existsSync(path.join(IMAGES, name))) {
+          while (fs.existsSync(path.join(g.images, name))) {
             k++;
             name = base + '-' + (i + 1) + '-' + k + ext;
           }
-          fs.writeFileSync(path.join(IMAGES, name), bytes);
-          shrink(path.join(IMAGES, name));
-          written.push(path.join(IMAGES, name));
+          fs.writeFileSync(path.join(g.images, name), bytes);
+          shrink(path.join(g.images, name));
+          written.push(path.join(g.images, name));
           clues.push({
             file: name,
             word: String(c.word || '').trim().toUpperCase().replace(/[^A-Z0-9 -]/g, ''),
           });
         });
 
-        const out = addBook(answer, clues, weight, difficulty);
+        const out = addBook(g, answer, clues, weight, difficulty, body.note);
         send(res, 200, JSON.stringify({
           ok: true, id: out.id, answer: out.answer, total: out.total,
           files: clues.map((c) => c.file),
@@ -502,9 +554,9 @@ http.createServer((req, res) => {
     return;
   }
 
-  if (req.method === 'GET' && req.url === '/api/books') {
+  if (req.method === 'GET' && route === '/api/books') {
     try {
-      const deck = loadDeck();
+      const deck = loadDeck(g);
       return send(res, 200, JSON.stringify(deck.puzzles.map((p) => ({
         id: p.id,
         answer: p.answer,
@@ -520,7 +572,7 @@ http.createServer((req, res) => {
     } catch (e) { return send(res, 500, JSON.stringify({ error: e.message })); }
   }
 
-  if (req.method === 'POST' && req.url === '/api/add-variant') {
+  if (req.method === 'POST' && route === '/api/add-variant') {
     const chunks = [];
     let size = 0;
     req.on('data', (c) => {
@@ -540,17 +592,17 @@ http.createServer((req, res) => {
           : [{ ext: body.ext, word: body.word, data: body.data }];
         if (!id || !incoming.length) { throw new Error('bad request'); }
 
-        const deck = loadDeck();
+        const deck = loadDeck(g);
         const puzzle = deck.puzzles.find((p) => p.id === id);
         if (!puzzle) { throw new Error('no puzzle with id ' + id); }
         const base = String(puzzle.answer).toLowerCase().replace(/[^a-z0-9]+/g, '-');
 
         // Pick the next free variant number for this book.
         let vn = 2;
-        while (fs.existsSync(path.join(IMAGES, base + '-' + vn + '-1.jpg'))
-            || fs.existsSync(path.join(IMAGES, base + '-' + vn + '-1.png'))
-            || fs.existsSync(path.join(IMAGES, base + '-' + vn + '.jpg'))
-            || fs.existsSync(path.join(IMAGES, base + '-' + vn + '.png'))) { vn++; }
+        while (fs.existsSync(path.join(g.images, base + '-' + vn + '-1.jpg'))
+            || fs.existsSync(path.join(g.images, base + '-' + vn + '-1.png'))
+            || fs.existsSync(path.join(g.images, base + '-' + vn + '.jpg'))
+            || fs.existsSync(path.join(g.images, base + '-' + vn + '.png'))) { vn++; }
 
         const written = [];
         const clues = [];
@@ -563,15 +615,15 @@ http.createServer((req, res) => {
             const name = incoming.length === 1
               ? base + '-' + vn + ext
               : base + '-' + vn + '-' + (i + 1) + ext;
-            fs.writeFileSync(path.join(IMAGES, name), bytes);
-            shrink(path.join(IMAGES, name));
-            written.push(path.join(IMAGES, name));
+            fs.writeFileSync(path.join(g.images, name), bytes);
+            shrink(path.join(g.images, name));
+            written.push(path.join(g.images, name));
             clues.push({
               file: name,
               word: String(c.word || '').trim().toUpperCase().replace(/[^A-Z0-9 -]/g, ''),
             });
           });
-          addVariant(id, clues, 'added with the deck manager', weight, difficulty);
+          addVariant(g, id, clues, 'added with the deck manager', weight, difficulty);
         } catch (e) {
           written.forEach((f) => { try { fs.unlinkSync(f); } catch (x) { /* ignore */ } });
           throw e;
@@ -593,13 +645,13 @@ http.createServer((req, res) => {
     return;
   }
 
-  if (req.method === 'POST' && req.url === '/api/set-variant') {
+  if (req.method === 'POST' && route === '/api/set-variant') {
     const chunks = [];
     req.on('data', (c) => chunks.push(c));
     req.on('end', () => {
       try {
         const body = JSON.parse(Buffer.concat(chunks).toString('utf8'));
-        setVariant(String(body.id || ''), Number(body.index), {
+        setVariant(g, String(body.id || ''), Number(body.index), {
           weight: body.weight, difficulty: body.difficulty,
           words: Array.isArray(body.words) ? body.words : undefined,
         });
@@ -611,7 +663,7 @@ http.createServer((req, res) => {
     return;
   }
 
-  if (req.method === 'POST' && req.url === '/api/replace') {
+  if (req.method === 'POST' && route === '/api/replace') {
     const chunks = [];
     let size = 0;
     req.on('data', (c) => {
@@ -630,12 +682,12 @@ http.createServer((req, res) => {
         const bytes = Buffer.from(String(body.data || ''), 'base64');
         if (!bytes.length) { throw new Error('empty file'); }
 
-        fs.writeFileSync(path.join(IMAGES, newName), bytes);
-        const sized = shrink(path.join(IMAGES, newName));
-        const deckNote = repointDeck(oldName, newName);
+        fs.writeFileSync(path.join(g.images, newName), bytes);
+        const sized = shrink(path.join(g.images, newName));
+        const deckNote = repointDeck(g, oldName, newName);
         // Remove the file the deck no longer points at.
-        if (newName !== oldName && fs.existsSync(path.join(IMAGES, oldName))) {
-          fs.unlinkSync(path.join(IMAGES, oldName));
+        if (newName !== oldName && fs.existsSync(path.join(g.images, oldName))) {
+          fs.unlinkSync(path.join(g.images, oldName));
         }
         send(res, 200, JSON.stringify({ ok: true, file: newName, sized, deckNote }));
       } catch (e) {
@@ -648,6 +700,6 @@ http.createServer((req, res) => {
   serveStatic(req, res);
 }).listen(PORT, () => {
   console.log('deck manager on http://localhost:' + PORT);
-  console.log('writes into ' + path.relative(process.cwd(), IMAGES));
+  console.log('managing: ' + GAMES.map((x) => x.title).join(', '));
   console.log('Ctrl-C to stop');
 });

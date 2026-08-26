@@ -16,6 +16,26 @@ number tiles, `make-graphics.js` draws the clues no search returns cleanly.
 
 ## The deck manager
 
+It manages **both games** — Bible Book Names and Bible Character Names. Pick
+which one at the top left; the choice is in the URL, so a reload or a bookmark
+stays on the game you were editing, and a picture can never be posted to one
+deck while the page thinks it is showing the other.
+
+The two games are the same engine and the same deck shape, so everything below
+applies to either. The only difference is what the **add** tab asks for:
+
+- **Bible Book Names** — the book is chosen from the 66, and its reference
+  (testament, division, position) is filled in for you.
+- **Bible Character Names** — the name is typed, because there is no closed
+  list of Bible characters, and the reference is a free line of your own:
+  `Exodus 3 · led Israel out of Egypt`. It prints small under the answer after
+  the reveal, so keep the answer out of it.
+
+The character deck starts **empty**, and its card on the front page stays greyed
+out until it can fill a round. `tools/validate.js` will report that `sessionSize`
+exceeds the playable count until there are 20 — that is the check doing its job.
+When the deck is ready, set that game's `status` to `'ready'` in `games.js`.
+
 ```sh
 node tools/manage.js
 ```

@@ -31,10 +31,12 @@ window.GAMES = [
     status: 'parked',
   },
   {
+    // Built and wired, deliberately greyed out: the deck is empty until it has
+    // pictures. Set status to 'ready' once it can fill a round.
     title: 'Bible Character Names',
     href: 'games/character-names/index.html',
-    blurb: 'A picture of a person from a story; the room names them.',
-    meta: 'Planned',
+    blurb: 'Picture clues combine into a person from a story. Same game, new answers.',
+    meta: 'Collecting pictures',
     status: 'parked',
   },
 ];

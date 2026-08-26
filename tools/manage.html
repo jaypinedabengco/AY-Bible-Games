@@ -68,9 +68,10 @@
 <body>
 <div class="bar">
   <h1>Deck manager</h1>
+  <select id="game" title="which game you are editing"></select>
   <button id="tab-clues" class="tab on" type="button">pictures</button>
   <button id="tab-vars" class="tab" type="button">variants</button>
-  <button id="tab-book" class="tab" type="button">add a book</button>
+  <button id="tab-book" class="tab" type="button">add</button>
   <input id="q" type="search" placeholder="filter by book, id or filename">
   <span class="note" id="count"></span>
   <span class="note">drag a picture onto a card &mdash; or click it</span>
@@ -81,6 +82,14 @@
 
 <script>
 (function () {
+  // Which game this page is editing. It lives in the URL rather than in a
+  // variable, so a reload, a bookmark or a second window all stay on the game
+  // you were working on - and so a picture can never be posted to one deck
+  // while the page thinks it is looking at another.
+  var GAME = (location.search.match(/[?&]game=([^&]*)/) || [null, 'book-names'])[1];
+  function api(u) { return u + (u.indexOf('?') === -1 ? '?' : '&') + 'game=' + encodeURIComponent(GAME); }
+  function imgUrl(name) { return '/games/' + GAME + '/images/' + name; }
+
   var grid = document.getElementById('grid');
   var q = document.getElementById('q');
   var countEl = document.getElementById('count');
@@ -106,7 +115,7 @@
     var fr = new FileReader();
     fr.onload = function () {
       var b64 = String(fr.result).split(',')[1];
-      fetch('/api/replace', {
+      fetch(api('/api/replace'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ file: clue.file, ext: ext, data: b64 })
@@ -124,7 +133,7 @@
         clue.missing = false;
         var img = cell.querySelector('img');
         if (img) {
-          img.src = '/games/book-names/images/' + out.file + '?t=' + Date.now();
+          img.src = imgUrl(out.file) + '?t=' + Date.now();
         }
         var f = cell.querySelector('.file');
         if (f) { f.textContent = out.file; }
@@ -147,7 +156,7 @@
       cell.appendChild(miss);
     } else {
       var img = document.createElement('img');
-      img.src = '/games/book-names/images/' + clue.file;
+      img.src = imgUrl(clue.file);
       img.alt = clue.file;
       img.loading = 'lazy';
       cell.appendChild(img);
@@ -241,7 +250,7 @@
       var vr = el('div', 'vrow');
       v.files.forEach(function (f) {
         var img = document.createElement('img');
-        img.src = '/games/book-names/images/' + f;
+        img.src = imgUrl(f);
         img.alt = f;
         img.loading = 'lazy';
         img.addEventListener('error', function () {
@@ -375,7 +384,7 @@
           fr.readAsDataURL(x.file);
         });
       })).then(function (clues) {
-        return fetch('/api/add-variant', {
+        return fetch(api('/api/add-variant'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -403,7 +412,7 @@
 
   function post(url, body, msg, okText) {
     say(msg, 'saving…');
-    fetch(url, {
+    fetch(api(url), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
@@ -414,41 +423,65 @@
   }
 
   function loadBooks() {
-    fetch('/api/books').then(function (r) { return r.json(); }).then(function (books) {
+    fetch(api('/api/books')).then(function (r) { return r.json(); }).then(function (books) {
       varsHost.innerHTML = '';
       books.forEach(function (b) { varsHost.appendChild(bookRow(b)); });
     });
   }
 
-  // ---- add a book --------------------------------------------------------
+  // ---- add a book, or a character ---------------------------------------
   var bookHost = document.getElementById('newbook');
+  var KIND = 'book';
 
   function newBookView() {
     bookHost.innerHTML = '';
     var box = el('div', 'book-row');
-    box.appendChild(el('h3', null, 'Add a book'));
-    var sub = el('div', 'sub', 'loading the books not yet in the deck…');
+    box.appendChild(el('h3', null, 'Add a ' + KIND));
+    var sub = el('div', 'sub', 'loading…');
     box.appendChild(sub);
     bookHost.appendChild(box);
 
-    fetch('/api/missing-books').then(function (r) { return r.json(); }).then(function (list) {
+    fetch(api('/api/missing-books')).then(function (r) { return r.json(); }).then(function (list) {
       if (list.error) { sub.textContent = list.error; return; }
-      sub.textContent = list.length + ' of the 66 books are not in the deck yet';
 
-      var pick = document.createElement('select');
-      list.forEach(function (b) {
-        var o = document.createElement('option');
-        o.value = b.answer;
-        o.textContent = b.answer + '  —  ' + b.testament + ' Testament · ' + b.division
-          + ' · book ' + b.position + ' of 66';
-        pick.appendChild(o);
-      });
-
+      // A book comes from the canon, so it is chosen from what is missing and
+      // its reference is filled in. A character is typed: there is no closed
+      // list of Bible characters to pick from.
+      var pick, noteBox;
       var picked = el('div', 'vrow');
-      picked.appendChild(el('label', null, 'book'));
-      picked.appendChild(pick);
-      picked.appendChild(el('span', 'why',
-        'the reference is filled in from the canon — you do not have to look it up'));
+      if (KIND === 'book') {
+        sub.textContent = list.length + ' of the 66 books are not in the deck yet';
+        pick = document.createElement('select');
+        list.forEach(function (b) {
+          var o = document.createElement('option');
+          o.value = b.answer;
+          o.textContent = b.answer + '  —  ' + b.testament + ' Testament · ' + b.division
+            + ' · book ' + b.position + ' of 66';
+          pick.appendChild(o);
+        });
+        picked.appendChild(el('label', null, 'book'));
+        picked.appendChild(pick);
+        picked.appendChild(el('span', 'why',
+          'the reference is filled in from the canon — you do not have to look it up'));
+      } else {
+        sub.textContent = 'the name the room shouts, and one line to teach after the reveal';
+        pick = document.createElement('input');
+        pick.type = 'text';
+        pick.size = 18;
+        pick.placeholder = 'MOSES';
+        pick.addEventListener('input', function () { pick.value = pick.value.toUpperCase(); });
+        noteBox = document.createElement('input');
+        noteBox.type = 'text';
+        noteBox.size = 30;
+        noteBox.placeholder = 'Exodus 3 · led Israel out of Egypt';
+        picked.appendChild(el('label', null, 'name'));
+        picked.appendChild(pick);
+        picked.appendChild(el('label', null, 'note'));
+        picked.appendChild(noteBox);
+        picked.appendChild(el('span', 'why',
+          'the note prints small under the answer — keep the name out of it, '
+          + 'it is the one line you get to teach something'));
+      }
       box.appendChild(picked);
 
       // picture slots, same shape as the add-variant form
@@ -488,7 +521,7 @@
       var dSel = numSelect('difficulty', 2, 1, 3, function () {}, '1 plays early, 3 plays late');
       var go = document.createElement('button');
       go.type = 'button';
-      go.textContent = 'add book';
+      go.textContent = 'add ' + KIND;
       var msg = el('span', 'why');
 
       go.addEventListener('click', function () {
@@ -497,6 +530,7 @@
                    word: r.querySelector('input[type=text]').value };
         }).filter(function (x) { return x.file; });
         if (!chosen.length) { say(msg, 'choose at least one picture', true); return; }
+        if (!String(pick.value).trim()) { say(msg, 'type a name first', true); return; }
         say(msg, 'saving…');
         Promise.all(chosen.map(function (x) {
           return new Promise(function (resolve, reject) {
@@ -509,17 +543,18 @@
             fr.readAsDataURL(x.file);
           });
         })).then(function (clues) {
-          return fetch('/api/add-book', {
+          return fetch(api('/api/add-book'), {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              answer: pick.value, clues: clues,
+              answer: String(pick.value).trim(), clues: clues,
+              note: noteBox ? noteBox.value : undefined,
               difficulty: Number(dSel.querySelector('select').value),
             }),
           }).then(function (r) { return r.json(); });
         }).then(function (out) {
           if (out.error) { say(msg, out.error, true); return; }
           say(msg, out.answer + ' added as ' + out.id + ' · ' + out.files.join(' + ')
-            + ' · the deck now has ' + out.total + ' books');
+            + ' · the deck now has ' + out.total);
           newBookView();
         }).catch(function (e) { say(msg, String(e.message || e), true); });
       });
@@ -548,7 +583,28 @@
   tabVars.addEventListener('click', function () { showTab('vars'); });
   tabBook.addEventListener('click', function () { showTab('book'); });
 
-  fetch('/api/clues').then(function (r) { return r.json(); }).then(function (list) {
+  var gameSel = document.getElementById('game');
+  fetch('/api/games').then(function (r) { return r.json(); }).then(function (games) {
+    var here = games.filter(function (x) { return x.slug === GAME; })[0] || games[0];
+    KIND = here.canon === 'books' ? 'book' : 'character';
+    document.title = 'Deck manager — ' + here.title;
+    tabBook.textContent = 'add a ' + KIND;
+    games.forEach(function (x) {
+      var o = document.createElement('option');
+      o.value = x.slug;
+      o.textContent = x.title;
+      if (x.slug === GAME) { o.selected = true; }
+      if (!x.exists) { o.disabled = true; o.textContent += ' (no deck yet)'; }
+      gameSel.appendChild(o);
+    });
+    gameSel.addEventListener('change', function () {
+      // A full reload rather than a redraw: it clears every half-filled upload
+      // form on the page, which would otherwise post into the new game.
+      location.search = '?game=' + encodeURIComponent(gameSel.value);
+    });
+  });
+
+  fetch(api('/api/clues')).then(function (r) { return r.json(); }).then(function (list) {
     clues = list;
     draw();
   }).catch(function (e) {
