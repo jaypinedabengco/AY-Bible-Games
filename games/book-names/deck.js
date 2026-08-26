@@ -112,12 +112,16 @@ window.DECK = {
     },
     // ---- Poetry --------------------------------------------------------
     {
-      id: 'bn-10', answer: 'JOB', difficulty: 2,
+      id: 'bn-10', answer: 'JOB',
       ref: { testament: 'Old', division: 'Poetry', position: 18 },
       // Job on the ash heap with his friends - the scene belongs to no other
       // book. A hard hat only said "builder" and left the room two leaps
       // from the answer.
-      type: 'image', img: 'job-suffering.jpg',
+      variants: [
+        { type: 'image', img: 'job-suffering.jpg', weight: 1, difficulty: 2 },
+        // added with the deck manager
+        { type: 'rebus', clues: [{ img: 'job-2.webp', word: 'JOBS' }], weight: 1, difficulty: 1 },
+      ],
     },
     {
       id: 'bn-11', answer: 'PSALMS', difficulty: 1,
