@@ -137,3 +137,31 @@ html, body {
 
 .startup-error strong { font-size: 5vmin; color: var(--bad); }
 .startup-error span:last-child { color: var(--dim); font-size: 2.2vmin; }
+
+/* Key legend. Visible at the start so the host learns the controls, then it
+   fades so the room is not reading it. "?" brings it back. */
+.legend {
+  position: fixed;
+  bottom: 2vmin;
+  left: 2vmin;
+  display: flex;
+  gap: 1.6vmin;
+  flex-wrap: wrap;
+  align-items: center;
+  font-size: 1.7vmin;
+  color: var(--dim);
+  transition: opacity 900ms ease;
+  pointer-events: none;
+}
+
+.legend.faded { opacity: 0; }
+
+.legend kbd {
+  font: inherit;
+  background: var(--card);
+  border: 1px solid #2c3444;
+  border-radius: 0.4vmin;
+  padding: 0.2vmin 0.8vmin;
+  margin-right: 0.4vmin;
+  color: var(--fg);
+}

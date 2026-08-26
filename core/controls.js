@@ -2,7 +2,7 @@
  * One hand on a laptop, in front of a room.
  *
  * Space/click advance - ArrowLeft back - R reshuffle - O original order
- * F fullscreen - Home restart.
+ * F fullscreen - Home restart - ? show the key legend again.
  *
  * Nothing else is bound. Every extra binding is a chance to derail a service
  * by leaning on the keyboard. Escape is deliberately absent: browsers already
@@ -21,6 +21,7 @@
     'o': 'originalOrder',
     'f': 'fullscreen',
     'home': 'restart',
+    '?': 'help',
   };
 
   function actionFor(key) {

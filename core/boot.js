@@ -116,7 +116,36 @@
         });
       }
 
+      // The keys are useless if nobody knows they exist, but a permanent
+      // legend is clutter the ROOM reads rather than the host. So: show it at
+      // the start, fade it out, and let "?" bring it back.
+      var legend = document.createElement('div');
+      legend.className = 'legend';
+      [['Space', 'reveal'], ['\u2190', 'back'], ['R', 'shuffle'],
+       ['O', 'deck order'], ['F', 'fullscreen'], ['Home', 'restart'],
+       ['?', 'this']].forEach(function (pair) {
+        var item = document.createElement('span');
+        var k = document.createElement('kbd');
+        k.textContent = pair[0];
+        item.appendChild(k);
+        item.appendChild(document.createTextNode(' ' + pair[1]));
+        legend.appendChild(item);
+      });
+      document.body.appendChild(legend);
+
+      var fadeTimer = null;
+      function showLegend(ms) {
+        legend.classList.remove('faded');
+        if (fadeTimer) { clearTimeout(fadeTimer); }
+        fadeTimer = setTimeout(function () { legend.classList.add('faded'); }, ms);
+      }
+      showLegend(7000);
+
       BG.controls.attach(host, {
+        help: function () {
+          if (legend.classList.contains('faded')) { showLegend(7000); }
+          else { legend.classList.add('faded'); }
+        },
         advance: function () { machine.advance(); draw(); },
         back: function () { machine.back(); draw(); },
         restart: function () { machine.restart(); draw(); },

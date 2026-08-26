@@ -27,6 +27,11 @@ USB stick and it runs on any laptop in the building, wifi or not.
 | `O` | back to the order written in `deck.js` |
 | `F` | fullscreen |
 | `Home` | first puzzle |
+| `?` | show the key legend again |
+
+The legend appears on screen for the first few seconds so you don't have to
+remember any of this, then fades so the room isn't reading it. `?` brings it
+back.
 
 Nothing else is bound. Every extra key is a chance to derail a service by
 leaning on the keyboard.

@@ -11,6 +11,7 @@ test('every documented key maps to its action', () => {
   assert.equal(actionFor('o'), 'originalOrder');
   assert.equal(actionFor('f'), 'fullscreen');
   assert.equal(actionFor('Home'), 'restart');
+  assert.equal(actionFor('?'), 'help');
 });
 
 test('letter keys are case-insensitive', () => {
@@ -22,7 +23,7 @@ test('letter keys are case-insensitive', () => {
 
 test('undocumented keys map to nothing', () => {
   // Escape is deliberately unbound: browsers already leave fullscreen on it.
-  ['a', 'Enter', 'ArrowRight', 'Escape', '1', 'Tab'].forEach((k) => {
+  ['a', 'Enter', 'ArrowRight', 'Escape', '1', 'Tab', '/'].forEach((k) => {
     assert.equal(actionFor(k), null, `${k} should not be bound`);
   });
 });

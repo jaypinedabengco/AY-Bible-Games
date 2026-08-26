@@ -23,7 +23,14 @@
   .card p { margin: 0 0 1rem; color: var(--dim); line-height: 1.5; }
   .meta { font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase;
           color: var(--accent); }
-  .gm-link { margin-top: 3rem; font-size: 0.8rem; }
+  .keys { margin-top: 2.5rem; display: flex; flex-wrap: wrap; gap: 0.5rem 1.1rem;
+          align-items: center; font-size: 0.8rem; color: var(--dim); }
+  .keys-title { font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase;
+                color: var(--accent); width: 100%; }
+  .keys kbd { font: inherit; background: var(--card); border: 1px solid #2c3444;
+              border-radius: 0.25rem; padding: 0.1rem 0.4rem; margin-right: 0.25rem;
+              color: var(--fg); }
+  .gm-link { margin-top: 2rem; font-size: 0.8rem; }
   .gm-link a { color: var(--dim); }
 </style>
 </head>
@@ -38,6 +45,16 @@
     </div>
   </div>
   <div class="cards" id="cards"></div>
+  <div class="keys">
+    <span class="keys-title">Controls</span>
+    <span><kbd>Space</kbd> or click — reveal, then next</span>
+    <span><kbd>&larr;</kbd> back</span>
+    <span><kbd>R</kbd> shuffle</span>
+    <span><kbd>O</kbd> deck order</span>
+    <span><kbd>F</kbd> fullscreen</span>
+    <span><kbd>Home</kbd> restart</span>
+    <span><kbd>?</kbd> show these on screen</span>
+  </div>
   <p class="gm-link"><a href="games/book-names/gm.html">Game master</a></p>
 </div>
 
