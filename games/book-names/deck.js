@@ -39,9 +39,13 @@ window.DECK = {
   puzzles: [
     // ---- Law -----------------------------------------------------------
     {
-      id: 'bn-01', answer: 'GENESIS', difficulty: 2,
+      id: 'bn-01', answer: 'GENESIS',
       ref: { testament: 'Old', division: 'Law', position: 1 },
-      clues: [{ img: 'jeans.jpg', word: 'JEANS' }, { img: 'sis.jpg', word: 'SIS' }],
+      variants: [
+        { type: 'rebus', clues: [{ img: 'jeans.jpg', word: 'JEANS' }, { img: 'sis.jpg', word: 'SIS' }], weight: 5, difficulty: 2 },
+        // added with the deck manager
+        { type: 'rebus', clues: [{ img: 'genesis-2.png', word: null }], weight: 1, difficulty: 2 },
+      ],
     },
     {
       id: 'bn-02', answer: 'EXODUS', difficulty: 2, flag: 'local',
@@ -112,17 +116,25 @@ window.DECK = {
     },
     // ---- Poetry --------------------------------------------------------
     {
-      id: 'bn-10', answer: 'JOB', difficulty: 2,
+      id: 'bn-10', answer: 'JOB',
       ref: { testament: 'Old', division: 'Poetry', position: 18 },
       // Job on the ash heap with his friends - the scene belongs to no other
       // book. A hard hat only said "builder" and left the room two leaps
       // from the answer.
-      type: 'image', img: 'job-suffering.jpg',
+      variants: [
+        { type: 'image', img: 'job-suffering.jpg', weight: 1, difficulty: 2 },
+        // added with the deck manager
+        { type: 'rebus', clues: [{ img: 'job-2.webp', word: 'JOBS' }], weight: 2, difficulty: 1 },
+      ],
     },
     {
-      id: 'bn-11', answer: 'PSALMS', difficulty: 1,
+      id: 'bn-11', answer: 'PSALMS',
       ref: { testament: 'Old', division: 'Poetry', position: 19 },
-      clues: [{ img: 'palms.jpg', word: 'PALMS' }],
+      variants: [
+        { type: 'rebus', clues: [{ img: 'palms.jpg', word: 'PALMS' }], weight: 1, difficulty: 1 },
+        // added with the deck manager
+        { type: 'rebus', clues: [{ img: 'psalms-2.jpg', word: 'PALMS' }], weight: 1, difficulty: 2 },
+      ],
     },
     // ---- Major Prophets ------------------------------------------------
     {
@@ -314,6 +326,12 @@ window.DECK = {
       id: 'bn-53', answer: 'TITUS', difficulty: 3, flag: 'risky',
       ref: { testament: 'New', division: 'Epistles', position: 56 },
       clues: [{ img: 'tie.jpg', word: 'TIE' }, { img: 'toes.jpg', word: 'TOES' }],
+    },
+    {
+      // added with the deck manager
+      id: 'bn-12', answer: 'PROVERBS', difficulty: 3,
+      ref: { testament: 'Old', division: 'Poetry', position: 20 },
+      clues: [{ img: 'proverbs-1.jpeg', word: 'PRO ATHLETE' }, { img: 'proverbs-2.avif', word: 'VERBS' }],
     },
   ],
 };

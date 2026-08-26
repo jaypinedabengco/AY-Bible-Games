@@ -97,3 +97,88 @@ test('viewForItem dispatches to the right builder for a session item', () => {
   assert.equal(globalThis.BibleGames.views.viewForItem(item, 1).working, 'AXE + S');
   assert.equal(globalThis.BibleGames.views.viewForItem(item, 2).answered.answer, 'ACTS');
 });
+
+// ---- rounds ---------------------------------------------------------------
+// Round 1 draws a session; later rounds draw only what has not been shown, so
+// an evening walks the whole deck without repeating a picture.
+
+const roundDeck = () => {
+  const puzzles = [];
+  for (let i = 1; i <= 10; i++) {
+    puzzles.push({ id: 'bn-' + i, answer: 'B' + i, type: 'image', img: 'x.jpg' });
+  }
+  return { id: 'd', imageDirs: ['images/'], languages: ['en'], sessionSize: 4, puzzles };
+};
+
+test('a later round shows only books the earlier rounds did not', async () => {
+  const seen = new Set();
+  const r1 = await buildSession(roundDeck(), allPresent, seeded(1), { seen });
+  r1.keys.forEach((k) => seen.add(k));
+  const r2 = await buildSession(roundDeck(), allPresent, seeded(2), { seen });
+
+  assert.equal(r1.items.length, 4);
+  assert.equal(r2.items.length, 4);
+  const first = r1.items.map((i) => i.puzzle.answer);
+  const second = r2.items.map((i) => i.puzzle.answer);
+  const overlap = second.filter((a) => first.includes(a));
+  assert.deepEqual(overlap, [], `round 2 repeated: ${overlap}`);
+});
+
+test('rounds keep shrinking and the last one is a remainder', async () => {
+  const seen = new Set();
+  const sizes = [];
+  for (let round = 0; round < 5; round++) {
+    const s = await buildSession(roundDeck(), allPresent, seeded(round + 1), { seen });
+    if (!s.items.length) break;
+    s.keys.forEach((k) => seen.add(k));
+    sizes.push(s.items.length);
+  }
+  // ten books, four per round: 4, 4, 2 and then nothing left
+  assert.deepEqual(sizes, [4, 4, 2]);
+});
+
+test('a second variant counts as unseen, so the book can come back', async () => {
+  const deck = {
+    id: 'd', imageDirs: ['images/'], languages: ['en'], sessionSize: 1,
+    puzzles: [{
+      id: 'bn-01', answer: 'RUTH',
+      variants: [
+        { type: 'rebus', clues: [{ img: 'root.svg', word: 'ROOT' }] },
+        { type: 'image', img: 'ruth-scene.jpg' },
+      ],
+    }],
+  };
+  const seen = new Set();
+  const r1 = await buildSession(deck, allPresent, seeded(3), { seen });
+  r1.keys.forEach((k) => seen.add(k));
+  const r2 = await buildSession(deck, allPresent, seeded(4), { seen });
+
+  assert.equal(r1.items.length, 1);
+  assert.equal(r2.items.length, 1, 'the other variant should still be unseen');
+  assert.notEqual(r1.items[0].variant.type, r2.items[0].variant.type);
+
+  r2.keys.forEach((k) => seen.add(k));
+  const r3 = await buildSession(deck, allPresent, seeded(5), { seen });
+  assert.equal(r3.items.length, 0, 'both variants seen, so nothing is left');
+});
+
+test('a variant whose picture is missing is never counted as unseen', async () => {
+  // Otherwise a placeholder variant would drag its book into a later round
+  // only to be dropped, making the round mysteriously short.
+  const deck = {
+    id: 'd', imageDirs: ['images/'], languages: ['en'], sessionSize: 4,
+    puzzles: [{
+      id: 'bn-01', answer: 'JOB',
+      variants: [
+        { type: 'image', img: 'have.jpg' },
+        { type: 'image', img: 'missing.jpg' },
+      ],
+    }],
+  };
+  const seen = new Set();
+  const r1 = await buildSession(deck, resolverWithout('missing.jpg'), seeded(6), { seen });
+  r1.keys.forEach((k) => seen.add(k));
+  const r2 = await buildSession(deck, resolverWithout('missing.jpg'), seeded(7), { seen });
+  assert.equal(r1.items.length, 1);
+  assert.equal(r2.items.length, 0, 'the unsourced variant must not create a round');
+});

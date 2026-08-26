@@ -41,8 +41,16 @@ which gives the room a moment to get there themselves; the second shows
 `DANIEL`. Reveal the answer straight away and anyone who missed the pun never
 finds out why it worked.
 
-**A session draws 20 of the 42 books, shuffled, easiest first.** Press `R` for a
-new draw mid-game, or `O` to walk the deck in file order when you're rehearsing.
+**An evening is played in rounds.** Round one draws 20 of the 42 books, easiest
+first. When it ends the screen says how many are still to come; `Space` starts
+the next round, which draws only books the earlier rounds did not show. Three
+rounds cover all 42 with nothing repeated, and the last card says so.
+
+A book with more than one variant can come back in a later round showing its
+other picture — that counts as something you have not seen.
+
+Press `R` at any point for a completely fresh evening, or `O` to walk the deck
+in file order when you're rehearsing.
 
 ---
 
@@ -131,7 +139,23 @@ Everything is in **`games/book-names/deck.js`**. Open it in any text editor.
 To remove a puzzle, delete its block. To reorder, move the blocks. Nothing else
 needs touching.
 
-**After editing, always run:**
+### The easier way: the deck manager
+
+You do not have to edit the file by hand to change a picture or add a variant.
+
+```sh
+node tools/manage.js
+```
+
+Open **http://localhost:8900** and leave it running while you work. Drag a
+picture onto a clue and it is saved, resized and wired up for you. The variants
+tab adds a second way of asking a book, with weight and difficulty dials.
+
+Full instructions are in [tools/README.md](tools/README.md). Everything it
+writes is checked and rolled back if it does not load, so it cannot leave you
+with a broken deck.
+
+**After editing by hand, always run:**
 
 ```sh
 node tools/validate.js games/book-names/deck.js
@@ -231,6 +255,7 @@ games/book-names/
   images/*              clue artwork
   gm.html               the Game Master view
 tools/
+  manage.js             the deck manager — see tools/README.md
   validate.js           deck checker — run this after editing
   review.html           the whole deck on one screen
   fetch-images.js       source pictures from Wikimedia Commons

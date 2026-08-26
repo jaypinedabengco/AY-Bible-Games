@@ -66,7 +66,9 @@
       var stamp = el('div', 'stamp');
       if (view.id) { stamp.appendChild(el('span', 'stamp-id', '#' + view.id)); }
       if (meta && meta.total) {
-        stamp.appendChild(el('span', 'stamp-pos', meta.position + ' / ' + meta.total));
+        stamp.appendChild(el('span', 'stamp-pos',
+          (meta.round > 1 ? 'R' + meta.round + '  ' : '')
+          + meta.position + ' / ' + meta.total));
       }
       host.appendChild(stamp);
     }

@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Game master — Bible Character Names</title>
+<link rel="stylesheet" href="../../core/theme.css">
+<style>
+  body { overflow: auto; }
+  .wrap { max-width: 40rem; margin: 0 auto; padding: 1.2rem 1rem 4rem; }
+  h1 { font-size: 1.3rem; margin: 0 0 0.2rem; }
+  .sub { color: var(--dim); font-size: 0.8rem; margin: 0 0 1.4rem; }
+  input { width: 100%; font-size: 1.15rem; padding: 0.75rem 0.9rem; border-radius: 0.6rem;
+          border: 1px solid #2c3444; background: var(--card); color: var(--fg); }
+  #signin { width: 100%; margin-top: 0.7rem; font: inherit; font-size: 1.05rem;
+            padding: 0.75rem; border-radius: 0.6rem; border: none;
+            background: var(--accent); color: var(--bg); font-weight: 700;
+            cursor: pointer; }
+  .note { color: var(--dim); font-size: 0.85rem; margin: 0.7rem 0 0; line-height: 1.5; }
+  .note strong { color: var(--accent); }
+  .bad { color: var(--bad); }
+  .hide { display: none; }
+
+  .sticky { position: sticky; top: 0; background: var(--bg); padding: 0.6rem 0 0.7rem; z-index: 3; }
+  .row { background: var(--card); border-radius: 0.7rem; padding: 0.75rem 0.9rem;
+         margin-top: 0.55rem; }
+  .rid { font-size: 0.68rem; letter-spacing: 0.2em; color: var(--dim); text-transform: uppercase; }
+  .ranswer { font-size: 1.7rem; font-weight: 700; line-height: 1.1; }
+  .rwork { font-size: 1rem; letter-spacing: 0.08em; color: var(--accent); margin-top: 0.15rem; }
+  .rref { font-size: 0.7rem; color: var(--dim); letter-spacing: 0.1em;
+          text-transform: uppercase; margin-top: 0.3rem; }
+  .tag { font-size: 0.6rem; letter-spacing: 0.14em; text-transform: uppercase;
+         padding: 0.12rem 0.45rem; border-radius: 1rem; background: var(--bg);
+         color: var(--dim); margin-right: 0.3rem; }
+  .tag.risky { background: var(--bad); color: #fff; }
+  .tag.local { background: var(--accent); color: var(--bg); }
+  .count { font-size: 0.75rem; color: var(--dim); margin-top: 0.5rem; }
+  .pics { display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap;
+          margin-bottom: 0.55rem; }
+  .pics img { height: 4.2rem; max-width: 5.5rem; object-fit: contain;
+              background: var(--bg); border-radius: 0.4rem; padding: 0.2rem; }
+  .pics .plus { color: var(--accent); font-size: 1.1rem; }
+  .pics .miss { height: 4.2rem; width: 3.4rem; display: grid; place-items: center;
+                color: var(--bad); font-size: 1.6rem; border: 2px dashed var(--bad);
+                border-radius: 0.4rem; }
+  .pics .alt { font-size: 0.6rem; color: var(--dim); letter-spacing: 0.12em;
+               text-transform: uppercase; align-self: flex-end; }
+  #pictoggle { width: auto; margin-top: 0.5rem; font-size: 0.85rem;
+               padding: 0.45rem 0.8rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p style="margin:0 0 0.6rem"><a href="../../index.html" style="color:var(--dim);font-size:0.8rem;text-decoration:none">&larr; all games</a></p>
+  <h1>Game master</h1>
+  <p class="sub">Bible Character Names — San Fernando Adventist Church</p>
+
+  <div id="gate">
+    <input id="user" type="text" autocomplete="off" autocapitalize="off"
+           spellcheck="false" placeholder="Username" autofocus>
+    <input id="pass" type="password" autocomplete="off" autocapitalize="off"
+           spellcheck="false" placeholder="Password" style="margin-top:0.55rem">
+    <button id="signin" type="button">Sign in</button>
+    <p class="note" id="gate-note">The projector prints an id like
+      <strong>#cn-07</strong> in the bottom corner. Sign in, then find that id.</p>
+  </div>
+
+  <div id="list" class="hide">
+    <div class="sticky">
+      <input id="filter" type="search" inputmode="search" autocomplete="off"
+             placeholder="Type an id or a name — e.g. cn-07, moses">
+      <div class="count" id="count"></div>
+      <button id="pictoggle" type="button">hide pictures</button>
+    </div>
+    <div id="rows"></div>
+  </div>
+</div>
+
+<script src="../../core/normalize.js"></script>
+<script src="../../core/views.js"></script>
+<script src="../../core/gm.js"></script>
+<script src="../../gm-config.js"></script>
+<script src="deck.js"></script>
+<script>
+  (function () {
+    var gate = document.getElementById('gate');
+    var list = document.getElementById('list');
+    var userBox = document.getElementById('user');
+    var passBox = document.getElementById('pass');
+    var signin = document.getElementById('signin');
+    var note = document.getElementById('gate-note');
+    var host = document.getElementById('rows');
+    var filter = document.getElementById('filter');
+    var countEl = document.getElementById('count');
+
+    function fail(msg) {
+      host.innerHTML = '';
+      var p = document.createElement('p');
+      p.className = 'note bad';
+      p.textContent = msg;
+      document.querySelector('.wrap').appendChild(p);
+    }
+
+    if (!window.BibleGames || !window.BibleGames.gm || !window.GM_CONFIG || !window.DECK) {
+      // Same reasoning as the game page: never a blank screen.
+      fail('This page did not load properly. Reload it.');
+      return;
+    }
+
+    var all = BibleGames.gm.rows(window.DECK);
+    var showPics = true;
+    try { showPics = localStorage.getItem('gm-pics') !== 'off'; } catch (e) { /* private mode */ }
+
+    function el(tag, cls, text) {
+      var n = document.createElement(tag);
+      if (cls) { n.className = cls; }
+      if (text != null) { n.textContent = text; }
+      return n;
+    }
+
+    function draw(term) {
+      host.innerHTML = '';
+      var q = String(term || '').trim().toLowerCase();
+      var shown = 0;
+      all.forEach(function (r) {
+        if (q && r.id.toLowerCase().indexOf(q) === -1
+              && r.answer.toLowerCase().indexOf(q) === -1) { return; }
+        var box = el('div', 'row');
+        box.appendChild(el('div', 'rid', '#' + r.id));
+
+        // The same pictures the room is looking at. Useful twice over: you can
+        // see what they are stuck on, and you can review the artwork from a
+        // phone without opening the review tool on a laptop.
+        if (showPics) {
+          r.pictures.forEach(function (set, vi) {
+            if (!set.length) { return; }
+            var strip = el('div', 'pics');
+            if (r.pictures.length > 1) {
+              strip.appendChild(el('span', 'alt', vi === 0 ? 'or' : 'or'));
+            }
+            set.forEach(function (name, i) {
+              if (i > 0) { strip.appendChild(el('span', 'plus', '+')); }
+              var img = document.createElement('img');
+              img.src = 'images/' + name;
+              img.alt = name;
+              img.loading = 'lazy';
+              img.addEventListener('error', function () {
+                var miss = el('div', 'miss', '?');
+                miss.title = name;
+                img.replaceWith(miss);
+              });
+              strip.appendChild(img);
+            });
+            box.appendChild(strip);
+          });
+        }
+        box.appendChild(el('div', 'ranswer', r.answer));
+        // Every working the puzzle might ask - the projector picks one variant
+        // and the GM cannot know which.
+        r.workings.forEach(function (w) { box.appendChild(el('div', 'rwork', w)); });
+        if (r.ref) { box.appendChild(el('div', 'rref', r.ref)); }
+        if (r.flags.length) {
+          var tags = el('div', null);
+          tags.style.marginTop = '0.4rem';
+          r.flags.forEach(function (f) { tags.appendChild(el('span', 'tag ' + f, f)); });
+          box.appendChild(tags);
+        }
+        host.appendChild(box);
+        shown++;
+      });
+      countEl.textContent = shown + ' of ' + all.length + ' characters';
+    }
+
+    function unlock() {
+      gate.classList.add('hide');
+      list.classList.remove('hide');
+      draw('');
+      filter.focus();
+    }
+
+    function trySignIn() {
+      if (BibleGames.gm.matchesLogin(userBox.value, passBox.value,
+                                     window.GM_CONFIG.loginHash)) {
+        try { sessionStorage.setItem('gm', '1'); } catch (e) { /* private mode */ }
+        unlock();
+      } else {
+        note.className = 'note bad';
+        note.textContent = 'That username or password is not right. '
+          + 'Ask whoever set the game up.';
+        passBox.value = '';
+        passBox.focus();
+      }
+    }
+
+    try {
+      if (sessionStorage.getItem('gm') === '1') { unlock(); }
+    } catch (e) { /* private mode: just ask for the code */ }
+
+    signin.addEventListener('click', trySignIn);
+    [userBox, passBox].forEach(function (box) {
+      box.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') { trySignIn(); }
+      });
+    });
+    filter.addEventListener('input', function () { draw(filter.value); });
+
+    var picBtn = document.getElementById('pictoggle');
+    function syncPicBtn() { picBtn.textContent = showPics ? 'hide pictures' : 'show pictures'; }
+    picBtn.addEventListener('click', function () {
+      showPics = !showPics;
+      try { localStorage.setItem('gm-pics', showPics ? 'on' : 'off'); } catch (e) { /* private */ }
+      syncPicBtn();
+      draw(filter.value);
+    });
+    syncPicBtn();
+  })();
+</script>
+</body>
+</html>

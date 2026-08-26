@@ -20,7 +20,10 @@
     return variant.img ? [variant.img] : [];
   }
 
-  function buildSession(deck, resolve, rng) {
+  function variantKey(puzzle, index) { return puzzle.id + '#' + index; }
+
+  function buildSession(deck, resolve, rng, opts) {
+    var seen = (opts && opts.seen) || null;
     var normalized = BG.normalize.normalizeDeck(deck);
     var pool = normalized.puzzles.filter(function (p) {
       return normalized.languages.indexOf(p.lang) !== -1;
@@ -53,11 +56,24 @@
       var playable = [];
       pool.forEach(function (p) {
         var options = BG.variants.eligible(p, available);
-        // If nothing resolved, keep the first variant anyway so the card
-        // renders a loud placeholder. Dropping the puzzle would hide a
-        // missing file, and this site is published - a silent gap online is
-        // far harder to notice than a red question mark.
-        var chosen = options.length ? BG.variants.pick(options, rng) : p.variants[0];
+
+        // Rounds: prefer a variant this evening has not shown yet. Only
+        // RESOLVABLE variants are considered, so a placeholder waiting for its
+        // picture never drags its book into a later round just to be dropped.
+        var chosen;
+        if (seen) {
+          var fresh = options.filter(function (v) {
+            return !seen.has(variantKey(p, p.variants.indexOf(v)));
+          });
+          if (!fresh.length) { return; }          // nothing new to show
+          chosen = BG.variants.pick(fresh, rng);
+        } else {
+          // If nothing resolved, keep the first variant anyway so the card
+          // renders a loud placeholder. Dropping the puzzle would hide a
+          // missing file, and this site is published - a silent gap online is
+          // far harder to notice than a red question mark.
+          chosen = options.length ? BG.variants.pick(options, rng) : p.variants[0];
+        }
         playable.push({ puzzle: p, variant: chosen });
       });
 
@@ -72,15 +88,24 @@
         };
       });
 
+      if (!carriers.length) {
+        return { deck: normalized, items: [], keys: [], srcFor: srcFor };
+      }
+
       var ordered = BG.order.buildOrder(carriers, {
         rng: rng,
         shuffle: normalized.shuffle,
         sessionSize: normalized.sessionSize,
       });
 
+      var items = ordered.map(function (c) { return c.pair; });
       return {
         deck: normalized,
-        items: ordered.map(function (c) { return c.pair; }),
+        items: items,
+        // What this round used, so the caller can exclude it from the next one.
+        keys: items.map(function (pair) {
+          return variantKey(pair.puzzle, pair.puzzle.variants.indexOf(pair.variant));
+        }),
         srcFor: srcFor,
       };
     });
@@ -93,30 +118,78 @@
     );
     var rng = Math.random;
 
-    return buildSession(deck, resolver, rng).then(function (session) {
+    // An evening is a series of rounds. Each one draws only books the earlier
+    // rounds did not show, so the deck is walked through without a repeat, and
+    // the host is told where they are rather than left guessing.
+    var seen = new Set();
+    var round = 0;
+
+    return buildSession(deck, resolver, rng, { seen: seen }).then(function (session) {
       var items = session.items;
+      round = 1;
+      session.keys.forEach(function (k) { seen.add(k); });
       var machine = BG.machine.createMachine(items, BG.views.stagesForItem);
 
       // When the deck runs out, say so. Clamping silently at the last card
       // leaves the host pressing space at a screen that never changes,
       // wondering whether the game has frozen in front of everyone.
       var finished = false;
-      function drawDone() {
+      var deckEmpty = false;
+
+      function drawDone(nextCount) {
         finished = true;
         host.innerHTML = '';
         var box = document.createElement('div');
         box.className = 'done';
         var h = document.createElement('div');
         h.className = 'done-title';
-        h.textContent = 'That\u2019s the lot';
         var n = document.createElement('div');
         n.className = 'done-count';
-        n.textContent = items.length + ' books played';
         var hint = document.createElement('div');
         hint.className = 'done-hint';
-        hint.textContent = 'R for a fresh set  \u00b7  Home to play these again';
+
+        if (nextCount > 0) {
+          h.textContent = 'Round ' + round + ' done';
+          n.textContent = nextCount + ' book' + (nextCount === 1 ? '' : 's')
+            + ' still to come';
+          hint.textContent = 'Space for round ' + (round + 1);
+        } else {
+          deckEmpty = true;
+          h.textContent = 'All ' + seen.size + ' played';
+          n.textContent = 'the whole deck, no repeats';
+          hint.textContent = 'R for a fresh set  \u00b7  Home to replay this round';
+        }
         box.appendChild(h); box.appendChild(n); box.appendChild(hint);
         host.appendChild(box);
+      }
+
+      // How many books could still fill another round.
+      function remaining() {
+        var count = 0;
+        session.deck.puzzles.forEach(function (p) {
+          var anyFresh = p.variants.some(function (v, i) {
+            var names = v.clues ? v.clues.map(function (c) { return c.img; })
+                                : (v.img ? [v.img] : []);
+            var resolvable = !names.length
+              || names.every(function (nm) { return session.srcFor(nm) !== null; });
+            return resolvable && !seen.has(p.id + '#' + i);
+          });
+          if (anyFresh) { count++; }
+        });
+        return count;
+      }
+
+      function nextRound() {
+        return buildSession(deck, resolver, rng, { seen: seen }).then(function (next) {
+          if (!next.items.length) { drawDone(0); return; }
+          round++;
+          next.keys.forEach(function (k) { seen.add(k); });
+          items = next.items;
+          session.srcFor = next.srcFor;
+          machine = BG.machine.createMachine(items, BG.views.stagesForItem);
+          finished = false;
+          draw();
+        });
       }
 
       function draw() {
@@ -125,13 +198,19 @@
         BG.paint.render(host, BG.views.viewForItem(s.item, s.stage), session.srcFor, {
           position: s.index + 1,
           total: items.length,
+          round: round,
           showBadge: session.deck.languages.length > 1,
         });
       }
 
       function rebuild(shuffle) {
         var d = Object.assign({}, deck, { shuffle: shuffle });
-        return buildSession(d, resolver, rng).then(function (next) {
+        // A reshuffle starts the evening over: everything is unseen again.
+        seen.clear();
+        round = 1;
+        deckEmpty = false;
+        return buildSession(d, resolver, rng, { seen: seen }).then(function (next) {
+          next.keys.forEach(function (k) { seen.add(k); });
           items = next.items;
           machine = BG.machine.createMachine(items, BG.views.stagesForItem);
           session.srcFor = next.srcFor;
@@ -191,8 +270,14 @@
         },
         advance: function () {
           hideLegend();
-          if (finished) { return; }
-          if (machine.state().atEnd) { drawDone(); return; }
+          if (finished) {
+            // On the round-done card, space starts the next round. On the
+            // deck-empty card it does nothing - R is the way out, which the
+            // card says.
+            if (!deckEmpty) { nextRound(); }
+            return;
+          }
+          if (machine.state().atEnd) { drawDone(remaining()); return; }
           machine.advance();
           draw();
         },
