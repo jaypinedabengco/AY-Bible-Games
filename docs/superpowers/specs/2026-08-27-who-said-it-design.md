@@ -119,6 +119,36 @@ credit line goes in the game page footer and in `CREDITS.md`:
 
 If this deck ever grew past ~1,000 verses the answer changes. It will not.
 
+## How difficulty is assigned: fame, not theology
+
+Difficulty here means HOW MANY PEOPLE IN THE ROOM WILL KNOW IT, not how
+obscure the doctrine is. That is the instruction the deck is populated under:
+
+- **1** — the room shouts it before the line is finished reading.
+  "Let there be light." "Here am I! Send me." "Am I my brother's keeper?"
+- **2** — known to anyone who has read the story, not instant.
+  "You are the Christ, the Son of the living God."
+- **3** — needs the clue. A minor speaker, or a famous line whose speaker is
+  the surprise.
+
+The running order then ramps ascending, so the easy ones come first and the
+hard ones land at the end.
+
+### Where the ramp applies — a point to confirm
+
+`buildOrder` picks the round's 20 at RANDOM from everything still fresh, then
+ramps THOSE 20 by difficulty. So every round warms up: easy first, hardest
+last. What it does not do is spend all the easy quotes in round 1 — a famous
+line can be drawn in round 3, and round 3 still opens with the easiest of what
+it drew.
+
+Recommendation: keep it. A round that is 20 hard ones in a row with no warm-up
+is a worse experience than a slightly uneven spread of the famous ones, and
+each round is its own arc for the room. The alternative — biasing the draw so
+the evening ramps as a whole and round 1 is all difficulty 1 — is a change to
+`order.js` affecting all three games, so it is out of scope here unless asked
+for deliberately.
+
 ## Difficulty meter on the projector
 
 ASSUMPTION TO CONFIRM: "difficulty meter" is read as a small visible
