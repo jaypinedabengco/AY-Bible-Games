@@ -67,6 +67,32 @@ That level is deliberate and sufficient. This is a church game; the answers are
 the only thing behind the door, and the worst case is somebody spoiling a puzzle
 for themselves.
 
+### Getting the answers to your phone without publishing anything
+
+The repository is private and the site is not published, which is fine — the
+game never needed a server. But your phone cannot open a file that lives on the
+laptop, so use one of these.
+
+**Second screen. Nothing leaves the machine, and this is the best one.** Connect
+the laptop to the projector as an *extended* display rather than mirrored. Put
+the game fullscreen with `F` on the projector, and open `gm.html` in another
+window on the laptop's own screen. The room sees the puzzle; you see the answer.
+No network at all.
+
+**Phone on the same network.** Serve the folder from the laptop:
+
+```sh
+python3 -m http.server 8000
+ipconfig getifaddr en0      # the laptop's address on the network
+```
+
+Then on the phone open `http://THAT-ADDRESS:8000/games/book-names/gm.html`.
+Church wifi works, and so does a phone hotspot with the laptop joined to it —
+no internet is needed, only the two devices on one network.
+
+**On paper.** Open `tools/review.html`, print to PDF, and you have every puzzle
+and answer on a sheet. No devices, nothing to go wrong.
+
 ---
 
 ## Changing the puzzles

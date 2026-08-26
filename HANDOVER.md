@@ -106,6 +106,15 @@ each needs a deck and one line in `games.js`.
 
 ---
 
+**The repository is private and Pages is not enabled.** That was a decision, not
+an omission: Pages on a private repo needs a paid plan, and the game never
+needed a server. It runs by double-clicking `index.html`, and `README.md`
+explains three ways to get the answers onto a phone or a second screen without
+publishing anything. If it is ever made public, note that the brand imagery in
+`images/` becomes public with it, and git history is permanent.
+
+---
+
 ## Ideas already rejected — don't re-propose
 
 - *Verse clues* — worked, but turned a picture game into half a verse quiz.
