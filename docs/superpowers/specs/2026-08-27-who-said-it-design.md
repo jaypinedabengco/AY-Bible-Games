@@ -160,6 +160,80 @@ It is deliberately tiny and beside the existing stamp, not a banner. If it
 reads as clutter on a 55" screen it can come out with one CSS rule and one
 line of paint.js.
 
+## Start screen — shared by all three games
+
+Requested for this game and for the two name games, so it belongs in
+`core/boot.js`, not in one game's page. Every game gets the same screen before
+its first card.
+
+```
+        BIBLE BOOK NAMES
+        San Fernando Adventist Church
+
+        Pictures combine into the name of a book of the
+        Bible. The room shouts the book. One person
+        clicks to reveal.
+
+        Puzzles this round   [ 20 v ]
+
+        Space to start
+
+        Space reveal · <- back · R shuffle · O deck order
+        F fullscreen · Home restart · ? keys · S this screen
+```
+
+### How many — the dropdown
+
+- Options are 5, 10, 15, 20, 25, 30 and `All (N)`, filtered to those not
+  larger than the number of playable puzzles. A deck of 12 offers 5, 10 and
+  `All (12)`.
+- Default is the deck's own `sessionSize`, or `All` when the deck is smaller
+  than that.
+- The choice is remembered per game in `localStorage`, wrapped in try/catch —
+  the same treatment the GM page's picture toggle already gets, because private
+  windows throw on access. A programme that always runs 15 is set once.
+- It applies to every round of that evening. `S` returns to this screen to
+  change it; the existing `R` still gives a fresh set immediately without
+  asking.
+
+This needs one small change under the hood: `buildSession` must accept a
+`sessionSize` override in its options, rather than only reading it off the
+deck. `buildOrder` already takes the size as an argument, so the override just
+has to be threaded through.
+
+### How it works — text from the deck
+
+Each deck gains a `howToPlay` field: two or three short lines in the deck's own
+words. The engine renders it; it does not know what any game is about.
+
+- Bible Book Names — "Pictures combine into the name of a book of the Bible."
+- Bible Character Names — "Pictures combine into the name of a person from a
+  Bible story."
+- Who Said It? — "A line someone in the Bible said. The room says who said it.
+  Stuck? The next click gives the verse, then a clue."
+
+A deck with no `howToPlay` shows the screen without that block, so the field is
+optional and no existing deck breaks by not having it yet.
+
+### Two things it fixes for free
+
+An empty or half-built deck currently fails at startup with an error card. With
+a start screen it can say plainly "this deck has no puzzles yet" — which is
+exactly the state Bible Character Names is in while its pictures are collected.
+
+And the key legend gets a proper home. It stays as it is over the first card —
+that was asked for deliberately and is not being removed — but the start screen
+is now where a driver who has never run the game reads it without time
+pressure.
+
+### The one risk
+
+It puts a screen between the driver and the game, in front of a room. Mitigated
+by Space starting it with the remembered count already selected: for the person
+who runs this every week it is one extra press of the key they are already
+holding. If it still gets in the way, the screen can be skipped with a `?start`
+in the URL — but that is not being built until it is asked for.
+
 ## Files
 
 New:
@@ -170,7 +244,16 @@ New:
 - `games/who-said-it/gm.html` — the game master page
 - tests for the new type, the leak rule and the GM rows
 
-Changed, additively — no existing behaviour altered:
+Changed for all three games — the start screen:
+
+- `core/boot.js` — the start screen, the size dropdown, the `S` key, and a
+  `sessionSize` override threaded into `buildSession`
+- `core/theme.css` — start screen styles, all in vmin
+- `core/normalize.js` — `howToPlay` on the deck
+- `games/book-names/deck.js`, `games/character-names/deck.js` — a `howToPlay`
+  line each. No other change to either deck.
+
+Changed for this game, additively — no existing behaviour altered:
 
 - `core/normalize.js` — `quote`, `verse`, `clue` in `VARIANT_KEYS` and
   `normalizeVariant`
@@ -220,6 +303,10 @@ puts the old file back if anything fails.
 - the unverified count
 - GM rows for a quote puzzle: every quote listed, flags carried
 - an end-to-end deck validation of the shipped deck
+- the size dropdown's options for a deck of 100, of 12 and of 3
+- a chosen size actually limiting the round, and rounds after the first
+  honouring it
+- a deck of zero playable puzzles showing the start screen, not an error
 
 ## Scope
 
