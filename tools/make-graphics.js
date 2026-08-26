@@ -43,20 +43,37 @@ svg('guy.svg', `  <circle cx="200" cy="126" r="52" fill="#f0c9a4" stroke="#c99a6
   <rect x="150" y="300" width="44" height="70" rx="14" fill="#2f3b52"/>
   <rect x="206" y="300" width="44" height="70" rx="14" fill="#2f3b52"/>`);
 
-// Chewing: a face in profile blowing a bubble. The first attempt drew a mouth
-// with teeth head-on and it read as an EYE - the tooth rows looked like lids and
-// the mouthful like a pupil, which would have collided with Isaiah's eye clue.
-// A profile plus a pink bubble cannot be mistaken for anything but chewing.
-svg('chew.svg', `  <path d="M232 74 Q120 74 108 190 Q100 268 150 300 L150 350 L246 350 L246 300
-           Q272 286 274 240 L292 230 L274 214 Q276 108 232 74 Z"
-        fill="#f0c9a4" stroke="#c99a6d" stroke-width="6"/>
-  <path d="M232 74 Q120 74 108 176 Q150 130 232 138 Q262 128 274 176 Q276 96 232 74 Z"
-        fill="#4a3728"/>
-  <circle cx="196" cy="196" r="9" fill="#3b2f27"/>
-  <path d="M110 244 Q140 258 168 248" stroke="#c07a6a" stroke-width="9"
+// Chewing: a clean profile with pursed lips and a big bubble growing from
+// them. Three attempts got here. Head-on with teeth read as an EYE; a floating
+// bubble beside a mouthless face read as a balloon; this one puts the bubble on
+// the lips and keeps the face simple enough to read at hall distance.
+svg('chew.svg', `  <circle cx="132" cy="252" r="86" fill="#f4a7c0"
+           stroke="#d97fa0" stroke-width="8"/>
+  <circle cx="104" cy="220" r="24" fill="#fbd3e0" opacity="0.9"/>
+  <path d="M268 82
+           Q188 78 168 158
+           Q160 190 146 212
+           Q138 226 156 232
+           L174 238
+           Q170 256 182 262
+           Q180 292 194 308
+           Q210 330 258 334
+           L258 372 L330 372 L330 322
+           Q356 296 358 224
+           Q360 106 268 82 Z"
+        fill="#f0c9a4" stroke="#c99a6d" stroke-width="7" stroke-linejoin="round"/>
+  <path d="M268 82 Q188 78 168 158 Q214 116 278 128 Q322 122 352 178
+           Q360 106 268 82 Z" fill="#5a4130"/>
+  <path d="M204 152 Q228 142 250 154" stroke="#3b2f27" stroke-width="8"
         fill="none" stroke-linecap="round"/>
-  <circle cx="72" cy="250" r="56" fill="#f4a7c0" stroke="#d97fa0" stroke-width="6"/>
-  <circle cx="54" cy="232" r="14" fill="#fbd3e0"/>`);
+  <circle cx="226" cy="182" r="11" fill="#3b2f27"/>
+  <path d="M300 224 q26 10 0 22" fill="none" stroke="#c99a6d" stroke-width="6"
+        stroke-linecap="round"/>
+  <path d="M176 248 Q196 240 210 246" stroke="#b8615c" stroke-width="10"
+        fill="none" stroke-linecap="round"/>
+  <path d="M176 276 Q196 284 210 276" stroke="#b8615c" stroke-width="10"
+        fill="none" stroke-linecap="round"/>
+`);
 
 // A root: one plant, a soil line, and the roots doing the work underneath.
 svg('root.svg', `  <rect x="0" y="196" width="400" height="204" rx="0" fill="#6b4a2f"/>

@@ -156,6 +156,16 @@
       });
       document.body.appendChild(legend);
 
+      // A way back to the front page. Sits OUTSIDE the host element on purpose:
+      // the host's click handler advances the puzzle, and a link inside it
+      // would reveal the answer on the way out. Dim like the id stamp, because
+      // the room should not be reading it.
+      var back = document.createElement('a');
+      back.className = 'back-link';
+      back.href = '../../index.html';
+      back.textContent = '\u2190 all games';
+      document.body.appendChild(back);
+
       // It stays until the game actually starts. A timer was wrong: the host
       // is still plugging in the projector while it counts down, looks up, and
       // the legend has already gone. Fading on the first reveal means they get
