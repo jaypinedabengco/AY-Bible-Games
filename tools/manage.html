@@ -70,12 +70,14 @@
   <h1>Deck manager</h1>
   <button id="tab-clues" class="tab on" type="button">pictures</button>
   <button id="tab-vars" class="tab" type="button">variants</button>
+  <button id="tab-book" class="tab" type="button">add a book</button>
   <input id="q" type="search" placeholder="filter by book, id or filename">
   <span class="note" id="count"></span>
   <span class="note">drag a picture onto a card &mdash; or click it</span>
 </div>
 <div class="grid" id="grid"></div>
 <div id="vars" style="display:none;padding:1.2rem"></div>
+<div id="newbook" style="display:none;padding:1.2rem;max-width:46rem"></div>
 
 <script>
 (function () {
@@ -250,14 +252,46 @@
         vr.appendChild(img);
       });
       vr.appendChild(el('span', 'tag', v.type));
-      if (v.words.length) { vr.appendChild(el('span', 'word', v.words.join(' + '))); }
 
       var msg = el('span', 'why');
 
-      vr.appendChild(numSelect('weight', v.weight, 1, 9, function (n) {
-        post('/api/set-variant', { id: book.id, index: vi, weight: n }, msg,
-             'weight ' + n + ' — drawn ' + n + '\u00d7 as often as a weight-1 variant');
-      }, 'How often this variant is picked, against the others'));
+      // The words themselves are editable: a picture that reads wrong is often
+      // a wording problem rather than a picture problem.
+      if (v.words.length) {
+        var wordBox = el('div');
+        wordBox.style.cssText = 'display:flex;gap:0.35rem;align-items:center;flex-wrap:wrap';
+        wordBox.appendChild(el('label', null, 'words'));
+        var inputs = v.words.map(function (w, wi) {
+          var t = document.createElement('input');
+          t.type = 'text';
+          t.size = Math.max(6, String(w || '').length + 2);
+          t.value = w === null || w === undefined ? '' : w;
+          t.placeholder = 'picture ' + (wi + 1);
+          wordBox.appendChild(t);
+          return t;
+        });
+        var saveWords = document.createElement('button');
+        saveWords.type = 'button';
+        saveWords.textContent = 'save words';
+        saveWords.style.cssText = 'background:var(--card);color:var(--fg);border:1px solid #2c3444;'
+          + 'border-radius:0.5rem;padding:0.3rem 0.7rem;cursor:pointer;font:inherit;font-size:0.78rem';
+        saveWords.addEventListener('click', function () {
+          var words = inputs.map(function (t) { return t.value; });
+          post('/api/set-variant', { id: book.id, index: vi, words: words }, msg,
+               'now reads ' + words.join(' + '));
+        });
+        wordBox.appendChild(saveWords);
+        vr.appendChild(wordBox);
+      }
+
+      // Weight only decides between variants, so a single-variant book does not
+      // get the control at all - showing a dead one invites setting it.
+      if (!book.single) {
+        vr.appendChild(numSelect('weight', v.weight, 1, 9, function (n) {
+          post('/api/set-variant', { id: book.id, index: vi, weight: n }, msg,
+               'weight ' + n + ' — drawn ' + n + '\u00d7 as often as a weight-1 variant');
+        }, 'How often this variant is picked, against the others'));
+      }
 
       vr.appendChild(numSelect('difficulty', v.difficulty, 1, 3, function (n) {
         post('/api/set-variant', { id: book.id, index: vi, difficulty: n }, msg,
@@ -267,7 +301,7 @@
       vr.appendChild(msg);
       if (book.single) {
         vr.appendChild(el('span', 'why',
-          'one variant only — weight and difficulty become editable once a second is added'));
+          'one variant only — weight starts counting once a second one is added'));
       }
       row.appendChild(vr);
     });
@@ -386,17 +420,133 @@
     });
   }
 
+  // ---- add a book --------------------------------------------------------
+  var bookHost = document.getElementById('newbook');
+
+  function newBookView() {
+    bookHost.innerHTML = '';
+    var box = el('div', 'book-row');
+    box.appendChild(el('h3', null, 'Add a book'));
+    var sub = el('div', 'sub', 'loading the books not yet in the deck…');
+    box.appendChild(sub);
+    bookHost.appendChild(box);
+
+    fetch('/api/missing-books').then(function (r) { return r.json(); }).then(function (list) {
+      if (list.error) { sub.textContent = list.error; return; }
+      sub.textContent = list.length + ' of the 66 books are not in the deck yet';
+
+      var pick = document.createElement('select');
+      list.forEach(function (b) {
+        var o = document.createElement('option');
+        o.value = b.answer;
+        o.textContent = b.answer + '  —  ' + b.testament + ' Testament · ' + b.division
+          + ' · book ' + b.position + ' of 66';
+        pick.appendChild(o);
+      });
+
+      var picked = el('div', 'vrow');
+      picked.appendChild(el('label', null, 'book'));
+      picked.appendChild(pick);
+      picked.appendChild(el('span', 'why',
+        'the reference is filled in from the canon — you do not have to look it up'));
+      box.appendChild(picked);
+
+      // picture slots, same shape as the add-variant form
+      var slots = el('div');
+      slots.style.cssText = 'display:flex;flex-direction:column;gap:0.4rem;margin-top:0.7rem';
+      function addSlot() {
+        var slot = el('div');
+        slot.style.cssText = 'display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap';
+        var f = document.createElement('input');
+        f.type = 'file';
+        f.accept = 'image/*';
+        var w = document.createElement('input');
+        w.type = 'text';
+        w.size = 22;
+        w.placeholder = 'clue word — blank on a single picture means the picture IS the clue';
+        var drop = document.createElement('button');
+        drop.type = 'button';
+        drop.textContent = '\u2212';
+        drop.style.cssText = 'background:var(--card);color:var(--dim);border:1px solid #2c3444;'
+          + 'border-radius:0.4rem;padding:0.25rem 0.6rem;cursor:pointer;font:inherit';
+        drop.addEventListener('click', function () {
+          if (slots.children.length > 1) { slot.remove(); }
+        });
+        slot.appendChild(f); slot.appendChild(w); slot.appendChild(drop);
+        slots.appendChild(slot);
+      }
+      addSlot();
+      box.appendChild(slots);
+
+      var controls = el('div', 'addbox');
+      var more = document.createElement('button');
+      more.type = 'button';
+      more.textContent = '+ another picture';
+      more.style.cssText = 'background:var(--card);color:var(--fg);border:1px solid #2c3444;'
+        + 'border-radius:0.5rem;padding:0.35rem 0.7rem;cursor:pointer;font:inherit;font-size:0.8rem';
+      more.addEventListener('click', function () { addSlot(); });
+      var dSel = numSelect('difficulty', 2, 1, 3, function () {}, '1 plays early, 3 plays late');
+      var go = document.createElement('button');
+      go.type = 'button';
+      go.textContent = 'add book';
+      var msg = el('span', 'why');
+
+      go.addEventListener('click', function () {
+        var chosen = [].slice.call(slots.children).map(function (r) {
+          return { file: r.querySelector('input[type=file]').files[0],
+                   word: r.querySelector('input[type=text]').value };
+        }).filter(function (x) { return x.file; });
+        if (!chosen.length) { say(msg, 'choose at least one picture', true); return; }
+        say(msg, 'saving…');
+        Promise.all(chosen.map(function (x) {
+          return new Promise(function (resolve, reject) {
+            var fr = new FileReader();
+            fr.onload = function () {
+              resolve({ ext: (x.file.name.match(/\.[^.]+$/) || [''])[0].toLowerCase(),
+                        word: x.word, data: String(fr.result).split(',')[1] });
+            };
+            fr.onerror = reject;
+            fr.readAsDataURL(x.file);
+          });
+        })).then(function (clues) {
+          return fetch('/api/add-book', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              answer: pick.value, clues: clues,
+              difficulty: Number(dSel.querySelector('select').value),
+            }),
+          }).then(function (r) { return r.json(); });
+        }).then(function (out) {
+          if (out.error) { say(msg, out.error, true); return; }
+          say(msg, out.answer + ' added as ' + out.id + ' · ' + out.files.join(' + ')
+            + ' · the deck now has ' + out.total + ' books');
+          newBookView();
+        }).catch(function (e) { say(msg, String(e.message || e), true); });
+      });
+
+      controls.appendChild(more);
+      controls.appendChild(dSel);
+      controls.appendChild(go);
+      controls.appendChild(msg);
+      box.appendChild(controls);
+    });
+  }
+
+  var tabBook = document.getElementById('tab-book');
   var tabClues = document.getElementById('tab-clues');
   var tabVars = document.getElementById('tab-vars');
-  tabClues.addEventListener('click', function () {
-    tabClues.classList.add('on'); tabVars.classList.remove('on');
-    grid.style.display = ''; varsHost.style.display = 'none';
-  });
-  tabVars.addEventListener('click', function () {
-    tabVars.classList.add('on'); tabClues.classList.remove('on');
-    grid.style.display = 'none'; varsHost.style.display = '';
-    loadBooks();
-  });
+  function showTab(which) {
+    [tabClues, tabVars, tabBook].forEach(function (t) { t.classList.remove('on'); });
+    grid.style.display = 'none';
+    varsHost.style.display = 'none';
+    bookHost.style.display = 'none';
+    if (which === 'clues') { tabClues.classList.add('on'); grid.style.display = ''; }
+    if (which === 'vars') { tabVars.classList.add('on'); varsHost.style.display = ''; loadBooks(); }
+    if (which === 'book') { tabBook.classList.add('on'); bookHost.style.display = ''; newBookView(); }
+  }
+  tabClues.addEventListener('click', function () { showTab('clues'); });
+  tabVars.addEventListener('click', function () { showTab('vars'); });
+  tabBook.addEventListener('click', function () { showTab('book'); });
 
   fetch('/api/clues').then(function (r) { return r.json(); }).then(function (list) {
     clues = list;

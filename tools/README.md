@@ -57,7 +57,16 @@ Each book lists its variants with two dials:
 - **difficulty** — 1 plays early in a round, 3 plays late. The round is ordered
   easiest first so the room is not fried in the first minute.
 
-Both save the moment you change them.
+Both save the moment you change them. Weight only appears once a book has a
+second variant — with nothing to compete against it would do nothing, and a
+control that does nothing is worse than no control.
+
+**Clue words are editable too.** Type over them and press **save words**. A
+picture that reads wrong is often a wording problem rather than a picture
+problem: the same drawing lands very differently as `BACK` and as `HA`. Clearing
+a word on a single-picture variant makes the picture itself the clue. Words are
+checked before they are written — letters, numbers, spaces and `+ - & . ! ?`
+only, because a stray quote in `deck.js` would bring the whole game up blank.
 
 **To add a variant**, use the row at the bottom of a book:
 
@@ -71,6 +80,26 @@ Both save the moment you change them.
 Files are named after the book, so `RUTH`'s second variant becomes
 `ruth-2-1.png` and `ruth-2-2.png`. The folder stays readable.
 
+### Add a book tab — a book the deck does not have yet
+
+The deck ships with 42 of the 66 books. The rest are there to be added when you
+have pictures that work for them.
+
+- Pick the book from the list. It only offers books that are **not** in the deck
+  already, so you cannot add Proverbs twice.
+- Its reference — testament, division, position in the canon — is filled in
+  from the canon list. You do not have to look up which division Zephaniah is
+  in.
+- Add pictures and clue words exactly as you would for a variant, set the
+  difficulty, and press **add book**.
+
+Files are named after the book: `proverbs.png` for one picture, or
+`proverbs-1.png` and `proverbs-2.png` for a rebus.
+
+The new book is appended to the end of `deck.js` rather than slotted into canon
+order. Play order is shuffled anyway, and inserting into the middle would mean
+guessing which division comment it belongs under.
+
 ### What it will not do
 
 It does not delete puzzles, and it never regenerates `deck.js` from a parser.
@@ -78,8 +107,8 @@ That file is hand-written with comments explaining each decision, and a round
 trip through a parser would throw all of that away. Edits are surgical: one
 string replaced, or one block inserted.
 
-To remove a variant, or to change a clue word after the fact, edit `deck.js` in
-a text editor. It is meant to be read.
+To remove a variant or a book, edit `deck.js` in a text editor. It is meant to
+be read.
 
 ### If something goes wrong
 

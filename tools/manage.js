@@ -117,9 +117,9 @@ function findBlock(src, id) {
 // Write deck.js, then prove it still loads and still has every puzzle. If not,
 // put the old file back - a manager that can corrupt the deck is worse than
 // editing by hand.
-function writeDeckSafely(next) {
+function writeDeckSafely(next, expectCount) {
   const before = fs.readFileSync(DECK, 'utf8');
-  const countBefore = loadDeck().puzzles.length;
+  const countBefore = expectCount === undefined ? loadDeck().puzzles.length : expectCount;
   fs.writeFileSync(DECK, next);
   try {
     const after = loadDeck();
@@ -211,15 +211,88 @@ function addVariant(id, clues, note, weight, difficulty) {
 // Change weight or difficulty on one variant. Only works on a variant written
 // as a single line - anything hand-written across several lines is left alone
 // and reported, rather than guessed at.
+// Clue words arrive from a text field, so they are checked before they reach
+// the file: a stray quote or backslash would break deck.js on the next load and
+// the whole game would come up blank.
+function wordLiteral(word) {
+  const w = String(word === null || word === undefined ? '' : word).trim().toUpperCase();
+  if (!w) { return 'null'; }
+  if (!/^[A-Z0-9 +&.!?-]{1,24}$/.test(w)) {
+    throw new Error('"' + w + '" will not do as a clue word - letters, numbers, spaces and + - & . ! ? only');
+  }
+  return "'" + w + "'";
+}
+
+// Rewrite the clue words across a run of lines, in reading order. A clue list
+// can span several lines (Malachi's does), so this walks the run rather than a
+// single line. Only the positions the caller supplied change.
+function applyWords(lines, from, to, words) {
+  let seen = -1;
+  for (let n = from; n <= to; n++) {
+    lines[n] = lines[n].replace(/word:\s*(?:'[^']*'|null)/g, (hit) => {
+      seen++;
+      if (words[seen] === undefined) { return hit; }
+      return 'word: ' + wordLiteral(words[seen]);
+    });
+  }
+  if (words.length > seen + 1) {
+    throw new Error('that clue has ' + (seen + 1) + ' picture(s), so it cannot take '
+      + words.length + ' words');
+  }
+  return lines;
+}
+
+// Where the clue list of a single-variant book starts and ends. Commented-out
+// example lines are skipped - Ruth carries one, and matching it would edit a
+// comment and leave the real clue untouched.
+function clueSpan(block) {
+  const from = block.findIndex((l) => !l.trim().startsWith('//') && /clues: \[/.test(l));
+  if (from === -1) { return null; }
+  let to = from;
+  while (to < block.length && !/\],\s*$/.test(block[to])) { to++; }
+  if (to >= block.length) { return null; }
+  return { from, to };
+}
+
 function setVariant(id, index, fields) {
   const src = fs.readFileSync(DECK, 'utf8');
   const { lines, start, end } = findBlock(src, id);
   const block = lines.slice(start, end + 1);
 
   const arrayStart = block.findIndex((l) => l.trim() === 'variants: [');
+
   if (arrayStart === -1) {
-    throw new Error('that book has a single variant - add a second one first');
+    // A single-variant book has no variants array: its difficulty and its clue
+    // words sit on the puzzle's own lines. Weight is refused rather than
+    // written, because with nothing to compete against it would do nothing and
+    // still look like it had been set.
+    if (index) { throw new Error('no variant ' + (index + 1) + ' on ' + id); }
+    if (fields.weight !== undefined) {
+      throw new Error('weight only counts once a book has a second variant');
+    }
+    if (fields.difficulty !== undefined) {
+      const d = Number(fields.difficulty);
+      if (!(d >= 1 && d <= 3)) { throw new Error('difficulty is 1, 2 or 3'); }
+      const at = block.findIndex((l) => /difficulty: \d+/.test(l));
+      if (at !== -1) {
+        block[at] = block[at].replace(/difficulty: \d+/, 'difficulty: ' + d);
+      } else {
+        const idAt = block.findIndex((l) => /id: '/.test(l));
+        block[idAt] = block[idAt].replace(/,?\s*$/, ', difficulty: ' + d + ',');
+      }
+    }
+    if (fields.words && fields.words.length) {
+      const span = clueSpan(block);
+      if (!span) {
+        throw new Error('that book shows a whole picture rather than word clues, so there is '
+          + 'nothing to word - replace the picture instead');
+      }
+      applyWords(block, span.from, span.to, fields.words);
+    }
+    const nextLines = lines.slice(0, start).concat(block, lines.slice(end + 1));
+    return writeDeckSafely(nextLines.join('\n'));
   }
+
   // collect the top-level variant lines of the array
   const entries = [];
   let depth = 0;
@@ -251,8 +324,97 @@ function setVariant(id, index, fields) {
   });
 
   block[at] = next;
+  if (fields.words && fields.words.length) {
+    applyWords(block, at, at, fields.words);
+  }
   const nextLines = lines.slice(0, start).concat(block, lines.slice(end + 1));
   return writeDeckSafely(nextLines.join('\n'));
+}
+
+
+// The 66 books, so adding one fills in its own reference rather than asking you
+// to look up which division Zephaniah is in. Positions match the deck's
+// existing entries: a grouped book takes the position of its first part, so
+// Samuel is 9 and Kings is 11.
+const CANON = [
+  ['GENESIS', 'Old', 'Law', 1], ['EXODUS', 'Old', 'Law', 2],
+  ['LEVITICUS', 'Old', 'Law', 3], ['NUMBERS', 'Old', 'Law', 4],
+  ['DEUTERONOMY', 'Old', 'Law', 5],
+  ['JOSHUA', 'Old', 'Historical', 6], ['JUDGES', 'Old', 'Historical', 7],
+  ['RUTH', 'Old', 'Historical', 8], ['SAMUEL', 'Old', 'Historical', 9],
+  ['KINGS', 'Old', 'Historical', 11], ['CHRONICLES', 'Old', 'Historical', 13],
+  ['EZRA', 'Old', 'Historical', 15], ['NEHEMIAH', 'Old', 'Historical', 16],
+  ['ESTHER', 'Old', 'Historical', 17],
+  ['JOB', 'Old', 'Poetry', 18], ['PSALMS', 'Old', 'Poetry', 19],
+  ['PROVERBS', 'Old', 'Poetry', 20], ['ECCLESIASTES', 'Old', 'Poetry', 21],
+  ['SONG OF SOLOMON', 'Old', 'Poetry', 22],
+  ['ISAIAH', 'Old', 'Major Prophets', 23], ['JEREMIAH', 'Old', 'Major Prophets', 24],
+  ['LAMENTATIONS', 'Old', 'Major Prophets', 25], ['EZEKIEL', 'Old', 'Major Prophets', 26],
+  ['DANIEL', 'Old', 'Major Prophets', 27],
+  ['HOSEA', 'Old', 'Minor Prophets', 28], ['JOEL', 'Old', 'Minor Prophets', 29],
+  ['AMOS', 'Old', 'Minor Prophets', 30], ['OBADIAH', 'Old', 'Minor Prophets', 31],
+  ['JONAH', 'Old', 'Minor Prophets', 32], ['MICAH', 'Old', 'Minor Prophets', 33],
+  ['NAHUM', 'Old', 'Minor Prophets', 34], ['HABAKKUK', 'Old', 'Minor Prophets', 35],
+  ['ZEPHANIAH', 'Old', 'Minor Prophets', 36], ['HAGGAI', 'Old', 'Minor Prophets', 37],
+  ['ZECHARIAH', 'Old', 'Minor Prophets', 38], ['MALACHI', 'Old', 'Minor Prophets', 39],
+  ['MATTHEW', 'New', 'Gospels', 40], ['MARK', 'New', 'Gospels', 41],
+  ['LUKE', 'New', 'Gospels', 42], ['JOHN', 'New', 'Gospels', 43],
+  ['ACTS', 'New', 'History', 44],
+  ['ROMANS', 'New', 'Epistles', 45], ['CORINTHIANS', 'New', 'Epistles', 46],
+  ['GALATIANS', 'New', 'Epistles', 48], ['EPHESIANS', 'New', 'Epistles', 49],
+  ['PHILIPPIANS', 'New', 'Epistles', 50], ['COLOSSIANS', 'New', 'Epistles', 51],
+  ['THESSALONIANS', 'New', 'Epistles', 52], ['TIMOTHY', 'New', 'Epistles', 54],
+  ['TITUS', 'New', 'Epistles', 56], ['PHILEMON', 'New', 'Epistles', 57],
+  ['HEBREWS', 'New', 'General Epistles', 58], ['JAMES', 'New', 'General Epistles', 59],
+  ['PETER', 'New', 'General Epistles', 60], ['JUDE', 'New', 'General Epistles', 65],
+  ['REVELATION', 'New', 'Prophecy', 66],
+];
+
+// Append a new book to the puzzles array. Appended rather than slotted into
+// canon order: play order is shuffled anyway, and inserting into the middle
+// would mean guessing which of the division comments it belongs under.
+function addBook(answer, clues, weight, difficulty) {
+  const entry = CANON.find((c) => c[0] === answer);
+  if (!entry) { throw new Error(answer + ' is not one of the 66 books'); }
+
+  const deck = loadDeck();
+  if (deck.puzzles.some((p) => String(p.answer).toUpperCase() === answer)) {
+    throw new Error(answer + ' is already in the deck');
+  }
+
+  // next free id
+  let n = 1;
+  const used = new Set(deck.puzzles.map((p) => p.id));
+  while (used.has('bn-' + String(n).padStart(2, '0'))) { n++; }
+  const id = 'bn-' + String(n).padStart(2, '0');
+
+  const anyWord = clues.some((c) => c.word);
+  const clueBits = anyWord
+    ? "      clues: ["
+      + clues.map((c) => "{ img: '" + c.file + "', word: '" + (c.word || '?') + "' }").join(', ')
+      + "],"
+    : "      type: 'image', img: '" + clues[0].file + "',";
+
+  const block = [
+    '    {',
+    '      // added with the deck manager',
+    "      id: '" + id + "', answer: '" + answer + "', difficulty: " + difficulty + ","
+      + (weight > 1 ? ' weight: ' + weight + ',' : ''),
+    "      ref: { testament: '" + entry[1] + "', division: '" + entry[2]
+      + "', position: " + entry[3] + ' },',
+    clueBits,
+    '    },',
+  ];
+
+  const src = fs.readFileSync(DECK, 'utf8');
+  const lines = src.split('\n');
+  // the puzzles array closes with a line that is exactly "  ],"
+  const close = lines.findIndex((l) => l === '  ],');
+  if (close === -1) { throw new Error('could not find the end of the puzzles array'); }
+
+  const next = lines.slice(0, close).concat(block, lines.slice(close));
+  const after = writeDeckSafely(next.join('\n'), deck.puzzles.length + 1);
+  return { id: id, answer: answer, total: after.puzzles.length };
 }
 
 function send(res, code, body, type) {
@@ -276,6 +438,68 @@ http.createServer((req, res) => {
   if (req.method === 'GET' && req.url === '/api/clues') {
     try { return send(res, 200, JSON.stringify(clueList())); }
     catch (e) { return send(res, 500, JSON.stringify({ error: e.message })); }
+  }
+
+  if (req.method === 'GET' && req.url === '/api/missing-books') {
+    try {
+      const have = new Set(loadDeck().puzzles.map((p) => String(p.answer).toUpperCase()));
+      return send(res, 200, JSON.stringify(CANON
+        .filter((c) => !have.has(c[0]))
+        .map((c) => ({ answer: c[0], testament: c[1], division: c[2], position: c[3] }))));
+    } catch (e) { return send(res, 500, JSON.stringify({ error: e.message })); }
+  }
+
+  if (req.method === 'POST' && req.url === '/api/add-book') {
+    const chunks = [];
+    let size = 0;
+    req.on('data', (c) => {
+      size += c.length;
+      if (size > MAX_UPLOAD) { req.destroy(); return; }
+      chunks.push(c);
+    });
+    req.on('end', () => {
+      const written = [];
+      try {
+        const body = JSON.parse(Buffer.concat(chunks).toString('utf8'));
+        const answer = String(body.answer || '').trim().toUpperCase();
+        const weight = Math.max(1, Math.min(9, Number(body.weight) || 1));
+        const difficulty = Math.max(1, Math.min(3, Number(body.difficulty) || 2));
+        const incoming = Array.isArray(body.clues) ? body.clues : [];
+        if (!answer || !incoming.length) { throw new Error('pick a book and a picture'); }
+
+        const base = answer.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+        const clues = [];
+        incoming.forEach((c, i) => {
+          const ext = String(c.ext || '').toLowerCase().replace(/[^a-z0-9.]/g, '');
+          if (!TYPES[ext]) { throw new Error('unsupported file type ' + ext); }
+          const bytes = Buffer.from(String(c.data || ''), 'base64');
+          if (!bytes.length) { throw new Error('one of the files was empty'); }
+          let name = incoming.length === 1 ? base + ext : base + '-' + (i + 1) + ext;
+          let k = 1;
+          while (fs.existsSync(path.join(IMAGES, name))) {
+            k++;
+            name = base + '-' + (i + 1) + '-' + k + ext;
+          }
+          fs.writeFileSync(path.join(IMAGES, name), bytes);
+          shrink(path.join(IMAGES, name));
+          written.push(path.join(IMAGES, name));
+          clues.push({
+            file: name,
+            word: String(c.word || '').trim().toUpperCase().replace(/[^A-Z0-9 -]/g, ''),
+          });
+        });
+
+        const out = addBook(answer, clues, weight, difficulty);
+        send(res, 200, JSON.stringify({
+          ok: true, id: out.id, answer: out.answer, total: out.total,
+          files: clues.map((c) => c.file),
+        }));
+      } catch (e) {
+        written.forEach((f) => { try { fs.unlinkSync(f); } catch (x) { /* ignore */ } });
+        send(res, 400, JSON.stringify({ error: e.message }));
+      }
+    });
+    return;
   }
 
   if (req.method === 'GET' && req.url === '/api/books') {
@@ -377,6 +601,7 @@ http.createServer((req, res) => {
         const body = JSON.parse(Buffer.concat(chunks).toString('utf8'));
         setVariant(String(body.id || ''), Number(body.index), {
           weight: body.weight, difficulty: body.difficulty,
+          words: Array.isArray(body.words) ? body.words : undefined,
         });
         send(res, 200, JSON.stringify({ ok: true }));
       } catch (e) {
