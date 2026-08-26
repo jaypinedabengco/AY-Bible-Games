@@ -75,3 +75,53 @@ svg('root.svg', `  <rect x="0" y="196" width="400" height="204" rx="0" fill="#6b
     <path d="M150 292 Q120 306 104 344"/>
     <path d="M250 292 Q280 306 296 344"/>
   </g>`);
+
+// Yelling: a head in profile, mouth wide open, sound radiating from it. The
+// emoji for this ("face screaming in fear") reads as WORRIED - hands on cheeks,
+// eyes wide - which is a different word entirely.
+//
+// The profile faces LEFT, so the nose protrudes on the left, above the mouth.
+// A first attempt left it floating at the wrong height and the face read badly.
+svg('yell.svg', `  <path d="M252 54
+           Q150 58 128 152
+           Q120 186 104 214
+           Q96 228 116 234
+           L136 240
+           Q132 262 144 268
+           Q140 300 154 316
+           Q168 340 214 348
+           L214 372 L286 372 L286 330
+           Q318 300 320 220
+           Q322 96 252 54 Z"
+        fill="#f0c9a4" stroke="#c99a6d" stroke-width="6" stroke-linejoin="round"/>
+  <path d="M252 54 Q150 58 128 152 Q182 104 258 116 Q300 110 320 168
+           Q322 96 252 54 Z" fill="#4a3728"/>
+  <path d="M168 168 Q192 158 214 170" stroke="#3b2f27" stroke-width="9"
+        fill="none" stroke-linecap="round"/>
+  <circle cx="190" cy="196" r="11" fill="#3b2f27"/>
+  <ellipse cx="176" cy="292" rx="40" ry="46" fill="#7a2b2b"
+           stroke="#c99a6d" stroke-width="5"/>
+  <ellipse cx="176" cy="310" rx="24" ry="19" fill="#d4646b"/>
+  <path d="M268 232 q22 8 0 20" fill="none" stroke="#c99a6d" stroke-width="6"
+        stroke-linecap="round"/>
+  <g stroke="#e8b53c" stroke-width="10" fill="none" stroke-linecap="round">
+    <path d="M92 268 Q64 296 92 326"/>
+    <path d="M56 244 Q16 296 56 350"/>
+  </g>`);
+
+// A ham. The emoji for this is "meat on bone" and reads as barbecue; a search
+// for a photograph returned a 1940s magazine advertisement. Drawn: a glazed
+// joint with the bone showing and scored fat, which says ham and nothing else.
+svg('ham.svg', `  <ellipse cx="196" cy="238" rx="132" ry="112" fill="#d4756b"
+           stroke="#a34d47" stroke-width="7"/>
+  <path d="M84 196 Q196 150 306 198 Q300 158 196 132 Q100 152 84 196 Z"
+        fill="#f2d9c4" stroke="#c9a98f" stroke-width="6"/>
+  <g stroke="#a34d47" stroke-width="4" opacity="0.55" fill="none">
+    <path d="M120 244 Q196 214 274 244"/>
+    <path d="M126 286 Q196 258 268 286"/>
+    <path d="M150 202 L150 320"/><path d="M196 194 L196 348"/><path d="M242 202 L242 320"/>
+  </g>
+  <path d="M186 132 L186 74 Q186 52 208 52 Q230 52 230 74 L230 132 Z"
+        fill="#f7f3e8" stroke="#cbbfae" stroke-width="6"/>
+  <circle cx="196" cy="66" r="24" fill="#f7f3e8" stroke="#cbbfae" stroke-width="6"/>
+  <circle cx="226" cy="70" r="20" fill="#f7f3e8" stroke="#cbbfae" stroke-width="6"/>`);

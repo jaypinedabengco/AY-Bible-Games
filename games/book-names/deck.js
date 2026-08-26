@@ -114,7 +114,10 @@ window.DECK = {
     {
       id: 'bn-10', answer: 'JOB', difficulty: 2,
       ref: { testament: 'Old', division: 'Poetry', position: 18 },
-      type: 'image', img: 'hardhat.jpg',
+      // Job on the ash heap with his friends - the scene belongs to no other
+      // book. A hard hat only said "builder" and left the room two leaps
+      // from the answer.
+      type: 'image', img: 'job-suffering.jpg',
     },
     {
       id: 'bn-11', answer: 'PSALMS', difficulty: 1,
@@ -133,7 +136,7 @@ window.DECK = {
     {
       id: 'bn-14', answer: 'DANIEL', difficulty: 1,
       ref: { testament: 'Old', division: 'Major Prophets', position: 27 },
-      clues: [{ img: 'done.jpg', word: 'DONE' }, { img: 'yell.jpg', word: 'YELL' }],
+      clues: [{ img: 'done.jpg', word: 'DONE' }, { img: 'yell.svg', word: 'YELL' }],
     },
     // ---- Minor Prophets ------------------------------------------------
     {
@@ -305,7 +308,7 @@ window.DECK = {
       // is exactly why the earlier version was cut.
       id: 'bn-52', answer: 'NAHUM', difficulty: 3, flag: 'risky',
       ref: { testament: 'Old', division: 'Minor Prophets', position: 34 },
-      clues: [{ img: 'nah.jpg', word: 'NAH' }, { img: 'ham.jpg', word: 'HAM' }],
+      clues: [{ img: 'nah.jpg', word: 'NAH' }, { img: 'ham.svg', word: 'HAM' }],
     },
     {
       id: 'bn-53', answer: 'TITUS', difficulty: 3, flag: 'risky',

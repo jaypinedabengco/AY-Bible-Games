@@ -138,3 +138,5 @@ Flickr uploader BPL | Public domain |
 | `chew.jpg` | [Twemoji 1f60b.svg](https://commons.wikimedia.org/wiki/File:Twemoji_1f60b.svg) | Twitter | CC BY 4.0 |
 | `babylon-beast.jpg` | [Houghton Typ Inc 2121A - Dürer, Apocalypse, 43.jpg](https://commons.wikimedia.org/wiki/File:Houghton_Typ_Inc_2121A_-_D%C3%BCrer,_Apocalypse,_43.jpg) | Albrecht Dürer | Public domain |
 | `adventist-logo.png` | [Adventist Symbol.svg](https://commons.wikimedia.org/wiki/File:Adventist_Symbol.svg) | Unknown authorUnknown author | Public domain |
+| `job-suffering.jpg` | [119.Job Speaks with His Friends.jpg](https://commons.wikimedia.org/wiki/File:119.Job_Speaks_with_His_Friends.jpg) | Gustave Doré | Public domain |
+| `ham.jpg` | [The Ladies' home journal (1948) (14744230156).jpg](https://commons.wikimedia.org/wiki/File:The_Ladies%27_home_journal_(1948)_(14744230156).jpg) | Internet Archive Book Images | Public domain |

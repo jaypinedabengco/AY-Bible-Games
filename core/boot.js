@@ -97,7 +97,30 @@
       var items = session.items;
       var machine = BG.machine.createMachine(items, BG.views.stagesForItem);
 
+      // When the deck runs out, say so. Clamping silently at the last card
+      // leaves the host pressing space at a screen that never changes,
+      // wondering whether the game has frozen in front of everyone.
+      var finished = false;
+      function drawDone() {
+        finished = true;
+        host.innerHTML = '';
+        var box = document.createElement('div');
+        box.className = 'done';
+        var h = document.createElement('div');
+        h.className = 'done-title';
+        h.textContent = 'That\u2019s the lot';
+        var n = document.createElement('div');
+        n.className = 'done-count';
+        n.textContent = items.length + ' books played';
+        var hint = document.createElement('div');
+        hint.className = 'done-hint';
+        hint.textContent = 'R for a fresh set  \u00b7  Home to play these again';
+        box.appendChild(h); box.appendChild(n); box.appendChild(hint);
+        host.appendChild(box);
+      }
+
       function draw() {
+        finished = false;
         var s = machine.state();
         BG.paint.render(host, BG.views.viewForItem(s.item, s.stage), session.srcFor, {
           position: s.index + 1,
@@ -146,7 +169,12 @@
           if (legend.classList.contains('faded')) { showLegend(7000); }
           else { legend.classList.add('faded'); }
         },
-        advance: function () { machine.advance(); draw(); },
+        advance: function () {
+          if (finished) { return; }
+          if (machine.state().atEnd) { drawDone(); return; }
+          machine.advance();
+          draw();
+        },
         back: function () { machine.back(); draw(); },
         restart: function () { machine.restart(); draw(); },
         reshuffle: function () { rebuild(true); },
