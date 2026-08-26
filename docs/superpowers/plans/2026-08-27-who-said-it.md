@@ -35,7 +35,7 @@
 
 **Interfaces:**
 - Consumes: `normalizePuzzle` from `core/normalize.js`; `base(kind, puzzle)` and the `byType` table in `core/views.js`.
-- Produces: `byType.quote.stages(variant)` returning the stage index at which the answer appears; `byType.quote.view(puzzle, variant, stage)` returning `{ kind: 'quote', id, badge, quote, verse, clue, answered }` where `verse` and `clue` are `null` until their stage and `answered` is `null` until the reveal, then `{ answer, ref }`. New variant keys `quote`, `verse`, `clue`, `verseAtReveal`.
+- Produces: `byType.quote.stages(variant)` returning the stage index at which the answer appears; `byType.quote.view(puzzle, variant, stage)` returning `{ kind: 'quote', id, badge, quote, verse, clue, answered }` where `verse` and `clue` are `null` until their stage and `answered` is `null` until the reveal, then `{ answer, ref }`. New variant keys `quote`, `verse`, `clue`, `verseAtReveal`, `lang`, `answer` — the last two falling back to the puzzle's.
 
 - [ ] **Step 1: Write the failing tests**
 
@@ -134,6 +134,27 @@ test('a quote alone is a two-screen puzzle', () => {
   assert.deepEqual(byType.quote.view(p, v, 1).answered, { answer: 'CAIN', ref: null });
 });
 
+test('a variant answer overrides the puzzle answer at the reveal', () => {
+  const p = normalizePuzzle({
+    id: 'qs-05', answer: 'PETER',
+    variants: [
+      { type: 'quote', lang: 'en', quote: 'You are the Christ.',
+        verse: 'Matthew 16:16', clue: 'a fisherman' },
+      { type: 'quote', lang: 'fil', answer: 'PEDRO', quote: 'Ikaw ang Cristo.',
+        verse: 'Mateo 16:16', clue: 'isang mangingisda' },
+    ],
+  });
+  const q = byType.quote;
+  assert.equal(q.view(p, p.variants[0], 3).answered.answer, 'PETER');
+  assert.equal(q.view(p, p.variants[1], 3).answered.answer, 'PEDRO');
+});
+
+test('a variant with no lang or answer of its own falls back to the puzzle', () => {
+  const p = quotePuzzle();
+  assert.equal(p.variants[0].lang, null);
+  assert.equal(byType.quote.view(p, p.variants[0], 3).answered.answer, 'CAIN');
+});
+
 test('stagesForItem reads the stage count off a quote variant', () => {
   const p = quotePuzzle();
   assert.equal(stagesForItem({ puzzle: p, variant: p.variants[0] }), 3);
@@ -152,7 +173,7 @@ In `core/normalize.js`, extend `VARIANT_KEYS`:
 ```js
   var VARIANT_KEYS = ['type', 'clues', 'img', 'prompt', 'options', 'items',
                       'correct', 'quote', 'verse', 'clue', 'verseAtReveal',
-                      'flag', 'weight', 'difficulty'];
+                      'lang', 'answer', 'flag', 'weight', 'difficulty'];
 ```
 
 and add to the object `normalizeVariant` returns, after `correct`:
@@ -161,6 +182,11 @@ and add to the object `normalizeVariant` returns, after `correct`:
       quote: v.quote || null,
       verse: v.verse || null,
       clue: v.clue || null,
+      // Language and answer sit on the VARIANT for the quote game: PEDRO and
+      // PETER are the same person, so they are one puzzle. Both fall back to
+      // the puzzle's own values, so every existing deck is unaffected.
+      lang: v.lang || null,
+      answer: v.answer || null,
       // A verse whose book is named after the speaker gives the answer away,
       // so that puzzle holds its reference back to the reveal. validate.js
       // refuses a deck that forgets.
@@ -188,7 +214,9 @@ In `core/views.js`, add to `byType` after the `text` entry:
         // lines are in different chapters. So the answer block carries the
         // variant's verse rather than the puzzle's ref.
         v.answered = stage >= revealStage(variant)
-          ? { answer: puzzle.answer, ref: variant.verse || null }
+          // The answer can differ by language - PEDRO, not PETER - so the
+          // variant's wins when it has one.
+          ? { answer: variant.answer || puzzle.answer, ref: variant.verse || null }
           : null;
         return v;
       },
@@ -254,9 +282,15 @@ function quoteDeck(variant, puzzle) {
   };
 }
 
-test('a quote variant needs its quote text', () => {
+test('a scaffold with a verse but no text yet is not an error', () => {
   const r = validate(quoteDeck({ quote: null }));
-  assert.ok(r.errors.some((e) => /quote needs its text/.test(e)), r.errors.join('; '));
+  assert.deepEqual(r.errors, []);
+  assert.ok(r.notices.some((n) => /waiting for their text/.test(n)), r.notices.join('; '));
+});
+
+test('a quote variant with neither text nor verse is an error', () => {
+  const r = validate(quoteDeck({ quote: null, verse: null }));
+  assert.ok(r.errors.some((e) => /needs its text/.test(e)), r.errors.join('; '));
 });
 
 test('a well-formed quote deck passes', () => {
@@ -347,7 +381,14 @@ Inside `checkVariant`, after the `order` block:
 
 ```js
     if (v.type === 'quote') {
-      if (!v.quote) { errors.push(where + ': quote needs its text'); }
+      // A quote with no text is DORMANT, not broken - it is a scaffold waiting
+      // for a line to be pasted in, the same way a variant whose picture is
+      // missing waits for its file. It is only an error when there is nothing
+      // else to identify it by either.
+      if (!v.quote && !v.verse) {
+        errors.push(where + ': a quote variant needs its text, or at least a verse '
+          + 'if it is a scaffold waiting for one');
+      }
       if (v.verse && !v.verseAtReveal && verseLeaks(p.answer, v.verse)) {
         errors.push(where + ': "' + v.verse + '" gives the answer away before '
           + 'the clue - set verseAtReveal: true on it');
@@ -363,16 +404,22 @@ In `validate()`, after the existing per-puzzle loop that calls `checkVariant`, a
     // nobody should have to remember how far through it they are.
     var quotes = 0;
     var unverified = 0;
+    var waiting = 0;
     pool.forEach(function (p) {
       p.variants.forEach(function (v) {
         if (v.type !== 'quote') { return; }
         quotes++;
         if (v.flag === 'unverified') { unverified++; }
+        if (!v.quote) { waiting++; }
       });
     });
     if (unverified) {
       notices.push(unverified + ' of ' + quotes + ' quotes still unverified '
         + '- check the wording against an NKJV Bible before a service');
+    }
+    if (waiting) {
+      notices.push(waiting + ' quotes waiting for their text - dormant until '
+        + 'the line is pasted in, so they are never drawn');
     }
 ```
 
@@ -544,7 +591,10 @@ window.DECK = {
   idPrefix: 'qs',
   shuffle: true,
   sessionSize: 20,
-  languages: ['en'],
+  // Both languages are declared, but Tagalog has nothing playable until its
+  // lines are pasted in - so the start screen offers English alone until then,
+  // rather than offering a choice that leads to an empty round.
+  languages: ['en', 'fil'],
   howToPlay: [
     'A line someone in the Bible said. The room says who said it.',
     'Stuck? The next click gives the verse, then a clue.',
@@ -597,6 +647,13 @@ window.DECK = {
           quote: 'I do not know the Man!',
           verse: 'Matthew 26:72',
           clue: 'he said it three times, by a fire, before dawn' },
+        // The Tagalog scaffold: name, reference and clue are ours to write,
+        // the LINE is not - MBB is the Philippine Bible Society's. Dormant
+        // until someone pastes it in through the manager.
+        { type: 'quote', lang: 'fil', answer: 'PEDRO', flag: 'unverified',
+          quote: null,
+          verse: 'Mateo 16:16',
+          clue: 'isang mangingisda; tinawag siyang bato ni Jesus' },
       ],
     },
     {
@@ -615,7 +672,7 @@ window.DECK = {
 - [ ] **Step 2: Run the validator to verify the deck is sound**
 
 Run: `node tools/validate.js games/who-said-it/deck.js`
-Expected: `deck OK`, plus `notice: 7 of 7 quotes still unverified`. If instead it reports a leak, the `verseAtReveal` flags in the seed are wrong — fix the deck, not the validator.
+Expected: `deck OK`, plus `notice: 8 of 8 quotes still unverified` and `notice: 1 quotes waiting for their text`. If instead it reports a leak, the `verseAtReveal` flags in the seed are wrong — fix the deck, not the validator.
 
 - [ ] **Step 3: Create the projector page**
 
@@ -715,7 +772,8 @@ Add to `CREDITS.md`, under a new `## Scripture` heading:
 ```markdown
 ## Scripture
 
-Who Said It? quotes the New King James Version.
+Who Said It? quotes the New King James Version in English, and the Magandang
+Balita Biblia in Tagalog.
 
 > Scripture taken from the New King James Version®. Copyright © 1982 by
 > Thomas Nelson. Used by permission. All rights reserved.
@@ -724,6 +782,13 @@ Thomas Nelson permits quoting up to 1,000 verses without written permission,
 provided they are not a complete book of the Bible and are not the bulk of the
 work. This deck is around 100 short lines, well inside that. If it ever grew
 past 1,000 verses, permission would have to be sought.
+
+> Magandang Balita Biblia, copyright © Philippine Bible Society.
+
+CONFIRM THIS WORDING with the Philippine Bible Society's own permissions page
+before the first public use. It is a placeholder, not a checked citation. The
+Tagalog lines are pasted in by hand for this reason and are not drafted into
+this repository.
 ```
 
 - [ ] **Step 7: Verify the pages load**
@@ -822,7 +887,7 @@ matters more than the size here - an unwrapped long quote is the failure mode."
 
 ---
 
-### Task 6: Round size chosen at the start, shared by all three games
+### Task 6: Round size and language chosen at the start, shared by all three games
 
 **Files:**
 - Modify: `core/boot.js` (`buildSession` options, a `sizeOptions` helper, the start screen, the `S` action)
@@ -834,7 +899,7 @@ matters more than the size here - an unwrapped long quote is the failure mode."
 
 **Interfaces:**
 - Consumes: `buildSession(deck, resolve, rng, opts)`; `BG.order.buildOrder(carriers, { rng, shuffle, sessionSize })`.
-- Produces: `buildSession` honours `opts.sessionSize` as an override of the deck's own. `BG.boot.sizeOptions(playable, deckSize)` returns an array of `{ value: number, label: string }` for the dropdown. `normalizeDeck` returns `howToPlay` as an array (empty when absent).
+- Produces: `buildSession` honours `opts.sessionSize` and `opts.lang`. `BG.boot.sizeOptions(playable, deckSize)` returns `[{ value, label }]`. `BG.boot.langOptions(languages, playableByLang)` returns `[{ value, label }]` for the language picker, empty when there is nothing to choose between. `normalizeDeck` returns `howToPlay` as an array (empty when absent).
 
 - [ ] **Step 1: Write the failing tests**
 
@@ -891,6 +956,65 @@ test('a size override limits the round instead of the deck size', async () => {
 Run: `node --test tests/ 2>&1 | grep -E '^# (pass|fail)'`
 Expected: FAIL — `sizeOptions` is not a function; `actionFor('s')` returns null; `howToPlay` is undefined.
 
+- [ ] **Step 2b: Write the failing language tests**
+
+Append to `tests/boot.test.js`:
+
+```js
+test('a variant with no lang of its own is played in the puzzle language', async () => {
+  const deck = {
+    id: 'langs', sessionSize: 10, languages: ['en'], shuffle: false,
+    puzzles: [{ id: 'l-1', answer: 'A', type: 'text', prompt: 'p' }],
+  };
+  const s = await buildSession(deck, resolveNone, seeded(1), { lang: 'en' });
+  assert.equal(s.items.length, 1);
+});
+
+test('choosing a language plays only that language’s variants', async () => {
+  const deck = {
+    id: 'langs', sessionSize: 10, languages: ['en', 'fil'], shuffle: false,
+    puzzles: [{
+      id: 'qs-05', answer: 'PETER',
+      variants: [
+        { type: 'quote', lang: 'en', quote: 'You are the Christ.', verse: 'Matthew 16:16' },
+        { type: 'quote', lang: 'fil', answer: 'PEDRO', quote: 'Ikaw ang Cristo.',
+          verse: 'Mateo 16:16' },
+      ],
+    }],
+  };
+  const en = await buildSession(deck, resolveNone, seeded(1), { lang: 'en' });
+  assert.equal(en.items[0].variant.quote, 'You are the Christ.');
+
+  const fil = await buildSession(deck, resolveNone, seeded(1), { lang: 'fil' });
+  assert.equal(fil.items[0].variant.quote, 'Ikaw ang Cristo.');
+  assert.equal(fil.items[0].variant.answer, 'PEDRO');
+});
+
+test('a quote with no text yet is dormant and never drawn', async () => {
+  const deck = {
+    id: 'langs', sessionSize: 10, languages: ['en', 'fil'], shuffle: false,
+    puzzles: [{
+      id: 'qs-05', answer: 'PETER',
+      variants: [
+        { type: 'quote', lang: 'en', quote: 'You are the Christ.', verse: 'Matthew 16:16' },
+        { type: 'quote', lang: 'fil', answer: 'PEDRO', quote: null, verse: 'Mateo 16:16' },
+      ],
+    }],
+  };
+  const fil = await buildSession(deck, resolveNone, seeded(1), { lang: 'fil' });
+  assert.equal(fil.items.length, 0, 'nothing playable in Tagalog yet');
+});
+
+test('the language picker offers only languages with something to play', () => {
+  const { langOptions } = globalThis.BibleGames.boot;
+  assert.deepEqual(langOptions(['en', 'fil'], { en: 40, fil: 12 }).map((o) => o.value),
+                   ['en', 'fil']);
+  assert.deepEqual(langOptions(['en', 'fil'], { en: 40, fil: 0 }).map((o) => o.value),
+                   [], 'one language playable is no choice at all');
+  assert.equal(langOptions(['en', 'fil'], { en: 40, fil: 12 })[1].label, 'Tagalog (12)');
+});
+```
+
 - [ ] **Step 3: Implement the pure parts**
 
 In `core/normalize.js`, add to what `normalizeDeck` returns:
@@ -914,6 +1038,21 @@ In `core/boot.js`, above `buildSession`:
   // there are 3 would silently give a round of 3 anyway.
   var SIZE_STEPS = [5, 10, 15, 20, 25, 30];
 
+  // Only offer a language there is something to play in. A deck whose Tagalog
+  // quotes are all still waiting for their text offers English alone, rather
+  // than a choice that leads to an empty round.
+  var LANG_NAMES = { en: 'English', fil: 'Tagalog' };
+
+  function langOptions(languages, playableByLang) {
+    var live = (languages || []).filter(function (l) {
+      return (playableByLang[l] || 0) > 0;
+    });
+    if (live.length < 2) { return []; }
+    return live.map(function (l) {
+      return { value: l, label: (LANG_NAMES[l] || l) + ' (' + playableByLang[l] + ')' };
+    });
+  }
+
   function sizeOptions(playable, deckSize) {
     if (playable <= 0) { return []; }
     var out = [];
@@ -936,7 +1075,39 @@ and in `buildSession`, replace the `buildOrder` call's `sessionSize`:
       });
 ```
 
-Export it: `BG.boot = { buildSession: buildSession, sizeOptions: sizeOptions, start: start };`
+In `buildSession`, the pool filter moves from the puzzle to the variant. Replace
+the `pool` filter and add a language test to `available`:
+
+```js
+    // Language is asked of the VARIANT, falling back to the puzzle's, which
+    // falls back to English. That keeps the two picture games - whose puzzles
+    // carry lang and whose variants do not - working exactly as before.
+    var want = (opts && opts.lang) || null;
+
+    function langOf(puzzle, variant) { return variant.lang || puzzle.lang || 'en'; }
+```
+
+and inside `available(variant)`, before the image check:
+
+```js
+        // A quote with no text yet is dormant, the same as a variant whose
+        // picture is missing: it waits, and is never drawn.
+        if (variant.type === 'quote' && !variant.quote) { return false; }
+```
+
+and in the `pool.forEach` loop, filter the eligible options by language:
+
+```js
+        var options = BG.variants.eligible(p, available).filter(function (v) {
+          return !want || langOf(p, v) === want;
+        });
+```
+
+The existing deck-level `languages` filter on `pool` stays: it still drops a
+puzzle whose own `lang` is not one the deck declares, which is the check that
+catches a typo'd language rather than silently dropping the puzzle.
+
+Export both: `BG.boot = { buildSession: buildSession, sizeOptions: sizeOptions, langOptions: langOptions, start: start };`
 
 - [ ] **Step 4: Run those tests to verify they pass**
 
@@ -989,6 +1160,35 @@ In `core/boot.js`, inside `start()`, the flow becomes: resolve images once, coun
           return;
         }
 
+        // The language row appears only when there is a real choice - the two
+        // picture games never show it.
+        var langs = langOptions(normalized.languages, playableByLang);
+        var langSel = null;
+        if (langs.length) {
+          var lrow = el('div', 'start-row');
+          lrow.appendChild(el('label', 'start-label', 'Language'));
+          langSel = document.createElement('select');
+          langSel.className = 'start-size';
+          langs.forEach(function (o) {
+            var node = document.createElement('option');
+            node.value = o.value;
+            node.textContent = o.label;
+            if (o.value === rememberedLang(normalized.id, langs[0].value)) {
+              node.selected = true;
+            }
+            langSel.appendChild(node);
+          });
+          langSel.addEventListener('click', function (e) { e.stopPropagation(); });
+          lrow.appendChild(langSel);
+          card.appendChild(lrow);
+          // Changing the language changes how many are playable, so the size
+          // dropdown has to be rebuilt rather than left showing a stale count.
+          langSel.addEventListener('change', function () {
+            rememberLang(normalized.id, langSel.value);
+            drawStart(playableByLang[langSel.value] || 0);
+          });
+        }
+
         var opts = sizeOptions(playable, normalized.sessionSize);
         var want = rememberedSize(normalized.id, normalized.sessionSize || playable);
         var row = el('div', 'start-row');
@@ -1010,13 +1210,23 @@ In `core/boot.js`, inside `start()`, the flow becomes: resolve images once, coun
 
         card.appendChild(el('div', 'start-go', 'Space to start'));
         host.appendChild(card);
-        chosen = function () { return Number(sel.value); };
+        chosen = function () {
+          return { size: Number(sel.value), lang: langSel ? langSel.value : null };
+        };
       }
 ```
 
 `el` here is a small local helper — `paint.js` has one but does not export it, so add a two-line local one in `boot.js` rather than exporting DOM helpers from the painter.
 
-Wire the actions: while the start screen is up, `advance` calls `begin(chosen())` and remembers the size; `setup` returns to `drawStart(playable)` from anywhere; every other action is ignored until a round exists, so `R` on the start screen does nothing rather than throwing.
+`rememberedLang` and `rememberLang` mirror `rememberedSize`/`rememberSize`, keyed
+`'round-lang:' + deckId`, both wrapped in try/catch.
+
+`playableByLang` is counted once after the images resolve: for each language the
+deck declares, how many puzzles have at least one eligible variant in it. It is
+what both dropdowns are built from, and what decides whether the language row
+appears at all.
+
+Wire the actions: while the start screen is up, `advance` calls `begin(chosen())` and remembers the size and language; `setup` returns to `drawStart(playable)` from anywhere; every other action is ignored until a round exists, so `R` on the start screen does nothing rather than throwing.
 
 - [ ] **Step 6: Give the two existing decks their `howToPlay`**
 
@@ -1070,6 +1280,7 @@ For each of `games/book-names/`, `games/who-said-it/` and `games/character-names
 
 1. the start screen appears with the right title and how-to lines
 2. the dropdown offers sensible numbers — book names has 43 playable so it should offer 5/10/15/20/25/30/All (43); character names has none, so it shows the empty-deck message and no dropdown
+2b. NO language row appears on book names or character names — they declare one language. It appears on Who Said It? only once some Tagalog quotes have their text; before that, English is the only language with anything playable, so the row is correctly absent
 3. choosing 5 and pressing Space gives a round whose stamp reads `1 / 5`, and the round-done card appears after the fifth
 4. reloading the page shows 5 still selected
 5. `S` mid-round returns to the start screen
@@ -1083,11 +1294,16 @@ Also add the `S` entry to the legend array in `boot.js` so the on-screen legend 
 git add core/boot.js core/normalize.js core/controls.js core/theme.css \
         games/book-names/deck.js games/character-names/deck.js \
         tests/boot.test.js tests/controls.test.js tests/normalize.test.js
-git commit -m "Ask how long the round should be, and explain the game first
+git commit -m "Ask the language and the round length before starting
 
-All three games get a start screen: the mechanic in the deck's own words, and
-a dropdown for the round length, remembered per game. The count holds for the
-evening; S returns here to change it.
+All three games get a start screen: the mechanic in the deck's own words, a
+dropdown for the round length, and - where a deck has more than one language
+with something playable in it - a language picker. Both are remembered per
+game and hold for the evening; S returns here to change them.
+
+Language is asked of the variant now, falling back to the puzzle's, so PEDRO
+and PETER are one puzzle rather than two. A quote with no text yet is dormant
+exactly as a variant with a missing picture is.
 
 An empty deck now says so on this screen instead of failing at startup with an
 error card - which is the state the character game is in while its pictures
@@ -1104,7 +1320,7 @@ are collected."
 
 **Interfaces:**
 - Consumes: nothing new.
-- Produces: a deck of roughly 60 people and 100 quotes, every quote `flag: 'unverified'`, ids `qs-01` upward with no gaps and no renumbering of the six seed puzzles.
+- Produces: a deck of roughly 60 people and 100 English quotes, every one `flag: 'unverified'`, ids `qs-01` upward with no gaps and no renumbering of the six seed puzzles; plus one dormant Tagalog scaffold per person, carrying a name, a reference and a clue but no line.
 
 - [ ] **Step 1: Dispatch five subagents, one per slice of scripture**
 
@@ -1138,6 +1354,11 @@ Write the merge as a script in the scratchpad, not by hand — the point is that
 - set `verseAtReveal: true` on any quote where the verse's book name is a substring of the answer or vice versa — the same rule `validate.js` enforces, applied on the way in so the deck lands valid
 - write every variant with `flag: 'unverified'`
 - put `difficulty` on the variant, not the puzzle
+- emit ONE Tagalog scaffold per person: `lang: 'fil'`, `quote: null`, the
+  Tagalog form of the name as the variant's `answer`, the Tagalog book name in
+  the verse (Mateo, Marcos, Lucas, Juan, Awit, Genesis), and the clue
+  translated. NEVER a Tagalog quote — that text is the Philippine Bible
+  Society's and is pasted in by hand.
 
 - [ ] **Step 3: Validate**
 
@@ -1160,6 +1381,10 @@ globalThis.DECK.puzzles.forEach(function(p){p.variants.forEach(function(v){
 - every clue: does it name the person, or use a word that only describes them?
 - every quote: did that person actually say it, aloud?
 - every difficulty 1: would a room really shout it instantly?
+- every Tagalog scaffold: is the name the form a Filipino congregation actually
+  uses, and is the clue natural Tagalog rather than a word-for-word rendering?
+- every Tagalog scaffold has `quote: null`. If a subagent produced Tagalog
+  scripture text, DELETE it — it is not ours to publish.
 
 Fix what is wrong. Note in the commit message how many were corrected — that number is the honest measure of how much the drafted deck needs checking.
 
@@ -1190,7 +1415,7 @@ attributed to the wrong speaker."
 
 **Interfaces:**
 - Consumes: `pickGame(slug)`, `findBlock(src, id)`, `writeDeckSafely(g, next, expectCount)`, `loadDeck(g)` — all in `tools/manage.js`.
-- Produces: `GET /api/quotes?game=who-said-it` returning `[{ id, answer, variants: [{ quote, verse, clue, difficulty, unverified }] }]`; `POST /api/set-quote` taking `{ id, index, quote?, verse?, clue?, difficulty?, verified? }`; `POST /api/add-quote` taking `{ id, quote, verse, clue, difficulty }`; `POST /api/add-person` taking `{ answer, quote, verse, clue, difficulty }`.
+- Produces: `GET /api/quotes?game=who-said-it` returning `[{ id, answer, variants: [{ quote, verse, clue, difficulty, lang, answer, unverified, waiting }] }]`; `POST /api/set-quote` taking `{ id, index, quote?, verse?, clue?, difficulty?, verified?, verseAtReveal? }`; `POST /api/add-quote` taking `{ id, lang, answer?, quote, verse, clue, difficulty }`; `POST /api/add-person` taking `{ answer, quote, verse, clue, difficulty }`.
 
 - [ ] **Step 1: Register the game**
 
@@ -1234,7 +1459,15 @@ In `tools/manage.html`, when the chosen game's `kind` is `'quotes'`, hide the pi
 - the answer as the heading, with `#qs-07`
 - per quote: a textarea for the quote, inputs for verse and clue, a difficulty select, a verified checkbox, and a save button
 - a "hold the verse to the reveal" checkbox, shown with a note explaining when it is required
+- a language tag on each quote, and for a Tagalog variant an answer field for
+  the Tagalog form of the name
 - an add-a-quote row, and an add-a-person block at the top
+
+**A "waiting for text" filter at the top of the quotes tab**, listing only the
+dormant scaffolds. That list is the Tagalog to-do: it shows the person, the
+reference and the clue, with an empty box to paste the MBB line into. Filling
+the box and saving is the whole workflow, and the count drops by one. This is
+the screen that gets used most, so it comes first, not last.
 
 Reuse `api()`, `say()`, `post()` and `numSelect()` — they are already game-scoped.
 
@@ -1244,7 +1477,7 @@ Reuse `api()`, `say()`, `post()` and `numSelect()` — they are already game-sco
 node tools/manage.js &
 ```
 
-Drive it from the browser console or curl: edit a quote's text including an apostrophe, change a verse, change a clue, set difficulty, tick verified, add a quote to an existing person, add a new person. After each, confirm `node tools/validate.js games/who-said-it/deck.js` still says `deck OK` and `node --test tests/` is green. Then confirm the rejections: a backslash, a 300-character quote, a nonexistent id, a variant index that does not exist.
+Drive it from the browser console or curl: edit a quote's text including an apostrophe, change a verse, change a clue, set difficulty, tick verified, add a quote to an existing person, add a new person, and paste a line into a dormant Tagalog scaffold — then confirm that scaffold is no longer counted as waiting and DOES get drawn when the game is played in Tagalog. After each, confirm `node tools/validate.js games/who-said-it/deck.js` still says `deck OK` and `node --test tests/` is green. Then confirm the rejections: a backslash, a 300-character quote, a nonexistent id, a variant index that does not exist.
 
 Then `git checkout games/who-said-it/deck.js` to undo the test edits, and check `git status` shows nothing unexpected. **Check `git status` for the user's own uncommitted work before discarding anything** — they edit these decks through the manager in parallel, and their `job-2.webp` variant was nearly deleted once in this project.
 
@@ -1303,6 +1536,8 @@ git commit -m "Document Who Said It? and the start screen"
 
 **Spec coverage.** Mechanic and four stages — Task 1. Puzzle-is-the-person shape — Task 1, Task 7. Data-driven stage count — Task 1. Leak rule — Task 2. Unverified flag across validator, GM page and manager — Tasks 2, 4, 8. NKJV notice — Task 4. Difficulty rubric — Task 7 step 1. Start screen, dropdown, `howToPlay`, remembered choice, empty-deck message, `S` key — Task 6. Files list — matches Tasks 1-6. GM page — Tasks 3, 4. Manager quotes mode — Task 8. Testing list — distributed across the tasks that add each behaviour. Scope of ~60 people / ~100 quotes and the subagent population — Task 7.
 
+**Two languages** — variant-level `lang` and `answer` in Task 1; dormant quotes as a notice in Task 2; the language picker, the variant-level pool filter and `langOptions` in Task 6; the Tagalog scaffolds in Tasks 4 and 7; the paste-the-line workflow and the waiting list in Task 8; the MBB credit line and its CONFIRM-THIS warning in Task 4.
+
 **One spec item deliberately not built:** the difficulty meter on the projector. It is flagged in the spec as an assumption to confirm, and the user has not confirmed which reading they meant. It is a ten-line addition to `paint.js` and `theme.css` once they say. **Ask before starting Task 5, since that is the task that would carry it.**
 
-**Type consistency.** `verseAtReveal` is the field name in Tasks 1, 2, 4, 7 and 8 — not `refAtReveal`, which appears only in the spec's prose. `sizeOptions(playable, deckSize)` returns `{ value, label }` in Task 6 and is consumed as `{ value, label }` in the same task. `rows()` gains `quotes: [{ quote, verse, clue }]` in Task 3 and is consumed with those exact keys in Task 4. `buildSession`'s override is `opts.sessionSize` in Task 6, matching `buildOrder`'s existing `sessionSize` option name.
+**Type consistency.** `verseAtReveal` is the field name in Tasks 1, 2, 4, 7 and 8 — not `refAtReveal`, which appears only in the spec's prose. `sizeOptions(playable, deckSize)` returns `{ value, label }` in Task 6 and is consumed as `{ value, label }` in the same task. `rows()` gains `quotes: [{ quote, verse, clue }]` in Task 3 and is consumed with those exact keys in Task 4. `buildSession`'s overrides are `opts.sessionSize` and `opts.lang` in Task 6, matching `buildOrder`'s existing `sessionSize` option name. `langOptions(languages, playableByLang)` takes an ARRAY of language codes, not a deck — the same signature in its test, its implementation and its call site.
