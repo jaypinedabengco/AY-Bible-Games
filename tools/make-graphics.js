@@ -125,3 +125,22 @@ svg('ham.svg', `  <ellipse cx="196" cy="238" rx="132" ry="112" fill="#d4756b"
         fill="#f7f3e8" stroke="#cbbfae" stroke-width="6"/>
   <circle cx="196" cy="66" r="24" fill="#f7f3e8" stroke="#cbbfae" stroke-width="6"/>
   <circle cx="226" cy="70" r="20" fill="#f7f3e8" stroke="#cbbfae" stroke-width="6"/>`);
+
+// Jewels. A photograph of gemstones read as plain stones - uncut, matte, grey.
+// A drawn gem is all facets and sparkle, which is what makes it a jewel rather
+// than a rock.
+svg('jewel.svg', `  <g transform="translate(200 214)">
+    <path d="M-96 -34 L-58 -92 L58 -92 L96 -34 L0 96 Z"
+          fill="#4fc3d9" stroke="#1f7f96" stroke-width="7" stroke-linejoin="round"/>
+    <path d="M-96 -34 L-58 -92 L-24 -34 Z" fill="#9ce4f2"/>
+    <path d="M-24 -34 L-58 -92 L58 -92 L24 -34 Z" fill="#79d6ea"/>
+    <path d="M24 -34 L58 -92 L96 -34 Z" fill="#39a9c4"/>
+    <path d="M-96 -34 L-24 -34 L0 96 Z" fill="#63cde0"/>
+    <path d="M-24 -34 L24 -34 L0 96 Z" fill="#8fdff0"/>
+    <path d="M24 -34 L96 -34 L0 96 Z" fill="#2f97b3"/>
+  </g>
+  <g stroke="#f7f3e8" stroke-width="8" stroke-linecap="round">
+    <path d="M312 96 L312 140"/><path d="M290 118 L334 118"/>
+    <path d="M96 300 L96 330"/><path d="M81 315 L111 315"/>
+  </g>
+  <circle cx="326" cy="268" r="9" fill="#f7f3e8"/>`);

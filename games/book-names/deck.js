@@ -147,7 +147,7 @@ window.DECK = {
     {
       id: 'bn-16', answer: 'JOEL', difficulty: 2,
       ref: { testament: 'Old', division: 'Minor Prophets', position: 29 },
-      clues: [{ img: 'jewel.jpg', word: 'JEWEL' }],
+      clues: [{ img: 'jewel.svg', word: 'JEWEL' }],
     },
     {
       id: 'bn-17', answer: 'AMOS', difficulty: 2,

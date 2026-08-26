@@ -156,20 +156,31 @@
       });
       document.body.appendChild(legend);
 
+      // It stays until the game actually starts. A timer was wrong: the host
+      // is still plugging in the projector while it counts down, looks up, and
+      // the legend has already gone. Fading on the first reveal means they get
+      // it for exactly as long as they need it.
       var fadeTimer = null;
       function showLegend(ms) {
         legend.classList.remove('faded');
         if (fadeTimer) { clearTimeout(fadeTimer); }
-        fadeTimer = setTimeout(function () { legend.classList.add('faded'); }, ms);
+        if (ms) {
+          fadeTimer = setTimeout(function () { legend.classList.add('faded'); }, ms);
+        }
       }
-      showLegend(7000);
+      function hideLegend() {
+        if (fadeTimer) { clearTimeout(fadeTimer); fadeTimer = null; }
+        legend.classList.add('faded');
+      }
+      showLegend(0);
 
       BG.controls.attach(host, {
         help: function () {
-          if (legend.classList.contains('faded')) { showLegend(7000); }
-          else { legend.classList.add('faded'); }
+          if (legend.classList.contains('faded')) { showLegend(0); }
+          else { hideLegend(); }
         },
         advance: function () {
+          hideLegend();
           if (finished) { return; }
           if (machine.state().atEnd) { drawDone(); return; }
           machine.advance();
