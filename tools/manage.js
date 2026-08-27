@@ -516,7 +516,6 @@ function quoteRows(g) {
       lang: v.lang || p.lang || 'en',
       answer: v.answer || null,
       difficulty: v.difficulty === undefined ? (p.difficulty || 2) : v.difficulty,
-      verseAtReveal: v.verseAtReveal === true,
       unverified: v.flag === 'unverified',
       waiting: !v.quote,
     })),
@@ -586,12 +585,6 @@ function setQuote(g, id, index, fields) {
     if (!(d >= 1 && d <= 3)) { throw new Error('difficulty is 1, 2 or 3'); }
     if (/difficulty: \d/.test(next)) { next = next.replace(/difficulty: \d/, 'difficulty: ' + d); }
     else { next = next.replace("type: 'quote',", "type: 'quote', difficulty: " + d + ','); }
-  }
-  if (fields.verseAtReveal !== undefined) {
-    const on = fields.verseAtReveal === true;
-    const has = /verseAtReveal: true,?\s?/.test(next);
-    if (on && !has) { next = next.replace("type: 'quote',", "type: 'quote', verseAtReveal: true,"); }
-    if (!on && has) { next = next.replace(/verseAtReveal: true,\s?/, ''); }
   }
   if (fields.verified !== undefined) {
     const done = fields.verified === true;

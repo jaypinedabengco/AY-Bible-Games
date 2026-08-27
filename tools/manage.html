@@ -636,20 +636,6 @@
            'difficulty ' + n + ' — ' + (n === 1 ? 'plays early' : n === 3 ? 'plays late' : 'plays in the middle'));
     }, '1 is a line the room shouts instantly, 3 needs the clue'));
 
-    var hold = document.createElement('label');
-    hold.style.cssText = 'display:flex;gap:0.3rem;align-items:center;font-size:0.7rem;'
-      + 'letter-spacing:0.1em;text-transform:uppercase;color:var(--dim);cursor:pointer';
-    var holdBox = document.createElement('input');
-    holdBox.type = 'checkbox';
-    holdBox.checked = v.verseAtReveal;
-    holdBox.addEventListener('change', function () {
-      post('/api/set-quote', { id: row.id, index: vi, verseAtReveal: holdBox.checked }, msg,
-           holdBox.checked ? 'the verse now waits for the reveal' : 'the verse shows before the clue');
-    });
-    hold.appendChild(holdBox);
-    hold.appendChild(document.createTextNode('hold verse to the reveal'));
-    controls.appendChild(hold);
-
     var tick = document.createElement('label');
     tick.style.cssText = hold.style.cssText;
     var tickBox = document.createElement('input');

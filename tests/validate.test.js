@@ -164,46 +164,10 @@ test('a well-formed quote deck passes', () => {
   assert.deepEqual(r.errors, []);
 });
 
-test('a verse whose book names the speaker is rejected', () => {
-  const r = validate(quoteDeck(
-    { quote: 'I cried out to the LORD', verse: 'Jonah 2:2', clue: 'a big fish' },
-    { answer: 'JONAH' },
-  ));
-  assert.ok(r.errors.some((e) => /gives the answer away/.test(e)), r.errors.join('; '));
-});
 
-test('holding the verse back clears the leak', () => {
-  const r = validate(quoteDeck(
-    { quote: 'I cried out to the LORD', verse: 'Jonah 2:2',
-      clue: 'a big fish', verseAtReveal: true },
-    { answer: 'JONAH' },
-  ));
-  assert.deepEqual(r.errors, []);
-});
 
-test('the leak rule catches a book name inside a longer answer', () => {
-  const r = validate(quoteDeck(
-    { quote: 'I am not the Christ', verse: 'John 1:20', clue: 'he baptized' },
-    { answer: 'JOHN THE BAPTIST' },
-  ));
-  assert.ok(r.errors.some((e) => /gives the answer away/.test(e)), r.errors.join('; '));
-});
 
-test('the leak rule handles a numbered book', () => {
-  const r = validate(quoteDeck(
-    { quote: 'Speak, for Your servant hears.', verse: '1 Samuel 3:10', clue: 'a boy in the temple' },
-    { answer: 'SAMUEL' },
-  ));
-  assert.ok(r.errors.some((e) => /gives the answer away/.test(e)), r.errors.join('; '));
-});
 
-test('an unrelated verse is not a leak', () => {
-  const r = validate(quoteDeck(
-    { quote: 'You are the Christ', verse: 'Matthew 16:16', clue: 'a fisherman' },
-    { answer: 'PETER' },
-  ));
-  assert.deepEqual(r.errors, []);
-});
 
 test('unverified quotes are counted in a notice', () => {
   const r = validate(quoteDeck({ flag: 'unverified' }));
@@ -214,4 +178,15 @@ test('unverified quotes are counted in a notice', () => {
 test('a verified deck says nothing about verification', () => {
   const r = validate(quoteDeck());
   assert.ok(!r.notices.some((n) => /unverified/.test(n)), r.notices.join('; '));
+});
+
+test('a reference is never rewritten or refused, whatever its book', () => {
+  // The rule that refused "Jonah 2:2" under JONAH is gone: most quotes from a
+  // book named after a person are spoken by someone else, so it rejected far
+  // more good decks than bad ones.
+  const r = validate(quoteDeck(
+    { quote: 'Pick me up and throw me into the sea', verse: 'Jonah 1:12', clue: 'a storm' },
+    { answer: 'JONAH' },
+  ));
+  assert.deepEqual(r.errors, []);
 });

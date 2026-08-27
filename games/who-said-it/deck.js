@@ -10,10 +10,6 @@
  *   verse      where it is said. Shown BEFORE the clue on purpose: the
  *              reference is itself a hint for whoever has read the passage.
  *   clue       one line about the speaker that does not name them
- *   verseAtReveal
- *              hold the verse back to the reveal. REQUIRED when the book is
- *              named after the speaker - "Jonah 2:2" under JONAH hands the
- *              answer over. validate.js refuses a deck that forgets.
  *   lang       'en' or 'fil'. On the VARIANT, not the puzzle: PEDRO and PETER
  *              are the same person, so they are one puzzle.
  *   answer     on a variant, the name in that language - PEDRO for PETER.
@@ -95,15 +91,15 @@ window.DECK = {
     {
       id: 'qs-03', answer: 'ISAIAH', difficulty: 1,
       variants: [
-        { type: 'quote', flag: 'unverified', verseAtReveal: true, difficulty: 1,
+        { type: 'quote', flag: 'unverified', difficulty: 1,
           quote: 'Here am I! Send me.',
           verse: 'Isaiah 6:8',
           clue: 'he saw the Lord on a throne, and a coal touched his lips' },
-        { type: 'quote', lang: 'fil', answer: 'ISAIAS', flag: 'unverified', verseAtReveal: true, difficulty: 1,
+        { type: 'quote', lang: 'fil', answer: 'ISAIAS', flag: 'unverified', difficulty: 1,
           quote: 'Narito ako; suguin mo ako.',
           verse: 'Isaias 6:8',
           clue: 'nakita niya ang Panginoon sa trono, at may baga sa kanyang labi' },
-        { type: 'quote', flag: 'unverified', verseAtReveal: true, difficulty: 2,
+        { type: 'quote', flag: 'unverified', difficulty: 2,
           quote: 'Woe is me, for I am undone! Because I am a man of unclean lips, and I dwell in the midst of a people of unclean lips.',
           verse: 'Isaiah 6:5',
           clue: 'A seraphim flew to him with a live coal from the altar and touched his mouth.' },
@@ -112,11 +108,11 @@ window.DECK = {
     {
       id: 'qs-04', answer: 'RUTH', difficulty: 2,
       variants: [
-        { type: 'quote', flag: 'unverified', verseAtReveal: true, difficulty: 2,
+        { type: 'quote', flag: 'unverified', difficulty: 2,
           quote: 'Wherever you go, I will go; and wherever you lodge, I will lodge; your people shall be my people, and your God, my God.',
           verse: 'Ruth 1:16',
           clue: 'A Moabite widow refusing to leave her mother-in-law on the road home.' },
-        { type: 'quote', lang: 'fil', answer: 'RUT', flag: 'unverified', verseAtReveal: true, difficulty: 2,
+        { type: 'quote', lang: 'fil', answer: 'RUT', flag: 'unverified', difficulty: 2,
           quote: 'Kung saan ka pumaroon, ay paroroon ako: at kung saan ka tumigil, ay titigil ako: ang iyong bayan ay magiging aking bayan, at ang iyong Dios ay aking Dios',
           verse: 'Rut 1:16',
           clue: 'sinabi niya ito sa kanyang biyenan, palabas ng Moab' },
@@ -389,15 +385,15 @@ window.DECK = {
     {
       id: 'qs-21', answer: 'JOSHUA', difficulty: 1,
       variants: [
-        { type: 'quote', flag: 'unverified', verseAtReveal: true, difficulty: 1,
+        { type: 'quote', flag: 'unverified', difficulty: 1,
           quote: 'But as for me and my house, we will serve the LORD.',
           verse: 'Joshua 24:15',
           clue: 'Moses\' successor, giving his farewell challenge to the tribes at Shechem.' },
-        { type: 'quote', flag: 'unverified', verseAtReveal: true, difficulty: 2,
+        { type: 'quote', flag: 'unverified', difficulty: 2,
           quote: 'Sun, stand still over Gibeon; and Moon, in the Valley of Aijalon.',
           verse: 'Joshua 10:12',
           clue: 'A commander praying out loud in the middle of a battle against five kings.' },
-        { type: 'quote', lang: 'fil', answer: 'JOSUE', flag: 'unverified', verseAtReveal: true, difficulty: 1,
+        { type: 'quote', lang: 'fil', answer: 'JOSUE', flag: 'unverified', difficulty: 1,
           quote: 'Nguni\'t sa ganang akin at ng aking sangbahayan ay maglilingkod kami sa Panginoon.',
           verse: 'Josue 24:15',
           clue: 'kahalili ni Moises, huling hamon niya sa mga tribo doon sa Sikem' },
@@ -458,15 +454,15 @@ window.DECK = {
     {
       id: 'qs-26', answer: 'SAMUEL', difficulty: 1,
       variants: [
-        { type: 'quote', flag: 'unverified', verseAtReveal: true, difficulty: 1,
+        { type: 'quote', flag: 'unverified', difficulty: 1,
           quote: 'Speak, for Your servant hears.',
           verse: '1 Samuel 3:10',
           clue: 'A boy sleeping in the tabernacle who kept thinking the old priest was calling him.' },
-        { type: 'quote', flag: 'unverified', verseAtReveal: true, difficulty: 2,
+        { type: 'quote', flag: 'unverified', difficulty: 2,
           quote: 'Behold, to obey is better than sacrifice, and to heed than the fat of rams.',
           verse: '1 Samuel 15:22',
           clue: 'The prophet confronting the first king over the sheep and cattle he kept alive.' },
-        { type: 'quote', lang: 'fil', answer: 'SAMUEL', flag: 'unverified', verseAtReveal: true, difficulty: 1,
+        { type: 'quote', lang: 'fil', answer: 'SAMUEL', flag: 'unverified', difficulty: 1,
           quote: 'Magsalita ka; sapagka\'t dinirinig ng iyong lingkod.',
           verse: '1 Samuel 3:10',
           clue: 'batang natutulog sa tabernakulo, akala niya ang matandang pari ang tumatawag' },
@@ -598,11 +594,11 @@ window.DECK = {
     {
       id: 'qs-34', answer: 'NEHEMIAH', difficulty: 3,
       variants: [
-        { type: 'quote', flag: 'unverified', verseAtReveal: true, difficulty: 3,
+        { type: 'quote', flag: 'unverified', difficulty: 3,
           quote: 'I am doing a great work, so that I cannot come down.',
           verse: 'Nehemiah 6:3',
           clue: 'Rebuilding Jerusalem\'s wall, refusing to meet his enemies on the plain of Ono.' },
-        { type: 'quote', lang: 'fil', verseAtReveal: true, answer: 'NEHEMIAS', flag: 'unverified', difficulty: 3,
+        { type: 'quote', lang: 'fil', answer: 'NEHEMIAS', flag: 'unverified', difficulty: 3,
           quote: 'Ako\'y gumagawa ng dakilang gawain, na anopa\'t hindi ako makababa',
           verse: 'Nehemias 6:3',
           clue: 'itinatayo ang pader ng Jerusalem, ayaw makipagkita sa kaaway sa kapatagan ng Ono' },
@@ -611,11 +607,11 @@ window.DECK = {
     {
       id: 'qs-35', answer: 'ESTHER', difficulty: 1,
       variants: [
-        { type: 'quote', flag: 'unverified', verseAtReveal: true, difficulty: 1,
+        { type: 'quote', flag: 'unverified', difficulty: 1,
           quote: 'And so I will go to the king, which is against the law; and if I perish, I perish!',
           verse: 'Esther 4:16',
           clue: 'A queen deciding to walk into the throne room without being summoned.' },
-        { type: 'quote', lang: 'fil', verseAtReveal: true, answer: 'ESTER', flag: 'unverified', difficulty: 1,
+        { type: 'quote', lang: 'fil', answer: 'ESTER', flag: 'unverified', difficulty: 1,
           quote: 'At sa gayo\'y papasukin ko ang hari, na hindi ayon sa kautusan: at kung ako\'y mamatay ay mamatay.',
           verse: 'Ester 4:16',
           clue: 'reyna na nagpasyang pumasok sa trono kahit hindi naman siya ipinatawag' },
@@ -637,19 +633,19 @@ window.DECK = {
     {
       id: 'qs-37', answer: 'JOB', difficulty: 1,
       variants: [
-        { type: 'quote', flag: 'unverified', verseAtReveal: true, difficulty: 1,
+        { type: 'quote', flag: 'unverified', difficulty: 1,
           quote: 'The LORD gave, and the LORD has taken away; blessed be the name of the LORD.',
           verse: 'Job 1:21',
           clue: 'He lost his children, his herds and his servants in a single day, and still worshiped.' },
-        { type: 'quote', flag: 'unverified', verseAtReveal: true, difficulty: 2,
+        { type: 'quote', flag: 'unverified', difficulty: 2,
           quote: 'For I know that my Redeemer lives, and He shall stand at last on the earth.',
           verse: 'Job 19:25',
           clue: 'Covered in boils, scraping himself with a piece of broken pottery, and still sure God would clear his name.' },
-        { type: 'quote', flag: 'unverified', verseAtReveal: true, difficulty: 2,
+        { type: 'quote', flag: 'unverified', difficulty: 2,
           quote: 'Though He slay me, yet will I trust Him.',
           verse: 'Job 13:15',
           clue: 'Three friends came a long way to comfort him and only made things worse.' },
-        { type: 'quote', lang: 'fil', answer: 'JOB', flag: 'unverified', verseAtReveal: true, difficulty: 1,
+        { type: 'quote', lang: 'fil', answer: 'JOB', flag: 'unverified', difficulty: 1,
           quote: 'Ang Panginoon ang nagbigay, at ang Panginoon ang nagalis; purihin ang pangalan ng Panginoon.',
           verse: 'Job 1:21',
           clue: 'isang araw lang, nawala ang anak, hayop at katulong niya; sumamba pa rin siya' },
@@ -658,11 +654,11 @@ window.DECK = {
     {
       id: 'qs-38', answer: 'JOB\'S WIFE', difficulty: 3,
       variants: [
-        { type: 'quote', flag: 'unverified', verseAtReveal: true, difficulty: 3,
+        { type: 'quote', flag: 'unverified', difficulty: 3,
           quote: 'Do you still hold fast to your integrity? Curse God and die!',
           verse: 'Job 2:9',
           clue: 'She lost the same ten children he did, and this is the only line she gets.' },
-        { type: 'quote', lang: 'fil', answer: 'ASAWA NI JOB', flag: 'unverified', verseAtReveal: true, difficulty: 3,
+        { type: 'quote', lang: 'fil', answer: 'ASAWA NI JOB', flag: 'unverified', difficulty: 3,
           quote: 'Namamalagi ka pa ba sa iyong pagtatapat? itakuwil mo ang Dios, at mamatay ka.',
           verse: 'Job 2:9',
           clue: 'nawalan din siya ng sampung anak, pero isang linya lang ang naisagot niya' },
@@ -671,15 +667,15 @@ window.DECK = {
     {
       id: 'qs-39', answer: 'JEREMIAH', difficulty: 2,
       variants: [
-        { type: 'quote', flag: 'unverified', verseAtReveal: true, difficulty: 2,
+        { type: 'quote', flag: 'unverified', difficulty: 2,
           quote: 'Ah, Lord GOD! Behold, I cannot speak, for I am a youth.',
           verse: 'Jeremiah 1:6',
           clue: 'God told him He knew him before he was formed in the womb, and he answered that he was far too young.' },
-        { type: 'quote', flag: 'unverified', verseAtReveal: true, difficulty: 3,
+        { type: 'quote', flag: 'unverified', difficulty: 3,
           quote: 'His word was in my heart like a burning fire shut up in my bones; I was weary of holding it back, and I could not.',
           verse: 'Jeremiah 20:9',
           clue: 'The weeping prophet, thrown into a muddy cistern, who tried to quit preaching and found he couldn\'t.' },
-        { type: 'quote', lang: 'fil', answer: 'JEREMIAS', flag: 'unverified', verseAtReveal: true, difficulty: 2,
+        { type: 'quote', lang: 'fil', answer: 'JEREMIAS', flag: 'unverified', difficulty: 2,
           quote: 'Ah, Panginoong Dios! narito, hindi ako marunong magsalita: sapagka\'t ako\'y bata.',
           verse: 'Jeremias 1:6',
           clue: 'sabi ng Diyos kilala na siya bago pa ipanganak; sagot niya, bata pa raw siya' },
@@ -688,11 +684,11 @@ window.DECK = {
     {
       id: 'qs-40', answer: 'EZEKIEL', difficulty: 3,
       variants: [
-        { type: 'quote', flag: 'unverified', verseAtReveal: true, difficulty: 3,
+        { type: 'quote', flag: 'unverified', difficulty: 3,
           quote: 'O Lord GOD, You know.',
           verse: 'Ezekiel 37:3',
           clue: 'God set him down in a valley full of dry bones and asked him whether they could live.' },
-        { type: 'quote', lang: 'fil', answer: 'EZEKIEL', flag: 'unverified', verseAtReveal: true, difficulty: 3,
+        { type: 'quote', lang: 'fil', answer: 'EZEKIEL', flag: 'unverified', difficulty: 3,
           quote: 'Oh Panginoong Dios; ikaw ang nakakaalam.',
           verse: 'Ezekiel 37:3',
           clue: 'inilagay siya ng Diyos sa libis ng tuyong buto, tinanong kung mabubuhay pa' },
@@ -701,15 +697,15 @@ window.DECK = {
     {
       id: 'qs-41', answer: 'DANIEL', difficulty: 1,
       variants: [
-        { type: 'quote', flag: 'unverified', verseAtReveal: true, difficulty: 1,
+        { type: 'quote', flag: 'unverified', difficulty: 1,
           quote: 'O king, live forever! My God sent His angel and shut the lions\' mouths, so that they have not hurt me.',
           verse: 'Daniel 6:22',
           clue: 'He kept praying at his open window three times a day even after the new law made it a crime.' },
-        { type: 'quote', flag: 'unverified', verseAtReveal: true, difficulty: 3,
+        { type: 'quote', flag: 'unverified', difficulty: 3,
           quote: 'MENE: God has numbered your kingdom, and finished it.',
           verse: 'Daniel 5:26',
           clue: 'The only man in the palace who could read the handwriting that appeared on the wall during a feast.' },
-        { type: 'quote', lang: 'fil', answer: 'DANIEL', flag: 'unverified', verseAtReveal: true, difficulty: 1,
+        { type: 'quote', lang: 'fil', answer: 'DANIEL', flag: 'unverified', difficulty: 1,
           quote: 'Ang Dios ko\'y nagsugo ng kaniyang anghel, at itinikom ang mga bibig ng mga leon, at hindi nila ako sinaktan',
           verse: 'Daniel 6:22',
           clue: 'tuloy pa rin ang tatlong beses na dasal sa bukas na bintana kahit bawal na' },
@@ -748,19 +744,19 @@ window.DECK = {
     {
       id: 'qs-44', answer: 'JONAH', difficulty: 1,
       variants: [
-        { type: 'quote', flag: 'unverified', verseAtReveal: true, difficulty: 1,
+        { type: 'quote', flag: 'unverified', difficulty: 1,
           quote: 'Pick me up and throw me into the sea; then the sea will become calm for you.',
           verse: 'Jonah 1:12',
           clue: 'He paid his fare to sail the opposite way from where God sent him, then slept through the storm.' },
-        { type: 'quote', flag: 'unverified', verseAtReveal: true, difficulty: 2,
+        { type: 'quote', flag: 'unverified', difficulty: 2,
           quote: 'I am a Hebrew; and I fear the LORD, the God of heaven, who made the sea and the dry land.',
           verse: 'Jonah 1:9',
           clue: 'The terrified sailors shook him awake and demanded to know who he was and where he came from.' },
-        { type: 'quote', flag: 'unverified', verseAtReveal: true, difficulty: 3,
+        { type: 'quote', flag: 'unverified', difficulty: 3,
           quote: 'It is better for me to die than to live.',
           verse: 'Jonah 4:3',
           clue: 'He sulked on a hillside because a wicked city repented, and God grew a plant to shade him.' },
-        { type: 'quote', lang: 'fil', verseAtReveal: true, answer: 'JONAS', flag: 'unverified', difficulty: 1,
+        { type: 'quote', lang: 'fil', answer: 'JONAS', flag: 'unverified', difficulty: 1,
           quote: 'Ako\'y inyong buhatin, at ihagis ninyo ako sa dagat; sa gayo\'y ang dagat ay tatahimik sa inyo',
           verse: 'Jonas 1:12',
           clue: 'nagbayad ng pamasahe pakabila ng utos ng Diyos, nakatulog sa gitna ng bagyo' },
@@ -769,11 +765,11 @@ window.DECK = {
     {
       id: 'qs-45', answer: 'MICAH', difficulty: 2,
       variants: [
-        { type: 'quote', flag: 'unverified', verseAtReveal: true, difficulty: 2,
+        { type: 'quote', flag: 'unverified', difficulty: 2,
           quote: 'What does the LORD require of you but to do justly, to love mercy, and to walk humbly with your God?',
           verse: 'Micah 6:8',
           clue: 'A prophet from a small country town who named Bethlehem as the birthplace of the Ruler to come.' },
-        { type: 'quote', lang: 'fil', verseAtReveal: true, answer: 'MIKAS', flag: 'unverified', difficulty: 2,
+        { type: 'quote', lang: 'fil', answer: 'MIKAS', flag: 'unverified', difficulty: 2,
           quote: 'At ano ang hinihingi ng Panginoon sa iyo, kundi gumawa na may kaganapan, at ibigin ang kaawaan, at lumakad na may kababaan na kasama ng iyong Dios.',
           verse: 'Mikas 6:8',
           clue: 'propeta mula sa maliit na bayan, tinuro ang Betlehem bilang sisilangan ng Tagapamahala' },
@@ -782,11 +778,11 @@ window.DECK = {
     {
       id: 'qs-46', answer: 'HABAKKUK', difficulty: 3,
       variants: [
-        { type: 'quote', flag: 'unverified', verseAtReveal: true, difficulty: 3,
+        { type: 'quote', flag: 'unverified', difficulty: 3,
           quote: 'Though the fig tree may not blossom, nor fruit be on the vines, yet I will rejoice in the LORD.',
           verse: 'Habakkuk 3:17',
           clue: 'A prophet who spent a whole short book arguing with God, then set his answer to music.' },
-        { type: 'quote', lang: 'fil', verseAtReveal: true, answer: 'HABAKUK', flag: 'unverified', difficulty: 3,
+        { type: 'quote', lang: 'fil', answer: 'HABAKUK', flag: 'unverified', difficulty: 3,
           quote: 'Sapagka\'t bagama\'t ang puno ng igos ay hindi namumulaklak, Ni magkakaroon man ng bunga sa mga puno ng ubas',
           verse: 'Habakuk 3:17',
           clue: 'buong aklat siyang nakipagtalo sa Diyos, tapos ginawang awit ang sagot' },
@@ -795,11 +791,11 @@ window.DECK = {
     {
       id: 'qs-47', answer: 'AMOS', difficulty: 3,
       variants: [
-        { type: 'quote', flag: 'unverified', verseAtReveal: true, difficulty: 3,
+        { type: 'quote', flag: 'unverified', difficulty: 3,
           quote: 'I was no prophet, nor was I a son of a prophet, but I was a sheepbreeder and a tender of sycamore fruit.',
           verse: 'Amos 7:14',
           clue: 'A herdsman from Tekoa sent north to a kingdom that told him to go home and preach somewhere else.' },
-        { type: 'quote', lang: 'fil', answer: 'AMOS', flag: 'unverified', verseAtReveal: true, difficulty: 3,
+        { type: 'quote', lang: 'fil', answer: 'AMOS', flag: 'unverified', difficulty: 3,
           quote: 'Ako\'y hindi propeta, o anak man ng propeta; kundi ako\'y pastor, at manggagawa sa mga puno ng sikomoro',
           verse: 'Amos 7:14',
           clue: 'pastol mula sa Tekoa, pinauwi ng kaharian sa hilaga: doon ka na lang daw mangaral' },
@@ -838,15 +834,15 @@ window.DECK = {
     {
       id: 'qs-50', answer: 'JOHN THE BAPTIST', difficulty: 2,
       variants: [
-        { type: 'quote', flag: 'unverified', verseAtReveal: true, difficulty: 2,
+        { type: 'quote', flag: 'unverified', difficulty: 2,
           quote: 'Behold! The Lamb of God who takes away the sin of the world!',
           verse: 'John 1:29',
           clue: 'A wilderness preacher in camel\'s hair, pointing at a man walking past.' },
-        { type: 'quote', flag: 'unverified', verseAtReveal: true, difficulty: 3,
+        { type: 'quote', flag: 'unverified', difficulty: 3,
           quote: 'He must increase, but I must decrease.',
           verse: 'John 3:30',
           clue: 'His own crowd was shrinking, and he said that was exactly right.' },
-        { type: 'quote', lang: 'fil', answer: 'JUAN BAUTISTA', flag: 'unverified', verseAtReveal: true, difficulty: 2,
+        { type: 'quote', lang: 'fil', answer: 'JUAN BAUTISTA', flag: 'unverified', difficulty: 2,
           quote: 'Narito, ang Cordero ng Dios, na nagaalis ng kasalanan ng sanglibutan!',
           verse: 'Juan 1:29',
           clue: 'mangangaral sa ilang, damit na balahibo ng kamelyo, itinuturo ang dumaraan' },

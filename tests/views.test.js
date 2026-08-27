@@ -155,15 +155,6 @@ test('a quote with verse and clue reveals over four stages', () => {
     'the clue stays up - it is the bit worth teaching');
 });
 
-test('holding the verse back drops a stage and still shows it at the reveal', () => {
-  const p = quotePuzzle({ answer: 'JONAH', verse: 'Jonah 2:2', verseAtReveal: true });
-  const v = p.variants[0];
-  const q = byType.quote;
-  assert.equal(q.stages(v), 2);
-  assert.equal(q.view(p, v, 1).verse, null, 'a held verse never shows early');
-  assert.equal(q.view(p, v, 1).clue, 'he worked the ground; his brother kept sheep');
-  assert.deepEqual(q.view(p, v, 2).answered, { answer: 'JONAH', ref: 'Jonah 2:2' });
-});
 
 test('a quote with no clue drops the clue stage', () => {
   const p = quotePuzzle({ clue: null });
@@ -214,4 +205,20 @@ test('a Tagalog quote is badged Tagalog, not English', () => {
   });
   assert.equal(byType.quote.view(p, p.variants[0], 0).badge, 'English');
   assert.equal(byType.quote.view(p, p.variants[1], 0).badge, 'Tagalog');
+});
+
+
+
+
+test('the reference always shows, and always before the clue', () => {
+  // Every quote gets the same four beats. The reference is shown even when the
+  // book carries the speaker's name: most quotes from those books are spoken
+  // by someone else entirely - Goliath in 1 Samuel, Nebuchadnezzar in Daniel,
+  // Pilate in John - so the book name is a hint far more often than a giveaway.
+  const p = quotePuzzle({ answer: 'JONAH', verse: 'Jonah 1:12' });
+  const v = p.variants[0];
+  assert.equal(byType.quote.stages(v), 3);
+  assert.equal(byType.quote.view(p, v, 1).verse, 'Jonah 1:12');
+  assert.equal(byType.quote.view(p, v, 1).clue, null, 'the verse comes first');
+  assert.equal(byType.quote.view(p, v, 2).clue, 'he worked the ground; his brother kept sheep');
 });

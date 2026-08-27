@@ -148,10 +148,6 @@ exists.
   for PETER). English quotes take the person's name from the puzzle.
 - **difficulty** — 1 is a line the room shouts instantly, 3 needs the clue.
   Difficulty here means FAME, not theology.
-- **hold verse to the reveal** — required when the verse's book is named after
-  the speaker. `Jonah 2:2` under JONAH ends the puzzle two clicks early.
-  `validate.js` refuses a deck that forgets, so this is normally already
-  ticked for you.
 - **wording checked** — the ONLY thing that clears the `unverified` flag. Tick
   it once you have compared the line against a real Bible. Until then
   `validate.js` counts it and the game master page tags it.

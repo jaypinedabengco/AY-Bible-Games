@@ -91,7 +91,6 @@ test('a quote variant keeps its quote, verse, clue and hold flag', () => {
   assert.equal(v.quote, 'Am I my brother’s keeper?');
   assert.equal(v.verse, 'Genesis 4:9');
   assert.equal(v.clue, 'he worked the ground; his brother kept sheep');
-  assert.equal(v.verseAtReveal, false);
 });
 
 test('a quote variant with no verse or clue normalizes them to null', () => {
@@ -100,14 +99,6 @@ test('a quote variant with no verse or clue normalizes them to null', () => {
   assert.equal(p.variants[0].clue, null);
 });
 
-test('verseAtReveal survives normalization when set', () => {
-  const p = normalizePuzzle({
-    id: 'qs-03', answer: 'JONAH', type: 'quote',
-    quote: 'I cried out to the LORD because of my affliction',
-    verse: 'Jonah 2:2', verseAtReveal: true,
-  });
-  assert.equal(p.variants[0].verseAtReveal, true);
-});
 
 test('lang and answer on a variant survive, and default to null', () => {
   const p = normalizePuzzle({

@@ -32,12 +32,22 @@ person running the game types it on their phone and gets the answer. Username
 
 ## Decisions already made, and why
 
-**Who Said It? shows the verse BEFORE the clue.** The reference is itself a
-hint for whoever has read the passage, which rewards the youth who read. The
-exception is a book named after its speaker — `Jonah 2:2` under JONAH ends the
-puzzle two clicks early — and `validate.js` REFUSES a deck that forgets, so the
-tool catches it rather than the author remembering. 26 quotes are held back
-this way.
+**Who Said It? shows the verse BEFORE the clue, always.** The reference is
+itself a hint for whoever has read the passage, which rewards the youth who
+read.
+
+There WAS an exception, and it was removed after being played: a verse whose
+book carried the speaker's name — `Jonah 2:2` under JONAH — used to be held
+back to the reveal, and `validate.js` refused a deck that forgot. Two things
+killed it. It read as broken in the room: the host clicks for the reference and
+the screen does not change. And the premise was mostly wrong — of the quotes
+drawn from books named after a person, 36 are spoken by someone else entirely:
+Goliath and Eli in Samuel, Nebuchadnezzar in Daniel, Pilate and Thomas and
+Nicodemus in John, Mordecai in Esther. The book name is a hint far more often
+than a giveaway.
+
+So a handful of puzzles — Ruth in Ruth, Jonah in Jonah — do hand the answer
+over at the reference. That is an accepted cost, not an oversight.
 
 **Difficulty means fame, not theology.** 1 is a line the room shouts before you
 finish reading it; 3 needs the clue. The running order ramps ascending, so each

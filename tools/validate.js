@@ -16,23 +16,6 @@
 
   function sortedCopy(list) { return list.slice().sort(); }
 
-  // The book part of a reference: everything before the first digit, with a
-  // leading "1 "/"2 " dropped so "1 Samuel 3:4" gives SAMUEL.
-  function bookOf(verse) {
-    var m = String(verse || '').match(/^\s*(?:[123]\s+)?([^0-9]+)/);
-    return m ? m[1].trim().toUpperCase() : '';
-  }
-
-  // A reference that names the speaker ends the puzzle two clicks early, in
-  // front of the room, with no way to take it back. Substring both ways, so
-  // "John 1:20" is caught under "JOHN THE BAPTIST" as well as under "JOHN".
-  function verseLeaks(answer, verse) {
-    var book = bookOf(verse);
-    var a = String(answer || '').toUpperCase();
-    if (!book || !a) { return false; }
-    return a.indexOf(book) !== -1 || book.indexOf(a) !== -1;
-  }
-
   function checkVariant(p, v, i, errors) {
     var where = '"' + p.answer + '" variant ' + (i + 1);
     if (TYPES.indexOf(v.type) === -1) {
@@ -82,10 +65,6 @@
       if (!v.quote && !v.verse) {
         errors.push(where + ': a quote variant needs its text, or at least a '
           + 'verse if it is a scaffold waiting for one');
-      }
-      if (v.verse && !v.verseAtReveal && verseLeaks(v.answer || p.answer, v.verse)) {
-        errors.push(where + ': "' + v.verse + '" gives the answer away before '
-          + 'the clue - set verseAtReveal: true on it');
       }
     }
 

@@ -46,12 +46,8 @@
     return { kind: kind, id: puzzle.id, badge: badgeFor(puzzle.lang) };
   }
 
-  function earlyVerse(variant) {
-    return !!(variant.verse && !variant.verseAtReveal);
-  }
-
   function revealStage(variant) {
-    return 1 + (earlyVerse(variant) ? 1 : 0) + (variant.clue ? 1 : 0);
+    return 1 + (variant.verse ? 1 : 0) + (variant.clue ? 1 : 0);
   }
 
   var byType = {
@@ -95,14 +91,14 @@
         var v = base('quote', puzzle);
         // Language lives on the VARIANT here, so the badge has to read it from
         // there - taking it off the puzzle labelled a Tagalog round ENGLISH.
-        v.badge = badgeFor(variant.lang || puzzle.lang);
-        var early = earlyVerse(variant);
-        var clueAt = early ? 2 : 1;
+        var lang = variant.lang || puzzle.lang || 'en';
+        v.badge = badgeFor(lang);
+        var clueAt = variant.verse ? 2 : 1;
         v.quote = variant.quote;
         // Dropped again at the reveal: the answer block prints the verse
         // under the name, and showing it twice on one screen reads as a
         // mistake from the back of a hall.
-        v.verse = (early && stage >= 1 && stage < revealStage(variant))
+        v.verse = (variant.verse && stage >= 1 && stage < revealStage(variant))
           ? variant.verse : null;
         v.clue = (variant.clue && stage >= clueAt) ? variant.clue : null;
         // The verse belongs to the QUOTE, not to the person: Peter's two lines
