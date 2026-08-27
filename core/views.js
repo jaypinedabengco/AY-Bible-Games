@@ -46,6 +46,29 @@
     return { kind: kind, id: puzzle.id, badge: badgeFor(puzzle.lang) };
   }
 
+  // The same person's name in the OTHER language, when it differs. A bilingual
+  // room half-knows one form and half the other, so showing both at the reveal
+  // saves anyone wondering whether they were right. Derived from the sibling
+  // variants rather than stored twice.
+  function otherName(puzzle, variant) {
+    var shown = variant.answer || puzzle.answer;
+    var lang = variant.lang || puzzle.lang || 'en';
+    var names = [];
+    (puzzle.variants || []).forEach(function (other) {
+      var otherLang = other.lang || puzzle.lang || 'en';
+      if (otherLang === lang) { return; }
+      var name = other.answer || puzzle.answer;
+      if (name && name !== shown && names.indexOf(name) === -1) { names.push(name); }
+    });
+    if (!names.length) { return null; }
+    // The pairing is the PERSON's two names, so the puzzle's own answer wins
+    // over a name set on one quote. Otherwise the Damascus-road quote, whose
+    // answer was SAUL, made a Tagalog reveal read "PABLO / SAUL" - as though
+    // Saul were the English for Pablo, and colliding with Saul the king.
+    if (names.indexOf(puzzle.answer) !== -1) { return puzzle.answer; }
+    return names[0];
+  }
+
   function revealStage(variant) {
     return 1 + (variant.verse ? 1 : 0) + (variant.clue ? 1 : 0);
   }
@@ -105,7 +128,11 @@
         // are in different chapters. And the answer can differ by language -
         // PEDRO, not PETER - so the variant's wins when it has one.
         v.answered = stage >= revealStage(variant)
-          ? { answer: variant.answer || puzzle.answer, ref: variant.verse || null }
+          ? {
+              answer: variant.answer || puzzle.answer,
+              alt: otherName(puzzle, variant),
+              ref: variant.verse || null,
+            }
           : null;
         return v;
       },

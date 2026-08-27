@@ -45,6 +45,9 @@
   function answerBlock(a) {
     var block = el('div', 'answer-block');
     block.appendChild(el('div', 'answer', a.answer));
+    // The same name in the other language, where the two differ. Small, because
+    // the answer is the one in the language being played.
+    if (a.alt) { block.appendChild(el('div', 'answer-alt', a.alt)); }
     if (a.ref) { block.appendChild(el('div', 'ref', a.ref)); }
     return block;
   }

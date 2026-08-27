@@ -117,6 +117,8 @@ html, body {
 
 .answer { font-size: 12vmin; font-weight: 700; letter-spacing: 0.04em; }
 
+.answer-alt { font-size: 4vmin; color: var(--accent); letter-spacing: 0.06em;
+               margin-top: -0.6vmin; }
 .ref { font-size: 2.6vmin; color: var(--dim); letter-spacing: 0.14em; text-transform: uppercase; }
 
 .options { display: flex; gap: 4vmin; }
