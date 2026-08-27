@@ -167,185 +167,375 @@
     });
   }
 
+  // Playing one evening: the rounds, the painting, the keys. Split out of
+  // start() because start() now has a job before this one - showing the start
+  // screen and asking how long the round should be and in which language.
+  function play(deck, host, resolver, rng, choice, toStart) {
+    var seen = new Set();
+    var round = 0;
+
+    return buildSession(deck, resolver, rng, {
+      seen: seen, sessionSize: choice.size, lang: choice.lang,
+    }).then(function (session) {
+    var items = session.items;
+    round = 1;
+    session.keys.forEach(function (k) { seen.add(k); });
+    var machine = BG.machine.createMachine(items, BG.views.stagesForItem);
+
+    // When the deck runs out, say so. Clamping silently at the last card
+    // leaves the host pressing space at a screen that never changes,
+    // wondering whether the game has frozen in front of everyone.
+    var finished = false;
+    var deckEmpty = false;
+
+    function drawDone(nextCount) {
+      finished = true;
+      host.innerHTML = '';
+      var box = document.createElement('div');
+      box.className = 'done';
+      var h = document.createElement('div');
+      h.className = 'done-title';
+      var n = document.createElement('div');
+      n.className = 'done-count';
+      var hint = document.createElement('div');
+      hint.className = 'done-hint';
+
+      if (nextCount > 0) {
+        h.textContent = 'Round ' + round + ' done';
+        n.textContent = nextCount + ' book' + (nextCount === 1 ? '' : 's')
+          + ' still to come';
+        hint.textContent = 'Space for round ' + (round + 1);
+      } else {
+        deckEmpty = true;
+        h.textContent = 'All ' + seen.size + ' played';
+        n.textContent = 'the whole deck, no repeats';
+        hint.textContent = 'R for a fresh set  \u00b7  Home to replay this round';
+      }
+      box.appendChild(h); box.appendChild(n); box.appendChild(hint);
+      host.appendChild(box);
+    }
+
+    // How many books could still fill another round.
+    function remaining() {
+      var count = 0;
+      session.deck.puzzles.forEach(function (p) {
+        var anyFresh = p.variants.some(function (v, i) {
+          var names = v.clues ? v.clues.map(function (c) { return c.img; })
+                              : (v.img ? [v.img] : []);
+          var resolvable = !names.length
+            || names.every(function (nm) { return session.srcFor(nm) !== null; });
+          return resolvable && !seen.has(p.id + '#' + i);
+        });
+        if (anyFresh) { count++; }
+      });
+      return count;
+    }
+
+    function nextRound() {
+      return buildSession(deck, resolver, rng, { seen: seen }).then(function (next) {
+        if (!next.items.length) { drawDone(0); return; }
+        round++;
+        next.keys.forEach(function (k) { seen.add(k); });
+        items = next.items;
+        session.srcFor = next.srcFor;
+        machine = BG.machine.createMachine(items, BG.views.stagesForItem);
+        finished = false;
+        draw();
+      });
+    }
+
+    function draw() {
+      finished = false;
+      var s = machine.state();
+      BG.paint.render(host, BG.views.viewForItem(s.item, s.stage), session.srcFor, {
+        position: s.index + 1,
+        total: items.length,
+        round: round,
+        showBadge: session.deck.languages.length > 1,
+      });
+    }
+
+    function rebuild(shuffle) {
+      var d = Object.assign({}, deck, { shuffle: shuffle });
+      // A reshuffle starts the evening over: everything is unseen again.
+      seen.clear();
+      round = 1;
+      deckEmpty = false;
+      return buildSession(d, resolver, rng, { seen: seen }).then(function (next) {
+        next.keys.forEach(function (k) { seen.add(k); });
+        items = next.items;
+        machine = BG.machine.createMachine(items, BG.views.stagesForItem);
+        session.srcFor = next.srcFor;
+        draw();
+      });
+    }
+
+    // The keys are useless if nobody knows they exist, but a permanent
+    // legend is clutter the ROOM reads rather than the host. So: show it at
+    // the start, fade it out, and let "?" bring it back.
+    var legend = document.createElement('div');
+    legend.className = 'legend';
+    [['Space', 'reveal'], ['\u2190', 'back'], ['R', 'shuffle'],
+     ['O', 'deck order'], ['F', 'fullscreen'], ['Home', 'restart'],
+     ['S', 'start screen'], ['?', 'this']].forEach(function (pair) {
+      var item = document.createElement('span');
+      var k = document.createElement('kbd');
+      k.textContent = pair[0];
+      item.appendChild(k);
+      item.appendChild(document.createTextNode(' ' + pair[1]));
+      legend.appendChild(item);
+    });
+    document.body.appendChild(legend);
+
+    // A way back to the front page. Sits OUTSIDE the host element on purpose:
+    // the host's click handler advances the puzzle, and a link inside it
+    // would reveal the answer on the way out. Dim like the id stamp, because
+    // the room should not be reading it.
+    var back = document.createElement('a');
+    back.className = 'back-link';
+    back.href = '../../index.html';
+    back.textContent = '\u2190 all games';
+    document.body.appendChild(back);
+
+    // It stays until the game actually starts. A timer was wrong: the host
+    // is still plugging in the projector while it counts down, looks up, and
+    // the legend has already gone. Fading on the first reveal means they get
+    // it for exactly as long as they need it.
+    var fadeTimer = null;
+    function showLegend(ms) {
+      legend.classList.remove('faded');
+      if (fadeTimer) { clearTimeout(fadeTimer); }
+      if (ms) {
+        fadeTimer = setTimeout(function () { legend.classList.add('faded'); }, ms);
+      }
+    }
+    function hideLegend() {
+      if (fadeTimer) { clearTimeout(fadeTimer); fadeTimer = null; }
+      legend.classList.add('faded');
+    }
+    showLegend(0);
+
+    BG.controls.attach(host, {
+      help: function () {
+        if (legend.classList.contains('faded')) { showLegend(0); }
+        else { hideLegend(); }
+      },
+      advance: function () {
+        hideLegend();
+        if (finished) {
+          // On the round-done card, space starts the next round. On the
+          // deck-empty card it does nothing - R is the way out, which the
+          // card says.
+          if (!deckEmpty) { nextRound(); }
+          return;
+        }
+        if (machine.state().atEnd) { drawDone(remaining()); return; }
+        machine.advance();
+        draw();
+      },
+      back: function () { machine.back(); draw(); },
+      restart: function () { machine.restart(); draw(); },
+      reshuffle: function () { rebuild(true); },
+      originalOrder: function () { rebuild(false); },
+      fullscreen: function () { BG.controls.toggleFullscreen(document.body); },
+      // Back to the start screen to change the round length or the language.
+      // It starts the evening over rather than resuming: a round of a
+      // different length, or in another language, is a different round.
+      setup: function () {
+        hideLegend();
+        legend.remove();
+        back.remove();
+        toStart();
+      },
+    });
+
+    draw();
+    });
+  }
+
   function start(deck, host) {
     var resolver = BG.images.makeResolver(
       (deck.imageDirs || ['images/']),
       BG.images.browserLoad
     );
     var rng = Math.random;
+    var normalized = BG.normalize.normalizeDeck(deck);
 
-    // An evening is a series of rounds. Each one draws only books the earlier
-    // rounds did not show, so the deck is walked through without a repeat, and
-    // the host is told where they are rather than left guessing.
-    var seen = new Set();
-    var round = 0;
+    function el(tag, cls, text) {
+      var n = document.createElement(tag);
+      if (cls) { n.className = cls; }
+      if (text !== undefined && text !== null) { n.textContent = text; }
+      return n;
+    }
 
-    return buildSession(deck, resolver, rng, { seen: seen }).then(function (session) {
-      var items = session.items;
-      round = 1;
-      session.keys.forEach(function (k) { seen.add(k); });
-      var machine = BG.machine.createMachine(items, BG.views.stagesForItem);
+    function remembered(key, fallback) {
+      try {
+        var raw = localStorage.getItem(key + ':' + normalized.id);
+        return raw === null ? fallback : raw;
+      } catch (e) { return fallback; }   // private window
+    }
 
-      // When the deck runs out, say so. Clamping silently at the last card
-      // leaves the host pressing space at a screen that never changes,
-      // wondering whether the game has frozen in front of everyone.
-      var finished = false;
-      var deckEmpty = false;
+    function remember(key, value) {
+      try { localStorage.setItem(key + ':' + normalized.id, String(value)); }
+      catch (e) { /* private window: the choice just does not persist */ }
+    }
 
-      function drawDone(nextCount) {
-        finished = true;
-        host.innerHTML = '';
-        var box = document.createElement('div');
-        box.className = 'done';
-        var h = document.createElement('div');
-        h.className = 'done-title';
-        var n = document.createElement('div');
-        n.className = 'done-count';
-        var hint = document.createElement('div');
-        hint.className = 'done-hint';
-
-        if (nextCount > 0) {
-          h.textContent = 'Round ' + round + ' done';
-          n.textContent = nextCount + ' book' + (nextCount === 1 ? '' : 's')
-            + ' still to come';
-          hint.textContent = 'Space for round ' + (round + 1);
-        } else {
-          deckEmpty = true;
-          h.textContent = 'All ' + seen.size + ' played';
-          n.textContent = 'the whole deck, no repeats';
-          hint.textContent = 'R for a fresh set  \u00b7  Home to replay this round';
-        }
-        box.appendChild(h); box.appendChild(n); box.appendChild(hint);
-        host.appendChild(box);
-      }
-
-      // How many books could still fill another round.
-      function remaining() {
-        var count = 0;
-        session.deck.puzzles.forEach(function (p) {
-          var anyFresh = p.variants.some(function (v, i) {
-            var names = v.clues ? v.clues.map(function (c) { return c.img; })
-                                : (v.img ? [v.img] : []);
-            var resolvable = !names.length
-              || names.every(function (nm) { return session.srcFor(nm) !== null; });
-            return resolvable && !seen.has(p.id + '#' + i);
-          });
-          if (anyFresh) { count++; }
-        });
-        return count;
-      }
-
-      function nextRound() {
-        return buildSession(deck, resolver, rng, { seen: seen }).then(function (next) {
-          if (!next.items.length) { drawDone(0); return; }
-          round++;
-          next.keys.forEach(function (k) { seen.add(k); });
-          items = next.items;
-          session.srcFor = next.srcFor;
-          machine = BG.machine.createMachine(items, BG.views.stagesForItem);
-          finished = false;
-          draw();
-        });
-      }
-
-      function draw() {
-        finished = false;
-        var s = machine.state();
-        BG.paint.render(host, BG.views.viewForItem(s.item, s.stage), session.srcFor, {
-          position: s.index + 1,
-          total: items.length,
-          round: round,
-          showBadge: session.deck.languages.length > 1,
-        });
-      }
-
-      function rebuild(shuffle) {
-        var d = Object.assign({}, deck, { shuffle: shuffle });
-        // A reshuffle starts the evening over: everything is unseen again.
-        seen.clear();
-        round = 1;
-        deckEmpty = false;
-        return buildSession(d, resolver, rng, { seen: seen }).then(function (next) {
-          next.keys.forEach(function (k) { seen.add(k); });
-          items = next.items;
-          machine = BG.machine.createMachine(items, BG.views.stagesForItem);
-          session.srcFor = next.srcFor;
-          draw();
-        });
-      }
-
-      // The keys are useless if nobody knows they exist, but a permanent
-      // legend is clutter the ROOM reads rather than the host. So: show it at
-      // the start, fade it out, and let "?" bring it back.
-      var legend = document.createElement('div');
-      legend.className = 'legend';
-      [['Space', 'reveal'], ['\u2190', 'back'], ['R', 'shuffle'],
-       ['O', 'deck order'], ['F', 'fullscreen'], ['Home', 'restart'],
-       ['?', 'this']].forEach(function (pair) {
-        var item = document.createElement('span');
-        var k = document.createElement('kbd');
-        k.textContent = pair[0];
-        item.appendChild(k);
-        item.appendChild(document.createTextNode(' ' + pair[1]));
-        legend.appendChild(item);
+    // How many puzzles each language could actually field. Counted by building
+    // a throwaway session per language rather than by inspecting the deck,
+    // because "playable" means pictures resolved and quotes written - which is
+    // exactly what buildSession already decides.
+    function countByLang() {
+      var langs = normalized.languages.length > 1 ? normalized.languages : [null];
+      return Promise.all(langs.map(function (l) {
+        return buildSession(deck, resolver, rng, { lang: l, sessionSize: 9999 })
+          .then(function (s) { return s.items.length; });
+      })).then(function (counts) {
+        var out = {};
+        langs.forEach(function (l, i) { out[l === null ? 'en' : l] = counts[i]; });
+        return out;
       });
-      document.body.appendChild(legend);
+    }
 
-      // A way back to the front page. Sits OUTSIDE the host element on purpose:
-      // the host's click handler advances the puzzle, and a link inside it
-      // would reveal the answer on the way out. Dim like the id stamp, because
-      // the room should not be reading it.
-      var back = document.createElement('a');
-      back.className = 'back-link';
-      back.href = '../../index.html';
-      back.textContent = '\u2190 all games';
-      document.body.appendChild(back);
-
-      // It stays until the game actually starts. A timer was wrong: the host
-      // is still plugging in the projector while it counts down, looks up, and
-      // the legend has already gone. Fading on the first reveal means they get
-      // it for exactly as long as they need it.
-      var fadeTimer = null;
-      function showLegend(ms) {
-        legend.classList.remove('faded');
-        if (fadeTimer) { clearTimeout(fadeTimer); }
-        if (ms) {
-          fadeTimer = setTimeout(function () { legend.classList.add('faded'); }, ms);
-        }
+    // The scripture permission notice for the language being played. It is a
+    // requirement on the page rather than something the room reads, so it is
+    // tiny, dim, and fixed to the bottom.
+    var creditEl = null;
+    function showCredit(lang) {
+      var text = (normalized.credits || {})[lang || 'en'] || null;
+      if (!text) { if (creditEl) { creditEl.remove(); creditEl = null; } return; }
+      if (!creditEl) {
+        creditEl = el('p', 'credit');
+        document.body.appendChild(creditEl);
       }
-      function hideLegend() {
-        if (fadeTimer) { clearTimeout(fadeTimer); fadeTimer = null; }
-        legend.classList.add('faded');
-      }
-      showLegend(0);
+      creditEl.textContent = text;
+    }
 
-      BG.controls.attach(host, {
-        help: function () {
-          if (legend.classList.contains('faded')) { showLegend(0); }
-          else { hideLegend(); }
-        },
-        advance: function () {
-          hideLegend();
-          if (finished) {
-            // On the round-done card, space starts the next round. On the
-            // deck-empty card it does nothing - R is the way out, which the
-            // card says.
-            if (!deckEmpty) { nextRound(); }
-            return;
+    function drawStart(byLang) {
+      host.innerHTML = '';
+      var card = el('div', 'startcard');
+      card.appendChild(el('div', 'start-church', 'San Fernando Adventist Church'));
+      card.appendChild(el('div', 'start-title', normalized.title || 'Bible game'));
+      normalized.howToPlay.forEach(function (line) {
+        card.appendChild(el('div', 'start-how', line));
+      });
+
+      var langs = langOptions(normalized.languages, byLang);
+      var lang = langs.length
+        ? remembered('round-lang', langs[0].value)
+        : (normalized.languages.length > 1 ? normalized.languages[0] : null);
+      if (langs.length && !langs.some(function (o) { return o.value === lang; })) {
+        lang = langs[0].value;
+      }
+      showCredit(lang);
+
+      var playable = byLang[lang || 'en'] || 0;
+      if (!playable) {
+        // An empty or half-built deck says so HERE, rather than failing at
+        // startup with an error card. Bible Character Names sits in exactly
+        // this state while its pictures are collected.
+        card.appendChild(el('div', 'start-empty',
+          'This deck has no puzzles yet. Add some with the deck manager.'));
+        host.appendChild(card);
+        return null;
+      }
+
+      var langSel = null;
+      if (langs.length) {
+        var lrow = el('div', 'start-row');
+        lrow.appendChild(el('label', 'start-label', 'Language'));
+        langSel = document.createElement('select');
+        langSel.className = 'start-pick';
+        langs.forEach(function (o) {
+          var node = document.createElement('option');
+          node.value = o.value;
+          node.textContent = o.label;
+          if (o.value === lang) { node.selected = true; }
+          langSel.appendChild(node);
+        });
+        // The host element advances the game on click, so a click meant for
+        // the dropdown must stop there.
+        langSel.addEventListener('click', function (e) { e.stopPropagation(); });
+        langSel.addEventListener('change', function () {
+          remember('round-lang', langSel.value);
+          // A different language means a different count, so the size dropdown
+          // is rebuilt rather than left showing a stale one.
+          chosen = drawStart(byLang);
+        });
+        lrow.appendChild(langSel);
+        card.appendChild(lrow);
+      }
+
+      var opts = sizeOptions(playable);
+      var wantSize = Number(remembered('round-size', normalized.sessionSize || playable));
+      var srow = el('div', 'start-row');
+      srow.appendChild(el('label', 'start-label', 'Puzzles this round'));
+      var sizeSel = document.createElement('select');
+      sizeSel.className = 'start-pick';
+      opts.forEach(function (o) {
+        var node = document.createElement('option');
+        node.value = String(o.value);
+        node.textContent = o.label;
+        if (o.value === wantSize) { node.selected = true; }
+        sizeSel.appendChild(node);
+      });
+      sizeSel.addEventListener('click', function (e) { e.stopPropagation(); });
+      srow.appendChild(sizeSel);
+      card.appendChild(srow);
+
+      card.appendChild(el('div', 'start-go', 'Space to start'));
+      host.appendChild(card);
+
+      // The same way back the game itself has. Outside the card, because the
+      // card's click starts the round and a link inside it would start a game
+      // on the way out.
+      if (!document.querySelector('.back-link')) {
+        var back = document.createElement('a');
+        back.className = 'back-link';
+        back.href = '../../index.html';
+        back.textContent = '\u2190 all games';
+        back.addEventListener('click', function (e) { e.stopPropagation(); });
+        document.body.appendChild(back);
+      }
+
+      return function () {
+        return {
+          size: Number(sizeSel.value),
+          lang: langSel ? langSel.value : (normalized.languages.length > 1 ? lang : null),
+        };
+      };
+    }
+
+    var chosen = null;
+
+    function toStart() {
+      return countByLang().then(function (byLang) {
+        chosen = drawStart(byLang);
+        if (!chosen) { return null; }   // nothing to play; the card says so
+        return new Promise(function (resolve) {
+          function go() {
+            var choice = chosen();
+            // play() puts up its own back link; drop this one so they do not
+            // stack up every time S is pressed.
+            var stale = document.querySelector('.back-link');
+            if (stale) { stale.remove(); }
+            remember('round-size', choice.size);
+            if (choice.lang) { remember('round-lang', choice.lang); }
+            showCredit(choice.lang);
+            document.removeEventListener('keydown', onKey);
+            host.removeEventListener('click', onClick);
+            resolve(play(deck, host, resolver, rng, choice, toStart));
           }
-          if (machine.state().atEnd) { drawDone(remaining()); return; }
-          machine.advance();
-          draw();
-        },
-        back: function () { machine.back(); draw(); },
-        restart: function () { machine.restart(); draw(); },
-        reshuffle: function () { rebuild(true); },
-        originalOrder: function () { rebuild(false); },
-        fullscreen: function () { BG.controls.toggleFullscreen(document.body); },
+          function onKey(e) {
+            if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); go(); }
+          }
+          function onClick() { go(); }
+          document.addEventListener('keydown', onKey);
+          host.addEventListener('click', onClick);
+        });
       });
+    }
 
-      draw();
-    });
+    return toStart();
   }
 
   BG.boot = {

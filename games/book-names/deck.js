@@ -36,6 +36,10 @@ window.DECK = {
   shuffle: true,
   sessionSize: 20,
   languages: ['en'],
+  howToPlay: [
+    'Pictures combine into the name of a book of the Bible.',
+    'The room shouts the book. One person clicks to reveal.',
+  ],
   puzzles: [
     // ---- Law -----------------------------------------------------------
     {

@@ -227,3 +227,21 @@ html, body {
 .credit { position: fixed; bottom: 1vmin; left: 50%; transform: translateX(-50%);
           margin: 0; max-width: 90vw; text-align: center;
           font-size: 1.3vmin; color: var(--dim); opacity: 0.55; }
+
+/* The start screen. Bigger than a phone UI, smaller than a puzzle: the driver
+   is at the laptop reading it, and the room is looking at the title. */
+.startcard { display: flex; flex-direction: column; align-items: center;
+             gap: 2.2vmin; text-align: center; max-width: 74vw; }
+.start-church { font-size: 1.9vmin; letter-spacing: 0.3em; text-transform: uppercase;
+                color: var(--accent); }
+.start-title { font-size: 9vmin; font-weight: 700; line-height: 1.05; margin-top: -1vmin; }
+.start-how { font-size: 2.8vmin; color: var(--dim); line-height: 1.45; max-width: 60vw; }
+.start-row { display: flex; align-items: center; gap: 1.4vmin; }
+.start-label { font-size: 1.8vmin; letter-spacing: 0.16em; text-transform: uppercase;
+               color: var(--dim); }
+.start-pick { font: inherit; font-size: 2.6vmin; padding: 0.6vmin 1.2vmin;
+              border-radius: 0.8vmin; border: 0.2vmin solid var(--card);
+              background: var(--card); color: var(--fg); cursor: pointer; }
+.start-go { font-size: 2.2vmin; color: var(--accent); letter-spacing: 0.2em;
+            text-transform: uppercase; margin-top: 1vmin; }
+.start-empty { font-size: 2.6vmin; color: var(--bad); max-width: 60vw; line-height: 1.4; }

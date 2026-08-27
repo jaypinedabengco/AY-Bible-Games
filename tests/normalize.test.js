@@ -127,3 +127,9 @@ test('howToPlay comes back as an array, empty when the deck omits it', () => {
   assert.deepEqual(normalizeDeck({ howToPlay: ['one', 'two'] }).howToPlay, ['one', 'two']);
   assert.deepEqual(normalizeDeck({}).howToPlay, []);
 });
+
+test('the deck credits survive normalization, and default to null', () => {
+  const c = { en: 'NKJV notice', fil: 'MBB notice' };
+  assert.deepEqual(normalizeDeck({ credits: c }).credits, c);
+  assert.equal(normalizeDeck({}).credits, null);
+});
