@@ -136,3 +136,82 @@ test('a risky flag is a notice, not an error', () => {
   assert.deepEqual(r.errors, []);
   assert.match(r.notices.join(' | '), /risky/i);
 });
+
+function quoteDeck(variant, puzzle) {
+  return {
+    id: 'who-said-it', sessionSize: 1, languages: ['en'],
+    puzzles: [Object.assign({ id: 'qs-01', answer: 'CAIN' }, puzzle || {},
+      { variants: [Object.assign({
+          type: 'quote', quote: 'Am I my brother’s keeper?',
+          verse: 'Genesis 4:9', clue: 'he worked the ground',
+        }, variant || {})] })],
+  };
+}
+
+test('a scaffold with a verse but no text yet is not an error', () => {
+  const r = validate(quoteDeck({ quote: null }));
+  assert.deepEqual(r.errors, []);
+  assert.ok(r.notices.some((n) => /waiting for their text/.test(n)), r.notices.join('; '));
+});
+
+test('a quote variant with neither text nor verse is an error', () => {
+  const r = validate(quoteDeck({ quote: null, verse: null }));
+  assert.ok(r.errors.some((e) => /needs its text/.test(e)), r.errors.join('; '));
+});
+
+test('a well-formed quote deck passes', () => {
+  const r = validate(quoteDeck());
+  assert.deepEqual(r.errors, []);
+});
+
+test('a verse whose book names the speaker is rejected', () => {
+  const r = validate(quoteDeck(
+    { quote: 'I cried out to the LORD', verse: 'Jonah 2:2', clue: 'a big fish' },
+    { answer: 'JONAH' },
+  ));
+  assert.ok(r.errors.some((e) => /gives the answer away/.test(e)), r.errors.join('; '));
+});
+
+test('holding the verse back clears the leak', () => {
+  const r = validate(quoteDeck(
+    { quote: 'I cried out to the LORD', verse: 'Jonah 2:2',
+      clue: 'a big fish', verseAtReveal: true },
+    { answer: 'JONAH' },
+  ));
+  assert.deepEqual(r.errors, []);
+});
+
+test('the leak rule catches a book name inside a longer answer', () => {
+  const r = validate(quoteDeck(
+    { quote: 'I am not the Christ', verse: 'John 1:20', clue: 'he baptized' },
+    { answer: 'JOHN THE BAPTIST' },
+  ));
+  assert.ok(r.errors.some((e) => /gives the answer away/.test(e)), r.errors.join('; '));
+});
+
+test('the leak rule handles a numbered book', () => {
+  const r = validate(quoteDeck(
+    { quote: 'Speak, for Your servant hears.', verse: '1 Samuel 3:10', clue: 'a boy in the temple' },
+    { answer: 'SAMUEL' },
+  ));
+  assert.ok(r.errors.some((e) => /gives the answer away/.test(e)), r.errors.join('; '));
+});
+
+test('an unrelated verse is not a leak', () => {
+  const r = validate(quoteDeck(
+    { quote: 'You are the Christ', verse: 'Matthew 16:16', clue: 'a fisherman' },
+    { answer: 'PETER' },
+  ));
+  assert.deepEqual(r.errors, []);
+});
+
+test('unverified quotes are counted in a notice', () => {
+  const r = validate(quoteDeck({ flag: 'unverified' }));
+  assert.ok(r.notices.some((n) => /1 of 1 quotes still unverified/.test(n)),
+            r.notices.join('; '));
+});
+
+test('a verified deck says nothing about verification', () => {
+  const r = validate(quoteDeck());
+  assert.ok(!r.notices.some((n) => /unverified/.test(n)), r.notices.join('; '));
+});
