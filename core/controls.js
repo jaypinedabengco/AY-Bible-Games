@@ -2,7 +2,8 @@
  * One hand on a laptop, in front of a room.
  *
  * Space/click advance - ArrowLeft back - R reshuffle - O original order
- * F fullscreen - Home restart - ? show the key legend again.
+ * F fullscreen - Home restart - ? show the key legend again - S back to the
+ * start screen to change the round length or the language.
  *
  * Nothing else is bound. Every extra binding is a chance to derail a service
  * by leaning on the keyboard. Escape is deliberately absent: browsers already
@@ -22,6 +23,7 @@
     'f': 'fullscreen',
     'home': 'restart',
     '?': 'help',
+    's': 'setup',
   };
 
   function actionFor(key) {

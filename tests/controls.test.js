@@ -27,3 +27,8 @@ test('undocumented keys map to nothing', () => {
     assert.equal(actionFor(k), null, `${k} should not be bound`);
   });
 });
+
+test('S opens the start screen, and case does not matter', () => {
+  assert.equal(actionFor('s'), 'setup');
+  assert.equal(actionFor('S'), 'setup');
+});

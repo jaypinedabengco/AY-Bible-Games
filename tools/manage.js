@@ -35,8 +35,9 @@ const ROOT = path.join(__dirname, '..');
 // `canon` gets a dropdown of what is missing from it; one without takes a
 // typed-in name, because there is no closed list of Bible characters.
 const GAMES = [
-  { slug: 'book-names', title: 'Bible Book Names', canon: 'books' },
-  { slug: 'character-names', title: 'Bible Character Names', canon: null },
+  { slug: 'book-names', title: 'Bible Book Names', canon: 'books', kind: 'pictures' },
+  { slug: 'character-names', title: 'Bible Character Names', canon: null, kind: 'pictures' },
+  { slug: 'who-said-it', title: 'Who Said It?', canon: null, kind: 'quotes' },
 ];
 
 function pickGame(slug) {
@@ -45,6 +46,7 @@ function pickGame(slug) {
     slug: g.slug,
     title: g.title,
     canon: g.canon,
+    kind: g.kind || 'pictures',
     images: path.join(ROOT, 'games', g.slug, 'images'),
     deck: path.join(ROOT, 'games', g.slug, 'deck.js'),
   };
@@ -240,10 +242,40 @@ function wordLiteral(word) {
   return "'" + w + "'";
 }
 
+// Clearing the word of a lone picture means "the picture IS the clue" - which
+// is a DIFFERENT variant type, not a rebus with a null word. Writing the null
+// and stopping there produced a deck that failed to validate: a rebus clue
+// must have a word. So the variant is rewritten as an image instead.
+function blankToImage(text, words) {
+  var slots = (text.match(/word:\s*(?:'[^']*'|null)/g) || []).length;
+  var clearing = words.length === 1 && !String(words[0] || '').trim();
+  if (!(slots === 1 && clearing)) { return null; }
+  var img = (text.match(/img:\s*'([^']*)'/) || [])[1];
+  if (!img) { return null; }
+  return text.replace(/type:\s*'rebus',\s*clues:\s*\[[^\]]*\]/,
+                      "type: 'image', img: '" + img + "'")
+             .replace(/clues:\s*\[[^\]]*\],/, "type: 'image', img: '" + img + "',");
+}
+
 // Rewrite the clue words across a run of lines, in reading order. A clue list
 // can span several lines (Malachi's does), so this walks the run rather than a
 // single line. Only the positions the caller supplied change.
 function applyWords(lines, from, to, words) {
+  // A rebus of two or more pictures needs a word on every one of them: the
+  // working line is what the pictures add up to, and a gap in it reads as a
+  // mistake on the projector.
+  var slots = 0;
+  for (var c = from; c <= to; c++) {
+    slots += (lines[c].match(/word:\s*(?:'[^']*'|null)/g) || []).length;
+  }
+  if (slots > 1 && words.some(function (w) { return !String(w || '').trim(); })) {
+    throw new Error('a rebus of ' + slots + ' pictures needs a word on each one - '
+      + 'to make the picture itself the clue, it has to be the only picture');
+  }
+  if (slots === 1 && from === to) {
+    var swapped = blankToImage(lines[from], words);
+    if (swapped) { lines[from] = swapped; return lines; }
+  }
   let seen = -1;
   for (let n = from; n <= to; n++) {
     lines[n] = lines[n].replace(/word:\s*(?:'[^']*'|null)/g, (hit) => {
@@ -454,6 +486,120 @@ function addBook(g, answer, clues, weight, difficulty, ref) {
   return { id: id, answer: answer, total: after.puzzles.length };
 }
 
+// ---- quote decks ----------------------------------------------------------
+
+// A quote is full of apostrophes - "brother's keeper" - and every one of them
+// would close the single-quoted literal it is written into, so they are
+// escaped on the way in. Backslashes and line breaks are refused outright:
+// neither belongs in a line read aloud from a screen.
+function quoteText(t, what) {
+  const v = String(t === null || t === undefined ? '' : t).trim();
+  if (/[\\\n\r]/.test(v)) {
+    throw new Error('a ' + what + ' cannot contain a backslash or a line break');
+  }
+  if (v.length > 200) {
+    throw new Error('that ' + what + ' is too long to read from the back of a hall');
+  }
+  return v;
+}
+
+function quoteRows(g) {
+  const deck = loadDeck(g);
+  return deck.puzzles.map((p) => ({
+    id: p.id,
+    answer: p.answer,
+    difficulty: p.difficulty || 2,
+    variants: (p.variants || [p]).map((v) => ({
+      quote: v.quote || null,
+      verse: v.verse || null,
+      clue: v.clue || null,
+      lang: v.lang || p.lang || 'en',
+      answer: v.answer || null,
+      difficulty: v.difficulty === undefined ? (p.difficulty || 2) : v.difficulty,
+      unverified: v.flag === 'unverified',
+      waiting: !v.quote,
+    })),
+  }));
+}
+
+// Find the lines of one variant inside a puzzle block. A quote variant is
+// written over four lines - the head and quote/verse/clue - so unlike the
+// picture decks this cannot edit a single line in place. Brace counting again:
+// a regex over a nested literal grabs the wrong block, which it did once.
+function variantSpan(block, index) {
+  const arrayStart = block.findIndex((l) => l.trim() === 'variants: [');
+  if (arrayStart === -1) { throw new Error('that puzzle has no variants array'); }
+  const starts = [];
+  let depth = 0;
+  for (let i = arrayStart + 1; i < block.length; i++) {
+    if (block[i].trim() === '],' && depth === 0) { break; }
+    if (depth === 0 && /^\s+\{/.test(block[i])) { starts.push(i); }
+    for (const ch of block[i]) {
+      if (ch === '{') { depth++; }
+      if (ch === '}') { depth--; }
+    }
+  }
+  const from = starts[index];
+  if (from === undefined) { throw new Error('no variant ' + (index + 1) + ' on that puzzle'); }
+  let to = from;
+  let open = 0;
+  for (let i = from; i < block.length; i++) {
+    for (const ch of block[i]) {
+      if (ch === '{') { open++; }
+      if (ch === '}') { open--; }
+    }
+    to = i;
+    if (open === 0) { break; }
+  }
+  return { from, to };
+}
+
+function setQuote(g, id, index, fields) {
+  const src = fs.readFileSync(g.deck, 'utf8');
+  const { lines, start, end } = findBlock(src, id);
+  const block = lines.slice(start, end + 1);
+  const span = variantSpan(block, index);
+  const text = block.slice(span.from, span.to + 1).join('\n');
+
+  let next = text;
+  const swap = (key, value) => {
+    const lit = value === null ? 'null' : "'" + String(value).replace(/'/g, "\\'") + "'";
+    const re = new RegExp(key + ":\\s*(?:'(?:[^'\\\\]|\\\\.)*'|null)");
+    if (!re.test(next)) { throw new Error('cannot find ' + key + ' on that variant'); }
+    next = next.replace(re, key + ': ' + lit);
+  };
+
+  if (fields.quote !== undefined) {
+    const v = quoteText(fields.quote, 'quote');
+    swap('quote', v || null);
+  }
+  if (fields.verse !== undefined) { swap('verse', quoteText(fields.verse, 'verse') || null); }
+  if (fields.clue !== undefined) { swap('clue', quoteText(fields.clue, 'clue') || null); }
+  if (fields.answer !== undefined) {
+    const a = quoteText(fields.answer, 'name').toUpperCase();
+    if (/answer: '/.test(next)) { swap('answer', a || null); }
+    else if (a) { next = next.replace("type: 'quote',", "type: 'quote', answer: '" + a.replace(/'/g, "\\'") + "',"); }
+  }
+  if (fields.difficulty !== undefined) {
+    const d = Number(fields.difficulty);
+    if (!(d >= 1 && d <= 3)) { throw new Error('difficulty is 1, 2 or 3'); }
+    if (/difficulty: \d/.test(next)) { next = next.replace(/difficulty: \d/, 'difficulty: ' + d); }
+    else { next = next.replace("type: 'quote',", "type: 'quote', difficulty: " + d + ','); }
+  }
+  if (fields.verified !== undefined) {
+    const done = fields.verified === true;
+    const has = /flag: 'unverified',?\s?/.test(next);
+    if (done && has) { next = next.replace(/flag: 'unverified',\s?/, ''); }
+    if (!done && !has) { next = next.replace("type: 'quote',", "type: 'quote', flag: 'unverified',"); }
+  }
+
+  const out = block.slice(0, span.from)
+    .concat(next.split('\n'))
+    .concat(block.slice(span.to + 1));
+  const nextLines = lines.slice(0, start).concat(out, lines.slice(end + 1));
+  return writeDeckSafely(g, nextLines.join('\n'));
+}
+
 function send(res, code, body, type) {
   res.writeHead(code, { 'Content-Type': type || 'application/json; charset=utf-8',
                         'Cache-Control': 'no-store' });
@@ -481,7 +627,7 @@ http.createServer((req, res) => {
 
   if (req.method === 'GET' && route === '/api/games') {
     return send(res, 200, JSON.stringify(GAMES.map((x) => ({
-      slug: x.slug, title: x.title, canon: x.canon,
+      slug: x.slug, title: x.title, canon: x.canon, kind: x.kind || 'pictures',
       exists: fs.existsSync(path.join(ROOT, 'games', x.slug, 'deck.js')),
     }))));
   }
@@ -548,6 +694,26 @@ http.createServer((req, res) => {
         }));
       } catch (e) {
         written.forEach((f) => { try { fs.unlinkSync(f); } catch (x) { /* ignore */ } });
+        send(res, 400, JSON.stringify({ error: e.message }));
+      }
+    });
+    return;
+  }
+
+  if (req.method === 'GET' && route === '/api/quotes') {
+    try { return send(res, 200, JSON.stringify(quoteRows(g))); }
+    catch (e) { return send(res, 500, JSON.stringify({ error: e.message })); }
+  }
+
+  if (req.method === 'POST' && route === '/api/set-quote') {
+    const chunks = [];
+    req.on('data', (c) => chunks.push(c));
+    req.on('end', () => {
+      try {
+        const body = JSON.parse(Buffer.concat(chunks).toString('utf8'));
+        setQuote(g, String(body.id || ''), Number(body.index), body);
+        send(res, 200, JSON.stringify({ ok: true }));
+      } catch (e) {
         send(res, 400, JSON.stringify({ error: e.message }));
       }
     });

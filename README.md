@@ -19,6 +19,13 @@ the answer is a book of the Bible.
 **Double-click `index.html`.** That's the whole install. Copy the folder to a
 USB stick and it runs on any laptop in the building, wifi or not.
 
+Pick a game, and it opens on a **start screen**: what the game is, in one or
+two lines, and a dropdown for how long the round should be. `Space` starts it.
+The choice is remembered per game, so a programme that always runs 15 is set
+once. Where a deck has more than one language with something to play in it, a
+language picker sits beside the length — one language per round, because a
+mixed round leaves the room unsure which language to shout.
+
 | Key | What it does |
 |-----|--------------|
 | `Space` / click | reveal the working, then the answer, then next |
@@ -27,6 +34,7 @@ USB stick and it runs on any laptop in the building, wifi or not.
 | `O` | back to the order written in `deck.js` |
 | `F` | fullscreen |
 | `Home` | first puzzle |
+| `S` | back to the start screen, to change the round length or language |
 | `?` | show the key legend again |
 
 The legend appears on screen for the first few seconds so you don't have to
@@ -41,13 +49,27 @@ which gives the room a moment to get there themselves; the second shows
 `DANIEL`. Reveal the answer straight away and anyone who missed the pun never
 finds out why it worked.
 
-**An evening is played in rounds.** Round one draws 20 of the 42 books, easiest
+**An evening is played in rounds.** Round one draws 20 puzzles, easiest
 first. When it ends the screen says how many are still to come; `Space` starts
-the next round, which draws only books the earlier rounds did not show. Three
-rounds cover all 42 with nothing repeated, and the last card says so.
+the next round, which draws only books the earlier rounds did not show. Rounds keep going until the deck runs out, with nothing repeated, and the last
+card says so.
 
-A book with more than one variant can come back in a later round showing its
-other picture — that counts as something you have not seen.
+A puzzle with more than one variant can come back in a later round showing its
+other picture, or another line the same person said — that counts as something
+you have not seen.
+
+### The three games
+
+- **Bible Book Names** — pictures combine into a book of the Bible.
+  Jeans + sis. XO + dos. 43 books, three rounds.
+- **Who Said It?** — a line someone in the Bible said. Four beats: the quote,
+  the verse, a clue, then the name. 71 people, 113 quotes, four rounds.
+  Playable in English and Tagalog — pick the language on the start screen,
+  which also names the translation it will use: New King James Version in
+  English, Ang Dating Biblia (1905) in Tagalog.
+- **Bible Character Names** — the same idea as the book game, with people.
+  Greyed out on the front page until it has pictures; its start screen says so
+  rather than failing.
 
 Press `R` at any point for a completely fresh evening, or `O` to walk the deck
 in file order when you're rehearsing.
@@ -57,11 +79,19 @@ in file order when you're rehearsing.
 ## The Game Master view
 
 The room watches the projector. Whoever is running the game opens
-**`games/book-names/gm.html` on their phone** to see the answers.
+**`gm.html` on their phone** to see the answers — one page for every game.
 
-Every card prints a small id in the bottom corner — `#bn-13`. Type that id into
-the Game Master view and you get the answer, the working, and where the book
-sits in the canon. You can search by book name too.
+Sign in once, then pick the game from the row at the top — it holds every
+playable deck, so switching between them costs nothing and does not ask for the
+password again.
+
+Every card prints a small id in the bottom corner — `#bn-13`, `#qs-04`. Type
+that id into the Game Master view and you get the answer, the working, and
+where it sits: the canon position for a book, or the verse and clue for a
+quote. You can search by name too.
+
+A quote still waiting for its Tagalog line shows as *waiting*, so you can see
+what is missing as easily as what is there.
 
 Nothing is synchronised between the projector and the phone, so reshuffling
 costs nothing and you can join halfway through. The ids never move.
@@ -99,7 +129,7 @@ python3 -m http.server 8000
 ipconfig getifaddr en0      # the laptop's address on the network
 ```
 
-Then on the phone open `http://THAT-ADDRESS:8000/games/book-names/gm.html`.
+Then on the phone open `http://THAT-ADDRESS:8000/gm.html`.
 Church wifi works, and so does a phone hotspot with the laptop joined to it —
 no internet is needed, only the two devices on one network.
 
@@ -253,7 +283,7 @@ games/book-names/
   index.html            the game
   deck.js               ← THE PUZZLES. This is the file you'll edit.
   images/*              clue artwork
-  gm.html               the Game Master view
+  gm.html               the Game Master view — one page, every game
 tools/
   manage.js             the deck manager — see tools/README.md
   validate.js           deck checker — run this after editing

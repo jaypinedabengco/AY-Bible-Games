@@ -31,6 +31,10 @@ window.DECK = {
   // fault. Lower this number if you want to try a short round while building.
   sessionSize: 20,
   languages: ['en'],
+  howToPlay: [
+    'Pictures combine into the name of a person from a Bible story.',
+    'The room shouts the name. One person clicks to reveal.',
+  ],
   puzzles: [
   ],
 };

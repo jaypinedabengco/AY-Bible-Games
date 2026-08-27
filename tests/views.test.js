@@ -24,7 +24,7 @@ test('a partial structured reference omits missing parts', () => {
 
 test('the badge names the language being asked', () => {
   assert.equal(badgeFor('en'), 'English');
-  assert.equal(badgeFor('fil'), 'Filipino');
+  assert.equal(badgeFor('fil'), 'Tagalog');
 });
 
 test('rebus hides clue words until the working is shown', () => {
@@ -68,7 +68,7 @@ test('image reveals the answer in one stage', () => {
   assert.equal(byType.image.stages(v), 1);
   const s0 = byType.image.view(p, v, 0);
   assert.equal(s0.img, 'crown.jpg');
-  assert.equal(s0.badge, 'Filipino');
+  assert.equal(s0.badge, 'Tagalog');
   assert.equal(s0.answered, null);
   assert.equal(byType.image.view(p, v, 1).answered.answer, 'HARI');
 });
@@ -118,4 +118,107 @@ test('stagesForItem dispatches on the variant type', () => {
   const image = normalizePuzzle({ answer: 'B', type: 'image', img: 'b.jpg' });
   assert.equal(stagesForItem({ puzzle: rebus, variant: rebus.variants[0] }), 2);
   assert.equal(stagesForItem({ puzzle: image, variant: image.variants[0] }), 1);
+});
+
+function quotePuzzle(extra) {
+  return normalizePuzzle(Object.assign({
+    id: 'qs-01', answer: 'CAIN', type: 'quote',
+    quote: 'Am I my brother’s keeper?',
+    verse: 'Genesis 4:9',
+    clue: 'he worked the ground; his brother kept sheep',
+  }, extra || {}));
+}
+
+test('a quote with verse and clue reveals over four stages', () => {
+  const p = quotePuzzle();
+  const v = p.variants[0];
+  const q = byType.quote;
+  assert.equal(q.stages(v), 3);
+
+  const s0 = q.view(p, v, 0);
+  assert.equal(s0.kind, 'quote');
+  assert.equal(s0.quote, 'Am I my brother’s keeper?');
+  assert.equal(s0.verse, null, 'the verse must not show with the quote');
+  assert.equal(s0.clue, null);
+  assert.equal(s0.answered, null);
+
+  assert.equal(q.view(p, v, 1).verse, 'Genesis 4:9');
+  assert.equal(q.view(p, v, 1).clue, null, 'the clue comes after the verse');
+
+  assert.equal(q.view(p, v, 2).clue, 'he worked the ground; his brother kept sheep');
+  assert.equal(q.view(p, v, 2).answered, null);
+
+  const s3 = q.view(p, v, 3);
+  assert.deepEqual(s3.answered, { answer: 'CAIN', ref: 'Genesis 4:9' });
+  assert.equal(s3.verse, null, 'the answer block prints the verse; twice reads as a mistake');
+  assert.equal(s3.clue, 'he worked the ground; his brother kept sheep',
+    'the clue stays up - it is the bit worth teaching');
+});
+
+
+test('a quote with no clue drops the clue stage', () => {
+  const p = quotePuzzle({ clue: null });
+  const v = p.variants[0];
+  assert.equal(byType.quote.stages(v), 2);
+  assert.equal(byType.quote.view(p, v, 1).verse, 'Genesis 4:9');
+  assert.deepEqual(byType.quote.view(p, v, 2).answered,
+    { answer: 'CAIN', ref: 'Genesis 4:9' });
+});
+
+test('a quote alone is a two-screen puzzle', () => {
+  const p = quotePuzzle({ verse: null, clue: null });
+  const v = p.variants[0];
+  assert.equal(byType.quote.stages(v), 1);
+  assert.deepEqual(byType.quote.view(p, v, 1).answered, { answer: 'CAIN', ref: null });
+});
+
+test('a variant answer overrides the puzzle answer at the reveal', () => {
+  const p = normalizePuzzle({
+    id: 'qs-05', answer: 'PETER',
+    variants: [
+      { type: 'quote', lang: 'en', quote: 'You are the Christ.',
+        verse: 'Matthew 16:16', clue: 'a fisherman' },
+      { type: 'quote', lang: 'fil', answer: 'PEDRO', quote: 'Ikaw ang Cristo.',
+        verse: 'Mateo 16:16', clue: 'isang mangingisda' },
+    ],
+  });
+  const q = byType.quote;
+  assert.equal(q.view(p, p.variants[0], 3).answered.answer, 'PETER');
+  assert.equal(q.view(p, p.variants[1], 3).answered.answer, 'PEDRO');
+});
+
+test('stagesForItem reads the stage count off a quote variant', () => {
+  const p = quotePuzzle();
+  assert.equal(stagesForItem({ puzzle: p, variant: p.variants[0] }), 3);
+});
+
+test('a Tagalog quote is badged Tagalog, not English', () => {
+  // The badge used to read the puzzle's lang, which is 'en' by default even
+  // when the variant on screen is the Tagalog one - so a Tagalog round was
+  // labelled ENGLISH in the corner.
+  const p = normalizePuzzle({
+    id: 'qs-01', answer: 'CAIN',
+    variants: [
+      { type: 'quote', lang: 'en', quote: 'Am I my brother’s keeper?', verse: 'Genesis 4:9' },
+      { type: 'quote', lang: 'fil', quote: 'Aywan ko', verse: 'Genesis 4:9' },
+    ],
+  });
+  assert.equal(byType.quote.view(p, p.variants[0], 0).badge, 'English');
+  assert.equal(byType.quote.view(p, p.variants[1], 0).badge, 'Tagalog');
+});
+
+
+
+
+test('the reference always shows, and always before the clue', () => {
+  // Every quote gets the same four beats. The reference is shown even when the
+  // book carries the speaker's name: most quotes from those books are spoken
+  // by someone else entirely - Goliath in 1 Samuel, Nebuchadnezzar in Daniel,
+  // Pilate in John - so the book name is a hint far more often than a giveaway.
+  const p = quotePuzzle({ answer: 'JONAH', verse: 'Jonah 1:12' });
+  const v = p.variants[0];
+  assert.equal(byType.quote.stages(v), 3);
+  assert.equal(byType.quote.view(p, v, 1).verse, 'Jonah 1:12');
+  assert.equal(byType.quote.view(p, v, 1).clue, null, 'the verse comes first');
+  assert.equal(byType.quote.view(p, v, 2).clue, 'he worked the ground; his brother kept sheep');
 });

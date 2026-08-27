@@ -41,6 +41,9 @@
   }
 
   function workingOf(variant) {
+    // A quote puzzle's working IS the line on screen: it is what the game
+    // master needs to match against what the room is staring at.
+    if (variant.type === 'quote') { return variant.quote || null; }
     if (!variant.clues) { return null; }
     return variant.clues.map(function (c) { return c.word; }).join(' + ');
   }
@@ -64,6 +67,20 @@
         pictures: p.variants.map(function (v) {
           return v.clues ? v.clues.map(function (c) { return c.img; }) : (v.img ? [v.img] : []);
         }),
+        // Every line this puzzle might ask, in either language, including the
+        // ones still waiting for their text - the game master should be able
+        // to see what is missing as easily as what is there.
+        quotes: p.variants.filter(function (v) { return v.type === 'quote'; })
+          .map(function (v) {
+            return {
+              quote: v.quote,
+              verse: v.verse,
+              clue: v.clue,
+              lang: v.lang || p.lang || 'en',
+              answer: v.answer || p.answer,
+              waiting: !v.quote,
+            };
+          }),
         flags: flags,
       };
     }).sort(function (a, b) {

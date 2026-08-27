@@ -136,3 +136,57 @@ test('a risky flag is a notice, not an error', () => {
   assert.deepEqual(r.errors, []);
   assert.match(r.notices.join(' | '), /risky/i);
 });
+
+function quoteDeck(variant, puzzle) {
+  return {
+    id: 'who-said-it', sessionSize: 1, languages: ['en'],
+    puzzles: [Object.assign({ id: 'qs-01', answer: 'CAIN' }, puzzle || {},
+      { variants: [Object.assign({
+          type: 'quote', quote: 'Am I my brother’s keeper?',
+          verse: 'Genesis 4:9', clue: 'he worked the ground',
+        }, variant || {})] })],
+  };
+}
+
+test('a scaffold with a verse but no text yet is not an error', () => {
+  const r = validate(quoteDeck({ quote: null }));
+  assert.deepEqual(r.errors, []);
+  assert.ok(r.notices.some((n) => /waiting for their text/.test(n)), r.notices.join('; '));
+});
+
+test('a quote variant with neither text nor verse is an error', () => {
+  const r = validate(quoteDeck({ quote: null, verse: null }));
+  assert.ok(r.errors.some((e) => /needs its text/.test(e)), r.errors.join('; '));
+});
+
+test('a well-formed quote deck passes', () => {
+  const r = validate(quoteDeck());
+  assert.deepEqual(r.errors, []);
+});
+
+
+
+
+
+
+test('unverified quotes are counted in a notice', () => {
+  const r = validate(quoteDeck({ flag: 'unverified' }));
+  assert.ok(r.notices.some((n) => /1 of 1 quotes still unverified/.test(n)),
+            r.notices.join('; '));
+});
+
+test('a verified deck says nothing about verification', () => {
+  const r = validate(quoteDeck());
+  assert.ok(!r.notices.some((n) => /unverified/.test(n)), r.notices.join('; '));
+});
+
+test('a reference is never rewritten or refused, whatever its book', () => {
+  // The rule that refused "Jonah 2:2" under JONAH is gone: most quotes from a
+  // book named after a person are spoken by someone else, so it rejected far
+  // more good decks than bad ones.
+  const r = validate(quoteDeck(
+    { quote: 'Pick me up and throw me into the sea', verse: 'Jonah 1:12', clue: 'a storm' },
+    { answer: 'JONAH' },
+  ));
+  assert.deepEqual(r.errors, []);
+});

@@ -32,6 +32,48 @@ person running the game types it on their phone and gets the answer. Username
 
 ## Decisions already made, and why
 
+**Who Said It? shows the verse BEFORE the clue, always.** The reference is
+itself a hint for whoever has read the passage, which rewards the youth who
+read.
+
+There WAS an exception, and it was removed after being played: a verse whose
+book carried the speaker's name — `Jonah 2:2` under JONAH — used to be held
+back to the reveal, and `validate.js` refused a deck that forgot. Two things
+killed it. It read as broken in the room: the host clicks for the reference and
+the screen does not change. And the premise was mostly wrong — of the quotes
+drawn from books named after a person, 36 are spoken by someone else entirely:
+Goliath and Eli in Samuel, Nebuchadnezzar in Daniel, Pilate and Thomas and
+Nicodemus in John, Mordecai in Esther. The book name is a hint far more often
+than a giveaway.
+
+So a handful of puzzles — Ruth in Ruth, Jonah in Jonah — do hand the answer
+over at the reference. That is an accepted cost, not an oversight.
+
+**Difficulty means fame, not theology.** 1 is a line the room shouts before you
+finish reading it; 3 needs the clue. The running order ramps ascending, so each
+round warms up. Note what that does NOT do: the round's 20 are picked at random
+from what is fresh and then ramped, so the evening as a whole does not ramp — a
+famous line can turn up in round 3, and round 3 still opens with its easiest.
+That was considered and kept: a round of 20 hard ones with no warm-up is worse.
+
+**A quote with no text is dormant, not broken.** Same rule as a variant whose
+picture is missing: never drawn, waiting. It is what lets the Tagalog half of
+the deck ship complete except the copyrighted line. It is also a rule with a
+scar — before it existed, a Tagalog scaffold was drawn in a test round and
+painted the word "null" across the projector.
+
+**Tagalog is back, for the quote game only.** It was removed from Bible Book
+Names deliberately and that still stands: there, a Tagalog book changed the
+puzzle itself, because Santiago is not "Jam + S" and the pictures stopped
+working. Here a Tagalog quote is another line by the same person, which is what
+a variant already is. Language sits on the VARIANT, with its own answer, so
+PEDRO and PETER are one puzzle and one game-master row.
+
+**Noah is not in the quote deck.** His only substantial recorded speech is
+Genesis 9:25, the curse of Canaan — obscure as a quotation and the verse abused
+for centuries to justify slavery. It does not belong on a screen in front of a
+youth programme, and his fame is in what he did rather than anything he said.
+
 Please don't undo these without reading the reason. Each one was arrived at the
 hard way.
 
@@ -100,18 +142,49 @@ then removed as the deck changed. They are small, and `deck.js` carries a
 commented example, so switching one on is deck data — but don't be surprised
 they're dormant.
 
-**Three future games are listed on the front page, greyed out**: Old or New?,
-Finish the Verse, Bible Character Names. The engine already handles all three;
-each needs a deck and one line in `games.js`.
+**Two future games are listed on the front page, greyed out**: Old or New? and
+Bible Character Names. Finish the Verse was removed — Who Said It? does the
+same job better. The character game is built and wired but its deck is empty
+until it has pictures; its start screen says so rather than failing.
+
+**Who Said It? is drafted, not verified.** All 113 quotes carry
+`flag: 'unverified'` until a human has compared the wording to an NKJV Bible.
+`validate.js` prints the count, the game master page tags them, and the manager
+clears them one tick at a time. This is the one open item that must be closed
+before it is played in a service — misquoting scripture aloud in church is the
+error in this game that actually matters.
+
+**Tagalog is playable: 71 people, in Ang Dating Biblia (1905).**
+
+The text was FETCHED from a public API, not written from memory. That
+distinction is the whole reason there is Tagalog scripture in this repository
+at all — drafted Tagalog scripture would have been guesswork on a screen in
+church. Every line was then cut out of its verse by hand, because ADB wraps
+speech in narration that usually names the speaker ("At sinabi ni Ruth, …"),
+and each one was checked to be a genuine substring of the verse it came from
+before it was written.
+
+It is **not** Magandang Balita Biblia, which was the original preference. MBB
+is the Philippine Bible Society's and is not available from a public source.
+ADB is public domain, and reads like KJV does in English — "Dios" not "Diyos",
+older grammar. Any line can be replaced with MBB in the manager one at a time;
+if that is ever done across the deck, the `credits.fil` field must become the
+PBS notice, which is left in a comment beside it.
+
+Everything is still flagged unverified, in both languages.
 
 ---
 
-**The repository is private and Pages is not enabled.** That was a decision, not
-an omission: Pages on a private repo needs a paid plan, and the game never
-needed a server. It runs by double-clicking `index.html`, and `README.md`
-explains three ways to get the answers onto a phone or a second screen without
-publishing anything. If it is ever made public, note that the brand imagery in
-`images/` becomes public with it, and git history is permanent.
+**The repository is public and published on GitHub Pages.** It started private
+— Pages on a private repo needs a paid plan — and was made public deliberately
+so the site could be served. Two consequences that cannot be undone: the brand
+imagery in `images/` is public, and git history is permanent.
+
+**The game master credentials are in this repository's history.** They were
+`GM` / `Adventist` when they were committed, and rotating them now does not
+remove them from the history of a public repo. `tools/gm-hash.js` generates a
+new hash for `gm-config.js`. Treat the view as "not on the projector" rather
+than as secure, which is all it was ever meant to be.
 
 ---
 
@@ -137,7 +210,7 @@ publishing anything. If it is ever made public, note that the brand imagery in
 ```sh
 open index.html                                   # play it, no server needed
 open tools/review.html                            # the whole deck on one screen
-open games/book-names/gm.html                     # the Game Master view
+open gm.html                                     # the Game Master view
 node tools/validate.js games/book-names/deck.js   # check the deck after editing
 node --test tests/                                # 108 tests
 node tools/gm-hash.js GM Adventist                # new Game Master credentials

@@ -152,7 +152,9 @@ html, body {
    fades so the room is not reading it. "?" brings it back. */
 .legend {
   position: fixed;
-  bottom: 2vmin;
+  /* Clear of the scripture notice, which is pinned to the very bottom. Both
+     were at 2vmin and 1vmin and overlapped on a wide screen. */
+  bottom: 3.4vmin;
   left: 2vmin;
   display: flex;
   gap: 1.6vmin;
@@ -209,3 +211,41 @@ html, body {
 
 .back-link:hover,
 .back-link:focus { opacity: 1; color: var(--accent); }
+
+/* A quote is read by the ROOM, from the back, once. Sized against the same
+   measurement that set the book game's answer: on a 55" screen 6vmin is about
+   1.9 inches of cap height, readable to roughly 24 feet. Long lines are the
+   risk here, not small ones - the max-width keeps a quote to a few balanced
+   lines rather than one long streak across the wall. */
+.quote { font-size: 6vmin; line-height: 1.35; max-width: 78vw;
+         text-align: center; text-wrap: balance; }
+.verse { font-size: 3vmin; color: var(--accent); letter-spacing: 0.12em;
+         text-transform: uppercase; }
+.clue-text { font-size: 3.4vmin; color: var(--dim); max-width: 70vw;
+             text-align: center; line-height: 1.4; }
+
+/* The scripture permission notice. Deliberately tiny and dim: it is a
+   requirement on the page, not something the room should be reading. */
+.credit { position: fixed; bottom: 0.4vmin; left: 50%; transform: translateX(-50%);
+          margin: 0; max-width: 90vw; text-align: center;
+          font-size: 1.3vmin; color: var(--dim); opacity: 0.55; }
+
+/* The start screen. Bigger than a phone UI, smaller than a puzzle: the driver
+   is at the laptop reading it, and the room is looking at the title. */
+.startcard { display: flex; flex-direction: column; align-items: center;
+             gap: 2.2vmin; text-align: center; max-width: 74vw; }
+.start-church { font-size: 1.9vmin; letter-spacing: 0.3em; text-transform: uppercase;
+                color: var(--accent); }
+.start-title { font-size: 9vmin; font-weight: 700; line-height: 1.05; margin-top: -1vmin; }
+.start-how { font-size: 2.8vmin; color: var(--dim); line-height: 1.45; max-width: 60vw; }
+.start-row { display: flex; align-items: center; gap: 1.4vmin; }
+.start-label { font-size: 1.8vmin; letter-spacing: 0.16em; text-transform: uppercase;
+               color: var(--dim); }
+.start-pick { font: inherit; font-size: 2.6vmin; padding: 0.6vmin 1.2vmin;
+              border-radius: 0.8vmin; border: 0.2vmin solid var(--card);
+              background: var(--card); color: var(--fg); cursor: pointer; }
+.start-version { font-size: 1.9vmin; color: var(--dim); letter-spacing: 0.14em;
+                 text-transform: uppercase; margin-top: -0.8vmin; }
+.start-go { font-size: 2.2vmin; color: var(--accent); letter-spacing: 0.2em;
+            text-transform: uppercase; margin-top: 1vmin; }
+.start-empty { font-size: 2.6vmin; color: var(--bad); max-width: 60vw; line-height: 1.4; }

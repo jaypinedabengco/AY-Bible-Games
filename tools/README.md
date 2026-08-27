@@ -30,6 +30,8 @@ applies to either. The only difference is what the **add** tab asks for:
   list of Bible characters, and the reference is a free line of your own:
   `Exodus 3 · led Israel out of Egypt`. It prints small under the answer after
   the reveal, so keep the answer out of it.
+- **Who Said It?** — a text deck, so it has no pictures at all. It gets the two
+  quote tabs described below instead.
 
 The character deck starts **empty**, and its card on the front page stays greyed
 out until it can fill a round. `tools/validate.js` will report that `sessionSize`
@@ -119,6 +121,40 @@ Files are named after the book: `proverbs.png` for one picture, or
 The new book is appended to the end of `deck.js` rather than slotted into canon
 order. Play order is shuffled anyway, and inserting into the middle would mean
 guessing which division comment it belongs under.
+
+### Quotes tabs — the Who Said It? deck
+
+This deck has no pictures, so the pictures, variants and add tabs are hidden
+for it. Two tabs take their place.
+
+**waiting for text** opens first, because it is the tab that gets used. It
+lists only the quotes with no line yet — the Tagalog scaffolds. Each shows the
+person, the reference and the clue, with an empty box. Paste the Magandang
+Balita Biblia line in, press save, and that quote wakes up: it stops being
+dormant, starts being drawn in a Tagalog round, and drops off this list.
+
+The MBB text is the Philippine Bible Society's, so it is not committed to this
+repository ahead of you. What is committed is the name, the reference and the
+clue, which are our own words. That is why the boxes are empty and why this tab
+exists.
+
+**quotes** shows every quote, in both languages. Per quote you can edit:
+
+- **the line itself**, in a box big enough to read the whole sentence — a quote
+  typed into a single-line field that scrolls sideways is how a mistake gets
+  missed
+- **verse** and **clue**
+- **name**, on a Tagalog quote only: the Tagalog form the room shouts (PEDRO
+  for PETER). English quotes take the person's name from the puzzle.
+- **difficulty** — 1 is a line the room shouts instantly, 3 needs the clue.
+  Difficulty here means FAME, not theology.
+- **wording checked** — the ONLY thing that clears the `unverified` flag. Tick
+  it once you have compared the line against a real Bible. Until then
+  `validate.js` counts it and the game master page tags it.
+
+Apostrophes are fine and are escaped for you — a quote is full of them.
+Backslashes and line breaks are refused: neither belongs in a line read aloud
+from a screen.
 
 ### What it will not do
 

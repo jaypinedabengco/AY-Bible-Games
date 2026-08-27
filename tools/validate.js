@@ -10,7 +10,7 @@
 (function (root) {
   'use strict';
 
-  var TYPES = ['rebus', 'image', 'text', 'binary', 'order'];
+  var TYPES = ['rebus', 'image', 'text', 'binary', 'order', 'quote'];
   var LANGS = ['en', 'fil'];
   var SLOTS = ['early', 'middle', 'late', 'anywhere'];
 
@@ -57,6 +57,17 @@
         errors.push(where + ': answer "' + p.answer + '" is not one of its options');
       }
     }
+    if (v.type === 'quote') {
+      // A quote with no text is DORMANT, not broken - it is a scaffold waiting
+      // for a line to be pasted in, the same way a variant whose picture is
+      // missing waits for its file. It is only an error when there is nothing
+      // to identify it by either.
+      if (!v.quote && !v.verse) {
+        errors.push(where + ': a quote variant needs its text, or at least a '
+          + 'verse if it is a scaffold waiting for one');
+      }
+    }
+
     if (v.type === 'order') {
       if (!v.items || !v.correct) {
         errors.push(where + ': order needs items and correct');
@@ -124,6 +135,30 @@
         }
       });
     });
+
+    // Drafted scripture is not checked scripture, and a half-translated deck
+    // is a normal state to be in. Both are notices rather than errors: nobody
+    // should have to remember how far through either job they are, and neither
+    // stops the deck playing.
+    var quotes = 0;
+    var unverified = 0;
+    var waiting = 0;
+    pool.forEach(function (p) {
+      p.variants.forEach(function (v) {
+        if (v.type !== 'quote') { return; }
+        quotes++;
+        if (v.flag === 'unverified') { unverified++; }
+        if (!v.quote) { waiting++; }
+      });
+    });
+    if (unverified) {
+      notices.push(unverified + ' of ' + quotes + ' quotes still unverified - '
+        + 'check the wording against the Bible before a service');
+    }
+    if (waiting) {
+      notices.push(waiting + ' quotes waiting for their text - dormant until '
+        + 'the line is pasted in, so they are never drawn');
+    }
 
     // From here down the session is what matters, so these use the pool.
     var playable = pool.length;

@@ -82,6 +82,10 @@
       body.appendChild(clueRow([{ img: view.img, word: null }], srcFor));
     } else if (view.kind === 'text') {
       body.appendChild(el('div', 'prompt', view.prompt));
+    } else if (view.kind === 'quote') {
+      body.appendChild(el('div', 'quote', '\u201c' + view.quote + '\u201d'));
+      if (view.verse) { body.appendChild(el('div', 'verse', view.verse)); }
+      if (view.clue) { body.appendChild(el('div', 'clue-text', view.clue)); }
     } else if (view.kind === 'binary') {
       if (view.img) { body.appendChild(clueRow([{ img: view.img, word: null }], srcFor)); }
       if (view.prompt) { body.appendChild(el('div', 'prompt', view.prompt)); }

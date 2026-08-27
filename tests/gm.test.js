@@ -102,3 +102,47 @@ test('a puzzle with variants reports every picture it might draw', () => {
 test('every puzzle in the deck gets exactly one row', () => {
   assert.equal(rows(deck()).length, 3);
 });
+
+test('a quote puzzle gives the game master every line it might ask', () => {
+  const out = rows({
+    id: 'who-said-it',
+    puzzles: [{
+      id: 'qs-07', answer: 'PETER',
+      variants: [
+        { type: 'quote', quote: 'You are the Christ, the Son of the living God.',
+          verse: 'Matthew 16:16', clue: 'a fisherman; Jesus called him a rock' },
+        { type: 'quote', quote: 'I do not know the Man!', verse: 'Matthew 26:72',
+          clue: 'he said it three times, before dawn', flag: 'unverified' },
+        { type: 'quote', lang: 'fil', answer: 'PEDRO', quote: null,
+          verse: 'Mateo 16:16', clue: 'isang mangingisda' },
+      ],
+    }],
+  });
+  assert.equal(out.length, 1);
+  const r = out[0];
+  assert.equal(r.answer, 'PETER');
+  assert.equal(r.quotes.length, 3);
+  assert.deepEqual(r.quotes[1], {
+    quote: 'I do not know the Man!',
+    verse: 'Matthew 26:72',
+    clue: 'he said it three times, before dawn',
+    lang: 'en',
+    answer: 'PETER',
+    waiting: false,
+  });
+  assert.equal(r.quotes[2].lang, 'fil');
+  assert.equal(r.quotes[2].answer, 'PEDRO');
+  assert.equal(r.quotes[2].waiting, true, 'no text yet, so it is dormant');
+  assert.equal(r.working, 'You are the Christ, the Son of the living God.');
+  assert.deepEqual(r.flags, ['unverified']);
+});
+
+test('a picture puzzle has no quotes', () => {
+  const out = rows({
+    id: 'book-names',
+    puzzles: [{ id: 'bn-01', answer: 'GENESIS',
+                clues: [{ img: 'jeans.jpg', word: 'JEANS' }] }],
+  });
+  assert.deepEqual(out[0].quotes, []);
+  assert.equal(out[0].working, 'JEANS');
+});

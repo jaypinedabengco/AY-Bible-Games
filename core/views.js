@@ -13,7 +13,9 @@
   'use strict';
 
   var BOOKS_IN_BIBLE = 66;
-  var BADGES = { en: 'English', fil: 'Filipino' };
+  // "Tagalog", not "Filipino": it is what the start screen's picker says and
+  // what the room calls it.
+  var BADGES = { en: 'English', fil: 'Tagalog' };
 
   function formatRef(ref) {
     if (!ref) { return null; }
@@ -42,6 +44,10 @@
     // it is how the Game Master finds this puzzle's answer on their phone
     // without needing to know the running order at all (spec 16).
     return { kind: kind, id: puzzle.id, badge: badgeFor(puzzle.lang) };
+  }
+
+  function revealStage(variant) {
+    return 1 + (variant.verse ? 1 : 0) + (variant.clue ? 1 : 0);
   }
 
   var byType = {
@@ -73,6 +79,34 @@
         var v = base('text', puzzle);
         v.prompt = variant.prompt;
         v.answered = answered(puzzle, stage, 1);
+        return v;
+      },
+    },
+    quote: {
+      // Four screens by default - quote, verse, clue, answer - but a puzzle
+      // that holds its verse back or has no clue written yet simply has fewer.
+      // The machine asks the variant, so nothing here is special-cased there.
+      stages: function (variant) { return revealStage(variant); },
+      view: function (puzzle, variant, stage) {
+        var v = base('quote', puzzle);
+        // Language lives on the VARIANT here, so the badge has to read it from
+        // there - taking it off the puzzle labelled a Tagalog round ENGLISH.
+        var lang = variant.lang || puzzle.lang || 'en';
+        v.badge = badgeFor(lang);
+        var clueAt = variant.verse ? 2 : 1;
+        v.quote = variant.quote;
+        // Dropped again at the reveal: the answer block prints the verse
+        // under the name, and showing it twice on one screen reads as a
+        // mistake from the back of a hall.
+        v.verse = (variant.verse && stage >= 1 && stage < revealStage(variant))
+          ? variant.verse : null;
+        v.clue = (variant.clue && stage >= clueAt) ? variant.clue : null;
+        // The verse belongs to the QUOTE, not to the person: Peter's two lines
+        // are in different chapters. And the answer can differ by language -
+        // PEDRO, not PETER - so the variant's wins when it has one.
+        v.answered = stage >= revealStage(variant)
+          ? { answer: variant.answer || puzzle.answer, ref: variant.verse || null }
+          : null;
         return v;
       },
     },
