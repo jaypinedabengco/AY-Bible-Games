@@ -182,3 +182,86 @@ test('a variant whose picture is missing is never counted as unseen', async () =
   assert.equal(r1.items.length, 1);
   assert.equal(r2.items.length, 0, 'the unsourced variant must not create a round');
 });
+
+// ---- quote decks: dormancy and language ---------------------------------
+
+const quoteDeck = () => ({
+  id: 'who-said-it', imageDirs: ['images/'], languages: ['en', 'fil'],
+  shuffle: false, sessionSize: 10,
+  puzzles: [{
+    id: 'qs-05', answer: 'PETER',
+    variants: [
+      { type: 'quote', lang: 'en', quote: 'You are the Christ.',
+        verse: 'Matthew 16:16', clue: 'a fisherman' },
+      { type: 'quote', lang: 'fil', answer: 'PEDRO', quote: null,
+        verse: 'Mateo 16:16', clue: 'isang mangingisda' },
+    ],
+  }],
+});
+
+test('a quote with no text yet is dormant and is never drawn', async () => {
+  const s = await buildSession(quoteDeck(), allPresent, seeded(1));
+  assert.equal(s.items.length, 1);
+  assert.equal(s.items[0].variant.quote, 'You are the Christ.',
+    'the scaffold must not be picked - it would paint "null" on the projector');
+});
+
+test('choosing a language plays only that language’s variants', async () => {
+  const d = quoteDeck();
+  d.puzzles[0].variants[1].quote = 'Ikaw ang Cristo.';
+
+  const en = await buildSession(d, allPresent, seeded(1), { lang: 'en' });
+  assert.equal(en.items[0].variant.quote, 'You are the Christ.');
+
+  const fil = await buildSession(d, allPresent, seeded(1), { lang: 'fil' });
+  assert.equal(fil.items[0].variant.quote, 'Ikaw ang Cristo.');
+  assert.equal(fil.items[0].variant.answer, 'PEDRO');
+});
+
+test('a language with nothing playable yields an empty session, not a broken one', async () => {
+  const fil = await buildSession(quoteDeck(), allPresent, seeded(1), { lang: 'fil' });
+  assert.deepEqual(fil.items, []);
+});
+
+test('a variant with no lang of its own is played in the puzzle language', async () => {
+  const d = {
+    id: 'langs', imageDirs: ['images/'], languages: ['en'], shuffle: false, sessionSize: 10,
+    puzzles: [{ id: 'l-1', answer: 'A', type: 'text', prompt: 'p' }],
+  };
+  const s = await buildSession(d, allPresent, seeded(1), { lang: 'en' });
+  assert.equal(s.items.length, 1);
+});
+
+test('a size override limits the round instead of the deck size', async () => {
+  const d = {
+    id: 'sizes', imageDirs: ['images/'], languages: ['en'], shuffle: false, sessionSize: 20,
+    puzzles: Array.from({ length: 9 }, (_, i) => ({
+      id: 'sz-' + i, answer: 'A' + i, type: 'text', prompt: 'p' + i,
+    })),
+  };
+  const all = await buildSession(d, allPresent, seeded(1));
+  assert.equal(all.items.length, 9, 'without an override the deck size wins');
+
+  const four = await buildSession(d, allPresent, seeded(1), { sessionSize: 4 });
+  assert.equal(four.items.length, 4);
+  assert.equal(four.keys.length, 4, 'only what was played is marked seen');
+});
+
+test('the size dropdown offers round numbers up to what the deck can fill', () => {
+  const { sizeOptions } = globalThis.BibleGames.boot;
+  assert.deepEqual(sizeOptions(100, 20).map((o) => o.value), [5, 10, 15, 20, 25, 30, 100]);
+  assert.equal(sizeOptions(100, 20)[6].label, 'All (100)');
+  assert.deepEqual(sizeOptions(12, 20).map((o) => o.value), [5, 10, 12]);
+  assert.deepEqual(sizeOptions(3, 20).map((o) => o.value), [3]);
+  assert.equal(sizeOptions(3, 20)[0].label, 'All (3)');
+  assert.deepEqual(sizeOptions(0, 20), []);
+});
+
+test('the language picker offers only languages with something to play', () => {
+  const { langOptions } = globalThis.BibleGames.boot;
+  assert.deepEqual(langOptions(['en', 'fil'], { en: 40, fil: 12 }).map((o) => o.value),
+                   ['en', 'fil']);
+  assert.deepEqual(langOptions(['en', 'fil'], { en: 40, fil: 0 }).map((o) => o.value),
+                   [], 'one language playable is no choice at all');
+  assert.equal(langOptions(['en', 'fil'], { en: 40, fil: 12 })[1].label, 'Tagalog (12)');
+});

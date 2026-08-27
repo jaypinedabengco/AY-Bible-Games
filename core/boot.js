@@ -22,9 +22,46 @@
 
   function variantKey(puzzle, index) { return puzzle.id + '#' + index; }
 
+  // The dropdown on the start screen. Round numbers only, never more than the
+  // deck can actually fill, and always an "all" option so a small deck is
+  // playable end to end. A deck of 3 offers only "All (3)": offering 5 when
+  // there are 3 would give a round of 3 anyway and look like a bug.
+  var SIZE_STEPS = [5, 10, 15, 20, 25, 30];
+
+  function sizeOptions(playable) {
+    if (playable <= 0) { return []; }
+    var out = [];
+    SIZE_STEPS.forEach(function (n) {
+      if (n < playable) { out.push({ value: n, label: String(n) }); }
+    });
+    out.push({ value: playable, label: 'All (' + playable + ')' });
+    return out;
+  }
+
+  // Only offer a language there is something to play in. A deck whose Tagalog
+  // quotes are all still waiting for their text offers English alone, rather
+  // than a choice that leads to an empty round.
+  var LANG_NAMES = { en: 'English', fil: 'Tagalog' };
+
+  function langOptions(languages, playableByLang) {
+    var live = (languages || []).filter(function (l) {
+      return (playableByLang[l] || 0) > 0;
+    });
+    if (live.length < 2) { return []; }
+    return live.map(function (l) {
+      return { value: l, label: (LANG_NAMES[l] || l) + ' (' + playableByLang[l] + ')' };
+    });
+  }
+
+  // Language is asked of the VARIANT, falling back to the puzzle's, which
+  // falls back to English. That keeps the two picture games - whose puzzles
+  // carry lang and whose variants do not - working exactly as before.
+  function langOf(puzzle, variant) { return variant.lang || puzzle.lang || 'en'; }
+
   function buildSession(deck, resolve, rng, opts) {
     var seen = (opts && opts.seen) || null;
     var normalized = BG.normalize.normalizeDeck(deck);
+    var want = (opts && opts.lang) || null;
     var pool = normalized.puzzles.filter(function (p) {
       return normalized.languages.indexOf(p.lang) !== -1;
     });
@@ -48,6 +85,11 @@
       }
 
       function available(variant) {
+        // A quote with no text yet is DORMANT, exactly as a variant whose
+        // picture is missing is: it waits, and is never drawn. Without this it
+        // gets picked and paints the word "null" on the projector - which it
+        // did, in front of a test round.
+        if (variant.type === 'quote' && !variant.quote) { return false; }
         var names = imageNames(variant);
         if (!names.length) { return true; }   // text and order need no picture
         return names.every(function (n) { return srcFor(n) !== null; });
@@ -55,7 +97,20 @@
 
       var playable = [];
       pool.forEach(function (p) {
-        var options = BG.variants.eligible(p, available);
+        // Language first: a puzzle with nothing in the chosen language is not
+        // in this round at all. That is different from a puzzle whose pictures
+        // are missing, which IS kept below so the gap is visible - a person
+        // whose Tagalog line has not been written yet is not a fault to show,
+        // it is simply not part of a Tagalog round.
+        var inLang = p.variants.filter(function (v) {
+          return !want || langOf(p, v) === want;
+        });
+        if (!inLang.length) { return; }
+
+        var options = BG.variants.eligible(p, available).filter(function (v) {
+          return inLang.indexOf(v) !== -1;
+        });
+        if (want && !options.length) { return; }
 
         // Rounds: prefer a variant this evening has not shown yet. Only
         // RESOLVABLE variants are considered, so a placeholder waiting for its
@@ -72,7 +127,7 @@
           // renders a loud placeholder. Dropping the puzzle would hide a
           // missing file, and this site is published - a silent gap online is
           // far harder to notice than a red question mark.
-          chosen = options.length ? BG.variants.pick(options, rng) : p.variants[0];
+          chosen = options.length ? BG.variants.pick(options, rng) : inLang[0];
         }
         playable.push({ puzzle: p, variant: chosen });
       });
@@ -95,7 +150,8 @@
       var ordered = BG.order.buildOrder(carriers, {
         rng: rng,
         shuffle: normalized.shuffle,
-        sessionSize: normalized.sessionSize,
+        // The start screen's choice wins over the deck's own default.
+        sessionSize: (opts && opts.sessionSize) || normalized.sessionSize,
       });
 
       var items = ordered.map(function (c) { return c.pair; });
@@ -292,5 +348,10 @@
     });
   }
 
-  BG.boot = { buildSession: buildSession, start: start };
+  BG.boot = {
+    buildSession: buildSession,
+    sizeOptions: sizeOptions,
+    langOptions: langOptions,
+    start: start,
+  };
 })(typeof globalThis !== 'undefined' ? globalThis : window);

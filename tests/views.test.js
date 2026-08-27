@@ -148,7 +148,11 @@ test('a quote with verse and clue reveals over four stages', () => {
   assert.equal(q.view(p, v, 2).clue, 'he worked the ground; his brother kept sheep');
   assert.equal(q.view(p, v, 2).answered, null);
 
-  assert.deepEqual(q.view(p, v, 3).answered, { answer: 'CAIN', ref: 'Genesis 4:9' });
+  const s3 = q.view(p, v, 3);
+  assert.deepEqual(s3.answered, { answer: 'CAIN', ref: 'Genesis 4:9' });
+  assert.equal(s3.verse, null, 'the answer block prints the verse; twice reads as a mistake');
+  assert.equal(s3.clue, 'he worked the ground; his brother kept sheep',
+    'the clue stays up - it is the bit worth teaching');
 });
 
 test('holding the verse back drops a stage and still shows it at the reveal', () => {
