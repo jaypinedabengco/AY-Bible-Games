@@ -1023,7 +1023,10 @@ window.DECK = {
     {
       id: 'qs-63', answer: 'PAUL', difficulty: 1,
       variants: [
-        { type: 'quote', answer: 'SAUL', flag: 'unverified', difficulty: 1,
+        // He is called Saul at this moment in the story, but the answer stays
+        // PAUL: the room is being asked WHO, and "Saul" is a different person
+        // elsewhere in this same deck.
+        { type: 'quote', flag: 'unverified', difficulty: 1,
           quote: 'Who are You, Lord?',
           verse: 'Acts 9:5',
           clue: 'Blinded on a road, on his way to arrest believers' },

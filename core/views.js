@@ -53,15 +53,20 @@
   function otherName(puzzle, variant) {
     var shown = variant.answer || puzzle.answer;
     var lang = variant.lang || puzzle.lang || 'en';
-    var found = null;
+    var names = [];
     (puzzle.variants || []).forEach(function (other) {
-      if (found) { return; }
       var otherLang = other.lang || puzzle.lang || 'en';
       if (otherLang === lang) { return; }
       var name = other.answer || puzzle.answer;
-      if (name && name !== shown) { found = name; }
+      if (name && name !== shown && names.indexOf(name) === -1) { names.push(name); }
     });
-    return found;
+    if (!names.length) { return null; }
+    // The pairing is the PERSON's two names, so the puzzle's own answer wins
+    // over a name set on one quote. Otherwise the Damascus-road quote, whose
+    // answer was SAUL, made a Tagalog reveal read "PABLO / SAUL" - as though
+    // Saul were the English for Pablo, and colliding with Saul the king.
+    if (names.indexOf(puzzle.answer) !== -1) { return puzzle.answer; }
+    return names[0];
   }
 
   function revealStage(variant) {

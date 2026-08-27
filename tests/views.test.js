@@ -259,3 +259,24 @@ test('a deck with one language shows no second name', () => {
   const p = quotePuzzle();
   assert.equal(byType.quote.view(p, p.variants[0], 3).answered.alt, null);
 });
+
+test('the second name comes from the person, not from one quote', () => {
+  // The Damascus-road quote was given the answer SAUL, which made a Tagalog
+  // reveal read "PABLO / SAUL" - as though Saul were the English for Pablo,
+  // and colliding with Saul the king. The pairing has to be the person's two
+  // names, so the puzzle's own answer wins over a one-off override.
+  const p = normalizePuzzle({
+    id: 'qs-63', answer: 'PAUL',
+    variants: [
+      { type: 'quote', lang: 'en', answer: 'SAUL', quote: 'Who are You, Lord?',
+        verse: 'Acts 9:5' },
+      { type: 'quote', lang: 'en', quote: 'Men of Athens', verse: 'Acts 17:22' },
+      { type: 'quote', lang: 'fil', answer: 'PABLO', quote: 'Sino ka baga, Panginoon?',
+        verse: 'Mga Gawa 9:5' },
+    ],
+  });
+  const q = byType.quote;
+  assert.equal(q.view(p, p.variants[2], 2).answered.alt, 'PAUL',
+    'not SAUL, which is a different person in the same deck');
+  assert.equal(q.view(p, p.variants[1], 2).answered.alt, 'PABLO');
+});
