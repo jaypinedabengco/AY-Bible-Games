@@ -152,7 +152,9 @@ html, body {
    fades so the room is not reading it. "?" brings it back. */
 .legend {
   position: fixed;
-  bottom: 2vmin;
+  /* Clear of the scripture notice, which is pinned to the very bottom. Both
+     were at 2vmin and 1vmin and overlapped on a wide screen. */
+  bottom: 3.4vmin;
   left: 2vmin;
   display: flex;
   gap: 1.6vmin;
@@ -224,7 +226,7 @@ html, body {
 
 /* The scripture permission notice. Deliberately tiny and dim: it is a
    requirement on the page, not something the room should be reading. */
-.credit { position: fixed; bottom: 1vmin; left: 50%; transform: translateX(-50%);
+.credit { position: fixed; bottom: 0.4vmin; left: 50%; transform: translateX(-50%);
           margin: 0; max-width: 90vw; text-align: center;
           font-size: 1.3vmin; color: var(--dim); opacity: 0.55; }
 

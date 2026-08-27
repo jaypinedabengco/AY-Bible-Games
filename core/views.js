@@ -13,7 +13,9 @@
   'use strict';
 
   var BOOKS_IN_BIBLE = 66;
-  var BADGES = { en: 'English', fil: 'Filipino' };
+  // "Tagalog", not "Filipino": it is what the start screen's picker says and
+  // what the room calls it.
+  var BADGES = { en: 'English', fil: 'Tagalog' };
 
   function formatRef(ref) {
     if (!ref) { return null; }
@@ -91,6 +93,9 @@
       stages: function (variant) { return revealStage(variant); },
       view: function (puzzle, variant, stage) {
         var v = base('quote', puzzle);
+        // Language lives on the VARIANT here, so the badge has to read it from
+        // there - taking it off the puzzle labelled a Tagalog round ENGLISH.
+        v.badge = badgeFor(variant.lang || puzzle.lang);
         var early = earlyVerse(variant);
         var clueAt = early ? 2 : 1;
         v.quote = variant.quote;

@@ -144,12 +144,24 @@ clears them one tick at a time. This is the one open item that must be closed
 before it is played in a service — misquoting scripture aloud in church is the
 error in this game that actually matters.
 
-**71 Tagalog quotes are waiting for their text.** The scaffolds carry the name,
-the reference and the clue; the Magandang Balita Biblia line is pasted in
-through the manager's "waiting for text" tab. Until then each is dormant and is
-never drawn, so the game plays in English exactly as if they were not there.
-The MBB credit line is in the deck's `credits` field and is shown only during a
-Tagalog round.
+**Tagalog is playable: 71 people, in Ang Dating Biblia (1905).**
+
+The text was FETCHED from a public API, not written from memory. That
+distinction is the whole reason there is Tagalog scripture in this repository
+at all — drafted Tagalog scripture would have been guesswork on a screen in
+church. Every line was then cut out of its verse by hand, because ADB wraps
+speech in narration that usually names the speaker ("At sinabi ni Ruth, …"),
+and each one was checked to be a genuine substring of the verse it came from
+before it was written.
+
+It is **not** Magandang Balita Biblia, which was the original preference. MBB
+is the Philippine Bible Society's and is not available from a public source.
+ADB is public domain, and reads like KJV does in English — "Dios" not "Diyos",
+older grammar. Any line can be replaced with MBB in the manager one at a time;
+if that is ever done across the deck, the `credits.fil` field must become the
+PBS notice, which is left in a comment beside it.
+
+Everything is still flagged unverified, in both languages.
 
 ---
 

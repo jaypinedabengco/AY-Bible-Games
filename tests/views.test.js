@@ -24,7 +24,7 @@ test('a partial structured reference omits missing parts', () => {
 
 test('the badge names the language being asked', () => {
   assert.equal(badgeFor('en'), 'English');
-  assert.equal(badgeFor('fil'), 'Filipino');
+  assert.equal(badgeFor('fil'), 'Tagalog');
 });
 
 test('rebus hides clue words until the working is shown', () => {
@@ -68,7 +68,7 @@ test('image reveals the answer in one stage', () => {
   assert.equal(byType.image.stages(v), 1);
   const s0 = byType.image.view(p, v, 0);
   assert.equal(s0.img, 'crown.jpg');
-  assert.equal(s0.badge, 'Filipino');
+  assert.equal(s0.badge, 'Tagalog');
   assert.equal(s0.answered, null);
   assert.equal(byType.image.view(p, v, 1).answered.answer, 'HARI');
 });
@@ -199,4 +199,19 @@ test('a variant answer overrides the puzzle answer at the reveal', () => {
 test('stagesForItem reads the stage count off a quote variant', () => {
   const p = quotePuzzle();
   assert.equal(stagesForItem({ puzzle: p, variant: p.variants[0] }), 3);
+});
+
+test('a Tagalog quote is badged Tagalog, not English', () => {
+  // The badge used to read the puzzle's lang, which is 'en' by default even
+  // when the variant on screen is the Tagalog one - so a Tagalog round was
+  // labelled ENGLISH in the corner.
+  const p = normalizePuzzle({
+    id: 'qs-01', answer: 'CAIN',
+    variants: [
+      { type: 'quote', lang: 'en', quote: 'Am I my brother’s keeper?', verse: 'Genesis 4:9' },
+      { type: 'quote', lang: 'fil', quote: 'Aywan ko', verse: 'Genesis 4:9' },
+    ],
+  });
+  assert.equal(byType.quote.view(p, p.variants[0], 0).badge, 'English');
+  assert.equal(byType.quote.view(p, p.variants[1], 0).badge, 'Tagalog');
 });
