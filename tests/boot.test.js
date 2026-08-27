@@ -265,3 +265,49 @@ test('the language picker offers only languages with something to play', () => {
                    [], 'one language playable is no choice at all');
   assert.equal(langOptions(['en', 'fil'], { en: 40, fil: 12 })[1].label, 'Tagalog (12)');
 });
+
+test('a dormant quote is not counted as still to come', async () => {
+  // The round-end card counts what could fill another round. It must use the
+  // SAME availability rule the draw uses, or it promises puzzles that can
+  // never appear: every person here has a Tagalog scaffold with no line yet,
+  // and counting those said "71 still to come" when 66 remained.
+  const deck = {
+    id: 'who-said-it', imageDirs: ['images/'], languages: ['en', 'fil'],
+    shuffle: false, sessionSize: 2,
+    puzzles: [1, 2, 3].map((n) => ({
+      id: 'qs-0' + n, answer: 'P' + n,
+      variants: [
+        { type: 'quote', lang: 'en', quote: 'line ' + n, verse: 'Acts ' + n + ':1' },
+        { type: 'quote', lang: 'fil', answer: 'F' + n, quote: null, verse: 'Gawa ' + n + ':1' },
+      ],
+    })),
+  };
+  const seen = new Set();
+  const first = await buildSession(deck, allPresent, seeded(1), { seen: seen, sessionSize: 2 });
+  assert.equal(first.items.length, 2);
+  first.keys.forEach((k) => seen.add(k));
+
+  // What is left: one person, not four.
+  const left = await buildSession(deck, allPresent, seeded(1),
+                                  { seen: seen, sessionSize: 9999 });
+  assert.equal(left.items.length, 1,
+    'the two dormant Tagalog scaffolds must not count as still to come');
+});
+
+test('a later round honours the size chosen at the start', async () => {
+  const deck = {
+    id: 'sizes', imageDirs: ['images/'], languages: ['en'], shuffle: false, sessionSize: 20,
+    puzzles: Array.from({ length: 12 }, (_, i) => ({
+      id: 'sz-' + i, answer: 'A' + i, type: 'text', prompt: 'p' + i,
+    })),
+  };
+  const seen = new Set();
+  const r1 = await buildSession(deck, allPresent, seeded(1), { seen: seen, sessionSize: 5 });
+  assert.equal(r1.items.length, 5);
+  r1.keys.forEach((k) => seen.add(k));
+
+  const r2 = await buildSession(deck, allPresent, seeded(1), { seen: seen, sessionSize: 5 });
+  assert.equal(r2.items.length, 5, 'round 2 must be the size the host chose, not the deck default');
+  const overlap = r2.keys.filter((k) => r1.keys.includes(k));
+  assert.deepEqual(overlap, [], 'and must not repeat round 1');
+});

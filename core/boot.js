@@ -202,8 +202,11 @@
 
       if (nextCount > 0) {
         h.textContent = 'Round ' + round + ' done';
-        n.textContent = nextCount + ' book' + (nextCount === 1 ? '' : 's')
-          + ' still to come';
+        // No noun: three games about different things show this card, and it
+        // said "books" in the one about people. The count is of puzzles that
+        // could still be drawn - which includes a person who has another line
+        // the room has not heard.
+        n.textContent = nextCount + ' more still to come';
         hint.textContent = 'Space for round ' + (round + 1);
       } else {
         deckEmpty = true;
@@ -215,24 +218,23 @@
       host.appendChild(box);
     }
 
-    // How many books could still fill another round.
+    // How much could still fill another round. It ASKS buildSession rather
+    // than re-deriving the rules, because the copy that lived here drifted:
+    // it only checked pictures, so every dormant Tagalog quote counted as
+    // still to come and the card promised all 71 when 67 could be drawn.
     function remaining() {
-      var count = 0;
-      session.deck.puzzles.forEach(function (p) {
-        var anyFresh = p.variants.some(function (v, i) {
-          var names = v.clues ? v.clues.map(function (c) { return c.img; })
-                              : (v.img ? [v.img] : []);
-          var resolvable = !names.length
-            || names.every(function (nm) { return session.srcFor(nm) !== null; });
-          return resolvable && !seen.has(p.id + '#' + i);
-        });
-        if (anyFresh) { count++; }
-      });
-      return count;
+      return buildSession(deck, resolver, rng, {
+        seen: seen, sessionSize: 9999, lang: choice.lang,
+      }).then(function (rest) { return rest.items.length; });
     }
 
     function nextRound() {
-      return buildSession(deck, resolver, rng, { seen: seen }).then(function (next) {
+      // The choice made on the start screen holds for the evening, so every
+      // round after the first is the length the host asked for - not the
+      // deck's own default, which is what round 2 quietly reverted to.
+      return buildSession(deck, resolver, rng, {
+        seen: seen, sessionSize: choice.size, lang: choice.lang,
+      }).then(function (next) {
         if (!next.items.length) { drawDone(0); return; }
         round++;
         next.keys.forEach(function (k) { seen.add(k); });
@@ -261,7 +263,9 @@
       seen.clear();
       round = 1;
       deckEmpty = false;
-      return buildSession(d, resolver, rng, { seen: seen }).then(function (next) {
+      return buildSession(d, resolver, rng, {
+        seen: seen, sessionSize: choice.size, lang: choice.lang,
+      }).then(function (next) {
         next.keys.forEach(function (k) { seen.add(k); });
         items = next.items;
         machine = BG.machine.createMachine(items, BG.views.stagesForItem);
@@ -329,7 +333,7 @@
           if (!deckEmpty) { nextRound(); }
           return;
         }
-        if (machine.state().atEnd) { drawDone(remaining()); return; }
+        if (machine.state().atEnd) { remaining().then(drawDone); return; }
         machine.advance();
         draw();
       },
