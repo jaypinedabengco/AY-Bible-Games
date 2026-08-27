@@ -44,7 +44,7 @@ window.DECK = {
       variants: [
         { type: 'rebus', clues: [{ img: 'jeans.jpg', word: 'JEANS' }, { img: 'sis.jpg', word: 'SIS' }], weight: 5, difficulty: 2 },
         // added with the deck manager
-        { type: 'rebus', clues: [{ img: 'genesis-2.png', word: null }], weight: 1, difficulty: 2 },
+        { type: 'image', img: 'genesis-2.png', weight: 1, difficulty: 2 },
       ],
     },
     {

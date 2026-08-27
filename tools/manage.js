@@ -240,10 +240,40 @@ function wordLiteral(word) {
   return "'" + w + "'";
 }
 
+// Clearing the word of a lone picture means "the picture IS the clue" - which
+// is a DIFFERENT variant type, not a rebus with a null word. Writing the null
+// and stopping there produced a deck that failed to validate: a rebus clue
+// must have a word. So the variant is rewritten as an image instead.
+function blankToImage(text, words) {
+  var slots = (text.match(/word:\s*(?:'[^']*'|null)/g) || []).length;
+  var clearing = words.length === 1 && !String(words[0] || '').trim();
+  if (!(slots === 1 && clearing)) { return null; }
+  var img = (text.match(/img:\s*'([^']*)'/) || [])[1];
+  if (!img) { return null; }
+  return text.replace(/type:\s*'rebus',\s*clues:\s*\[[^\]]*\]/,
+                      "type: 'image', img: '" + img + "'")
+             .replace(/clues:\s*\[[^\]]*\],/, "type: 'image', img: '" + img + "',");
+}
+
 // Rewrite the clue words across a run of lines, in reading order. A clue list
 // can span several lines (Malachi's does), so this walks the run rather than a
 // single line. Only the positions the caller supplied change.
 function applyWords(lines, from, to, words) {
+  // A rebus of two or more pictures needs a word on every one of them: the
+  // working line is what the pictures add up to, and a gap in it reads as a
+  // mistake on the projector.
+  var slots = 0;
+  for (var c = from; c <= to; c++) {
+    slots += (lines[c].match(/word:\s*(?:'[^']*'|null)/g) || []).length;
+  }
+  if (slots > 1 && words.some(function (w) { return !String(w || '').trim(); })) {
+    throw new Error('a rebus of ' + slots + ' pictures needs a word on each one - '
+      + 'to make the picture itself the clue, it has to be the only picture');
+  }
+  if (slots === 1 && from === to) {
+    var swapped = blankToImage(lines[from], words);
+    if (swapped) { lines[from] = swapped; return lines; }
+  }
   let seen = -1;
   for (let n = from; n <= to; n++) {
     lines[n] = lines[n].replace(/word:\s*(?:'[^']*'|null)/g, (hit) => {
