@@ -46,6 +46,24 @@
     return { kind: kind, id: puzzle.id, badge: badgeFor(puzzle.lang) };
   }
 
+  // The same person's name in the OTHER language, when it differs. A bilingual
+  // room half-knows one form and half the other, so showing both at the reveal
+  // saves anyone wondering whether they were right. Derived from the sibling
+  // variants rather than stored twice.
+  function otherName(puzzle, variant) {
+    var shown = variant.answer || puzzle.answer;
+    var lang = variant.lang || puzzle.lang || 'en';
+    var found = null;
+    (puzzle.variants || []).forEach(function (other) {
+      if (found) { return; }
+      var otherLang = other.lang || puzzle.lang || 'en';
+      if (otherLang === lang) { return; }
+      var name = other.answer || puzzle.answer;
+      if (name && name !== shown) { found = name; }
+    });
+    return found;
+  }
+
   function revealStage(variant) {
     return 1 + (variant.verse ? 1 : 0) + (variant.clue ? 1 : 0);
   }
@@ -105,7 +123,11 @@
         // are in different chapters. And the answer can differ by language -
         // PEDRO, not PETER - so the variant's wins when it has one.
         v.answered = stage >= revealStage(variant)
-          ? { answer: variant.answer || puzzle.answer, ref: variant.verse || null }
+          ? {
+              answer: variant.answer || puzzle.answer,
+              alt: otherName(puzzle, variant),
+              ref: variant.verse || null,
+            }
           : null;
         return v;
       },

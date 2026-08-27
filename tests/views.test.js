@@ -149,7 +149,7 @@ test('a quote with verse and clue reveals over four stages', () => {
   assert.equal(q.view(p, v, 2).answered, null);
 
   const s3 = q.view(p, v, 3);
-  assert.deepEqual(s3.answered, { answer: 'CAIN', ref: 'Genesis 4:9' });
+  assert.deepEqual(s3.answered, { answer: 'CAIN', alt: null, ref: 'Genesis 4:9' });
   assert.equal(s3.verse, null, 'the answer block prints the verse; twice reads as a mistake');
   assert.equal(s3.clue, 'he worked the ground; his brother kept sheep',
     'the clue stays up - it is the bit worth teaching');
@@ -162,14 +162,15 @@ test('a quote with no clue drops the clue stage', () => {
   assert.equal(byType.quote.stages(v), 2);
   assert.equal(byType.quote.view(p, v, 1).verse, 'Genesis 4:9');
   assert.deepEqual(byType.quote.view(p, v, 2).answered,
-    { answer: 'CAIN', ref: 'Genesis 4:9' });
+    { answer: 'CAIN', alt: null, ref: 'Genesis 4:9' });
 });
 
 test('a quote alone is a two-screen puzzle', () => {
   const p = quotePuzzle({ verse: null, clue: null });
   const v = p.variants[0];
   assert.equal(byType.quote.stages(v), 1);
-  assert.deepEqual(byType.quote.view(p, v, 1).answered, { answer: 'CAIN', ref: null });
+  assert.deepEqual(byType.quote.view(p, v, 1).answered,
+    { answer: 'CAIN', alt: null, ref: null });
 });
 
 test('a variant answer overrides the puzzle answer at the reveal', () => {
@@ -221,4 +222,40 @@ test('the reference always shows, and always before the clue', () => {
   assert.equal(byType.quote.view(p, v, 1).verse, 'Jonah 1:12');
   assert.equal(byType.quote.view(p, v, 1).clue, null, 'the verse comes first');
   assert.equal(byType.quote.view(p, v, 2).clue, 'he worked the ground; his brother kept sheep');
+});
+
+test('the reveal names the person in both languages when they differ', () => {
+  // A bilingual room half-knows one form and half the other. The name in the
+  // language being played is the answer; the other is shown small beside it so
+  // nobody is left guessing whether they got it right.
+  const p = normalizePuzzle({
+    id: 'qs-05', answer: 'PETER',
+    variants: [
+      { type: 'quote', lang: 'en', quote: 'You are the Christ.', verse: 'Matthew 16:16' },
+      { type: 'quote', lang: 'fil', answer: 'PEDRO', quote: 'Ikaw ang Cristo.',
+        verse: 'Mateo 16:16' },
+    ],
+  });
+  const q = byType.quote;
+  assert.deepEqual(q.view(p, p.variants[0], 2).answered,
+    { answer: 'PETER', alt: 'PEDRO', ref: 'Matthew 16:16' });
+  assert.deepEqual(q.view(p, p.variants[1], 2).answered,
+    { answer: 'PEDRO', alt: 'PETER', ref: 'Mateo 16:16' });
+});
+
+test('a name that is the same in both languages is not repeated', () => {
+  const p = normalizePuzzle({
+    id: 'qs-01', answer: 'DANIEL',
+    variants: [
+      { type: 'quote', lang: 'en', quote: 'My God sent His angel', verse: 'Daniel 6:22' },
+      { type: 'quote', lang: 'fil', answer: 'DANIEL', quote: 'Ang Dios ko', verse: 'Daniel 6:22' },
+    ],
+  });
+  assert.equal(byType.quote.view(p, p.variants[0], 2).answered.alt, null,
+    'DANIEL beside DANIEL is noise');
+});
+
+test('a deck with one language shows no second name', () => {
+  const p = quotePuzzle();
+  assert.equal(byType.quote.view(p, p.variants[0], 3).answered.alt, null);
 });
