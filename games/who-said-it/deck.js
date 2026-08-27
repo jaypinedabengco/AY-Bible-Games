@@ -174,7 +174,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'ADAM', flag: 'unverified', difficulty: 1,
           quote: null,
           verse: 'Genesis 3:12',
-          clue: null },
+          clue: 'nahuli sa hardin, at ang asawa niya agad ang isinisi' },
       ],
     },
     {
@@ -187,7 +187,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'EVE', flag: 'unverified', difficulty: 1,
           quote: null,
           verse: 'Genesis 3:13',
-          clue: null },
+          clue: 'siya naman ang tinanong, at ang ahas naman ang isinisi niya' },
       ],
     },
     {
@@ -204,7 +204,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'ABRAHAM', flag: 'unverified', difficulty: 1,
           quote: null,
           verse: 'Genesis 22:8',
-          clue: null },
+          clue: 'umaakyat sa bundok kasama ang anak, may dalang patalim pero walang tupa' },
       ],
     },
     {
@@ -221,7 +221,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'JOSE', flag: 'unverified', difficulty: 1,
           quote: null,
           verse: 'Genesis 50:20',
-          clue: null },
+          clue: 'kausap niya ang mga kapatid na naghulog sa kanya sa balon noon' },
       ],
     },
     {
@@ -238,7 +238,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'MOISES', flag: 'unverified', difficulty: 1,
           quote: null,
           verse: 'Exodo 3:11',
-          clue: null },
+          clue: 'isang pastol na nakikipagtalo sa palumpong na hindi naman nasusunog' },
       ],
     },
     {
@@ -251,7 +251,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'SARAH', flag: 'unverified', difficulty: 2,
           quote: null,
           verse: 'Genesis 21:6',
-          clue: null },
+          clue: 'siyamnapung taong gulang na, kandong ang kauna-unahang anak niya' },
       ],
     },
     {
@@ -268,7 +268,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'ISAAC', flag: 'unverified', difficulty: 2,
           quote: null,
           verse: 'Genesis 22:7',
-          clue: null },
+          clue: 'ang batang pasan ang kahoy paakyat sa burol, may napakatalas na tanong' },
       ],
     },
     {
@@ -281,7 +281,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'ESAU', flag: 'unverified', difficulty: 2,
           quote: null,
           verse: 'Genesis 25:32',
-          clue: null },
+          clue: 'galing sa pangangaso, gutom na gutom, naamoy ang niluluto ng kapatid' },
       ],
     },
     {
@@ -302,7 +302,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'JACOB', flag: 'unverified', difficulty: 2,
           quote: null,
           verse: 'Genesis 32:26',
-          clue: null },
+          clue: 'magdamag siyang nakipagbuno sa tabi ng ilog, at umalis na paika-ika' },
       ],
     },
     {
@@ -315,7 +315,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'PHARAOH', flag: 'unverified', difficulty: 2,
           quote: null,
           verse: 'Exodo 5:2',
-          clue: null },
+          clue: 'nakaupo sa trono, dalawang Hebreong magkapatid ang may hinihingi sa kanya' },
       ],
     },
     {
@@ -328,7 +328,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'AARON', flag: 'unverified', difficulty: 2,
           quote: null,
           verse: 'Exodo 32:24',
-          clue: null },
+          clue: 'pinakapalpak na dahilan sa Lumang Tipan, sinabi sa galit na galit na kapatid' },
       ],
     },
     {
@@ -341,7 +341,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'JUDAH', flag: 'unverified', difficulty: 3,
           quote: null,
           verse: 'Genesis 37:26',
-          clue: null },
+          clue: 'isa sa magkakapatid, nagkukwenta ng kikitain sa gilid ng balon' },
       ],
     },
     {
@@ -358,7 +358,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'CALEB', flag: 'unverified', difficulty: 3,
           quote: null,
           verse: 'Mga Bilang 13:30',
-          clue: null },
+          clue: 'isa lang sa dalawang espiya na bumalik na walang katakot-takot' },
       ],
     },
     {
@@ -371,7 +371,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'BALAAM', flag: 'unverified', difficulty: 3,
           quote: null,
           verse: 'Mga Bilang 23:8',
-          clue: null },
+          clue: 'inupahan ng balisang hari para sumpain ang Israel, nakatayo sa tuktok ng burol' },
       ],
     },
     {
@@ -388,7 +388,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'JOSUE', flag: 'unverified', verseAtReveal: true, difficulty: 1,
           quote: null,
           verse: 'Josue 24:15',
-          clue: null },
+          clue: 'kahalili ni Moises, huling hamon niya sa mga tribo doon sa Sikem' },
       ],
     },
     {
@@ -401,7 +401,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'RAHAB', flag: 'unverified', difficulty: 3,
           quote: null,
           verse: 'Josue 2:9',
-          clue: null },
+          clue: 'itinago niya ang dalawang espiya sa ilalim ng lino sa bubong niya sa Jerico' },
       ],
     },
     {
@@ -414,7 +414,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'GIDEON', flag: 'unverified', difficulty: 3,
           quote: null,
           verse: 'Mga Hukom 6:13',
-          clue: null },
+          clue: 'naggigiik ng trigo sa pisaan ng ubas nang tawagin siyang magiting ng anghel' },
       ],
     },
     {
@@ -427,7 +427,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'SAMSON', flag: 'unverified', difficulty: 2,
           quote: null,
           verse: 'Mga Hukom 16:30',
-          clue: null },
+          clue: 'bulag at nakakadena sa pagitan ng dalawang haligi, puno ng kaaway ang templo' },
       ],
     },
     {
@@ -440,7 +440,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'HANNAH', flag: 'unverified', difficulty: 2,
           quote: null,
           verse: '1 Samuel 1:27',
-          clue: null },
+          clue: 'sobrang taimtim manalangin sa tabernakulo kaya akala ng pari lasing siya' },
       ],
     },
     {
@@ -457,7 +457,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'SAMUEL', flag: 'unverified', verseAtReveal: true, difficulty: 1,
           quote: null,
           verse: '1 Samuel 3:10',
-          clue: null },
+          clue: 'batang natutulog sa tabernakulo, akala niya ang matandang pari ang tumatawag' },
       ],
     },
     {
@@ -470,7 +470,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'ELI', flag: 'unverified', difficulty: 3,
           quote: null,
           verse: '1 Samuel 3:18',
-          clue: null },
+          clue: 'matandang pari sa Silo na ang dalawang anak ang nagpahiya sa tabernakulo' },
       ],
     },
     {
@@ -483,7 +483,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'GOLIATH', flag: 'unverified', difficulty: 1,
           quote: null,
           verse: '1 Samuel 17:43',
-          clue: null },
+          clue: 'siyam na talampakan ang taas, tanso ang baluti, naiinis sa isang batang pastol' },
       ],
     },
     {
@@ -512,7 +512,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'DAVID', flag: 'unverified', difficulty: 1,
           quote: null,
           verse: '1 Samuel 17:45',
-          clue: null },
+          clue: 'binatilyong may tirador at limang makinis na bato mula sa sapa' },
       ],
     },
     {
@@ -525,7 +525,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'NATHAN', flag: 'unverified', difficulty: 2,
           quote: null,
           verse: '2 Samuel 12:7',
-          clue: null },
+          clue: 'propetang binitag ang hari sa kwento ng iisang kordero ng mahirap' },
       ],
     },
     {
@@ -550,7 +550,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'SOLOMON', flag: 'unverified', difficulty: 1,
           quote: null,
           verse: '1 Mga Hari 3:25',
-          clue: null },
+          clue: 'batang hari na humahatol sa dalawang babaeng nag-aagawan sa isang sanggol' },
       ],
     },
     {
@@ -567,7 +567,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'ELIAS', flag: 'unverified', difficulty: 2,
           quote: null,
           verse: '1 Mga Hari 18:21',
-          clue: null },
+          clue: 'nakatayo sa Bundok Carmelo, harap ang buong bansa at 450 propeta ng Baal' },
       ],
     },
     {
@@ -580,7 +580,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'NAAMAN', flag: 'unverified', difficulty: 3,
           quote: null,
           verse: '2 Mga Hari 5:12',
-          clue: null },
+          clue: 'kumandante ng hukbo ng Siria na may ketong, nainsulto sa sobrang simpleng utos' },
       ],
     },
     {
@@ -593,7 +593,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'NEHEMIAH', flag: 'unverified', difficulty: 3,
           quote: null,
           verse: 'Nehemias 6:3',
-          clue: null },
+          clue: 'itinatayo ang pader ng Jerusalem, ayaw makipagkita sa kaaway sa kapatagan ng Ono' },
       ],
     },
     {
@@ -606,7 +606,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'ESTHER', flag: 'unverified', difficulty: 1,
           quote: null,
           verse: 'Ester 4:16',
-          clue: null },
+          clue: 'reyna na nagpasyang pumasok sa trono kahit hindi naman siya ipinatawag' },
       ],
     },
     {
@@ -619,7 +619,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'MORDECAI', flag: 'unverified', difficulty: 2,
           quote: null,
           verse: 'Ester 4:14',
-          clue: null },
+          clue: 'nakaupo sa pintuan ng palasyo, naka-sako, ayaw talagang yumukod kay Haman' },
       ],
     },
     {
@@ -640,7 +640,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'JOB', flag: 'unverified', verseAtReveal: true, difficulty: 1,
           quote: null,
           verse: 'Job 1:21',
-          clue: null },
+          clue: 'isang araw lang, nawala ang anak, hayop at katulong niya; sumamba pa rin siya' },
       ],
     },
     {
@@ -653,7 +653,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'JOB\'S WIFE', flag: 'unverified', verseAtReveal: true, difficulty: 3,
           quote: null,
           verse: 'Job 2:9',
-          clue: null },
+          clue: 'nawalan din siya ng sampung anak, pero isang linya lang ang naisagot niya' },
       ],
     },
     {
@@ -670,7 +670,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'JEREMIAS', flag: 'unverified', verseAtReveal: true, difficulty: 2,
           quote: null,
           verse: 'Jeremias 1:6',
-          clue: null },
+          clue: 'sabi ng Diyos kilala na siya bago pa ipanganak; sagot niya, bata pa raw siya' },
       ],
     },
     {
@@ -683,7 +683,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'EZEKIEL', flag: 'unverified', verseAtReveal: true, difficulty: 3,
           quote: null,
           verse: 'Ezekiel 37:3',
-          clue: null },
+          clue: 'inilagay siya ng Diyos sa libis ng tuyong buto, tinanong kung mabubuhay pa' },
       ],
     },
     {
@@ -700,7 +700,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'DANIEL', flag: 'unverified', verseAtReveal: true, difficulty: 1,
           quote: null,
           verse: 'Daniel 6:22',
-          clue: null },
+          clue: 'tuloy pa rin ang tatlong beses na dasal sa bukas na bintana kahit bawal na' },
       ],
     },
     {
@@ -713,7 +713,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'SHADRACH, MESHACH, AND ABED-NEGO', flag: 'unverified', difficulty: 2,
           quote: null,
           verse: 'Daniel 3:17',
-          clue: null },
+          clue: 'tatlong magkakaibigan na ayaw yumukod sa gintong rebulto nang tumugtog ang musika' },
       ],
     },
     {
@@ -730,7 +730,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'NEBUCHADNEZZAR', flag: 'unverified', difficulty: 3,
           quote: null,
           verse: 'Daniel 3:25',
-          clue: null },
+          clue: 'hari na nag-utos na pitong ulit na initin ang hurno, tapos nagulat sa nakita' },
       ],
     },
     {
@@ -751,7 +751,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'JONAH', flag: 'unverified', difficulty: 1,
           quote: null,
           verse: 'Jonas 1:12',
-          clue: null },
+          clue: 'nagbayad ng pamasahe pakabila ng utos ng Diyos, nakatulog sa gitna ng bagyo' },
       ],
     },
     {
@@ -764,7 +764,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'MICAH', flag: 'unverified', difficulty: 2,
           quote: null,
           verse: 'Mikas 6:8',
-          clue: null },
+          clue: 'propeta mula sa maliit na bayan, tinuro ang Betlehem bilang sisilangan ng Tagapamahala' },
       ],
     },
     {
@@ -777,7 +777,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'HABAKKUK', flag: 'unverified', difficulty: 3,
           quote: null,
           verse: 'Habakuk 3:17',
-          clue: null },
+          clue: 'buong aklat siyang nakipagtalo sa Diyos, tapos ginawang awit ang sagot' },
       ],
     },
     {
@@ -790,7 +790,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'AMOS', flag: 'unverified', verseAtReveal: true, difficulty: 3,
           quote: null,
           verse: 'Amos 7:14',
-          clue: null },
+          clue: 'pastol mula sa Tekoa, pinauwi ng kaharian sa hilaga: doon ka na lang daw mangaral' },
       ],
     },
     {
@@ -807,7 +807,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'TOMAS', flag: 'unverified', difficulty: 1,
           quote: null,
           verse: 'Juan 20:28',
-          clue: null },
+          clue: 'ang alagad na hindi umabot sa unang pagpapakita, kaya binigyan ng sarili niya' },
       ],
     },
     {
@@ -820,7 +820,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'JUDAS ISCARIOT', flag: 'unverified', difficulty: 1,
           quote: null,
           verse: 'Mateo 26:15',
-          clue: null },
+          clue: 'isa sa Labindalawa, tahimik na nakikipagtransaksyon sa mga punong pari' },
       ],
     },
     {
@@ -837,7 +837,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'JUAN BAUTISTA', flag: 'unverified', verseAtReveal: true, difficulty: 2,
           quote: null,
           verse: 'Juan 1:29',
-          clue: null },
+          clue: 'mangangaral sa ilang, damit na balahibo ng kamelyo, itinuturo ang dumaraan' },
       ],
     },
     {
@@ -854,7 +854,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'MARIA', flag: 'unverified', difficulty: 2,
           quote: null,
           verse: 'Lucas 1:38',
-          clue: null },
+          clue: 'dalagang taga-Nazaret na sumasagot sa isang anghel' },
       ],
     },
     {
@@ -871,7 +871,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'MARTA', flag: 'unverified', difficulty: 2,
           quote: null,
           verse: 'Lucas 10:40',
-          clue: null },
+          clue: 'siya ang abalang-abala sa pagluluto habang nakaupo\'t nakikinig ang isa' },
       ],
     },
     {
@@ -884,7 +884,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'THE CENTURION', flag: 'unverified', difficulty: 2,
           quote: null,
           verse: 'Marcos 15:39',
-          clue: null },
+          clue: 'opisyal na Romanong nakatalaga sa pagbitay, nagbago ang isip sa huling sandali' },
       ],
     },
     {
@@ -897,7 +897,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'THE THIEF ON THE CROSS', flag: 'unverified', difficulty: 2,
           quote: null,
           verse: 'Lucas 23:42',
-          clue: null },
+          clue: 'hatol na kamatayan, ilang oras na lang, may isang bagay siyang hiniling kay Jesus' },
       ],
     },
     {
@@ -910,7 +910,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'ZAQUEO', flag: 'unverified', difficulty: 2,
           quote: null,
           verse: 'Lucas 19:8',
-          clue: null },
+          clue: 'pandak at mayamang maniningil ng buwis na umakyat sa puno para makasilip' },
       ],
     },
     {
@@ -923,7 +923,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'NICODEMO', flag: 'unverified', difficulty: 3,
           quote: null,
           verse: 'Juan 3:4',
-          clue: null },
+          clue: 'isang pinuno ng mga Judio na dumating para makipag-usap nang gabing-gabi' },
       ],
     },
     {
@@ -936,7 +936,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'THE WOMAN AT THE WELL', flag: 'unverified', difficulty: 3,
           quote: null,
           verse: 'Juan 4:15',
-          clue: null },
+          clue: 'nakausap ang estranghero sa balon ni Jacob sa tanghali, naiwan ang banga niya' },
       ],
     },
     {
@@ -949,7 +949,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'GABRIEL', flag: 'unverified', difficulty: 3,
           quote: null,
           verse: 'Lucas 1:30',
-          clue: null },
+          clue: 'sugo ng Diyos na ipinadala sa isang dalaga roon sa Nazaret' },
       ],
     },
     {
@@ -962,7 +962,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'SIMEON', flag: 'unverified', difficulty: 3,
           quote: null,
           verse: 'Lucas 2:29',
-          clue: null },
+          clue: 'matanda sa templo na pinangakuang hindi mamamatay bago dumating ang araw na ito' },
       ],
     },
     {
@@ -975,7 +975,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'THE PRODIGAL SON', flag: 'unverified', difficulty: 2,
           quote: null,
           verse: 'Lucas 15:21',
-          clue: null },
+          clue: 'ang nakababata sa magkapatid, nag-eensayo ng sasabihin habang pauwi' },
       ],
     },
     {
@@ -988,7 +988,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'BARTIMAEUS', flag: 'unverified', difficulty: 3,
           quote: null,
           verse: 'Marcos 10:47',
-          clue: null },
+          clue: 'bulag na pulubi sa daan ng Jerico na ayaw magpatahimik' },
       ],
     },
     {
@@ -1009,7 +1009,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'JESUS', flag: 'unverified', difficulty: 2,
           quote: null,
           verse: 'Juan 8:11',
-          clue: null },
+          clue: 'siya lang sa buong pulutong ang may karapatang bumato' },
       ],
     },
     {
@@ -1034,7 +1034,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'PABLO', flag: 'unverified', difficulty: 1,
           quote: null,
           verse: 'Mga Gawa 9:5',
-          clue: null },
+          clue: 'nabulag sa daan habang papunta siyang manghuli ng mga mananampalataya' },
       ],
     },
     {
@@ -1051,7 +1051,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'ESTEBAN', flag: 'unverified', difficulty: 2,
           quote: null,
           verse: 'Mga Gawa 7:60',
-          clue: null },
+          clue: 'unang namatay para sa pananampalataya, nananalangin habang binabato' },
       ],
     },
     {
@@ -1064,7 +1064,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'GAMALIEL', flag: 'unverified', difficulty: 3,
           quote: null,
           verse: 'Mga Gawa 5:39',
-          clue: null },
+          clue: 'iginagalang na guro ng kautusan, kalmadong payo ang ibinigay sa konseho' },
       ],
     },
     {
@@ -1077,7 +1077,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'THE PHILIPPIAN JAILER', flag: 'unverified', difficulty: 2,
           quote: null,
           verse: 'Mga Gawa 16:30',
-          clue: null },
+          clue: 'kabubukas lang ng lindol sa lahat ng pintuang trabaho niyang panatilihing sarado' },
       ],
     },
     {
@@ -1090,7 +1090,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'KING AGRIPPA', flag: 'unverified', difficulty: 3,
           quote: null,
           verse: 'Mga Gawa 26:28',
-          clue: null },
+          clue: 'hari na dumalo para pakinggan ang depensa ng bilanggo, muntik nang mapapayag' },
       ],
     },
     {
@@ -1103,7 +1103,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'FESTUS', flag: 'unverified', difficulty: 3,
           quote: null,
           verse: 'Mga Gawa 26:24',
-          clue: null },
+          clue: 'gobernador na Romano na sumigaw at pinutol ang testimonya ng bilanggo' },
       ],
     },
     {
@@ -1116,7 +1116,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'THE ETHIOPIAN EUNUCH', flag: 'unverified', difficulty: 3,
           quote: null,
           verse: 'Mga Gawa 8:31',
-          clue: null },
+          clue: 'dayuhang opisyal na malakas na binabasa si Isaias sa karwahe sa disyertong daan' },
       ],
     },
     {
@@ -1129,7 +1129,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'ANANIAS OF DAMASCUS', flag: 'unverified', difficulty: 3,
           quote: null,
           verse: 'Mga Gawa 9:13',
-          clue: null },
+          clue: 'inutusan siya ng Diyos na puntahan at pagalingin ang mismong kinatatakutan niya' },
       ],
     },
     {
@@ -1142,7 +1142,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'DEMETRIUS', flag: 'unverified', difficulty: 3,
           quote: null,
           verse: 'Mga Gawa 19:25',
-          clue: null },
+          clue: 'bumabagsak ang negosyo niyang maliliit na pilak na dambana dahil sa bagong turo' },
       ],
     },
   ],

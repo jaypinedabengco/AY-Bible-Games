@@ -154,7 +154,12 @@
         box.appendChild(el('div', 'ranswer', r.answer));
         // Every working the puzzle might ask - the projector picks one variant
         // and the GM cannot know which.
-        r.workings.forEach(function (w) { box.appendChild(el('div', 'rwork', w)); });
+        // On a quote deck the working IS the quote, and the blocks above
+        // already show every one with its verse and clue. Printing them again
+        // is the same list twice on a phone screen.
+        if (!r.quotes.length) {
+          r.workings.forEach(function (w) { box.appendChild(el('div', 'rwork', w)); });
+        }
         if (r.ref) { box.appendChild(el('div', 'rref', r.ref)); }
         if (r.flags.length) {
           var tags = el('div', null);
@@ -200,10 +205,6 @@
       });
     });
     filter.addEventListener('input', function () { draw(filter.value); });
-
-      draw(filter.value);
-    });
-    syncPicBtn();
   })();
 </script>
 </body>

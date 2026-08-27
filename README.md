@@ -19,6 +19,13 @@ the answer is a book of the Bible.
 **Double-click `index.html`.** That's the whole install. Copy the folder to a
 USB stick and it runs on any laptop in the building, wifi or not.
 
+Pick a game, and it opens on a **start screen**: what the game is, in one or
+two lines, and a dropdown for how long the round should be. `Space` starts it.
+The choice is remembered per game, so a programme that always runs 15 is set
+once. Where a deck has more than one language with something to play in it, a
+language picker sits beside the length — one language per round, because a
+mixed round leaves the room unsure which language to shout.
+
 | Key | What it does |
 |-----|--------------|
 | `Space` / click | reveal the working, then the answer, then next |
@@ -27,6 +34,7 @@ USB stick and it runs on any laptop in the building, wifi or not.
 | `O` | back to the order written in `deck.js` |
 | `F` | fullscreen |
 | `Home` | first puzzle |
+| `S` | back to the start screen, to change the round length or language |
 | `?` | show the key legend again |
 
 The legend appears on screen for the first few seconds so you don't have to
@@ -41,13 +49,25 @@ which gives the room a moment to get there themselves; the second shows
 `DANIEL`. Reveal the answer straight away and anyone who missed the pun never
 finds out why it worked.
 
-**An evening is played in rounds.** Round one draws 20 of the 42 books, easiest
+**An evening is played in rounds.** Round one draws 20 puzzles, easiest
 first. When it ends the screen says how many are still to come; `Space` starts
-the next round, which draws only books the earlier rounds did not show. Three
-rounds cover all 42 with nothing repeated, and the last card says so.
+the next round, which draws only books the earlier rounds did not show. Rounds keep going until the deck runs out, with nothing repeated, and the last
+card says so.
 
-A book with more than one variant can come back in a later round showing its
-other picture — that counts as something you have not seen.
+A puzzle with more than one variant can come back in a later round showing its
+other picture, or another line the same person said — that counts as something
+you have not seen.
+
+### The three games
+
+- **Bible Book Names** — pictures combine into a book of the Bible.
+  Jeans + sis. XO + dos. 43 books, three rounds.
+- **Who Said It?** — a line someone in the Bible said. Four beats: the quote,
+  the verse, a clue, then the name. 71 people, 113 quotes, four rounds.
+  English now, Tagalog once its lines are pasted in — see `tools/README.md`.
+- **Bible Character Names** — the same idea as the book game, with people.
+  Greyed out on the front page until it has pictures; its start screen says so
+  rather than failing.
 
 Press `R` at any point for a completely fresh evening, or `O` to walk the deck
 in file order when you're rehearsing.
