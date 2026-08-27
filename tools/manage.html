@@ -72,6 +72,8 @@
   <button id="tab-clues" class="tab on" type="button">pictures</button>
   <button id="tab-vars" class="tab" type="button">variants</button>
   <button id="tab-book" class="tab" type="button">add</button>
+  <button id="tab-quotes" class="tab" type="button" style="display:none">quotes</button>
+  <button id="tab-waiting" class="tab" type="button" style="display:none">waiting for text</button>
   <input id="q" type="search" placeholder="filter by book, id or filename">
   <span class="note" id="count"></span>
   <span class="note">drag a picture onto a card &mdash; or click it</span>
@@ -79,6 +81,7 @@
 <div class="grid" id="grid"></div>
 <div id="vars" style="display:none;padding:1.2rem"></div>
 <div id="newbook" style="display:none;padding:1.2rem;max-width:46rem"></div>
+<div id="quotes" style="display:none;padding:1.2rem;max-width:58rem"></div>
 
 <script>
 (function () {
@@ -567,21 +570,181 @@
     });
   }
 
+  // ---- quotes ------------------------------------------------------------
+  var quoteHost = document.getElementById('quotes');
+  var waitingOnly = false;
+
+  function field(label, value, size, placeholder) {
+    var wrap = el('div');
+    wrap.style.cssText = 'display:flex;gap:0.4rem;align-items:center;flex:1 1 auto';
+    wrap.appendChild(el('label', null, label));
+    var input = document.createElement('input');
+    input.type = 'text';
+    input.value = value === null || value === undefined ? '' : value;
+    if (size) { input.size = size; }
+    if (placeholder) { input.placeholder = placeholder; }
+    input.style.flex = '1 1 auto';
+    wrap.appendChild(input);
+    wrap.input = input;
+    return wrap;
+  }
+
+  function quoteBlock(row, v, vi) {
+    var box = el('div', 'vrow');
+    box.style.cssText += ';flex-direction:column;align-items:stretch';
+
+    var head = el('div');
+    head.style.cssText = 'display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap';
+    head.appendChild(el('span', 'tag', v.lang === 'fil' ? 'Tagalog' : 'English'));
+    if (v.waiting) { head.appendChild(el('span', 'tag', 'waiting for text')); }
+    if (v.unverified && !v.waiting) { head.appendChild(el('span', 'tag', 'unverified')); }
+    box.appendChild(head);
+
+    // The line itself. A textarea rather than an input: a quote is a sentence,
+    // and typing one into a single-line box that scrolls sideways is how
+    // mistakes get missed.
+    var ta = document.createElement('textarea');
+    ta.rows = 2;
+    ta.value = v.quote || '';
+    ta.placeholder = v.lang === 'fil'
+      ? 'paste the Magandang Balita Biblia line here'
+      : 'the line, NKJV';
+    ta.style.cssText = 'width:100%;font:inherit;font-size:0.9rem;line-height:1.4;'
+      + 'padding:0.5rem 0.6rem;border-radius:0.5rem;border:1px solid #2c3444;'
+      + 'background:var(--bg);color:var(--fg);resize:vertical';
+    box.appendChild(ta);
+
+    var meta = el('div');
+    meta.style.cssText = 'display:flex;gap:0.6rem;align-items:center;flex-wrap:wrap';
+    var verse = field('verse', v.verse, 14, 'Mateo 16:16');
+    var clue = field('clue', v.clue, 30, 'one line that does not name them');
+    meta.appendChild(verse);
+    meta.appendChild(clue);
+    box.appendChild(meta);
+
+    var name = null;
+    var controls = el('div');
+    controls.style.cssText = 'display:flex;gap:0.7rem;align-items:center;flex-wrap:wrap';
+    if (v.lang === 'fil') {
+      name = field('name', v.answer, 14, 'PEDRO');
+      controls.appendChild(name);
+    }
+
+    var msg = el('span', 'why');
+    controls.appendChild(numSelect('difficulty', v.difficulty, 1, 3, function (n) {
+      post('/api/set-quote', { id: row.id, index: vi, difficulty: n }, msg,
+           'difficulty ' + n + ' — ' + (n === 1 ? 'plays early' : n === 3 ? 'plays late' : 'plays in the middle'));
+    }, '1 is a line the room shouts instantly, 3 needs the clue'));
+
+    var hold = document.createElement('label');
+    hold.style.cssText = 'display:flex;gap:0.3rem;align-items:center;font-size:0.7rem;'
+      + 'letter-spacing:0.1em;text-transform:uppercase;color:var(--dim);cursor:pointer';
+    var holdBox = document.createElement('input');
+    holdBox.type = 'checkbox';
+    holdBox.checked = v.verseAtReveal;
+    holdBox.addEventListener('change', function () {
+      post('/api/set-quote', { id: row.id, index: vi, verseAtReveal: holdBox.checked }, msg,
+           holdBox.checked ? 'the verse now waits for the reveal' : 'the verse shows before the clue');
+    });
+    hold.appendChild(holdBox);
+    hold.appendChild(document.createTextNode('hold verse to the reveal'));
+    controls.appendChild(hold);
+
+    var tick = document.createElement('label');
+    tick.style.cssText = hold.style.cssText;
+    var tickBox = document.createElement('input');
+    tickBox.type = 'checkbox';
+    tickBox.checked = !v.unverified;
+    tickBox.addEventListener('change', function () {
+      post('/api/set-quote', { id: row.id, index: vi, verified: tickBox.checked }, msg,
+           tickBox.checked ? 'checked against the Bible' : 'back to unverified');
+    });
+    tick.appendChild(tickBox);
+    tick.appendChild(document.createTextNode('wording checked'));
+    controls.appendChild(tick);
+
+    var save = document.createElement('button');
+    save.type = 'button';
+    save.textContent = 'save';
+    save.style.cssText = 'background:var(--card);color:var(--fg);border:1px solid #2c3444;'
+      + 'border-radius:0.5rem;padding:0.35rem 0.9rem;cursor:pointer;font:inherit;font-size:0.8rem';
+    save.addEventListener('click', function () {
+      var body = { id: row.id, index: vi, quote: ta.value,
+                   verse: verse.input.value, clue: clue.input.value };
+      if (name) { body.answer = name.input.value; }
+      post('/api/set-quote', body, msg, 'saved');
+      if (waitingOnly && ta.value.trim()) { setTimeout(loadQuotes, 400); }
+    });
+    controls.appendChild(save);
+    controls.appendChild(msg);
+    box.appendChild(controls);
+
+    if (v.lang === 'fil' && v.waiting) {
+      box.appendChild(el('span', 'why',
+        'The MBB text is the Philippine Bible Society’s, so it is not committed '
+        + 'here until you paste it in. Until then this one is dormant and never drawn.'));
+    }
+    return box;
+  }
+
+  function loadQuotes() {
+    fetch(api('/api/quotes')).then(function (r) { return r.json(); }).then(function (rows) {
+      quoteHost.innerHTML = '';
+      if (rows.error) { quoteHost.appendChild(el('p', null, rows.error)); return; }
+      var shown = 0;
+      var waiting = 0;
+      rows.forEach(function (row) {
+        var vs = row.variants
+          .map(function (v, i) { return { v: v, i: i }; })
+          .filter(function (x) { return !waitingOnly || x.v.waiting; });
+        row.variants.forEach(function (v) { if (v.waiting) { waiting++; } });
+        if (!vs.length) { return; }
+        var block = el('div', 'book-row');
+        block.appendChild(el('h3', null, row.answer));
+        block.appendChild(el('div', 'sub', '#' + row.id + ' · '
+          + row.variants.length + (row.variants.length === 1 ? ' quote' : ' quotes')));
+        vs.forEach(function (x) { block.appendChild(quoteBlock(row, x.v, x.i)); });
+        quoteHost.appendChild(block);
+        shown++;
+      });
+      countEl.textContent = shown + ' of ' + rows.length + ' people'
+        + (waiting ? ' · ' + waiting + ' waiting for text' : '');
+      if (!shown) {
+        quoteHost.appendChild(el('p', null, waitingOnly
+          ? 'Nothing is waiting for text. Every quote has its line.'
+          : 'This deck has no quotes yet.'));
+      }
+    });
+  }
+
+  var tabQuotes = document.getElementById('tab-quotes');
+  var tabWaiting = document.getElementById('tab-waiting');
   var tabBook = document.getElementById('tab-book');
   var tabClues = document.getElementById('tab-clues');
   var tabVars = document.getElementById('tab-vars');
   function showTab(which) {
-    [tabClues, tabVars, tabBook].forEach(function (t) { t.classList.remove('on'); });
+    [tabClues, tabVars, tabBook, tabQuotes, tabWaiting].forEach(function (t) {
+      t.classList.remove('on');
+    });
     grid.style.display = 'none';
     varsHost.style.display = 'none';
     bookHost.style.display = 'none';
+    quoteHost.style.display = 'none';
     if (which === 'clues') { tabClues.classList.add('on'); grid.style.display = ''; }
     if (which === 'vars') { tabVars.classList.add('on'); varsHost.style.display = ''; loadBooks(); }
     if (which === 'book') { tabBook.classList.add('on'); bookHost.style.display = ''; newBookView(); }
+    if (which === 'quotes' || which === 'waiting') {
+      waitingOnly = which === 'waiting';
+      (waitingOnly ? tabWaiting : tabQuotes).classList.add('on');
+      quoteHost.style.display = '';
+      loadQuotes();
+    }
   }
   tabClues.addEventListener('click', function () { showTab('clues'); });
   tabVars.addEventListener('click', function () { showTab('vars'); });
   tabBook.addEventListener('click', function () { showTab('book'); });
+  tabQuotes.addEventListener('click', function () { showTab('quotes'); });
+  tabWaiting.addEventListener('click', function () { showTab('waiting'); });
 
   var gameSel = document.getElementById('game');
   fetch('/api/games').then(function (r) { return r.json(); }).then(function (games) {
@@ -589,6 +752,20 @@
     KIND = here.canon === 'books' ? 'book' : 'character';
     document.title = 'Deck manager — ' + here.title;
     tabBook.textContent = 'add a ' + KIND;
+
+    // A quote deck has no pictures, so the pictures and variants tabs would be
+    // empty and the add-a-picture form meaningless. It gets the quotes tabs
+    // instead, and opens on the one that gets used most: the lines still
+    // waiting to be pasted in.
+    if (here.kind === 'quotes') {
+      tabClues.style.display = 'none';
+      tabVars.style.display = 'none';
+      tabBook.style.display = 'none';
+      tabQuotes.style.display = '';
+      tabWaiting.style.display = '';
+      q.placeholder = 'filter is on the quotes tabs';
+      showTab('waiting');
+    }
     games.forEach(function (x) {
       var o = document.createElement('option');
       o.value = x.slug;
