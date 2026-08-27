@@ -45,6 +45,12 @@ window.DECK = {
     'A line someone in the Bible said. The room says who said it.',
     'Stuck? The next click gives the verse, then a clue.',
   ],
+  // Named on the start screen, so whoever runs the game sees which
+  // translation the room is about to hear before they begin.
+  versions: {
+    en: 'New King James Version',
+    fil: 'Ang Dating Biblia (1905)',
+  },
   // Shown small at the foot of the screen, for the language being played.
   credits: {
     en: 'Scripture taken from the New King James Version®. '

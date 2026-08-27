@@ -244,6 +244,8 @@ html, body {
 .start-pick { font: inherit; font-size: 2.6vmin; padding: 0.6vmin 1.2vmin;
               border-radius: 0.8vmin; border: 0.2vmin solid var(--card);
               background: var(--card); color: var(--fg); cursor: pointer; }
+.start-version { font-size: 1.9vmin; color: var(--dim); letter-spacing: 0.14em;
+                 text-transform: uppercase; margin-top: -0.8vmin; }
 .start-go { font-size: 2.2vmin; color: var(--accent); letter-spacing: 0.2em;
             text-transform: uppercase; margin-top: 1vmin; }
 .start-empty { font-size: 2.6vmin; color: var(--bad); max-width: 60vw; line-height: 1.4; }

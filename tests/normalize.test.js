@@ -133,3 +133,9 @@ test('the deck credits survive normalization, and default to null', () => {
   assert.deepEqual(normalizeDeck({ credits: c }).credits, c);
   assert.equal(normalizeDeck({}).credits, null);
 });
+
+test('the deck versions survive normalization, and default to null', () => {
+  const v = { en: 'New King James Version', fil: 'Ang Dating Biblia (1905)' };
+  assert.deepEqual(normalizeDeck({ versions: v }).versions, v);
+  assert.equal(normalizeDeck({}).versions, null);
+});

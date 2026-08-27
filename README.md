@@ -64,7 +64,9 @@ you have not seen.
   Jeans + sis. XO + dos. 43 books, three rounds.
 - **Who Said It?** — a line someone in the Bible said. Four beats: the quote,
   the verse, a clue, then the name. 71 people, 113 quotes, four rounds.
-  Playable in English and Tagalog — pick the language on the start screen.
+  Playable in English and Tagalog — pick the language on the start screen,
+  which also names the translation it will use: New King James Version in
+  English, Ang Dating Biblia (1905) in Tagalog.
 - **Bible Character Names** — the same idea as the book game, with people.
   Greyed out on the front page until it has pictures; its start screen says so
   rather than failing.

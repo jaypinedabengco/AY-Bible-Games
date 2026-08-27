@@ -75,6 +75,7 @@
       languages: d.languages || ['en'],
       howToPlay: d.howToPlay || [],
       credits: d.credits || null,
+      versions: d.versions || null,
       puzzles: (d.puzzles || []).map(normalizePuzzle),
     };
   }

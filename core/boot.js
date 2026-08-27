@@ -469,6 +469,14 @@
         card.appendChild(lrow);
       }
 
+      // Which translation the room is about to hear. The notice at the foot of
+      // the screen is the legal one - small and dim on purpose - so the person
+      // starting the game should not have to squint at it to find out.
+      var version = (normalized.versions || {})[lang || 'en'];
+      if (version) {
+        card.appendChild(el('div', 'start-version', version));
+      }
+
       var opts = sizeOptions(playable);
       var wantSize = Number(remembered('round-size', normalized.sessionSize || playable));
       var srow = el('div', 'start-row');
