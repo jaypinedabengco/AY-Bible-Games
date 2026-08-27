@@ -104,7 +104,7 @@ test('every puzzle in the deck gets exactly one row', () => {
 });
 
 test('a quote puzzle gives the game master every line it might ask', () => {
-  const rows = gm.rows({
+  const out = rows({
     id: 'who-said-it',
     puzzles: [{
       id: 'qs-07', answer: 'PETER',
@@ -118,8 +118,8 @@ test('a quote puzzle gives the game master every line it might ask', () => {
       ],
     }],
   });
-  assert.equal(rows.length, 1);
-  const r = rows[0];
+  assert.equal(out.length, 1);
+  const r = out[0];
   assert.equal(r.answer, 'PETER');
   assert.equal(r.quotes.length, 3);
   assert.deepEqual(r.quotes[1], {
@@ -138,11 +138,11 @@ test('a quote puzzle gives the game master every line it might ask', () => {
 });
 
 test('a picture puzzle has no quotes', () => {
-  const rows = gm.rows({
+  const out = rows({
     id: 'book-names',
     puzzles: [{ id: 'bn-01', answer: 'GENESIS',
                 clues: [{ img: 'jeans.jpg', word: 'JEANS' }] }],
   });
-  assert.deepEqual(rows[0].quotes, []);
-  assert.equal(rows[0].working, 'JEANS');
+  assert.deepEqual(out[0].quotes, []);
+  assert.equal(out[0].working, 'JEANS');
 });
