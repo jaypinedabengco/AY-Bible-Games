@@ -44,6 +44,14 @@
     return { kind: kind, id: puzzle.id, badge: badgeFor(puzzle.lang) };
   }
 
+  function earlyVerse(variant) {
+    return !!(variant.verse && !variant.verseAtReveal);
+  }
+
+  function revealStage(variant) {
+    return 1 + (earlyVerse(variant) ? 1 : 0) + (variant.clue ? 1 : 0);
+  }
+
   var byType = {
     rebus: {
       stages: function () { return 2; },
@@ -73,6 +81,27 @@
         var v = base('text', puzzle);
         v.prompt = variant.prompt;
         v.answered = answered(puzzle, stage, 1);
+        return v;
+      },
+    },
+    quote: {
+      // Four screens by default - quote, verse, clue, answer - but a puzzle
+      // that holds its verse back or has no clue written yet simply has fewer.
+      // The machine asks the variant, so nothing here is special-cased there.
+      stages: function (variant) { return revealStage(variant); },
+      view: function (puzzle, variant, stage) {
+        var v = base('quote', puzzle);
+        var early = earlyVerse(variant);
+        var clueAt = early ? 2 : 1;
+        v.quote = variant.quote;
+        v.verse = (early && stage >= 1) ? variant.verse : null;
+        v.clue = (variant.clue && stage >= clueAt) ? variant.clue : null;
+        // The verse belongs to the QUOTE, not to the person: Peter's two lines
+        // are in different chapters. And the answer can differ by language -
+        // PEDRO, not PETER - so the variant's wins when it has one.
+        v.answered = stage >= revealStage(variant)
+          ? { answer: variant.answer || puzzle.answer, ref: variant.verse || null }
+          : null;
         return v;
       },
     },

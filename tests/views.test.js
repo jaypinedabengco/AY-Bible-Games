@@ -119,3 +119,80 @@ test('stagesForItem dispatches on the variant type', () => {
   assert.equal(stagesForItem({ puzzle: rebus, variant: rebus.variants[0] }), 2);
   assert.equal(stagesForItem({ puzzle: image, variant: image.variants[0] }), 1);
 });
+
+function quotePuzzle(extra) {
+  return normalizePuzzle(Object.assign({
+    id: 'qs-01', answer: 'CAIN', type: 'quote',
+    quote: 'Am I my brother’s keeper?',
+    verse: 'Genesis 4:9',
+    clue: 'he worked the ground; his brother kept sheep',
+  }, extra || {}));
+}
+
+test('a quote with verse and clue reveals over four stages', () => {
+  const p = quotePuzzle();
+  const v = p.variants[0];
+  const q = byType.quote;
+  assert.equal(q.stages(v), 3);
+
+  const s0 = q.view(p, v, 0);
+  assert.equal(s0.kind, 'quote');
+  assert.equal(s0.quote, 'Am I my brother’s keeper?');
+  assert.equal(s0.verse, null, 'the verse must not show with the quote');
+  assert.equal(s0.clue, null);
+  assert.equal(s0.answered, null);
+
+  assert.equal(q.view(p, v, 1).verse, 'Genesis 4:9');
+  assert.equal(q.view(p, v, 1).clue, null, 'the clue comes after the verse');
+
+  assert.equal(q.view(p, v, 2).clue, 'he worked the ground; his brother kept sheep');
+  assert.equal(q.view(p, v, 2).answered, null);
+
+  assert.deepEqual(q.view(p, v, 3).answered, { answer: 'CAIN', ref: 'Genesis 4:9' });
+});
+
+test('holding the verse back drops a stage and still shows it at the reveal', () => {
+  const p = quotePuzzle({ answer: 'JONAH', verse: 'Jonah 2:2', verseAtReveal: true });
+  const v = p.variants[0];
+  const q = byType.quote;
+  assert.equal(q.stages(v), 2);
+  assert.equal(q.view(p, v, 1).verse, null, 'a held verse never shows early');
+  assert.equal(q.view(p, v, 1).clue, 'he worked the ground; his brother kept sheep');
+  assert.deepEqual(q.view(p, v, 2).answered, { answer: 'JONAH', ref: 'Jonah 2:2' });
+});
+
+test('a quote with no clue drops the clue stage', () => {
+  const p = quotePuzzle({ clue: null });
+  const v = p.variants[0];
+  assert.equal(byType.quote.stages(v), 2);
+  assert.equal(byType.quote.view(p, v, 1).verse, 'Genesis 4:9');
+  assert.deepEqual(byType.quote.view(p, v, 2).answered,
+    { answer: 'CAIN', ref: 'Genesis 4:9' });
+});
+
+test('a quote alone is a two-screen puzzle', () => {
+  const p = quotePuzzle({ verse: null, clue: null });
+  const v = p.variants[0];
+  assert.equal(byType.quote.stages(v), 1);
+  assert.deepEqual(byType.quote.view(p, v, 1).answered, { answer: 'CAIN', ref: null });
+});
+
+test('a variant answer overrides the puzzle answer at the reveal', () => {
+  const p = normalizePuzzle({
+    id: 'qs-05', answer: 'PETER',
+    variants: [
+      { type: 'quote', lang: 'en', quote: 'You are the Christ.',
+        verse: 'Matthew 16:16', clue: 'a fisherman' },
+      { type: 'quote', lang: 'fil', answer: 'PEDRO', quote: 'Ikaw ang Cristo.',
+        verse: 'Mateo 16:16', clue: 'isang mangingisda' },
+    ],
+  });
+  const q = byType.quote;
+  assert.equal(q.view(p, p.variants[0], 3).answered.answer, 'PETER');
+  assert.equal(q.view(p, p.variants[1], 3).answered.answer, 'PEDRO');
+});
+
+test('stagesForItem reads the stage count off a quote variant', () => {
+  const p = quotePuzzle();
+  assert.equal(stagesForItem({ puzzle: p, variant: p.variants[0] }), 3);
+});

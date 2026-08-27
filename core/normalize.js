@@ -9,7 +9,8 @@
   'use strict';
 
   var VARIANT_KEYS = ['type', 'clues', 'img', 'prompt', 'options', 'items',
-                      'correct', 'flag', 'weight', 'difficulty'];
+                      'correct', 'quote', 'verse', 'clue', 'verseAtReveal',
+                      'lang', 'answer', 'flag', 'weight', 'difficulty'];
 
   function normalizeVariant(v, puzzleDifficulty) {
     return {
@@ -20,6 +21,18 @@
       options: v.options || null,
       items: v.items || null,
       correct: v.correct || null,
+      quote: v.quote || null,
+      verse: v.verse || null,
+      clue: v.clue || null,
+      // A verse whose book is named after the speaker gives the answer away,
+      // so that puzzle holds its reference back to the reveal. validate.js
+      // refuses a deck that forgets.
+      verseAtReveal: v.verseAtReveal === true,
+      // Language and answer sit on the VARIANT for the quote game: PEDRO and
+      // PETER are the same person, so they are one puzzle. Both fall back to
+      // the puzzle's own values, so every existing deck is unaffected.
+      lang: v.lang || null,
+      answer: v.answer || null,
       flag: v.flag || null,
       weight: v.weight === undefined ? 1 : v.weight,
       difficulty: v.difficulty || puzzleDifficulty || 2,
@@ -60,6 +73,7 @@
       shuffle: d.shuffle !== false,
       sessionSize: d.sessionSize || null,
       languages: d.languages || ['en'],
+      howToPlay: d.howToPlay || [],
       puzzles: (d.puzzles || []).map(normalizePuzzle),
     };
   }
