@@ -13,12 +13,11 @@ const ROOT = path.join(__dirname, '..');
 
 function pages() {
   const out = [path.join(ROOT, 'index.html')];
+  out.push(path.join(ROOT, 'gm.html'));
   const games = path.join(ROOT, 'games');
   fs.readdirSync(games).forEach((slug) => {
-    ['index.html', 'gm.html'].forEach((f) => {
-      const p = path.join(games, slug, f);
-      if (fs.existsSync(p)) { out.push(p); }
-    });
+    const p = path.join(games, slug, 'index.html');
+    if (fs.existsSync(p)) { out.push(p); }
   });
   ['manage.html', 'review.html'].forEach((f) => {
     const p = path.join(ROOT, 'tools', f);
@@ -67,8 +66,24 @@ test('every game in the catalogue that is ready actually exists', () => {
   globalThis.GAMES.filter((g) => g.status === 'ready').forEach((g) => {
     const page = path.join(ROOT, g.href);
     if (!fs.existsSync(page)) { missing.push(g.title + ': no ' + g.href); }
-    const gm = page.replace(/index\.html$/, 'gm.html');
-    if (!fs.existsSync(gm)) { missing.push(g.title + ': no game master page'); }
+  });
+  assert.deepEqual(missing, [], missing.join('\n'));
+});
+
+test('the one game master page loads every deck there is', () => {
+  // It is a single page now, so a new game is only reachable from it if its
+  // deck is added here. Nothing else would notice the omission: the page would
+  // simply never offer that game.
+  const src = fs.readFileSync(path.join(ROOT, 'gm.html'), 'utf8');
+  const missing = [];
+  fs.readdirSync(path.join(ROOT, 'games')).forEach((slug) => {
+    if (!fs.existsSync(path.join(ROOT, 'games', slug, 'deck.js'))) { return; }
+    if (!src.includes('games/' + slug + '/deck.js')) {
+      missing.push(slug + ' has a deck the game master page does not load');
+    }
+    if (!src.includes("slug: '" + slug + "'")) {
+      missing.push(slug + ' is loaded but never registered in window.DECKS');
+    }
   });
   assert.deepEqual(missing, [], missing.join('\n'));
 });

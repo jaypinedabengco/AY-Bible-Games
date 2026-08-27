@@ -188,7 +188,7 @@ than as secure, which is all it was ever meant to be.
 ```sh
 open index.html                                   # play it, no server needed
 open tools/review.html                            # the whole deck on one screen
-open games/book-names/gm.html                     # the Game Master view
+open gm.html                                     # the Game Master view
 node tools/validate.js games/book-names/deck.js   # check the deck after editing
 node --test tests/                                # 108 tests
 node tools/gm-hash.js GM Adventist                # new Game Master credentials

@@ -77,11 +77,19 @@ in file order when you're rehearsing.
 ## The Game Master view
 
 The room watches the projector. Whoever is running the game opens
-**`games/book-names/gm.html` on their phone** to see the answers.
+**`gm.html` on their phone** to see the answers — one page for every game.
 
-Every card prints a small id in the bottom corner — `#bn-13`. Type that id into
-the Game Master view and you get the answer, the working, and where the book
-sits in the canon. You can search by book name too.
+Sign in once, then pick the game from the row at the top — it holds every
+playable deck, so switching between them costs nothing and does not ask for the
+password again.
+
+Every card prints a small id in the bottom corner — `#bn-13`, `#qs-04`. Type
+that id into the Game Master view and you get the answer, the working, and
+where it sits: the canon position for a book, or the verse and clue for a
+quote. You can search by name too.
+
+A quote still waiting for its Tagalog line shows as *waiting*, so you can see
+what is missing as easily as what is there.
 
 Nothing is synchronised between the projector and the phone, so reshuffling
 costs nothing and you can join halfway through. The ids never move.
@@ -119,7 +127,7 @@ python3 -m http.server 8000
 ipconfig getifaddr en0      # the laptop's address on the network
 ```
 
-Then on the phone open `http://THAT-ADDRESS:8000/games/book-names/gm.html`.
+Then on the phone open `http://THAT-ADDRESS:8000/gm.html`.
 Church wifi works, and so does a phone hotspot with the laptop joined to it —
 no internet is needed, only the two devices on one network.
 
@@ -273,7 +281,7 @@ games/book-names/
   index.html            the game
   deck.js               ← THE PUZZLES. This is the file you'll edit.
   images/*              clue artwork
-  gm.html               the Game Master view
+  gm.html               the Game Master view — one page, every game
 tools/
   manage.js             the deck manager — see tools/README.md
   validate.js           deck checker — run this after editing
