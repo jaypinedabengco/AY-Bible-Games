@@ -2040,7 +2040,7 @@ window.DECK = {
         { type: 'quote', lang: 'fil', answer: 'MALAKIAS', flag: 'unverified', difficulty: 1,
           quote: 'Dalhin ninyo ang buong ikasangpung bahagi sa kamalig, upang magkaroon ng pagkain sa aking bahay, at subukin ninyo ako ngayon sa bagay na ito',
           verse: 'Malakias 3:10',
-          clue: 'ang hulinng tinig ng Matandang Tipan, nangako ng bukas na mga bintana ng langit' },
+          clue: 'ang huling tinig ng Matandang Tipan, nangako ng bukas na mga bintana ng langit' },
       ],
     },
   ],
