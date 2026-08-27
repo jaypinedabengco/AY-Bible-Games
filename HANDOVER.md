@@ -154,7 +154,19 @@ clears them one tick at a time. This is the one open item that must be closed
 before it is played in a service — misquoting scripture aloud in church is the
 error in this game that actually matters.
 
-**Tagalog is playable: 71 people, in Ang Dating Biblia (1905).**
+**Who Said It? holds 138 people: 184 English quotes and 138 Tagalog.** Twelve
+rounds of 20 in English, seven in Tagalog, none repeating.
+
+It was built in two passes, and the second pass taught something worth keeping:
+**the answer has to be a NAME.** With the famous named speakers used up, the
+drafting agents reached for people the Bible does not name — "the nobleman whose
+son was dying", "the mourners at Lazarus' tomb", "the servant girl in the
+courtyard". Fourteen of eighty-five drafted were cut on that basis, plus a
+second centurion and a second Herod that collided with entries already there,
+and the demon-possessed man whose line is "My name is Legion" — which answers
+itself. If a third pass is ever drafted, put that rule in the brief.
+
+**Tagalog is playable, in Ang Dating Biblia (1905).**
 
 The text was FETCHED from a public API, not written from memory. That
 distinction is the whole reason there is Tagalog scripture in this repository

@@ -63,7 +63,7 @@ you have not seen.
 - **Bible Book Names** — pictures combine into a book of the Bible.
   Jeans + sis. XO + dos. 43 books, three rounds.
 - **Who Said It?** — a line someone in the Bible said. Four beats: the quote,
-  the verse, a clue, then the name. 71 people, 113 quotes, four rounds.
+  the verse, a clue, then the name. 138 people, 184 quotes, twelve rounds.
   Playable in English and Tagalog — pick the language on the start screen,
   which also names the translation it will use: New King James Version in
   English, Ang Dating Biblia (1905) in Tagalog.
