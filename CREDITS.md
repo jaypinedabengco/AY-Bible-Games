@@ -140,3 +140,26 @@ Flickr uploader BPL | Public domain |
 | `adventist-logo.png` | [Adventist Symbol.svg](https://commons.wikimedia.org/wiki/File:Adventist_Symbol.svg) | Unknown authorUnknown author | Public domain |
 | `job-suffering.jpg` | [119.Job Speaks with His Friends.jpg](https://commons.wikimedia.org/wiki/File:119.Job_Speaks_with_His_Friends.jpg) | Gustave Doré | Public domain |
 | `ham.jpg` | [The Ladies' home journal (1948) (14744230156).jpg](https://commons.wikimedia.org/wiki/File:The_Ladies%27_home_journal_(1948)_(14744230156).jpg) | Internet Archive Book Images | Public domain |
+
+## Scripture
+
+Who Said It? quotes the New King James Version in English, and the Magandang
+Balita Biblia in Tagalog.
+
+> Scripture taken from the New King James Version®. Copyright © 1982 by
+> Thomas Nelson. Used by permission. All rights reserved.
+
+> Scripture texts are from the Magandang Balita Biblia © 2026 Philippine Bible
+> Society, used with permission.
+
+Thomas Nelson permits quoting up to 1,000 verses without written permission,
+provided they are not a complete book of the Bible and are not the bulk of the
+work. This deck is around 100 short lines, well inside that.
+
+The Tagalog lines are pasted in by hand rather than drafted into this
+repository: the MBB text belongs to the Philippine Bible Society, and what is
+committed here is only the name, the reference and our own clue until someone
+adds the line.
+
+Both notices are shown at the foot of the screen, for whichever language is
+being played, from the `credits` field in the deck.

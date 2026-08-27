@@ -17,16 +17,16 @@ window.GAMES = [
     status: 'ready',
   },
   {
+    title: 'Who Said It?',
+    href: 'games/who-said-it/index.html',
+    blurb: 'A line someone in the Bible said. The room says who said it.',
+    meta: 'Ready to play',
+    status: 'ready',
+  },
+  {
     title: 'Old or New?',
     href: 'games/old-or-new/index.html',
     blurb: 'A book flashes up; the room shouts which testament. A fast warm-up.',
-    meta: 'Planned',
-    status: 'parked',
-  },
-  {
-    title: 'Finish the Verse',
-    href: 'games/finish-the-verse/index.html',
-    blurb: 'A familiar verse appears with the ending missing.',
     meta: 'Planned',
     status: 'parked',
   },

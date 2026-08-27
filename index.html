@@ -55,7 +55,7 @@
     <span><kbd>Home</kbd> restart</span>
     <span><kbd>?</kbd> show these on screen</span>
   </div>
-  <p class="gm-link"><a href="games/book-names/gm.html">Game master</a></p>
+  <p class="gm-link" id="gm-links"></p>
 </div>
 
 <script src="games.js"></script>
@@ -73,6 +73,18 @@
       card.appendChild(h); card.appendChild(p); card.appendChild(m);
       host.appendChild(card);
     });
+
+    // One game-master link per playable game. Hard-coding one was fine with a
+    // single game and wrong the moment there were two.
+    var gmHost = document.getElementById('gm-links');
+    window.GAMES.filter(function (g) { return g.status === 'ready'; })
+      .forEach(function (g, i) {
+        if (i) { gmHost.appendChild(document.createTextNode(' \u00b7 ')); }
+        var a = document.createElement('a');
+        a.href = g.href.replace(/index\.html$/, 'gm.html');
+        a.textContent = 'Game master: ' + g.title;
+        gmHost.appendChild(a);
+      });
   })();
 </script>
 </body>
