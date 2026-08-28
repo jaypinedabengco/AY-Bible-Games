@@ -64,6 +64,20 @@ was two and twelve. Each Tagalog variant follows the English quote it was built
 from, matched on chapter and verse, so a line cannot be easy in one language
 and hard in the other.
 
+**A clue is one image, not a biography.** The first drafts described the person
+instead of hinting at them - Zacharias was "a priest burning incense who argued
+with an angel and was struck silent for months", which is three identifying
+facts stacked, any one of which gets you there. It is now "he wrote the baby's
+name on a tablet, because he still could not speak": one image, and the room has
+to take the step itself.
+
+40 of 184 were tightened on that rule and 144 left alone, because not every long
+clue is bad - Jael's "she offered milk and a blanket, then reached for a hammer
+and a tent peg" is one scene with a turn in it, and works. Difficulty-3 clues
+were mostly protected: for Tertullus or Claudius Lysias the clue is the only
+route to the name, and a hall left silent is worse than a clue that gives too
+much.
+
 **Difficulty means fame, not theology.** 1 is a line the room shouts before you
 finish reading it; 3 needs the clue. The running order ramps ascending, so each
 round warms up. Note what that does NOT do: the round's 20 are picked at random
