@@ -66,6 +66,17 @@
   #pictoggle { width: auto; margin-top: 0.5rem; font-size: 0.85rem;
                padding: 0.45rem 0.8rem; }
 
+  /* Clearing what has been asked. It lives here rather than on the projector
+     because it throws away weeks of a programme's progress, and the projector
+     is in a room full of people who can reach the laptop. */
+  .asked { margin-top: 0.6rem; font-size: 0.78rem; color: var(--dim);
+           line-height: 1.5; }
+  .asked button { font: inherit; font-size: 0.78rem; padding: 0.35rem 0.7rem;
+                  margin-top: 0.35rem; border-radius: 0.5rem;
+                  border: 1px solid #2c3444; background: var(--card);
+                  color: var(--fg); cursor: pointer; display: block; }
+  .asked button.armed { background: var(--bad); color: #fff; border-color: var(--bad); }
+
   .gmquote { border-left: 0.2rem solid var(--accent); padding-left: 0.6rem;
              margin-bottom: 0.6rem; }
   .gmquote.waiting { border-left-color: var(--dim); opacity: 0.7; }
@@ -78,7 +89,11 @@
 </head>
 <body>
 <div class="wrap">
-  <p style="margin:0 0 0.6rem"><a href="index.html" style="color:var(--dim);font-size:0.8rem;text-decoration:none">&larr; all games</a></p>
+  <p style="margin:0 0 0.6rem;font-size:0.8rem">
+    <a id="to-game" href="index.html" style="color:var(--accent);text-decoration:none"></a>
+    <span id="to-game-sep" style="color:var(--dim)"></span>
+    <a href="index.html" style="color:var(--dim);text-decoration:none">all games</a>
+  </p>
   <h1>Game master</h1>
   <p class="sub">San Fernando Adventist Church</p>
 
@@ -100,6 +115,7 @@
              placeholder="Type an id or an answer">
       <div class="count" id="count"></div>
       <button id="pictoggle" type="button">hide pictures</button>
+      <div class="asked" id="asked"></div>
     </div>
     <div id="rows"></div>
   </div>
@@ -161,6 +177,7 @@
       .map(function (d) {
         return {
           slug: d.slug,
+          deckId: d.deck.id || d.slug,
           title: d.deck.title || d.slug,
           images: 'games/' + d.slug + '/images/',
           rows: BibleGames.gm.rows(d.deck),
@@ -185,6 +202,18 @@
       return n;
     }
 
+    // Straight to the game whose answers are on screen. Going out to the front
+    // page and finding the card again is the wrong ask of someone holding a
+    // phone in a dark hall.
+    var toGame = document.getElementById('to-game');
+    var toGameSep = document.getElementById('to-game-sep');
+
+    function drawToGame() {
+      toGame.textContent = '\u2190 ' + current.title;
+      toGame.href = 'games/' + current.slug + '/index.html';
+      toGameSep.textContent = '  \u00b7  ';
+    }
+
     function drawNav() {
       navEl.innerHTML = '';
       if (games.length < 2) { return; }
@@ -197,7 +226,9 @@
           current = g;
           try { localStorage.setItem('gm-game', g.slug); } catch (e) { /* private */ }
           drawNav();
+          drawToGame();
           syncPicBtn();
+          drawAsked();
           draw(filter.value);
         });
         navEl.appendChild(b);
@@ -285,6 +316,48 @@
       countEl.textContent = shown + ' of ' + current.rows.length + ' in ' + current.title;
     }
 
+    // What the projector has already asked, and the only way to forget it.
+    var askedEl = document.getElementById('asked');
+
+    function askedKey(deckId) { return 'asked:' + (deckId || 'deck'); }
+
+    function askedCount(deckId) {
+      try {
+        var raw = localStorage.getItem(askedKey(deckId));
+        var list = raw ? JSON.parse(raw) : [];
+        return Array.isArray(list) ? list.length : 0;
+      } catch (e) { return 0; }   // private window
+    }
+
+    function drawAsked() {
+      askedEl.innerHTML = '';
+      var deckId = current.deckId;
+      var n = askedCount(deckId);
+      if (!n) {
+        askedEl.textContent = 'Nothing asked yet in ' + current.title + '.';
+        return;
+      }
+      askedEl.appendChild(document.createTextNode(
+        n + ' already asked in ' + current.title + ', and not coming back.'));
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = 'Ask them all again';
+      var armed = false;
+      b.addEventListener('click', function () {
+        // Two presses. One press throws away weeks of a programme, and this is
+        // a phone screen being tapped in the dark.
+        if (!armed) {
+          armed = true;
+          b.className = 'armed';
+          b.textContent = 'Tap again to forget all ' + n;
+          return;
+        }
+        try { localStorage.removeItem(askedKey(deckId)); } catch (e) { /* private */ }
+        drawAsked();
+      });
+      askedEl.appendChild(b);
+    }
+
     function syncPicBtn() {
       // A quote deck has no pictures to toggle.
       if (!hasPictures(current)) { picBtn.classList.add('hide'); return; }
@@ -296,7 +369,9 @@
       gate.classList.add('hide');
       list.classList.remove('hide');
       drawNav();
+      drawToGame();
       syncPicBtn();
+      drawAsked();
       draw('');
       filter.focus();
     }

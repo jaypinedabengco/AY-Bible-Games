@@ -20,7 +20,9 @@ the answer is a book of the Bible.
 USB stick and it runs on any laptop in the building, wifi or not.
 
 Pick a game, and it opens on a **start screen**: what the game is, in one or
-two lines, and a dropdown for how long the round should be. `Space` starts it.
+two lines, and a dropdown for how long the round should be. Press **Start**, or
+the spacebar. Clicking elsewhere does nothing — a stray tap on a projector
+should not launch the round.
 The choice is remembered per game, so a programme that always runs 15 is set
 once. Where a deck has more than one language with something to play in it, a
 language picker sits beside the length — one language per round, because a
@@ -57,6 +59,12 @@ card says so.
 A puzzle with more than one variant can come back in a later round showing its
 other picture, or another line the same person said — that counts as something
 you have not seen.
+
+**What has been asked is remembered between sessions.** Close the laptop, come
+back next week, and the deck carries on where it left off rather than starting
+again — the start screen says how many have gone. Only the Game Master page can
+clear that record, behind the sign-in and behind a confirm tap, because it
+throws away weeks of a programme's progress.
 
 ### The three games
 
