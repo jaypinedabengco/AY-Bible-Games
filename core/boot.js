@@ -53,6 +53,40 @@
     });
   }
 
+  // What has already been asked, remembered between sessions.
+  //
+  // The in-memory set only ever lasted one evening, so reloading the page - or
+  // running the game a fortnight later - started the whole deck again. A
+  // programme that meets weekly wants the deck walked through over weeks, so
+  // this is written to localStorage and read back on start. All three accessors
+  // are wrapped: a private window throws on the first touch.
+  // The key is shared with the game master page, which is where the record can
+  // be CLEARED. Clearing throws away weeks of a programme's progress, so it
+  // sits behind the sign-in rather than one click away on a projector in a room
+  // full of people.
+  function askedKey(deckId) { return 'asked:' + (deckId || 'deck'); }
+
+  function loadAsked(deckId) {
+    try {
+      var raw = localStorage.getItem(askedKey(deckId));
+      var list = raw ? JSON.parse(raw) : [];
+      return new Set(Array.isArray(list) ? list : []);
+    } catch (e) { return new Set(); }
+  }
+
+  function saveAsked(deckId, seen) {
+    try {
+      var list = [];
+      seen.forEach(function (k) { list.push(k); });
+      localStorage.setItem(askedKey(deckId), JSON.stringify(list));
+    } catch (e) { /* private window: the record just does not persist */ }
+  }
+
+  function forgetAsked(deckId) {
+    try { localStorage.removeItem(askedKey(deckId)); }
+    catch (e) { /* nothing to do; the caller clears its own copy anyway */ }
+  }
+
   // Language is asked of the VARIANT, falling back to the puzzle's, which
   // falls back to English. That keeps the two picture games - whose puzzles
   // carry lang and whose variants do not - working exactly as before.
@@ -171,7 +205,8 @@
   // start() because start() now has a job before this one - showing the start
   // screen and asking how long the round should be and in which language.
   function play(deck, host, resolver, rng, choice, toStart) {
-    var seen = new Set();
+    var deckId = (deck && deck.id) || 'deck';
+    var seen = loadAsked(deckId);
     var round = 0;
 
     return buildSession(deck, resolver, rng, {
@@ -179,7 +214,6 @@
     }).then(function (session) {
     var items = session.items;
     round = 1;
-    session.keys.forEach(function (k) { seen.add(k); });
     var machine = BG.machine.createMachine(items, BG.views.stagesForItem);
 
     // When the deck runs out, say so. Clamping silently at the last card
@@ -237,7 +271,6 @@
       }).then(function (next) {
         if (!next.items.length) { drawDone(0); return; }
         round++;
-        next.keys.forEach(function (k) { seen.add(k); });
         items = next.items;
         session.srcFor = next.srcFor;
         machine = BG.machine.createMachine(items, BG.views.stagesForItem);
@@ -249,6 +282,17 @@
     function draw() {
       finished = false;
       var s = machine.state();
+
+      // Marked when it REACHES THE SCREEN, not when the round is drawn. Drawing
+      // marked all twenty at once, so starting a round of twenty and playing one
+      // puzzle burned the other nineteen for good - which is exactly what it
+      // looked like: a count jumping by a round instead of by one.
+      var key = s.item.puzzle.id + '#' + s.item.puzzle.variants.indexOf(s.item.variant);
+      if (!seen.has(key)) {
+        seen.add(key);
+        saveAsked(deckId, seen);
+      }
+
       BG.paint.render(host, BG.views.viewForItem(s.item, s.stage), session.srcFor, {
         position: s.index + 1,
         total: items.length,
@@ -259,14 +303,13 @@
 
     function rebuild(shuffle) {
       var d = Object.assign({}, deck, { shuffle: shuffle });
-      // A reshuffle starts the evening over: everything is unseen again.
-      seen.clear();
-      round = 1;
+      // R draws a different set from whatever is still unasked. It does not
+      // hand anything back, because only the puzzles actually SHOWN are
+      // recorded - the ones this round had not reached were never marked.
       deckEmpty = false;
       return buildSession(d, resolver, rng, {
         seen: seen, sessionSize: choice.size, lang: choice.lang,
       }).then(function (next) {
-        next.keys.forEach(function (k) { seen.add(k); });
         items = next.items;
         machine = BG.machine.createMachine(items, BG.views.stagesForItem);
         session.srcFor = next.srcFor;
@@ -295,10 +338,32 @@
     // the host's click handler advances the puzzle, and a link inside it
     // would reveal the answer on the way out. Dim like the id stamp, because
     // the room should not be reading it.
-    var back = document.createElement('a');
+    var back = document.createElement('div');
     back.className = 'back-link';
-    back.href = '../../index.html';
-    back.textContent = '\u2190 all games';
+
+    // Back to THIS game's own start screen. "All games" was the only way out,
+    // which meant leaving the game entirely just to change the round length or
+    // the language - and then finding the card again on the front page.
+    var toSetup = document.createElement('a');
+    toSetup.href = '#';
+    toSetup.textContent = '\u2190 start screen';
+    toSetup.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      hideLegend();
+      legend.remove();
+      back.remove();
+      toStart();
+    });
+    back.appendChild(toSetup);
+
+    back.appendChild(document.createTextNode(' \u00b7 '));
+
+    var toIndex = document.createElement('a');
+    toIndex.href = '../../index.html';
+    toIndex.textContent = 'all games';
+    back.appendChild(toIndex);
+
     document.body.appendChild(back);
 
     // It stays until the game actually starts. A timer was wrong: the host
@@ -388,15 +453,24 @@
     // a throwaway session per language rather than by inspecting the deck,
     // because "playable" means pictures resolved and quotes written - which is
     // exactly what buildSession already decides.
-    function countByLang() {
+    function countByLang(seen) {
       var langs = normalized.languages.length > 1 ? normalized.languages : [null];
       return Promise.all(langs.map(function (l) {
-        return buildSession(deck, resolver, rng, { lang: l, sessionSize: 9999 })
-          .then(function (s) { return s.items.length; });
-      })).then(function (counts) {
-        var out = {};
-        langs.forEach(function (l, i) { out[l === null ? 'en' : l] = counts[i]; });
-        return out;
+        return Promise.all([
+          buildSession(deck, resolver, rng, { lang: l, sessionSize: 9999, seen: seen })
+            .then(function (s) { return s.items.length; }),
+          buildSession(deck, resolver, rng, { lang: l, sessionSize: 9999 })
+            .then(function (s) { return s.items.length; }),
+        ]);
+      })).then(function (pairs) {
+        var left = {};
+        var all = {};
+        langs.forEach(function (l, i) {
+          var k = l === null ? 'en' : l;
+          left[k] = pairs[i][0];
+          all[k] = pairs[i][1];
+        });
+        return { left: left, all: all };
       });
     }
 
@@ -414,7 +488,9 @@
       creditEl.textContent = text;
     }
 
-    function drawStart(byLang) {
+    function drawStart(counts) {
+      var byLang = counts.left;
+      var everything = counts.all;
       host.innerHTML = '';
       var card = el('div', 'startcard');
       card.appendChild(el('div', 'start-church', 'San Fernando Adventist Church'));
@@ -433,12 +509,22 @@
       showCredit(lang);
 
       var playable = byLang[lang || 'en'] || 0;
+      var total = everything[lang || 'en'] || 0;
+      var asked = total - playable;
+
       if (!playable) {
-        // An empty or half-built deck says so HERE, rather than failing at
-        // startup with an error card. Bible Character Names sits in exactly
-        // this state while its pictures are collected.
-        card.appendChild(el('div', 'start-empty',
-          'This deck has no puzzles yet. Add some with the deck manager.'));
+        // Two different nothings, and telling them apart matters: an empty deck
+        // needs puzzles adding, whereas a deck that has all been asked needs
+        // the record clearing - and saying "no puzzles yet" to someone holding
+        // a full deck would send them looking for a fault that is not there.
+        if (total) {
+          card.appendChild(el('div', 'start-empty',
+            'All ' + total + ' have been asked already. Clear the record from '
+            + 'the Game Master page to ask them again.'));
+        } else {
+          card.appendChild(el('div', 'start-empty',
+            'This deck has no puzzles yet. Add some with the deck manager.'));
+        }
         host.appendChild(card);
         return null;
       }
@@ -494,7 +580,22 @@
       srow.appendChild(sizeSel);
       card.appendChild(srow);
 
-      card.appendChild(el('div', 'start-go', 'Space to start'));
+      // A button, not the whole screen. The host element advances the game on
+      // click, and inheriting that here meant a stray tap on a projector
+      // started the round before anyone was ready.
+      var go = document.createElement('button');
+      go.type = 'button';
+      go.className = 'start-button';
+      go.textContent = 'Start';
+      go.addEventListener('click', function (e) { e.stopPropagation(); begin(); });
+      card.appendChild(go);
+      card.appendChild(el('div', 'start-go', 'or press Space'));
+
+      if (asked > 0) {
+        card.appendChild(el('div', 'start-asked',
+          asked + ' of ' + total + ' already asked, and not coming back.'));
+      }
+
       host.appendChild(card);
 
       // The same way back the game itself has. Outside the card, because the
@@ -518,13 +619,16 @@
     }
 
     var chosen = null;
+    // Set once the start screen is listening, so its button can reach the same
+    // code the spacebar does.
+    var begin = function () {};
 
     function toStart() {
-      return countByLang().then(function (byLang) {
-        chosen = drawStart(byLang);
+      return countByLang(loadAsked(normalized.id)).then(function (counts) {
+        chosen = drawStart(counts);
         if (!chosen) { return null; }   // nothing to play; the card says so
         return new Promise(function (resolve) {
-          function go() {
+          function start() {
             var choice = chosen();
             // play() puts up its own back link; drop this one so they do not
             // stack up every time S is pressed.
@@ -534,15 +638,14 @@
             if (choice.lang) { remember('round-lang', choice.lang); }
             showCredit(choice.lang);
             document.removeEventListener('keydown', onKey);
-            host.removeEventListener('click', onClick);
+            begin = function () {};
             resolve(play(deck, host, resolver, rng, choice, toStart));
           }
           function onKey(e) {
-            if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); go(); }
+            if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); start(); }
           }
-          function onClick() { go(); }
           document.addEventListener('keydown', onKey);
-          host.addEventListener('click', onClick);
+          begin = start;
         });
       });
     }

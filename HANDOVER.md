@@ -64,6 +64,30 @@ was two and twelve. Each Tagalog variant follows the English quote it was built
 from, matched on chapter and verse, so a line cannot be easy in one language
 and hard in the other.
 
+**What has been asked persists between sessions, and only the game master can
+clear it.** The in-memory set lasted one evening, so a reload started the deck
+again - useless for a programme that meets weekly. It is now in localStorage,
+keyed per deck, written after every round.
+
+A puzzle is marked when it REACHES THE SCREEN, not when the round is drawn.
+The first attempt marked the whole round on draw, so starting a round of twenty
+and playing one puzzle burned the other nineteen for good - the count jumped by
+a round instead of by one, which is how it was spotted.
+
+`R` therefore hands nothing back: the puzzles a round never reached were never
+marked. And the clear control lives on the game master page, behind the sign-in
+and behind a second confirming tap - it was on the start screen first, which put
+weeks of progress one stray click away on a laptop in a room full of people.
+
+**Every page has a way back to where you came from.** In a game: the start
+screen of that same game, and then all games. On the game master page: straight
+to the game whose answers are on screen. "All games" alone meant leaving the
+game entirely to change a round length, then hunting for the card again.
+
+**Starting is a button, not a click anywhere.** The host element advances the
+game on click and the start screen inherited that, so a stray tap launched the
+round before anyone was ready.
+
 **A clue is one image, not a biography.** The first drafts described the person
 instead of hinting at them - Zacharias was "a priest burning incense who argued
 with an angel and was struck silent for months", which is three identifying
