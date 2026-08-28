@@ -75,7 +75,14 @@ and playing one puzzle burned the other nineteen for good - the count jumped by
 a round instead of by one, which is how it was spotted.
 
 `R` therefore hands nothing back: the puzzles a round never reached were never
-marked. And the clear control lives on the game master page, behind the sign-in
+marked.
+
+**The record is per DEVICE.** localStorage is shared across the pages of one
+origin, so `gm.html` and the game pages see the same record on GitHub Pages -
+but a game master's phone and the projector laptop are different browsers and do
+not. Clearing has to happen on the laptop running the game. The game master page
+says so on screen, because otherwise someone clears it on a phone, sees the
+count go to zero, and reasonably concludes it worked. And the clear control lives on the game master page, behind the sign-in
 and behind a second confirming tap - it was on the start screen first, which put
 weeks of progress one stray click away on a laptop in a room full of people.
 

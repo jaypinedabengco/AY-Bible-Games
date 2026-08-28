@@ -66,6 +66,11 @@ again — the start screen says how many have gone. Only the Game Master page ca
 clear that record, behind the sign-in and behind a confirm tap, because it
 throws away weeks of a programme's progress.
 
+The record is kept **by the browser running the game**, so it lives on the
+laptop driving the projector. Clearing it has to be done there too: open
+`gm.html` on that laptop, sign in, and clear. Doing it from a phone clears that
+phone's record, which is not the one the game is reading.
+
 ### The three games
 
 - **Bible Book Names** — pictures combine into a book of the Bible.

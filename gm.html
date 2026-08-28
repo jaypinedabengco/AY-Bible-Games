@@ -334,11 +334,17 @@
       var deckId = current.deckId;
       var n = askedCount(deckId);
       if (!n) {
-        askedEl.textContent = 'Nothing asked yet in ' + current.title + '.';
+        askedEl.textContent = 'Nothing asked yet in ' + current.title
+          + ' on this device.';
         return;
       }
+      // "On this device" is not padding. The record lives in the browser
+      // running the GAME, so a game master clearing it from their own phone
+      // would change nothing on the laptop driving the projector - and would
+      // have no way of telling.
       askedEl.appendChild(document.createTextNode(
-        n + ' already asked in ' + current.title + ', and not coming back.'));
+        n + ' already asked in ' + current.title + ' on this device, and not '
+        + 'coming back. Clear it on the laptop running the game.'));
       var b = document.createElement('button');
       b.type = 'button';
       b.textContent = 'Ask them all again';
