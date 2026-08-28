@@ -146,3 +146,45 @@ test('a picture puzzle has no quotes', () => {
   assert.deepEqual(out[0].quotes, []);
   assert.equal(out[0].working, 'JEANS');
 });
+
+test('a row carries the name in every language the puzzle is asked in', () => {
+  // The game master is reading a phone in a dark hall. If the round is running
+  // in Tagalog, the answer they need is PEDRO - having it only in small print
+  // inside a quote block is not good enough.
+  const out = rows({
+    id: 'who-said-it',
+    puzzles: [{
+      id: 'qs-05', answer: 'PETER',
+      variants: [
+        { type: 'quote', lang: 'en', quote: 'You are the Christ.', verse: 'Matthew 16:16' },
+        { type: 'quote', lang: 'fil', answer: 'PEDRO', quote: 'Ikaw ang Cristo.',
+          verse: 'Mateo 16:16' },
+      ],
+    }],
+  });
+  assert.equal(out[0].answer, 'PETER');
+  assert.deepEqual(out[0].names, { en: 'PETER', fil: 'PEDRO' });
+});
+
+test('a name that is the same in both languages is not listed twice', () => {
+  const out = rows({
+    id: 'who-said-it',
+    puzzles: [{
+      id: 'qs-41', answer: 'DANIEL',
+      variants: [
+        { type: 'quote', lang: 'en', quote: 'My God sent His angel', verse: 'Daniel 6:22' },
+        { type: 'quote', lang: 'fil', answer: 'DANIEL', quote: 'Ang Dios ko', verse: 'Daniel 6:22' },
+      ],
+    }],
+  });
+  assert.deepEqual(out[0].names, { en: 'DANIEL' }, 'DANIEL beside DANIEL is noise');
+});
+
+test('a picture puzzle lists only its one name', () => {
+  const out = rows({
+    id: 'book-names',
+    puzzles: [{ id: 'bn-01', answer: 'GENESIS',
+                clues: [{ img: 'jeans.jpg', word: 'JEANS' }] }],
+  });
+  assert.deepEqual(out[0].names, { en: 'GENESIS' });
+});

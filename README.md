@@ -90,6 +90,10 @@ that id into the Game Master view and you get the answer, the working, and
 where it sits: the canon position for a book, or the verse and clue for a
 quote. You can search by name too.
 
+Where a person's name differs between languages the row shows both — **PETER**
+with *Tagalog: PEDRO* under it — so the answer is to hand whichever language the
+round is running in.
+
 A quote still waiting for its Tagalog line shows as *waiting*, so you can see
 what is missing as easily as what is there.
 

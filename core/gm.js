@@ -67,6 +67,23 @@
         pictures: p.variants.map(function (v) {
           return v.clues ? v.clues.map(function (c) { return c.img; }) : (v.img ? [v.img] : []);
         }),
+        // The name in each language the puzzle is asked in. A game master
+        // running a Tagalog round needs PEDRO, not PETER, and needs it where
+        // they can read it off a phone in a dark hall - not in small print
+        // inside a quote block. A name identical in both is listed once.
+        names: (function () {
+          var out = {};
+          p.variants.forEach(function (v) {
+            var lang = v.lang || p.lang || 'en';
+            var name = v.answer || p.answer;
+            if (!name) { return; }
+            if (out[lang] === undefined) { out[lang] = name; }
+          });
+          Object.keys(out).forEach(function (lang) {
+            if (lang !== 'en' && out[lang] === out.en) { delete out[lang]; }
+          });
+          return out;
+        })(),
         // Every line this puzzle might ask, in either language, including the
         // ones still waiting for their text - the game master should be able
         // to see what is missing as easily as what is there.

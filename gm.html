@@ -36,6 +36,13 @@
          margin-top: 0.55rem; }
   .rid { font-size: 0.68rem; letter-spacing: 0.2em; color: var(--dim); text-transform: uppercase; }
   .ranswer { font-size: 1.7rem; font-weight: 700; line-height: 1.1; }
+  /* The same person in the other language. The game master may be running the
+     round in Tagalog, so this has to be readable at a glance rather than
+     hidden in the small print of a quote block. */
+  .ralt { font-size: 1.15rem; font-weight: 700; color: var(--accent);
+          line-height: 1.2; margin-top: 0.1rem; }
+  .ralt .lang { font-size: 0.6rem; letter-spacing: 0.14em; text-transform: uppercase;
+                color: var(--dim); font-weight: 400; margin-right: 0.35rem; }
   .rwork { font-size: 1rem; letter-spacing: 0.08em; color: var(--accent); margin-top: 0.15rem; }
   .rref { font-size: 0.7rem; color: var(--dim); letter-spacing: 0.1em;
           text-transform: uppercase; margin-top: 0.3rem; }
@@ -253,6 +260,14 @@
         });
 
         box.appendChild(el('div', 'ranswer', r.answer));
+        // Every other language this puzzle is asked in, named.
+        Object.keys(r.names || {}).forEach(function (lang) {
+          if (lang === 'en') { return; }
+          var line = el('div', 'ralt');
+          line.appendChild(el('span', 'lang', lang === 'fil' ? 'Tagalog' : lang));
+          line.appendChild(document.createTextNode(r.names[lang]));
+          box.appendChild(line);
+        });
         // On a quote deck the working IS the quote, already shown above.
         if (!r.quotes.length) {
           r.workings.forEach(function (w) { box.appendChild(el('div', 'rwork', w)); });
