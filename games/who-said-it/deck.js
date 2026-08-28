@@ -108,11 +108,11 @@ window.DECK = {
     {
       id: 'qs-04', answer: 'RUTH', difficulty: 2,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 2,
+        { type: 'quote', flag: 'unverified', difficulty: 1,
           quote: 'Wherever you go, I will go; and wherever you lodge, I will lodge; your people shall be my people, and your God, my God.',
           verse: 'Ruth 1:16',
           clue: 'A Moabite widow refusing to leave her mother-in-law on the road home.' },
-        { type: 'quote', lang: 'fil', answer: 'RUT', flag: 'unverified', difficulty: 2,
+        { type: 'quote', lang: 'fil', answer: 'RUT', flag: 'unverified', difficulty: 1,
           quote: 'Kung saan ka pumaroon, ay paroroon ako: at kung saan ka tumigil, ay titigil ako: ang iyong bayan ay magiging aking bayan, at ang iyong Dios ay aking Dios',
           verse: 'Rut 1:16',
           clue: 'sinabi niya ito sa kanyang biyenan, palabas ng Moab' },
@@ -121,31 +121,31 @@ window.DECK = {
     {
       id: 'qs-05', answer: 'PETER', difficulty: 1,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 2,
+        { type: 'quote', flag: 'unverified', difficulty: 1,
           quote: 'You are the Christ, the Son of the living God.',
           verse: 'Matthew 16:16',
           clue: 'a fisherman; Jesus called him a rock' },
-        { type: 'quote', flag: 'unverified', difficulty: 3,
+        { type: 'quote', flag: 'unverified', difficulty: 1,
           quote: 'I do not know the Man!',
           verse: 'Matthew 26:72',
           clue: 'he said it three times, by a fire, before dawn' },
-        { type: 'quote', lang: 'fil', answer: 'PEDRO', flag: 'unverified', difficulty: 2,
+        { type: 'quote', lang: 'fil', answer: 'PEDRO', flag: 'unverified', difficulty: 1,
           quote: 'Ikaw ang Cristo, Ang anak ng Dios na buhay.',
           verse: 'Mateo 16:16',
           clue: 'isang mangingisda; tinawag siyang bato ni Jesus' },
-        { type: 'quote', flag: 'unverified', difficulty: 3,
+        { type: 'quote', flag: 'unverified', difficulty: 2,
           quote: 'Depart from me, for I am a sinful man, O Lord!',
           verse: 'Luke 5:8',
           clue: 'He had fished all night and caught nothing, until the nets nearly broke.' },
-        { type: 'quote', flag: 'unverified', difficulty: 1,
+        { type: 'quote', flag: 'unverified', difficulty: 3,
           quote: 'Silver and gold I do not have, but what I do have I give you: In the name of Jesus Christ of Nazareth, rise up and walk.',
           verse: 'Acts 3:6',
           clue: 'A fisherman who once sank in the waves, now speaking at a temple gate' },
-        { type: 'quote', flag: 'unverified', difficulty: 1,
+        { type: 'quote', flag: 'unverified', difficulty: 3,
           quote: 'Repent, and let every one of you be baptized in the name of Jesus Christ for the remission of sins.',
           verse: 'Acts 2:38',
           clue: 'He preached the first sermon of the church, after denying his Lord three times' },
-        { type: 'quote', flag: 'unverified', difficulty: 2,
+        { type: 'quote', flag: 'unverified', difficulty: 3,
           quote: 'We ought to obey God rather than men.',
           verse: 'Acts 5:29',
           clue: 'Standing before the council that had condemned his Master' },
@@ -158,11 +158,11 @@ window.DECK = {
     {
       id: 'qs-06', answer: 'PILATE', difficulty: 3,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 3,
+        { type: 'quote', flag: 'unverified', difficulty: 1,
           quote: 'What is truth?',
           verse: 'John 18:38',
           clue: 'he asked it of the prisoner in front of him, then washed his hands' },
-        { type: 'quote', lang: 'fil', answer: 'PILATO', flag: 'unverified', difficulty: 3,
+        { type: 'quote', lang: 'fil', answer: 'PILATO', flag: 'unverified', difficulty: 1,
           quote: 'Ano ang katotohanan?',
           verse: 'Juan 18:38',
           clue: 'tinanong niya ito sa bilanggo sa harap niya, saka naghugas ng kamay' },
@@ -239,7 +239,7 @@ window.DECK = {
           quote: 'Who am I that I should go to Pharaoh, and that I should bring the children of Israel out of Egypt?',
           verse: 'Exodus 3:11',
           clue: 'A shepherd arguing with a bush that will not burn up.' },
-        { type: 'quote', flag: 'unverified', difficulty: 1,
+        { type: 'quote', flag: 'unverified', difficulty: 2,
           quote: 'Do not be afraid. Stand still, and see the salvation of the LORD, which He will accomplish for you today.',
           verse: 'Exodus 14:13',
           clue: 'Sea in front, chariots behind, staff in his hand.' },
@@ -299,11 +299,11 @@ window.DECK = {
           quote: 'I will not let You go unless You bless me!',
           verse: 'Genesis 32:26',
           clue: 'He has been wrestling all night by a river and comes away limping.' },
-        { type: 'quote', flag: 'unverified', difficulty: 3,
+        { type: 'quote', flag: 'unverified', difficulty: 2,
           quote: 'Surely the LORD is in this place, and I did not know it.',
           verse: 'Genesis 28:16',
           clue: 'He woke up from a dream, with a stone for a pillow.' },
-        { type: 'quote', flag: 'unverified', difficulty: 3,
+        { type: 'quote', flag: 'unverified', difficulty: 2,
           quote: 'It is enough. Joseph my son is still alive. I will go and see him before I die.',
           verse: 'Genesis 45:28',
           clue: 'An old father, told that the son he mourned for years is alive.' },
@@ -316,11 +316,11 @@ window.DECK = {
     {
       id: 'qs-16', answer: 'PHARAOH', difficulty: 2,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 2,
+        { type: 'quote', flag: 'unverified', difficulty: 1,
           quote: 'Who is the LORD, that I should obey His voice to let Israel go? I do not know the LORD, nor will I let Israel go.',
           verse: 'Exodus 5:2',
           clue: 'On a throne, hearing a demand from two Hebrew brothers.' },
-        { type: 'quote', lang: 'fil', answer: 'FARAON', flag: 'unverified', difficulty: 2,
+        { type: 'quote', lang: 'fil', answer: 'FARAON', flag: 'unverified', difficulty: 1,
           quote: 'Sino ang Panginoon na aking pakikinggan ang kaniyang tinig, upang pahintulutan kong yumaon ang Israel?',
           verse: 'Exodo 5:2',
           clue: 'nakaupo sa trono, dalawang Hebreong magkapatid ang may hinihingi sa kanya' },
@@ -428,11 +428,11 @@ window.DECK = {
     {
       id: 'qs-24', answer: 'SAMSON', difficulty: 2,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 2,
+        { type: 'quote', flag: 'unverified', difficulty: 1,
           quote: 'Let me die with the Philistines!',
           verse: 'Judges 16:30',
           clue: 'Blind and chained between two pillars in a temple full of his enemies.' },
-        { type: 'quote', lang: 'fil', answer: 'SANSON', flag: 'unverified', difficulty: 2,
+        { type: 'quote', lang: 'fil', answer: 'SANSON', flag: 'unverified', difficulty: 1,
           quote: 'Mamatay nawa akong kasama ng mga Filisteo',
           verse: 'Mga Hukom 16:30',
           clue: 'bulag at nakakadena sa pagitan ng dalawang haligi, puno ng kaaway ang templo' },
@@ -547,7 +547,7 @@ window.DECK = {
           quote: 'But will God indeed dwell on the earth? Behold, heaven and the heaven of heavens cannot contain You.',
           verse: '1 Kings 8:27',
           clue: 'He was dedicating the temple his father had always wanted to build.' },
-        { type: 'quote', flag: 'unverified', difficulty: 1,
+        { type: 'quote', flag: 'unverified', difficulty: 2,
           quote: 'Vanity of vanities, all is vanity.',
           verse: 'Ecclesiastes 1:2',
           clue: 'The king who built the temple, tried every pleasure money could buy, and called it all empty.' },
@@ -568,7 +568,7 @@ window.DECK = {
           quote: 'How long will you falter between two opinions? If the LORD is God, follow Him; but if Baal, follow him.',
           verse: '1 Kings 18:21',
           clue: 'Standing on Mount Carmel in front of the whole nation and 450 rival prophets.' },
-        { type: 'quote', flag: 'unverified', difficulty: 3,
+        { type: 'quote', flag: 'unverified', difficulty: 2,
           quote: 'Cry aloud, for he is a god; either he is meditating, or he is busy, or he is on a journey.',
           verse: '1 Kings 18:27',
           clue: 'He is mocking prophets who have been cutting themselves all day with no answer.' },
@@ -581,11 +581,11 @@ window.DECK = {
     {
       id: 'qs-33', answer: 'NAAMAN', difficulty: 3,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 3,
+        { type: 'quote', flag: 'unverified', difficulty: 2,
           quote: 'Are not the Abanah and the Pharpar, the rivers of Damascus, better than all the waters of Israel?',
           verse: '2 Kings 5:12',
           clue: 'A Syrian army commander with leprosy, offended by embarrassingly simple instructions.' },
-        { type: 'quote', lang: 'fil', answer: 'NAAMAN', flag: 'unverified', difficulty: 3,
+        { type: 'quote', lang: 'fil', answer: 'NAAMAN', flag: 'unverified', difficulty: 2,
           quote: 'Hindi ba ang Abana at ang Pharphar, na mga ilog ng Damasco, ay mainam kay sa lahat ng tubig sa Israel?',
           verse: '2 Mga Hari 5:12',
           clue: 'kumandante ng hukbo ng Siria na may ketong, nainsulto sa sobrang simpleng utos' },
@@ -594,11 +594,11 @@ window.DECK = {
     {
       id: 'qs-34', answer: 'NEHEMIAH', difficulty: 3,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 3,
+        { type: 'quote', flag: 'unverified', difficulty: 2,
           quote: 'I am doing a great work, so that I cannot come down.',
           verse: 'Nehemiah 6:3',
           clue: 'Rebuilding Jerusalem\'s wall, refusing to meet his enemies on the plain of Ono.' },
-        { type: 'quote', lang: 'fil', answer: 'NEHEMIAS', flag: 'unverified', difficulty: 3,
+        { type: 'quote', lang: 'fil', answer: 'NEHEMIAS', flag: 'unverified', difficulty: 2,
           quote: 'Ako\'y gumagawa ng dakilang gawain, na anopa\'t hindi ako makababa',
           verse: 'Nehemias 6:3',
           clue: 'itinatayo ang pader ng Jerusalem, ayaw makipagkita sa kaaway sa kapatagan ng Ono' },
@@ -620,11 +620,11 @@ window.DECK = {
     {
       id: 'qs-36', answer: 'MORDECAI', difficulty: 2,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 2,
+        { type: 'quote', flag: 'unverified', difficulty: 3,
           quote: 'Yet who knows whether you have come to the kingdom for such a time as this?',
           verse: 'Esther 4:14',
           clue: 'He sat in sackcloth at the palace gate after refusing to bow to Haman.' },
-        { type: 'quote', lang: 'fil', answer: 'MARDOQUEO', flag: 'unverified', difficulty: 2,
+        { type: 'quote', lang: 'fil', answer: 'MARDOQUEO', flag: 'unverified', difficulty: 3,
           quote: 'At sinong nakakaalam na kung kaya ka pinasapit sa kaharian ay dahil sa bagay na ito?',
           verse: 'Ester 4:14',
           clue: 'nakaupo sa pintuan ng palasyo, naka-sako, ayaw talagang yumukod kay Haman' },
@@ -701,7 +701,7 @@ window.DECK = {
           quote: 'O king, live forever! My God sent His angel and shut the lions\' mouths, so that they have not hurt me.',
           verse: 'Daniel 6:22',
           clue: 'He kept praying at his open window three times a day even after the new law made it a crime.' },
-        { type: 'quote', flag: 'unverified', difficulty: 3,
+        { type: 'quote', flag: 'unverified', difficulty: 2,
           quote: 'MENE: God has numbered your kingdom, and finished it.',
           verse: 'Daniel 5:26',
           clue: 'The only man in the palace who could read the handwriting that appeared on the wall during a feast.' },
@@ -714,11 +714,11 @@ window.DECK = {
     {
       id: 'qs-42', answer: 'SHADRACH, MESHACH, AND ABED-NEGO', difficulty: 2,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 2,
+        { type: 'quote', flag: 'unverified', difficulty: 1,
           quote: 'Our God whom we serve is able to deliver us from the burning fiery furnace, and He will deliver us from your hand, O king.',
           verse: 'Daniel 3:17',
           clue: 'Three friends who refused to bow to a golden image when the music played.' },
-        { type: 'quote', lang: 'fil', answer: 'SADRAC, MESAC, AT ABED-NEGO', flag: 'unverified', difficulty: 2,
+        { type: 'quote', lang: 'fil', answer: 'SADRAC, MESAC, AT ABED-NEGO', flag: 'unverified', difficulty: 1,
           quote: 'Narito, ang aming Dios na aming pinaglilingkuran ay makapagliligtas sa amin sa mabangis na hurnong nagniningas; at ililigtas niya kami sa iyong kamay, Oh hari.',
           verse: 'Daniel 3:17',
           clue: 'tatlong magkakaibigan na ayaw yumukod sa gintong rebulto nang tumugtog ang musika' },
@@ -727,7 +727,7 @@ window.DECK = {
     {
       id: 'qs-43', answer: 'NEBUCHADNEZZAR', difficulty: 2,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 3,
+        { type: 'quote', flag: 'unverified', difficulty: 2,
           quote: 'Look! I see four men loose, walking in the midst of the fire, and they are not hurt, and the form of the fourth is like the Son of God.',
           verse: 'Daniel 3:25',
           clue: 'The king who ordered the furnace heated seven times hotter, then looked inside and got a shock.' },
@@ -735,7 +735,7 @@ window.DECK = {
           quote: 'Is not this great Babylon, that I have built for a royal dwelling by my mighty power and for the glory of my majesty?',
           verse: 'Daniel 4:30',
           clue: 'He boasted from his palace roof and spent the next seven seasons eating grass like an ox.' },
-        { type: 'quote', lang: 'fil', answer: 'NABUCODONOSOR', flag: 'unverified', difficulty: 3,
+        { type: 'quote', lang: 'fil', answer: 'NABUCODONOSOR', flag: 'unverified', difficulty: 2,
           quote: 'Narito, aking nakikita ay apat na lalake na hindi gapos na nagsisilakad sa gitna ng apoy, at sila\'y walang paso; at ang anyo ng ikaapat ay kawangis ng isang anak ng mga dios.',
           verse: 'Daniel 3:25',
           clue: 'hari na nag-utos na pitong ulit na initin ang hurno, tapos nagulat sa nakita' },
@@ -765,11 +765,11 @@ window.DECK = {
     {
       id: 'qs-45', answer: 'MICAH', difficulty: 2,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 2,
+        { type: 'quote', flag: 'unverified', difficulty: 3,
           quote: 'What does the LORD require of you but to do justly, to love mercy, and to walk humbly with your God?',
           verse: 'Micah 6:8',
           clue: 'A prophet from a small country town who named Bethlehem as the birthplace of the Ruler to come.' },
-        { type: 'quote', lang: 'fil', answer: 'MIKAS', flag: 'unverified', difficulty: 2,
+        { type: 'quote', lang: 'fil', answer: 'MIKAS', flag: 'unverified', difficulty: 3,
           quote: 'At ano ang hinihingi ng Panginoon sa iyo, kundi gumawa na may kaganapan, at ibigin ang kaawaan, at lumakad na may kababaan na kasama ng iyong Dios.',
           verse: 'Mikas 6:8',
           clue: 'propeta mula sa maliit na bayan, tinuro ang Betlehem bilang sisilangan ng Tagapamahala' },
@@ -834,15 +834,15 @@ window.DECK = {
     {
       id: 'qs-50', answer: 'JOHN THE BAPTIST', difficulty: 2,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 2,
+        { type: 'quote', flag: 'unverified', difficulty: 1,
           quote: 'Behold! The Lamb of God who takes away the sin of the world!',
           verse: 'John 1:29',
           clue: 'A wilderness preacher in camel\'s hair, pointing at a man walking past.' },
-        { type: 'quote', flag: 'unverified', difficulty: 3,
+        { type: 'quote', flag: 'unverified', difficulty: 2,
           quote: 'He must increase, but I must decrease.',
           verse: 'John 3:30',
           clue: 'His own crowd was shrinking, and he said that was exactly right.' },
-        { type: 'quote', lang: 'fil', answer: 'JUAN BAUTISTA', flag: 'unverified', difficulty: 2,
+        { type: 'quote', lang: 'fil', answer: 'JUAN BAUTISTA', flag: 'unverified', difficulty: 1,
           quote: 'Narito, ang Cordero ng Dios, na nagaalis ng kasalanan ng sanglibutan!',
           verse: 'Juan 1:29',
           clue: 'mangangaral sa ilang, damit na balahibo ng kamelyo, itinuturo ang dumaraan' },
@@ -898,11 +898,11 @@ window.DECK = {
     {
       id: 'qs-54', answer: 'THE THIEF ON THE CROSS', difficulty: 2,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 2,
+        { type: 'quote', flag: 'unverified', difficulty: 1,
           quote: 'Lord, remember me when You come into Your kingdom.',
           verse: 'Luke 23:42',
           clue: 'A condemned man hanging beside Jesus, hours from death, asking for one thing.' },
-        { type: 'quote', lang: 'fil', answer: 'ANG MAGNANAKAW SA KRUS', flag: 'unverified', difficulty: 2,
+        { type: 'quote', lang: 'fil', answer: 'ANG MAGNANAKAW SA KRUS', flag: 'unverified', difficulty: 1,
           quote: 'Jesus, alalahanin mo ako, pagdating mo sa iyong kaharian.',
           verse: 'Lucas 23:42',
           clue: 'hatol na kamatayan, ilang oras na lang, may isang bagay siyang hiniling kay Jesus' },
@@ -911,11 +911,11 @@ window.DECK = {
     {
       id: 'qs-55', answer: 'ZACCHAEUS', difficulty: 2,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 2,
+        { type: 'quote', flag: 'unverified', difficulty: 1,
           quote: 'Look, Lord, I give half of my goods to the poor; and if I have taken anything from anyone by false accusation, I restore fourfold.',
           verse: 'Luke 19:8',
           clue: 'A short, rich tax man who climbed a tree for a better view.' },
-        { type: 'quote', lang: 'fil', answer: 'ZAQUEO', flag: 'unverified', difficulty: 2,
+        { type: 'quote', lang: 'fil', answer: 'ZAQUEO', flag: 'unverified', difficulty: 1,
           quote: 'Narito, Panginoon, ang kalahati ng aking mga pag-aari ay ibinibigay ko sa mga dukha; at kung sakali\'t nakasingil akong may daya sa kanino mang tao, ay isinasauli ko ng makaapat.',
           verse: 'Lucas 19:8',
           clue: 'pandak at mayamang maniningil ng buwis na umakyat sa puno para makasilip' },
@@ -924,11 +924,11 @@ window.DECK = {
     {
       id: 'qs-56', answer: 'NICODEMUS', difficulty: 3,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 3,
+        { type: 'quote', flag: 'unverified', difficulty: 2,
           quote: 'How can a man be born when he is old? Can he enter a second time into his mother\'s womb and be born?',
           verse: 'John 3:4',
           clue: 'A ruler of the Jews who came for a conversation after dark.' },
-        { type: 'quote', lang: 'fil', answer: 'NICODEMO', flag: 'unverified', difficulty: 3,
+        { type: 'quote', lang: 'fil', answer: 'NICODEMO', flag: 'unverified', difficulty: 2,
           quote: 'Paanong maipanganganak ang tao kung siya\'y matanda na? makapapasok baga siyang bilang ikalawa sa tiyan ng kaniyang ina, at ipanganak?',
           verse: 'Juan 3:4',
           clue: 'isang pinuno ng mga Judio na dumating para makipag-usap nang gabing-gabi' },
@@ -937,11 +937,11 @@ window.DECK = {
     {
       id: 'qs-57', answer: 'THE WOMAN AT THE WELL', difficulty: 3,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 3,
+        { type: 'quote', flag: 'unverified', difficulty: 2,
           quote: 'Sir, give me this water, that I may not thirst, nor come here to draw.',
           verse: 'John 4:15',
           clue: 'A Samaritan who came out alone at noon; the stranger there knew her whole history.' },
-        { type: 'quote', lang: 'fil', answer: 'ANG BABAE SA BALON', flag: 'unverified', difficulty: 3,
+        { type: 'quote', lang: 'fil', answer: 'ANG BABAE SA BALON', flag: 'unverified', difficulty: 2,
           quote: 'Ginoo, ibigay mo sa akin ang tubig na ito, upang ako\'y huwag mauhaw, ni pumarito man sa ganito kalayo upang umigib pa.',
           verse: 'Juan 4:15',
           clue: 'Samaritana na nag-isang lumabas sa tanghali; alam ng estranghero ang buong buhay niya' },
@@ -950,11 +950,11 @@ window.DECK = {
     {
       id: 'qs-58', answer: 'GABRIEL', difficulty: 3,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 3,
+        { type: 'quote', flag: 'unverified', difficulty: 1,
           quote: 'Do not be afraid, Mary, for you have found favor with God.',
           verse: 'Luke 1:30',
           clue: 'A messenger sent from God to a young girl in Nazareth.' },
-        { type: 'quote', lang: 'fil', answer: 'GABRIEL', flag: 'unverified', difficulty: 3,
+        { type: 'quote', lang: 'fil', answer: 'GABRIEL', flag: 'unverified', difficulty: 1,
           quote: 'Huwag kang matakot, Maria: sapagka\'t nakasumpong ka ng biyaya sa Dios.',
           verse: 'Lucas 1:30',
           clue: 'sugo ng Diyos na ipinadala sa isang dalaga roon sa Nazaret' },
@@ -976,11 +976,11 @@ window.DECK = {
     {
       id: 'qs-60', answer: 'THE PRODIGAL SON', difficulty: 2,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 2,
+        { type: 'quote', flag: 'unverified', difficulty: 1,
           quote: 'Father, I have sinned against heaven and before you, and am no longer worthy to be called your son.',
           verse: 'Luke 15:21',
           clue: 'The younger of two brothers, rehearsing a speech on the long road home.' },
-        { type: 'quote', lang: 'fil', answer: 'ANG ALIBUGHANG ANAK', flag: 'unverified', difficulty: 2,
+        { type: 'quote', lang: 'fil', answer: 'ANG ALIBUGHANG ANAK', flag: 'unverified', difficulty: 1,
           quote: 'Ama, nagkasala ako laban sa langit, at sa iyong paningin: hindi na ako karapatdapat na tawaging anak mo.',
           verse: 'Lucas 15:21',
           clue: 'ang nakababata sa magkapatid, nag-eensayo ng sasabihin habang pauwi' },
@@ -989,11 +989,11 @@ window.DECK = {
     {
       id: 'qs-61', answer: 'BARTIMAEUS', difficulty: 3,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 3,
+        { type: 'quote', flag: 'unverified', difficulty: 2,
           quote: 'Jesus, Son of David, have mercy on me!',
           verse: 'Mark 10:47',
           clue: 'A blind beggar on the Jericho road who refused to be shushed.' },
-        { type: 'quote', lang: 'fil', answer: 'BARTIMEO', flag: 'unverified', difficulty: 3,
+        { type: 'quote', lang: 'fil', answer: 'BARTIMEO', flag: 'unverified', difficulty: 2,
           quote: 'Jesus, ikaw na anak ni David, mahabag ka sa akin.',
           verse: 'Marcos 10:47',
           clue: 'bulag na pulubi sa daan ng Jerico na ayaw magpatahimik' },
@@ -1002,7 +1002,7 @@ window.DECK = {
     {
       id: 'qs-62', answer: 'JESUS', difficulty: 1,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 2,
+        { type: 'quote', flag: 'unverified', difficulty: 1,
           quote: 'Neither do I condemn you; go and sin no more.',
           verse: 'John 8:11',
           clue: 'The only person in that crowd who actually had the right to throw a stone.' },
@@ -1014,15 +1014,15 @@ window.DECK = {
           quote: 'Behold, I stand at the door and knock. If anyone hears My voice and opens the door, I will come in to him.',
           verse: 'Revelation 3:20',
           clue: 'Speaking to a lukewarm church in a letter dictated to John' },
-        { type: 'quote', lang: 'fil', answer: 'JESUS', flag: 'unverified', difficulty: 2,
+        { type: 'quote', lang: 'fil', answer: 'JESUS', flag: 'unverified', difficulty: 1,
           quote: 'Ako man ay hindi rin hahatol sa iyo: humayo ka ng iyong lakad; mula ngayo\'y huwag ka nang magkasala.',
           verse: 'Juan 8:11',
           clue: 'siya lang sa buong pulutong ang may karapatang bumato' },
-        { type: 'quote', flag: 'unverified', difficulty: 2,
+        { type: 'quote', flag: 'unverified', difficulty: 1,
           quote: 'What! Could you not watch with Me one hour?',
           verse: 'Matthew 26:40',
           clue: 'He found His closest friends asleep on the night He needed them awake.' },
-        { type: 'quote', flag: 'unverified', difficulty: 3,
+        { type: 'quote', flag: 'unverified', difficulty: 2,
           quote: 'Have you any food here?',
           verse: 'Luke 24:41',
           clue: 'Newly alive, He asked for something to eat to prove He was no ghost.' },
@@ -1046,7 +1046,7 @@ window.DECK = {
           quote: 'Men of Athens, I perceive that in all things you are very religious.',
           verse: 'Acts 17:22',
           clue: 'A visitor preaching to philosophers beside an altar to an unknown god' },
-        { type: 'quote', flag: 'unverified', difficulty: 3,
+        { type: 'quote', flag: 'unverified', difficulty: 2,
           quote: 'I am a Jew from Tarsus, in Cilicia, a citizen of no mean city.',
           verse: 'Acts 21:39',
           clue: 'A prisoner explaining himself to a commander on the temple stairs' },
@@ -1059,7 +1059,7 @@ window.DECK = {
     {
       id: 'qs-64', answer: 'STEPHEN', difficulty: 2,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 2,
+        { type: 'quote', flag: 'unverified', difficulty: 1,
           quote: 'Lord, do not charge them with this sin.',
           verse: 'Acts 7:60',
           clue: 'The first believer to die for the faith, praying as the stones fell' },
@@ -1067,7 +1067,7 @@ window.DECK = {
           quote: 'Look! I see the heavens opened and the Son of Man standing at the right hand of God!',
           verse: 'Acts 7:56',
           clue: 'One of the seven chosen to serve tables, on trial before the council' },
-        { type: 'quote', lang: 'fil', answer: 'ESTEBAN', flag: 'unverified', difficulty: 2,
+        { type: 'quote', lang: 'fil', answer: 'ESTEBAN', flag: 'unverified', difficulty: 1,
           quote: 'Panginoon, huwag mong iparatang sa kanila ang kasalanang ito.',
           verse: 'Mga Gawa 7:60',
           clue: 'unang namatay para sa pananampalataya, nananalangin habang binabato' },
@@ -1128,11 +1128,11 @@ window.DECK = {
     {
       id: 'qs-69', answer: 'THE ETHIOPIAN EUNUCH', difficulty: 3,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 3,
+        { type: 'quote', flag: 'unverified', difficulty: 2,
           quote: 'How can I, unless someone guides me?',
           verse: 'Acts 8:31',
           clue: 'A foreign official reading Isaiah aloud in his chariot on a desert road' },
-        { type: 'quote', lang: 'fil', answer: 'ANG EUNUKO NA TAGA-ETIOPIA', flag: 'unverified', difficulty: 3,
+        { type: 'quote', lang: 'fil', answer: 'ANG EUNUKO NA TAGA-ETIOPIA', flag: 'unverified', difficulty: 2,
           quote: 'Paanong magagawa ko, maliban nang may pumatnubay sa aking sinoman?',
           verse: 'Mga Gawa 8:31',
           clue: 'dayuhang opisyal na malakas na binabasa si Isaias sa karwahe sa disyertong daan' },
@@ -1167,11 +1167,11 @@ window.DECK = {
     {
       id: 'qs-72', answer: 'ELIZABETH', difficulty: 3,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 3,
+        { type: 'quote', flag: 'unverified', difficulty: 2,
           quote: 'Blessed are you among women, and blessed is the fruit of your womb!',
           verse: 'Luke 1:42',
           clue: 'An older woman long past hope of children, whose baby leaped at a visitor\'s voice.' },
-        { type: 'quote', lang: 'fil', answer: 'ELISABET', flag: 'unverified', difficulty: 3,
+        { type: 'quote', lang: 'fil', answer: 'ELISABET', flag: 'unverified', difficulty: 2,
           quote: 'Pinagpala ka sa mga babae, at pinagpala ang bunga ng iyong tiyan.',
           verse: 'Lucas 1:42',
           clue: 'matandang babae na wala nang pag-asang magka-anak; lumundag ang sanggol nang dumalaw ang bisita' },
@@ -1180,11 +1180,11 @@ window.DECK = {
     {
       id: 'qs-73', answer: 'ZACHARIAS', difficulty: 3,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 3,
+        { type: 'quote', flag: 'unverified', difficulty: 2,
           quote: 'How shall I know this? For I am an old man, and my wife is well advanced in years.',
           verse: 'Luke 1:18',
           clue: 'A priest burning incense who argued with an angel and was struck silent for months.' },
-        { type: 'quote', lang: 'fil', answer: 'ZACARIAS', flag: 'unverified', difficulty: 3,
+        { type: 'quote', lang: 'fil', answer: 'ZACARIAS', flag: 'unverified', difficulty: 2,
           quote: 'Sa ano malalaman ko ito? sapagka\'t ako\'y matanda na, at ang aking asawa ay may pataw ng maraming taon.',
           verse: 'Lucas 1:18',
           clue: 'paring nag-aalay ng insenso na nakipagtalo sa anghel at napipi ng maraming buwan' },
@@ -1193,11 +1193,11 @@ window.DECK = {
     {
       id: 'qs-74', answer: 'THE WISE MEN', difficulty: 2,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 2,
+        { type: 'quote', flag: 'unverified', difficulty: 1,
           quote: 'Where is He who has been born King of the Jews? For we have seen His star in the East and have come to worship Him.',
           verse: 'Matthew 2:2',
           clue: 'Foreign scholars who followed the sky to a house and brought gifts.' },
-        { type: 'quote', lang: 'fil', answer: 'ANG MGA PANTAS', flag: 'unverified', difficulty: 2,
+        { type: 'quote', lang: 'fil', answer: 'ANG MGA PANTAS', flag: 'unverified', difficulty: 1,
           quote: 'Saan naroon ang ipinanganak na hari ng mga Judio? sapagka\'t aming nakita ang kaniyang bituin sa silanganan, at naparito kami upang siya\'y sambahin.',
           verse: 'Mateo 2:2',
           clue: 'mga dayuhang matalino na sumunod sa bituin at nagdala ng mga handog kay Jesus' },
@@ -1206,11 +1206,11 @@ window.DECK = {
     {
       id: 'qs-75', answer: 'HEROD', difficulty: 2,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 2,
+        { type: 'quote', flag: 'unverified', difficulty: 1,
           quote: 'Go and search carefully for the young Child, and when you have found Him, bring back word to me, that I may come and worship Him also.',
           verse: 'Matthew 2:8',
           clue: 'A jealous king pretending he wanted to bow to a newborn rival.' },
-        { type: 'quote', lang: 'fil', answer: 'HERODES', flag: 'unverified', difficulty: 2,
+        { type: 'quote', lang: 'fil', answer: 'HERODES', flag: 'unverified', difficulty: 1,
           quote: 'Kayo\'y magsiparoon at ipagtanong ng buong ingat ang tungkol sa sanggol; at pagkasumpong ninyo sa kaniya, ay ipagbigay-alam ninyo sa akin',
           verse: 'Mateo 2:8',
           clue: 'naiinggit na hari na nagkunwaring gusto rin niyang sumamba sa bagong panganak na karibal' },
@@ -1245,11 +1245,11 @@ window.DECK = {
     {
       id: 'qs-78', answer: 'NATHANAEL', difficulty: 3,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 3,
+        { type: 'quote', flag: 'unverified', difficulty: 2,
           quote: 'Can anything good come out of Nazareth?',
           verse: 'John 1:46',
           clue: 'A skeptic resting under a fig tree who doubted a small town could produce anything great.' },
-        { type: 'quote', lang: 'fil', answer: 'NATANAEL', flag: 'unverified', difficulty: 3,
+        { type: 'quote', lang: 'fil', answer: 'NATANAEL', flag: 'unverified', difficulty: 2,
           quote: 'Mangyayari bagang lumitaw ang anomang magaling na bagay sa Nazaret?',
           verse: 'Juan 1:46',
           clue: 'nagdududa habang nakaupo sa ilalim ng puno ng igos; may mabuti pa bang manggagaling sa Nazaret?' },
@@ -1258,11 +1258,11 @@ window.DECK = {
     {
       id: 'qs-79', answer: 'JAMES AND JOHN', difficulty: 3,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 3,
+        { type: 'quote', flag: 'unverified', difficulty: 2,
           quote: 'Grant us that we may sit, one on Your right hand and the other on Your left, in Your glory.',
           verse: 'Mark 10:37',
           clue: 'Two brothers who asked for the best seats in the kingdom.' },
-        { type: 'quote', lang: 'fil', answer: 'SANTIAGO AT JUAN', flag: 'unverified', difficulty: 3,
+        { type: 'quote', lang: 'fil', answer: 'SANTIAGO AT JUAN', flag: 'unverified', difficulty: 2,
           quote: 'Ipagkaloob mo sa amin na mangakaupo kami, ang isa\'y sa iyong kanan, at ang isa\'y sa iyong kaliwa, sa iyong kaluwalhatian.',
           verse: 'Marcos 10:37',
           clue: 'dalawang kapatid na humiling ng pinakamagandang puwesto sa kaharian' },
@@ -1271,11 +1271,11 @@ window.DECK = {
     {
       id: 'qs-80', answer: 'THE RICH YOUNG RULER', difficulty: 2,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 2,
+        { type: 'quote', flag: 'unverified', difficulty: 1,
           quote: 'All these things I have kept from my youth. What do I still lack?',
           verse: 'Matthew 19:20',
           clue: 'A man with great possessions who kept every commandment and still went away sorrowful.' },
-        { type: 'quote', lang: 'fil', answer: 'ANG MAYAMANG BINATA', flag: 'unverified', difficulty: 2,
+        { type: 'quote', lang: 'fil', answer: 'ANG MAYAMANG BINATA', flag: 'unverified', difficulty: 1,
           quote: 'Ang lahat ng mga bagay na ito ay ginanap ko: ano pa ang kulang sa akin?',
           verse: 'Mateo 19:20',
           clue: 'sinunod niya ang lahat ng utos pero malungkot siyang umalis dahil sa dami ng ari-arian' },
@@ -1284,11 +1284,11 @@ window.DECK = {
     {
       id: 'qs-81', answer: 'THE CANAANITE WOMAN', difficulty: 3,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 3,
+        { type: 'quote', flag: 'unverified', difficulty: 2,
           quote: 'Yes, Lord, yet even the little dogs eat the crumbs which fall from their masters\' table.',
           verse: 'Matthew 15:27',
           clue: 'A foreign mother who turned a hard saying back on Jesus and got healing for her daughter.' },
-        { type: 'quote', lang: 'fil', answer: 'ANG BABAENG CANANEA', flag: 'unverified', difficulty: 3,
+        { type: 'quote', lang: 'fil', answer: 'ANG BABAENG CANANEA', flag: 'unverified', difficulty: 2,
           quote: 'Oo, Panginoon: sapagka\'t ang mga aso man ay nagsisikain ng mga mumo na nangalalaglag mula sa dulang ng kanilang mga panginoon.',
           verse: 'Mateo 15:27',
           clue: 'dayuhang ina na ibinalik ang mabigat na sinabi ni Jesus at napagaling ang anak niya' },
@@ -1297,11 +1297,11 @@ window.DECK = {
     {
       id: 'qs-82', answer: 'JAIRUS', difficulty: 3,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 3,
+        { type: 'quote', flag: 'unverified', difficulty: 2,
           quote: 'My little daughter lies at the point of death. Come and lay Your hands on her, that she may live.',
           verse: 'Mark 5:23',
           clue: 'A synagogue official who begged Jesus to come before it was too late.' },
-        { type: 'quote', lang: 'fil', answer: 'JAIRO', flag: 'unverified', difficulty: 3,
+        { type: 'quote', lang: 'fil', answer: 'JAIRO', flag: 'unverified', difficulty: 2,
           quote: 'Ang aking munting anak na babae ay naghihingalo: ipinamamanhik ko sa iyo, na ikaw ay pumaroon at ipatong mo ang iyong mga kamay sa kaniya, upang siya\'y gumaling, at mabuhay.',
           verse: 'Marcos 5:23',
           clue: 'pinuno ng sinagoga na nagmakaawa kay Jesus na dumating bago pa mahuli ang lahat' },
@@ -1310,11 +1310,11 @@ window.DECK = {
     {
       id: 'qs-83', answer: 'THE MAN BORN BLIND', difficulty: 2,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 2,
+        { type: 'quote', flag: 'unverified', difficulty: 1,
           quote: 'One thing I know: that though I was blind, now I see.',
           verse: 'John 9:25',
           clue: 'Questioned by the authorities, he simply told them what had happened to his eyes.' },
-        { type: 'quote', lang: 'fil', answer: 'ANG LALAKING IPINANGANAK NA BULAG', flag: 'unverified', difficulty: 2,
+        { type: 'quote', lang: 'fil', answer: 'ANG LALAKING IPINANGANAK NA BULAG', flag: 'unverified', difficulty: 1,
           quote: 'Isang bagay ang nalalaman ko, na, bagaman ako\'y naging bulag, ngayo\'y nakakakita ako.',
           verse: 'Juan 9:25',
           clue: 'tinanong siya ng mga pinuno, at ikinuwento lang niya ang nangyari sa mga mata niya' },
@@ -1323,11 +1323,11 @@ window.DECK = {
     {
       id: 'qs-84', answer: 'THE TEN LEPERS', difficulty: 3,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 3,
+        { type: 'quote', flag: 'unverified', difficulty: 1,
           quote: 'Jesus, Master, have mercy on us!',
           verse: 'Luke 17:13',
           clue: 'A group of outcasts shouted from a distance, and only one came back to say thanks.' },
-        { type: 'quote', lang: 'fil', answer: 'ANG SAMPUNG KETONGIN', flag: 'unverified', difficulty: 3,
+        { type: 'quote', lang: 'fil', answer: 'ANG SAMPUNG KETONGIN', flag: 'unverified', difficulty: 1,
           quote: 'Jesus, Guro, maawa ka sa amin.',
           verse: 'Lucas 17:13',
           clue: 'malayo pa lang ay sumigaw na ang mga itinakwil; isa lang ang bumalik para magpasalamat' },
@@ -1336,11 +1336,11 @@ window.DECK = {
     {
       id: 'qs-85', answer: 'THE PHARISEE', difficulty: 2,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 2,
+        { type: 'quote', flag: 'unverified', difficulty: 1,
           quote: 'God, I thank You that I am not like other men—extortioners, unjust, adulterers, or even as this tax collector.',
           verse: 'Luke 18:11',
           clue: 'In a story Jesus told, he stood in the temple listing his own virtues.' },
-        { type: 'quote', lang: 'fil', answer: 'ANG PARISEO', flag: 'unverified', difficulty: 2,
+        { type: 'quote', lang: 'fil', answer: 'ANG PARISEO', flag: 'unverified', difficulty: 1,
           quote: 'Dios, pinasasalamatan kita, na hindi ako gaya ng ibang mga tao, na mga manglulupig, mga liko, mga mapangalunya, o hindi man lamang gaya ng maniningil ng buwis na ito.',
           verse: 'Lucas 18:11',
           clue: 'sa talinghaga ni Jesus, tumayo siya sa templo at isa-isang ibinilang ang sariling kabutihan' },
@@ -1349,11 +1349,11 @@ window.DECK = {
     {
       id: 'qs-86', answer: 'THE TAX COLLECTOR', difficulty: 2,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 2,
+        { type: 'quote', flag: 'unverified', difficulty: 1,
           quote: 'God, be merciful to me a sinner!',
           verse: 'Luke 18:13',
           clue: 'In a story Jesus told, he stood far off and would not lift his eyes.' },
-        { type: 'quote', lang: 'fil', answer: 'ANG PUBLIKANO', flag: 'unverified', difficulty: 2,
+        { type: 'quote', lang: 'fil', answer: 'ANG PUBLIKANO', flag: 'unverified', difficulty: 1,
           quote: 'Dios, ikaw ay mahabag sa akin, na isang makasalanan.',
           verse: 'Lucas 18:13',
           clue: 'sa talinghaga ni Jesus, tumayo siya sa malayo at hindi maitingala ang mga mata' },
@@ -1362,11 +1362,11 @@ window.DECK = {
     {
       id: 'qs-87', answer: 'THE ELDER BROTHER', difficulty: 3,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 3,
+        { type: 'quote', flag: 'unverified', difficulty: 2,
           quote: 'Lo, these many years I have been serving you; I never transgressed your commandment at any time.',
           verse: 'Luke 15:29',
           clue: 'He stayed home, worked the fields, and refused to go in to the party.' },
-        { type: 'quote', lang: 'fil', answer: 'ANG PANGANAY NA KAPATID', flag: 'unverified', difficulty: 3,
+        { type: 'quote', lang: 'fil', answer: 'ANG PANGANAY NA KAPATID', flag: 'unverified', difficulty: 2,
           quote: 'Narito, maraming taon nang kita\'y pinaglilingkuran, at kailan ma\'y hindi ako sumuway sa iyong utos',
           verse: 'Lucas 15:29',
           clue: 'nanatili siya sa bukid at ayaw pumasok sa handaan para sa bumalik' },
@@ -1375,11 +1375,11 @@ window.DECK = {
     {
       id: 'qs-88', answer: 'CAIAPHAS', difficulty: 3,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 3,
+        { type: 'quote', flag: 'unverified', difficulty: 2,
           quote: 'He has spoken blasphemy! What further need do we have of witnesses?',
           verse: 'Matthew 26:65',
           clue: 'The high priest who tore his own clothes during a midnight trial.' },
-        { type: 'quote', lang: 'fil', answer: 'CAIFAS', flag: 'unverified', difficulty: 3,
+        { type: 'quote', lang: 'fil', answer: 'CAIFAS', flag: 'unverified', difficulty: 2,
           quote: 'Nagsalita siya ng kapusungan: ano pa ang kailangan natin ng mga saksi?',
           verse: 'Mateo 26:65',
           clue: 'punong saserdote na pinunit ang sariling damit sa paglilitis noong hatinggabi' },
@@ -1388,11 +1388,11 @@ window.DECK = {
     {
       id: 'qs-89', answer: 'MARY MAGDALENE', difficulty: 2,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 2,
+        { type: 'quote', flag: 'unverified', difficulty: 1,
           quote: 'They have taken away my Lord, and I do not know where they have laid Him.',
           verse: 'John 20:13',
           clue: 'She came to a garden grave early and found the stone moved.' },
-        { type: 'quote', lang: 'fil', answer: 'MARIA MAGDALENA', flag: 'unverified', difficulty: 2,
+        { type: 'quote', lang: 'fil', answer: 'MARIA MAGDALENA', flag: 'unverified', difficulty: 1,
           quote: 'Kinuha nila ang aking Panginoon, at hindi ko maalaman kung saan nila inilagay siya.',
           verse: 'Juan 20:13',
           clue: 'maagang dumalaw sa libingan sa hardin at natagpuang naigulong na ang bato' },
@@ -1414,11 +1414,11 @@ window.DECK = {
     {
       id: 'qs-91', answer: 'SAPPHIRA', difficulty: 3,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 3,
+        { type: 'quote', flag: 'unverified', difficulty: 2,
           quote: 'Yes, for so much.',
           verse: 'Acts 5:8',
           clue: 'She backed up her husband\'s lie about a price and did not outlive it.' },
-        { type: 'quote', lang: 'fil', answer: 'SAFIRA', flag: 'unverified', difficulty: 3,
+        { type: 'quote', lang: 'fil', answer: 'SAFIRA', flag: 'unverified', difficulty: 2,
           quote: 'Oo, sa gayon.',
           verse: 'Mga Gawa 5:8',
           clue: 'tinakpan niya ang kasinungalingan ng asawa niya tungkol sa halaga, at hindi siya nakaligtas' },
@@ -1427,11 +1427,11 @@ window.DECK = {
     {
       id: 'qs-92', answer: 'SIMON THE SORCERER', difficulty: 3,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 3,
+        { type: 'quote', flag: 'unverified', difficulty: 2,
           quote: 'Give me this power also, that anyone on whom I lay hands may receive the Holy Spirit.',
           verse: 'Acts 8:19',
           clue: 'A Samaritan showman who tried to buy the gift he had just watched.' },
-        { type: 'quote', lang: 'fil', answer: 'SIMON NA MANGKUKULAM', flag: 'unverified', difficulty: 3,
+        { type: 'quote', lang: 'fil', answer: 'SIMON NA MANGKUKULAM', flag: 'unverified', difficulty: 2,
           quote: 'Bigyan naman ninyo ako ng kapangyarihang ito, upang sinomang patungan ko ng aking mga kamay, ay tumanggap ng Espiritu Santo.',
           verse: 'Mga Gawa 8:19',
           clue: 'taga-Samaria na tanyag sa salamangka; sinubukang bilhin ang kaloob na kanina lang niyang nasaksihan' },
@@ -1440,11 +1440,11 @@ window.DECK = {
     {
       id: 'qs-93', answer: 'CORNELIUS', difficulty: 3,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 3,
+        { type: 'quote', flag: 'unverified', difficulty: 2,
           quote: 'Now therefore we are all present before God, to hear all the things commanded you by God.',
           verse: 'Acts 10:33',
           clue: 'A Roman officer in Caesarea who gathered his whole household to hear a visiting preacher.' },
-        { type: 'quote', lang: 'fil', answer: 'CORNELIO', flag: 'unverified', difficulty: 3,
+        { type: 'quote', lang: 'fil', answer: 'CORNELIO', flag: 'unverified', difficulty: 2,
           quote: 'Ngayon nga\'y kaming lahat ay nangaririto sa paningin ng Dios, upang dinggin ang lahat ng mga bagay na sa iyo\'y ipinagutos ng Panginoon.',
           verse: 'Mga Gawa 10:33',
           clue: 'opisyal na Romano sa Cesarea na tinipon ang buong sambahayan para pakinggan si Pedro' },
@@ -1453,11 +1453,11 @@ window.DECK = {
     {
       id: 'qs-94', answer: 'LYDIA', difficulty: 3,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 3,
+        { type: 'quote', flag: 'unverified', difficulty: 2,
           quote: 'If you have judged me to be faithful to the Lord, come to my house and stay.',
           verse: 'Acts 16:15',
           clue: 'A businesswoman from a riverside prayer meeting who pressed her guests to lodge with her.' },
-        { type: 'quote', lang: 'fil', answer: 'LYDIA', flag: 'unverified', difficulty: 3,
+        { type: 'quote', lang: 'fil', answer: 'LYDIA', flag: 'unverified', difficulty: 2,
           quote: 'Kung inyong inaakalang ako\'y tapat sa Panginoon, ay magsipasok kayo sa aking bahay, at kayo\'y magsitira doon.',
           verse: 'Mga Gawa 16:15',
           clue: 'negosyante sa pananalangin sa tabi ng ilog; pinilit ang mga bisita na tumuloy sa bahay niya' },
@@ -1518,11 +1518,11 @@ window.DECK = {
     {
       id: 'qs-99', answer: 'LOT', difficulty: 3,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 3,
+        { type: 'quote', flag: 'unverified', difficulty: 1,
           quote: 'Please let me escape there (is it not a little one?) and my soul shall live.',
           verse: 'Genesis 19:20',
           clue: 'Dragged out of a doomed city by angels, and still negotiating about where he would run to.' },
-        { type: 'quote', lang: 'fil', answer: 'LOT', flag: 'unverified', difficulty: 3,
+        { type: 'quote', lang: 'fil', answer: 'LOT', flag: 'unverified', difficulty: 1,
           quote: 'Oh tulutan mong tumakas ako roon, (di ba yao\'y maliit?) at mabubuhay ako.',
           verse: 'Genesis 19:20',
           clue: 'kinaladkad palabas ng mga anghel sa lungsod na wawasakin; nakipagtawaran pa kung saan tatakbo' },
@@ -1531,11 +1531,11 @@ window.DECK = {
     {
       id: 'qs-100', answer: 'HAGAR', difficulty: 3,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 3,
+        { type: 'quote', flag: 'unverified', difficulty: 2,
           quote: 'Let me not see the death of the boy.',
           verse: 'Genesis 21:16',
           clue: 'A servant sent away into the wilderness with a skin of water and a child.' },
-        { type: 'quote', lang: 'fil', answer: 'HAGAR', flag: 'unverified', difficulty: 3,
+        { type: 'quote', lang: 'fil', answer: 'HAGAR', flag: 'unverified', difficulty: 2,
           quote: 'Huwag kong makita ang kamatayan ng bata.',
           verse: 'Genesis 21:16',
           clue: 'aliping pinaalis papuntang ilang na may dalang sisidlan ng tubig at isang bata' },
@@ -1544,11 +1544,11 @@ window.DECK = {
     {
       id: 'qs-101', answer: 'REBEKAH', difficulty: 3,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 3,
+        { type: 'quote', flag: 'unverified', difficulty: 2,
           quote: 'I will go.',
           verse: 'Genesis 24:58',
           clue: 'A stranger\'s servant met her at a well, and her family asked if she would travel far to marry a man she had never seen.' },
-        { type: 'quote', lang: 'fil', answer: 'REBEKA', flag: 'unverified', difficulty: 3,
+        { type: 'quote', lang: 'fil', answer: 'REBEKA', flag: 'unverified', difficulty: 2,
           quote: 'Sasama ako.',
           verse: 'Genesis 24:58',
           clue: 'sinalubong siya sa balon ng utusan ng dayuhan; papayag kaya siyang pakasal sa hindi pa nakita?' },
@@ -1557,11 +1557,11 @@ window.DECK = {
     {
       id: 'qs-102', answer: 'RACHEL', difficulty: 2,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 2,
+        { type: 'quote', flag: 'unverified', difficulty: 1,
           quote: 'Give me children, or else I die!',
           verse: 'Genesis 30:1',
           clue: 'The younger sister, loved first at the well, but childless for years while her sister kept having sons.' },
-        { type: 'quote', lang: 'fil', answer: 'RAQUEL', flag: 'unverified', difficulty: 2,
+        { type: 'quote', lang: 'fil', answer: 'RAQUEL', flag: 'unverified', difficulty: 1,
           quote: 'Bigyan mo ako ng anak, o kung hindi ay mamamatay ako!',
           verse: 'Genesis 30:1',
           clue: 'nakababatang kapatid na minahal agad sa balon; matagal na walang anak habang nanganganak ang ate' },
@@ -1570,11 +1570,11 @@ window.DECK = {
     {
       id: 'qs-103', answer: 'LEAH', difficulty: 3,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 3,
+        { type: 'quote', flag: 'unverified', difficulty: 2,
           quote: 'God has endowed me with a good endowment; now my husband will dwell with me, because I have borne him six sons.',
           verse: 'Genesis 30:20',
           clue: 'The older sister, handed over in a wedding trick, always hoping her husband would love her.' },
-        { type: 'quote', lang: 'fil', answer: 'LEA', flag: 'unverified', difficulty: 3,
+        { type: 'quote', lang: 'fil', answer: 'LEA', flag: 'unverified', difficulty: 2,
           quote: 'Binigyan ako ng Dios ng isang mabuting kaloob; ngayo\'y makikisama na sa akin ang aking asawa, sapagka\'t nagkaanak ako sa kaniya ng anim na lalake',
           verse: 'Genesis 30:20',
           clue: 'nakatatandang kapatid na ipinalit sa kasal; laging umaasang mamahalin siya ng asawa' },
@@ -1596,11 +1596,11 @@ window.DECK = {
     {
       id: 'qs-105', answer: 'PHARAOH\'S DAUGHTER', difficulty: 3,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 3,
+        { type: 'quote', flag: 'unverified', difficulty: 2,
           quote: 'This is one of the Hebrews\' children.',
           verse: 'Exodus 2:6',
           clue: 'Royalty at the riverside, opening a basket of reeds and hearing a baby cry.' },
-        { type: 'quote', lang: 'fil', answer: 'ANAK NA BABAE NI FARAON', flag: 'unverified', difficulty: 3,
+        { type: 'quote', lang: 'fil', answer: 'ANAK NA BABAE NI FARAON', flag: 'unverified', difficulty: 2,
           quote: 'Ito\'y isa sa mga anak ng mga Hebreo.',
           verse: 'Exodo 2:6',
           clue: 'dugong bughaw sa tabi ng ilog, binuksan ang basket ng tambo at narinig ang iyak ng sanggol' },
@@ -1622,7 +1622,7 @@ window.DECK = {
     {
       id: 'qs-107', answer: 'JETHRO', difficulty: 3,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 3,
+        { type: 'quote', flag: 'unverified', difficulty: 2,
           quote: 'Now I know that the LORD is greater than all the gods.',
           verse: 'Exodus 18:11',
           clue: 'A Midianite priest visiting the camp to see his son-in-law and hear the whole story.' },
@@ -1630,7 +1630,7 @@ window.DECK = {
           quote: 'The thing that you do is not good.',
           verse: 'Exodus 18:17',
           clue: 'A visiting relative watching one man judge a whole nation from morning till evening.' },
-        { type: 'quote', lang: 'fil', answer: 'JETRO', flag: 'unverified', difficulty: 3,
+        { type: 'quote', lang: 'fil', answer: 'JETRO', flag: 'unverified', difficulty: 2,
           quote: 'Ngayo\'y aking natatalastas na ang Panginoon ay lalong dakila kay sa lahat ng mga dios',
           verse: 'Exodo 18:11',
           clue: 'paring Midianita na dumalaw sa kampo para makita ang manugang at pakinggan ang buong kuwento' },
@@ -1665,11 +1665,11 @@ window.DECK = {
     {
       id: 'qs-110', answer: 'DEBORAH', difficulty: 2,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 2,
+        { type: 'quote', flag: 'unverified', difficulty: 1,
           quote: 'I will surely go with you; nevertheless there will be no glory for you in this journey.',
           verse: 'Judges 4:9',
           clue: 'A judge and prophetess who held court under a palm tree.' },
-        { type: 'quote', lang: 'fil', answer: 'DEBORA', flag: 'unverified', difficulty: 2,
+        { type: 'quote', lang: 'fil', answer: 'DEBORA', flag: 'unverified', difficulty: 1,
           quote: 'Walang pagsalang sasama ako sa iyo: gayon ma\'y ang lakad na iyong ipagpapatuloy ay hindi magiging sa iyong kapurihan',
           verse: 'Mga Hukom 4:9',
           clue: 'hukom at propetisa na naghahatol sa ilalim ng puno ng palma' },
@@ -1678,11 +1678,11 @@ window.DECK = {
     {
       id: 'qs-111', answer: 'BARAK', difficulty: 3,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 3,
+        { type: 'quote', flag: 'unverified', difficulty: 2,
           quote: 'If you will go with me, then I will go; but if you will not go with me, I will not go!',
           verse: 'Judges 4:8',
           clue: 'The commander of ten thousand men who would not march unless the prophetess came too.' },
-        { type: 'quote', lang: 'fil', answer: 'BARAK', flag: 'unverified', difficulty: 3,
+        { type: 'quote', lang: 'fil', answer: 'BARAK', flag: 'unverified', difficulty: 2,
           quote: 'Kung ikaw ay sasama sa akin ay paroroon nga ako: nguni\'t kung hindi ka sasama sa akin, ay hindi ako paroroon.',
           verse: 'Mga Hukom 4:8',
           clue: 'kumander ng sampung libong tauhan na ayaw sumugod kung hindi kasama ang propetisa' },
@@ -1691,11 +1691,11 @@ window.DECK = {
     {
       id: 'qs-112', answer: 'JAEL', difficulty: 3,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 3,
+        { type: 'quote', flag: 'unverified', difficulty: 2,
           quote: 'Come, see the man whom you seek.',
           verse: 'Judges 4:22',
           clue: 'She offered milk and a blanket, then reached for a hammer and a tent peg.' },
-        { type: 'quote', lang: 'fil', answer: 'JAEL', flag: 'unverified', difficulty: 3,
+        { type: 'quote', lang: 'fil', answer: 'JAEL', flag: 'unverified', difficulty: 2,
           quote: 'Parito ka, at ituturo ko sa iyo ang lalake na iyong hinahanap.',
           verse: 'Mga Hukom 4:22',
           clue: 'nag-alok ng gatas at kumot, tapos dumampot ng martilyo at tulos ng tolda' },
@@ -1717,11 +1717,11 @@ window.DECK = {
     {
       id: 'qs-114', answer: 'NAOMI', difficulty: 2,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 2,
+        { type: 'quote', flag: 'unverified', difficulty: 1,
           quote: 'I went out full, and the LORD has brought me home again empty.',
           verse: 'Ruth 1:21',
           clue: 'A widow arriving back in Bethlehem after burying a husband and two sons abroad.' },
-        { type: 'quote', lang: 'fil', answer: 'NAOMI', flag: 'unverified', difficulty: 2,
+        { type: 'quote', lang: 'fil', answer: 'NAOMI', flag: 'unverified', difficulty: 1,
           quote: 'Ako\'y umalis na puno, at ako\'y iniuwi ng Panginoon na walang dala.',
           verse: 'Rut 1:21',
           clue: 'biyudang bumalik sa Betlehem matapos mailibing ang asawa at dalawang anak sa ibang lupain' },
@@ -1769,11 +1769,11 @@ window.DECK = {
     {
       id: 'qs-118', answer: 'NABAL', difficulty: 3,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 3,
+        { type: 'quote', flag: 'unverified', difficulty: 2,
           quote: 'Who is David, and who is the son of Jesse?',
           verse: '1 Samuel 25:10',
           clue: 'A rich sheep owner at shearing time who insulted the men who had guarded his flocks.' },
-        { type: 'quote', lang: 'fil', answer: 'NABAL', flag: 'unverified', difficulty: 3,
+        { type: 'quote', lang: 'fil', answer: 'NABAL', flag: 'unverified', difficulty: 2,
           quote: 'Sino si David? at sino ang anak ni Isai?',
           verse: '1 Samuel 25:10',
           clue: 'mayamang may-ari ng tupa na sa panahon ng paggupit ay ininsulto ang mga nagbantay sa kawan niya' },
@@ -1782,11 +1782,11 @@ window.DECK = {
     {
       id: 'qs-119', answer: 'ABIGAIL', difficulty: 3,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 3,
+        { type: 'quote', flag: 'unverified', difficulty: 2,
           quote: 'On me, my lord, on me let this iniquity be!',
           verse: '1 Samuel 25:24',
           clue: 'A wise wife who loaded donkeys with bread, raisins and figs and rode out to stop a massacre.' },
-        { type: 'quote', lang: 'fil', answer: 'ABIGAIL', flag: 'unverified', difficulty: 3,
+        { type: 'quote', lang: 'fil', answer: 'ABIGAIL', flag: 'unverified', difficulty: 2,
           quote: 'Mapasa akin, panginoon ko, mapasa akin ang kasamaan',
           verse: '1 Samuel 25:24',
           clue: 'matalinong maybahay na nagkarga sa asno ng tinapay, pasas at igos para pigilan ang patayan' },
@@ -1808,11 +1808,11 @@ window.DECK = {
     {
       id: 'qs-121', answer: 'BATHSHEBA', difficulty: 2,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 2,
+        { type: 'quote', flag: 'unverified', difficulty: 1,
           quote: 'I am with child.',
           verse: '2 Samuel 11:5',
           clue: 'A soldier\'s wife sending the palace a message of four words.' },
-        { type: 'quote', lang: 'fil', answer: 'BATSEBA', flag: 'unverified', difficulty: 2,
+        { type: 'quote', lang: 'fil', answer: 'BATSEBA', flag: 'unverified', difficulty: 1,
           quote: 'Ako\'y buntis.',
           verse: '2 Samuel 11:5',
           clue: 'asawa ng sundalo na nagpadala sa palasyo ng napakaikling mensahe: nagdadalantao ako' },
@@ -1821,11 +1821,11 @@ window.DECK = {
     {
       id: 'qs-122', answer: 'ABSALOM', difficulty: 2,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 2,
+        { type: 'quote', flag: 'unverified', difficulty: 1,
           quote: 'Oh, that I were made judge in the land, and every man who has any suit or cause would come to me; then I would give him justice!',
           verse: '2 Samuel 15:4',
           clue: 'A handsome prince with famous hair who sat by the city gate collecting other people\'s complaints.' },
-        { type: 'quote', lang: 'fil', answer: 'ABSALOM', flag: 'unverified', difficulty: 2,
+        { type: 'quote', lang: 'fil', answer: 'ABSALOM', flag: 'unverified', difficulty: 1,
           quote: 'Oh maging hukom sana ako sa lupain, upang ang bawa\'t tao na may anomang usap, o anomang bagay, ay pumarito sa akin at siya\'y aking magawan ng katuwiran!',
           verse: '2 Samuel 15:4',
           clue: 'guwapong prinsipe na tanyag ang buhok, nakaupo sa pintuan ng lungsod at nangangalap ng reklamo' },
@@ -1847,11 +1847,11 @@ window.DECK = {
     {
       id: 'qs-124', answer: 'THE QUEEN OF SHEBA', difficulty: 2,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 2,
+        { type: 'quote', flag: 'unverified', difficulty: 1,
           quote: 'However I did not believe the words until I came and saw with my own eyes; and indeed the half was not told me.',
           verse: '1 Kings 10:7',
           clue: 'A foreign monarch who travelled a very long way with camels, spices and hard questions.' },
-        { type: 'quote', lang: 'fil', answer: 'ANG REYNA NG SEBA', flag: 'unverified', difficulty: 2,
+        { type: 'quote', lang: 'fil', answer: 'ANG REYNA NG SEBA', flag: 'unverified', difficulty: 1,
           quote: 'Gayon may hindi ko pinaniwalaan ang mga salita hanggang sa ako\'y dumating, at nakita ng aking mga mata: at, narito, ang kalahati ay hindi nasaysay sa akin',
           verse: '1 Mga Hari 10:7',
           clue: 'dayuhang pinuno na naglakbay ng napakalayo na may kamelyo, pabango at mahihirap na tanong' },
@@ -1899,11 +1899,11 @@ window.DECK = {
     {
       id: 'qs-128', answer: 'JEZEBEL', difficulty: 2,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 2,
+        { type: 'quote', flag: 'unverified', difficulty: 1,
           quote: 'Arise, eat bread, and let your heart be cheerful; I will give you the vineyard of Naboth the Jezreelite.',
           verse: '1 Kings 21:7',
           clue: 'A queen from Sidon, comforting her sulking husband about a plot of land.' },
-        { type: 'quote', lang: 'fil', answer: 'JEZEBEL', flag: 'unverified', difficulty: 2,
+        { type: 'quote', lang: 'fil', answer: 'JEZEBEL', flag: 'unverified', difficulty: 1,
           quote: 'Ikaw ay bumangon, at kumain ng tinapay, at pasayahin mo ang iyong puso: aking ibibigay sa iyo ang ubasan ni Naboth na Jezreelita.',
           verse: '1 Mga Hari 21:7',
           clue: 'reynang taga-Sidon, inalo ang nagtatampong asawa tungkol sa isang piraso ng lupa' },
@@ -1968,11 +1968,11 @@ window.DECK = {
     {
       id: 'qs-133', answer: 'JOSIAH', difficulty: 3,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 3,
+        { type: 'quote', flag: 'unverified', difficulty: 2,
           quote: 'Go, inquire of the LORD for me, for the people and for all Judah, concerning the words of this book that has been found.',
           verse: '2 Kings 22:13',
           clue: 'A boy king who tore his clothes when the lost scroll was read to him during temple repairs.' },
-        { type: 'quote', lang: 'fil', answer: 'JOSIAS', flag: 'unverified', difficulty: 3,
+        { type: 'quote', lang: 'fil', answer: 'JOSIAS', flag: 'unverified', difficulty: 2,
           quote: 'Kayo\'y magsiyaon, isangguni ninyo sa Panginoon ako, at ang bayan, at ang buong Juda, tungkol sa mga salita ng aklat na ito na nasumpungan',
           verse: '2 Mga Hari 22:13',
           clue: 'batang hari na pinunit ang damit nang basahin sa kanya ang nawalang balumbon sa templo' },
@@ -1994,11 +1994,11 @@ window.DECK = {
     {
       id: 'qs-135', answer: 'JEHOSHAPHAT', difficulty: 3,
       variants: [
-        { type: 'quote', flag: 'unverified', difficulty: 3,
+        { type: 'quote', flag: 'unverified', difficulty: 2,
           quote: 'We have no power against this great multitude that is coming against us; nor do we know what to do, but our eyes are upon You.',
           verse: '2 Chronicles 20:12',
           clue: 'A king who answered an invading army by calling a national fast and sending singers out first.' },
-        { type: 'quote', lang: 'fil', answer: 'JOSAFAT', flag: 'unverified', difficulty: 3,
+        { type: 'quote', lang: 'fil', answer: 'JOSAFAT', flag: 'unverified', difficulty: 2,
           quote: 'Wala kaming kaya laban sa malaking pulutong na ito na naparirito laban sa amin, ni hindi man nalalaman namin kung anong marapat gawin; nguni\'t ang aming mga mata ay nasa iyo.',
           verse: '2 Mga Cronica 20:12',
           clue: 'hari na sinagot ang lumulusob na hukbo sa pag-aayuno at pinauna ang mga mang-aawit' },
