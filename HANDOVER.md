@@ -49,6 +49,35 @@ than a giveaway.
 So a handful of puzzles — Ruth in Ruth, Jonah in Jonah — do hand the answer
 over at the reference. That is an accepted cost, not an oversight.
 
+**Difficulty means how fast the room names the SPEAKER** - not how famous the
+verse is. That distinction was missing from the first two drafting passes and
+cost a re-rating of all 184 quotes: "What is truth?" and "I do not know the
+Man!" were both sitting at 3, because the raters judged the verse rather than
+the speaker. A famous verse with an obvious speaker is EASY; a famous verse
+whose speaker is minor is hard. Put that sentence in the brief if a third batch
+is ever drafted.
+
+The re-rating moved 76 of 184, mostly downward (38 from 3 to 2, 26 from 2 to 1),
+and took the mix from 17/39/44 to 32/45/23. A round of twenty now opens with
+about six easy puzzles and ends with a run of five hard ones, where before it
+was two and twelve. Each Tagalog variant follows the English quote it was built
+from, matched on chapter and verse, so a line cannot be easy in one language
+and hard in the other.
+
+**A clue is one image, not a biography.** The first drafts described the person
+instead of hinting at them - Zacharias was "a priest burning incense who argued
+with an angel and was struck silent for months", which is three identifying
+facts stacked, any one of which gets you there. It is now "he wrote the baby's
+name on a tablet, because he still could not speak": one image, and the room has
+to take the step itself.
+
+40 of 184 were tightened on that rule and 144 left alone, because not every long
+clue is bad - Jael's "she offered milk and a blanket, then reached for a hammer
+and a tent peg" is one scene with a turn in it, and works. Difficulty-3 clues
+were mostly protected: for Tertullus or Claudius Lysias the clue is the only
+route to the name, and a hall left silent is worse than a clue that gives too
+much.
+
 **Difficulty means fame, not theology.** 1 is a line the room shouts before you
 finish reading it; 3 needs the clue. The running order ramps ascending, so each
 round warms up. Note what that does NOT do: the round's 20 are picked at random
