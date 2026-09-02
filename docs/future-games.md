@@ -44,7 +44,9 @@ below, and any new drafting brief should quote them.
    verse is, not how weighty the theology. A famous line with an obvious speaker
    is EASY.
 3. **A clue is one image, not a biography.** Three stacked facts do the room's
-   thinking for it.
+   thinking for it. Note this is about a *written* clue — several PICTURES
+   shown together are a different thing, and often necessary: honey alone is
+   vague, honey beside a lion is Samson. See The Object Trail.
 4. **Nothing shown before the answer may contain the answer.** The id, the clue,
    the reference. This is the only rule with no exceptions, and it should be
    enforced by `validate.js` rather than by whoever writes the deck.
@@ -219,81 +221,137 @@ in the other game.
 
 ## 4. The Object Trail
 
-**The idea.** Three objects, revealed one at a time, getting easier.
+**The idea.** Objects from one story, revealed a step at a time, getting easier —
+and **a step is one picture or several together.**
 
 ```
-1   a coat
+1   honey  +  a lion
 
-2   a coat  ·  a pit
+2   honey  +  a lion        long hair
 
-3   a coat  ·  a pit  ·  a cup
+3   honey  +  a lion        long hair        two pillars
 
-4   JOSEPH
+4   SAMSON
+    Judges 14:8
 ```
 
 Objects are how people actually remember stories. The trail also builds tension
-in a way a single clue cannot: the room starts guessing at the first object and
+in a way a single clue cannot: the room starts guessing at the first step and
 argues its way down.
 
-**This is the one that wants pictures.** Every other proposal here is
-deliberately text-only, because artwork is what has kept Bible Character Names
-parked with an empty deck. This one is different: a coat, a pit and a cup are
-concrete, drawable, and — unlike a rebus — they do not have to be a *pun*, which
-was what made the book-game artwork so hard. Any clear picture of a cup works.
+### A step can be several pictures, and usually should be
 
-The sensible path is text first, pictures later, in the same deck: start with
-`items` as words, and once the pictures exist, the same puzzle grows an `img`
-per object without the deck being rewritten.
+This is the difference between the trail working and not working. **One object is
+usually ambiguous.** Honey on its own is vague. A lion on its own is Daniel, or
+David, or the one Samson killed. Put honey and a lion side by side and there is
+exactly one story it can be — and neither picture names him.
 
-**Renderer:** new, but small. Closest to `order` — a list revealed piece by
-piece. Roughly:
+So pairing is not decoration, it is how a step is aimed. It also solves the
+obvious objection to the whole game: that a staff, a stone or a well belongs to
+half a dozen stories. It does, alone. A staff beside a snake does not.
+
+### Not a rebus, even though it looks like one
+
+The pictures render as a row exactly the way the book game's do, but they mean
+something different, and the distinction matters to whoever writes the deck:
+
+- A **rebus** picture is a *pun*. Jeans + sis = Genesis. The picture stands for a
+  sound, and finding a picture that reliably says its syllable is what made that
+  artwork so painful — the chew that read as an eye, the jewels that read as
+  stones.
+- A **trail** picture is a *thing from the story*. Honey means honey. Any clear
+  picture of honey works.
+
+That is why this is the proposal worth spending artwork on and Bible Character
+Names is not: no picture here has to carry a second meaning.
+
+### Show the verse
+
+The reveal carries the reference for the story, the way Who Said It? does — the
+answer, then where to go and read it:
+
+```
+    SAMSON
+    Judges 14:8
+```
+
+A step may also carry **its own** verse, shown small beneath that step as it
+appears. That turns the trail into something a leader can walk a room through
+afterwards — *honey and a lion, that is Judges 14; the hair is chapter 16* — and
+it is optional per step, so a deck can stay clean where the detail would only
+crowd the pictures.
+
+### Renderer
+
+New, but it reuses more than it adds. Each step is a row of pictures, which is
+exactly what `clueRow` in `core/paint.js` already builds — including the `+`
+between pictures and the sizing that shrinks them as the count grows. So the
+work is a `byType` entry, a paint branch that draws N rows instead of one, and
+some CSS.
 
 ```js
 trail: {
+  // one stage per step, then the reveal
   stages: function (variant) { return variant.items.length; },
   view: function (puzzle, variant, stage) {
     var v = base('trail', puzzle);
-    v.items = variant.items.slice(0, Math.min(stage + 1, variant.items.length));
+    // every step up to and including this one, so the trail accumulates
+    v.steps = variant.items.slice(0, Math.min(stage + 1, variant.items.length));
     v.answered = answered(puzzle, stage, variant.items.length);
     return v;
   },
 }
 ```
 
-**Deck shape**
+**Deck shape** — text first, so it is playable before any artwork exists:
 
 ```js
 {
-  id: 'ot-01', answer: 'JOSEPH', difficulty: 1,
-  ref: 'Genesis 37–45',
+  id: 'ot-01', answer: 'SAMSON', difficulty: 2,
+  ref: 'Judges 14:8',
   type: 'trail',
-  // hardest first: the room should not get it on object one
-  items: ['a coat', 'a pit', 'a cup'],
+  // vaguest step FIRST: the room should not get it on step one
+  items: [
+    // a step is a list, because one object is usually ambiguous
+    [{ word: 'honey' }, { word: 'a lion' }],
+    [{ word: 'long hair' }],
+    [{ word: 'two pillars' }],
+  ],
 }
 ```
 
-and later, when the artwork exists:
+and later, when the pictures exist, the same puzzle grows an `img` per object
+without being rewritten:
 
 ```js
   items: [
-    { word: 'a coat', img: 'coat.png' },
-    { word: 'a pit',  img: 'pit.png' },
-    { word: 'a cup',  img: 'cup.png' },
+    [{ word: 'honey', img: 'honey.png' }, { word: 'a lion', img: 'lion.png' }],
+    [{ word: 'long hair', img: 'long-hair.png' }],
+    [{ word: 'two pillars', img: 'pillars.png' }],
   ],
 ```
 
-**Content.** Free in its text form.
+with an optional per-step reference:
 
-**Difficulty.** Entirely in the ORDER of the objects. The first must be the
-least distinctive. A trail that opens with "a coat of many colours" is over
-before it starts.
+```js
+    [{ word: 'honey' }, { word: 'a lion' }],   verse: 'Judges 14:8'
+```
 
-**Risk.** Objects that belong to several stories — a staff, a stone, a well —
-produce arguments where the room is right and the deck is wrong. Each trail
-needs checking as a whole, not object by object.
+**Content.** Free in its text form. The pictures are a later, separate piece of
+work, and unlike the rebus artwork they can be sourced rather than drawn,
+because a photograph of honey is honey.
 
-**Effort.** Medium. One new renderer, one paint branch, some CSS, and a deck.
-The picture version is a later, separate piece of work.
+**Difficulty.** Almost entirely the ORDER of the steps, and secondarily how many
+pictures the first step gets. A trail opening with "a coat of many colours" is
+over before it starts; the same trail opening with "a pit" is a real puzzle.
+
+**Risk.** A trail that is right object by object and wrong as a whole — three
+steps that each fit the intended story but collectively fit a different one
+better. Each trail has to be read end to end, not checked item by item. Pairing
+reduces this a great deal but does not remove it.
+
+**Effort.** Medium. One `byType` entry, one paint branch reusing `clueRow`, some
+CSS, and a deck. The picture version is separate and later.
 
 ---
 

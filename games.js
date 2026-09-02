@@ -61,7 +61,7 @@ window.GAMES = [
   {
     title: 'The Object Trail',
     href: 'games/object-trail/index.html',
-    blurb: 'A coat. A pit. A cup. Three objects, one story — and the room shouts whose.',
+    blurb: 'Honey and a lion. Objects from one story, a step at a time, until the room has it.',
     meta: 'Proposed',
     status: 'parked',
   },
