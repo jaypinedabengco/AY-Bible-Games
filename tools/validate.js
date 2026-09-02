@@ -10,7 +10,7 @@
 (function (root) {
   'use strict';
 
-  var TYPES = ['rebus', 'image', 'text', 'binary', 'order', 'quote'];
+  var TYPES = ['rebus', 'image', 'text', 'binary', 'order', 'quote', 'trail'];
   var LANGS = ['en', 'fil'];
   var SLOTS = ['early', 'middle', 'late', 'anywhere'];
 
@@ -66,6 +66,29 @@
         errors.push(where + ': a quote variant needs its text, or at least a '
           + 'verse if it is a scaffold waiting for one');
       }
+    }
+
+    if (v.type === 'trail') {
+      var steps = v.items || [];
+      if (steps.length < 2) {
+        errors.push(where + ': a trail needs at least two steps');
+      }
+      steps.forEach(function (step, si) {
+        var pics = (step.pictures || []);
+        if (!pics.length) {
+          errors.push(where + ' step ' + (si + 1) + ': no objects');
+        }
+        if (pics.length > 3) {
+          errors.push(where + ' step ' + (si + 1) + ': more than three objects in one step');
+        }
+        pics.forEach(function (pic) {
+          // A picture is OPTIONAL - the trail is written in words first and
+          // plays that way. A word is not: without it the step is blank.
+          if (!pic.word) {
+            errors.push(where + ' step ' + (si + 1) + ': an object with no word');
+          }
+        });
+      });
     }
 
     if (v.type === 'order') {

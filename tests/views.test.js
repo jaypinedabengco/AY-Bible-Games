@@ -280,3 +280,80 @@ test('the second name comes from the person, not from one quote', () => {
     'not SAUL, which is a different person in the same deck');
   assert.equal(q.view(p, p.variants[1], 2).answered.alt, 'PABLO');
 });
+
+// ---- the object trail ---------------------------------------------------
+
+function trailPuzzle(extra) {
+  return normalizePuzzle(Object.assign({
+    id: 'ot-01', answer: 'SAMSON', type: 'trail',
+    items: [
+      { verse: 'Judges 14:8', pictures: [{ word: 'honey' }, { word: 'a lion' }] },
+      { verse: 'Judges 16:17', pictures: [{ word: 'long hair' }] },
+      { verse: 'Judges 16:29', pictures: [{ word: 'two pillars' }] },
+    ],
+  }, extra || {}));
+}
+
+test('a trail accumulates a step at a time', () => {
+  const p = trailPuzzle();
+  const v = p.variants[0];
+  const t = byType.trail;
+
+  assert.equal(t.stages(v), 3, 'three steps, then the reveal');
+
+  const s0 = t.view(p, v, 0);
+  assert.equal(s0.kind, 'trail');
+  assert.equal(s0.steps.length, 1);
+  assert.deepEqual(s0.steps[0].pictures.map((x) => x.word), ['honey', 'a lion']);
+  assert.equal(s0.answered, null);
+
+  assert.equal(t.view(p, v, 1).steps.length, 2);
+  assert.equal(t.view(p, v, 2).steps.length, 3);
+  // the shared answered() shape; the second-name pairing is quote-specific
+  assert.deepEqual(t.view(p, v, 3).answered, { answer: 'SAMSON', ref: null });
+});
+
+test('the references are held back until the answer', () => {
+  // A reference beside step one names the book, and for a story like this the
+  // book is very nearly the answer.
+  const p = trailPuzzle();
+  const v = p.variants[0];
+  const t = byType.trail;
+
+  assert.equal(t.view(p, v, 0).sources, null);
+  assert.equal(t.view(p, v, 1).sources, null);
+  assert.equal(t.view(p, v, 2).sources, null);
+
+  const done = t.view(p, v, 3);
+  assert.equal(done.sources.length, 3);
+  assert.deepEqual(done.sources[0], { verse: 'Judges 14:8', words: 'honey + a lion' });
+  assert.deepEqual(done.sources[1], { verse: 'Judges 16:17', words: 'long hair' });
+});
+
+test('a step with no verse of its own is left out of the sources', () => {
+  const p = trailPuzzle({
+    items: [
+      { pictures: [{ word: 'a staff' }] },
+      { verse: 'Exodus 7:10', pictures: [{ word: 'a snake' }] },
+    ],
+  });
+  const done = byType.trail.view(p, p.variants[0], 2);
+  assert.equal(done.sources.length, 1, 'only the step that has one');
+  assert.equal(done.sources[0].verse, 'Exodus 7:10');
+});
+
+test('a trail step carries its pictures through, image or not', () => {
+  // Text first, pictures later: the same deck plays either way.
+  const p = trailPuzzle({
+    items: [{ verse: 'Judges 14:8',
+              pictures: [{ word: 'honey', img: 'honey.png' }, { word: 'a lion' }] }],
+  });
+  const step = byType.trail.view(p, p.variants[0], 0).steps[0];
+  assert.equal(step.pictures[0].img, 'honey.png');
+  assert.equal(step.pictures[1].img, null, 'no picture yet, and that is fine');
+});
+
+test('stagesForItem reads the step count off a trail', () => {
+  const p = trailPuzzle();
+  assert.equal(stagesForItem({ puzzle: p, variant: p.variants[0] }), 3);
+});

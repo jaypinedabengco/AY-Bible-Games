@@ -31,6 +31,32 @@
     return card;
   }
 
+  // A trail step: a row of objects. Unlike a rebus clue, a missing picture is
+  // NOT an error here - the trail is written in words first and grows pictures
+  // later, so an object with no image yet simply shows its word, larger. The
+  // word is shown either way: it is not a secret, it IS the clue, and it stops
+  // the room arguing about whether that is honey or oil.
+  function trailRow(step, srcFor) {
+    var pictures = step.pictures || [];
+    var row = el('div', 'trail-row clues-' + Math.min(pictures.length, 4));
+    pictures.forEach(function (pic, i) {
+      if (i > 0) { row.appendChild(el('div', 'plus', '+')); }
+      var card = el('div', 'trail-object');
+      var src = pic.img ? srcFor(pic.img) : null;
+      if (src) {
+        var img = document.createElement('img');
+        img.src = src;
+        img.alt = '';
+        card.appendChild(img);
+      } else {
+        card.classList.add('wordsonly');
+      }
+      if (pic.word) { card.appendChild(el('div', 'trail-word', pic.word)); }
+      row.appendChild(card);
+    });
+    return row;
+  }
+
   function clueRow(clues, srcFor) {
     // The count drives the size: one picture should fill a projector, four
     // must still fit side by side. CSS cannot count siblings, so say it here.
@@ -85,6 +111,12 @@
       body.appendChild(clueRow([{ img: view.img, word: null }], srcFor));
     } else if (view.kind === 'text') {
       body.appendChild(el('div', 'prompt', view.prompt));
+    } else if (view.kind === 'trail') {
+      var trail = el('div', 'trail');
+      view.steps.forEach(function (step) {
+        trail.appendChild(trailRow(step, srcFor));
+      });
+      body.appendChild(trail);
     } else if (view.kind === 'quote') {
       body.appendChild(el('div', 'quote', '\u201c' + view.quote + '\u201d'));
       if (view.verse) { body.appendChild(el('div', 'verse', view.verse)); }
@@ -108,6 +140,18 @@
 
     if (view.answered && view.kind !== 'binary') {
       body.appendChild(answerBlock(view.answered));
+      // Where each object came from - after the answer, because the answer is
+      // what the room is waiting for and this is the bit they read afterwards.
+      if (view.kind === 'trail' && view.sources && view.sources.length) {
+        var sources = el('div', 'sources');
+        view.sources.forEach(function (src) {
+          var line = el('div', 'source');
+          line.appendChild(el('span', 'source-words', src.words));
+          line.appendChild(el('span', 'source-verse', src.verse));
+          sources.appendChild(line);
+        });
+        body.appendChild(sources);
+      }
     } else if (view.answered && view.kind === 'binary') {
       if (view.answered.ref) { body.appendChild(el('div', 'ref', view.answered.ref)); }
     }

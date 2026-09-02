@@ -140,6 +140,8 @@
 <script>window.DECKS.push({ slug: 'who-said-it', deck: window.DECK });</script>
 <script src="games/character-names/deck.js"></script>
 <script>window.DECKS.push({ slug: 'character-names', deck: window.DECK });</script>
+<script src="games/object-trail/deck.js"></script>
+<script>window.DECKS.push({ slug: 'object-trail', deck: window.DECK });</script>
 
 <script>
   (function () {
@@ -290,6 +292,21 @@
           box.appendChild(block);
         });
 
+        // A trail's objects, step by step, with where each came from.
+        (r.trails || []).forEach(function (trail, ti) {
+          var block = el('div', 'gmquote');
+          if ((r.trails || []).length > 1) {
+            block.appendChild(el('div', 'gmv', 'trail ' + (ti + 1)));
+          }
+          trail.forEach(function (step, si) {
+            var line = el('div', 'gmq', (si + 1) + '.  ' + step.words);
+            line.style.fontSize = '0.95rem';
+            block.appendChild(line);
+            if (step.verse) { block.appendChild(el('div', 'gmc', step.verse)); }
+          });
+          box.appendChild(block);
+        });
+
         box.appendChild(el('div', 'ranswer', r.answer));
         // Every other language this puzzle is asked in, named.
         Object.keys(r.names || {}).forEach(function (lang) {
@@ -299,8 +316,8 @@
           line.appendChild(document.createTextNode(r.names[lang]));
           box.appendChild(line);
         });
-        // On a quote deck the working IS the quote, already shown above.
-        if (!r.quotes.length) {
+        // On a quote or trail deck the working is already shown above.
+        if (!r.quotes.length && !(r.trails || []).length) {
           r.workings.forEach(function (w) { box.appendChild(el('div', 'rwork', w)); });
         }
         if (r.ref) { box.appendChild(el('div', 'rref', r.ref)); }

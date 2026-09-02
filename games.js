@@ -59,10 +59,12 @@ window.GAMES = [
     status: 'parked',
   },
   {
+    // Playable in words now; the pictures arrive object by object through the
+    // deck manager, and nothing else changes when they do.
     title: 'The Object Trail',
     href: 'games/object-trail/index.html',
     blurb: 'Honey and a lion. Objects from one story, a step at a time, until the room has it.',
-    meta: 'Proposed',
-    status: 'parked',
+    meta: 'Ready to play',
+    status: 'ready',
   },
 ];

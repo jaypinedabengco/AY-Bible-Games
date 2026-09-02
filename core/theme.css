@@ -264,3 +264,34 @@ html, body {
                background: var(--card); color: var(--fg); cursor: pointer;
                white-space: nowrap; }
 .start-empty { font-size: 2.6vmin; color: var(--bad); max-width: 60vw; line-height: 1.4; }
+
+/* ---- the object trail --------------------------------------------------
+   Each step is a row, and the rows stack as the trail accumulates. A step
+   with no picture yet shows its word large, because the deck is written in
+   words first and grows pictures later - the game has to look deliberate
+   either way, not broken. */
+.trail { display: flex; flex-direction: column; align-items: center; gap: 2.4vmin; }
+.trail-row { display: flex; align-items: center; justify-content: center;
+             gap: 2vmin; flex-wrap: wrap; }
+.trail-object { display: flex; flex-direction: column; align-items: center;
+                gap: 0.8vmin; }
+.trail-object img { height: 18vmin; max-width: 24vw; object-fit: contain;
+                    background: var(--card); border-radius: 1vmin; padding: 1vmin; }
+.trail-word { font-size: 3.4vmin; letter-spacing: 0.02em; text-align: center; }
+
+/* No picture sourced yet: the word carries the step on its own. */
+.trail-object.wordsonly .trail-word {
+  font-size: 5.6vmin;
+  padding: 1.4vmin 3vmin;
+  border: 0.3vmin solid var(--card);
+  border-radius: 1vmin;
+}
+
+/* Where each object came from. Only ever on the reveal screen: a reference
+   beside a step would name the book, and the book is very nearly the answer. */
+.sources { display: flex; flex-direction: column; gap: 0.5vmin; margin-top: 1vmin; }
+.source { display: flex; gap: 1.4vmin; align-items: baseline;
+          justify-content: center; }
+.source-words { font-size: 2.2vmin; color: var(--dim); }
+.source-verse { font-size: 2.2vmin; color: var(--accent); letter-spacing: 0.1em;
+                text-transform: uppercase; }

@@ -188,3 +188,26 @@ test('a picture puzzle lists only its one name', () => {
   });
   assert.deepEqual(out[0].names, { en: 'GENESIS' });
 });
+
+test('a trail puzzle gives the game master its objects and verses', () => {
+  const out = rows({
+    id: 'object-trail',
+    puzzles: [{
+      id: 'ot-01', answer: 'SAMSON',
+      variants: [{
+        type: 'trail',
+        items: [
+          { verse: 'Judges 14:8', pictures: [{ word: 'honey' }, { word: 'a lion' }] },
+          { verse: 'Judges 16:29', pictures: [{ word: 'two pillars' }] },
+        ],
+      }],
+    }],
+  });
+  assert.equal(out[0].answer, 'SAMSON');
+  assert.deepEqual(out[0].trails, [[
+    { words: 'honey + a lion', verse: 'Judges 14:8' },
+    { words: 'two pillars', verse: 'Judges 16:29' },
+  ]]);
+  assert.equal(out[0].working, 'honey + a lion → two pillars',
+    'so the filter and the row line still say something useful');
+});

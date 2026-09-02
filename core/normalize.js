@@ -9,7 +9,7 @@
   'use strict';
 
   var VARIANT_KEYS = ['type', 'clues', 'img', 'prompt', 'options', 'items',
-                      'correct', 'quote', 'verse', 'clue',
+                      'correct', 'quote', 'verse', 'clue', 'items',
                       'lang', 'answer', 'flag', 'weight', 'difficulty'];
 
   function normalizeVariant(v, puzzleDifficulty) {
