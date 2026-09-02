@@ -709,6 +709,11 @@
   // ---- object trails -----------------------------------------------------
   var trailHost = document.getElementById('trails');
   var shoppingOnly = false;
+  // 274 objects is a wall to stare at. These two make it a list you can work
+  // through: the quickest wins first, and one trail per person so a whole
+  // round can be illustrated before anything is done twice.
+  var quickestFirst = true;
+  var onePerPerson = false;
 
   function objectCard(row, trail, step, pic) {
     var card = el('div');
@@ -851,6 +856,40 @@
     return box;
   }
 
+  function trailControls(missing) {
+    var bar = el('div', 'addbox');
+    bar.style.marginBottom = '0.8rem';
+
+    function toggle(label, get, set, help) {
+      var wrap = document.createElement('label');
+      wrap.style.cssText = 'display:flex;gap:0.35rem;align-items:center;'
+        + 'font-size:0.7rem;letter-spacing:0.08em;text-transform:uppercase;'
+        + 'color:var(--dim);cursor:pointer';
+      var box = document.createElement('input');
+      box.type = 'checkbox';
+      box.checked = get();
+      box.addEventListener('change', function () { set(box.checked); loadTrails(); });
+      wrap.appendChild(box);
+      wrap.appendChild(document.createTextNode(label));
+      wrap.title = help || '';
+      return wrap;
+    }
+
+    bar.appendChild(toggle('quickest trails first',
+      function () { return quickestFirst; },
+      function (v) { quickestFirst = v; },
+      'Finish a whole trail in two or three pictures rather than picking at a big one'));
+    bar.appendChild(toggle('one trail per person',
+      function () { return onePerPerson; },
+      function (v) { onePerPerson = v; },
+      'Illustrate every person once before doing anyone twice'));
+    bar.appendChild(el('span', 'why',
+      missing + ' objects still to find. A trail is done at four pictures on '
+      + 'average, and a finished trail plays with pictures while everything '
+      + 'else keeps playing in words.'));
+    return bar;
+  }
+
   function loadTrails() {
     fetch(api('/api/trails')).then(function (r) { return r.json(); }).then(function (rows) {
       trailHost.innerHTML = '';
@@ -867,8 +906,30 @@
         });
       });
 
+      if (shoppingOnly) { trailHost.appendChild(trailControls(missing)); }
+
+      var order = rows.slice();
+      if (shoppingOnly && onePerPerson) {
+        order = order.map(function (row) {
+          return Object.assign({}, row, { trails: row.trails.slice(0, 1) });
+        });
+      }
+      if (shoppingOnly && quickestFirst) {
+        // fewest pictures outstanding first, so something gets FINISHED
+        var left = function (row) {
+          var n = 0;
+          row.trails.forEach(function (t) {
+            t.steps.forEach(function (st) {
+              st.pictures.forEach(function (p) { if (p.missing) { n++; } });
+            });
+          });
+          return n;
+        };
+        order.sort(function (a, b) { return left(a) - left(b); });
+      }
+
       var shown = 0;
-      rows.forEach(function (row) {
+      order.forEach(function (row) {
         if (term && row.answer.toLowerCase().indexOf(term) === -1
                  && row.id.toLowerCase().indexOf(term) === -1) { return; }
         if (shoppingOnly) {
