@@ -202,10 +202,19 @@ then removed as the deck changed. They are small, and `deck.js` carries a
 commented example, so switching one on is deck data — but don't be surprised
 they're dormant.
 
-**Two future games are listed on the front page, greyed out**: Old or New? and
-Bible Character Names. Finish the Verse was removed — Who Said It? does the
-same job better. The character game is built and wired but its deck is empty
-until it has pictures; its start screen says so rather than failing.
+**Five games are listed on the front page, greyed out.** Bible Character Names
+is built and wired but its deck is empty until it has pictures; its start screen
+says so rather than failing. The other four — Before or After, Higher or Lower,
+Who Did It?, The Object Trail — are PROPOSALS, and `docs/future-games.md` sets
+out how each is meant to work, which renderer it needs, what its deck looks like
+and what would make it fail.
+
+Old or New? was removed from that list: for most of the 66 books it is a coin
+flip the room wins instantly. Finish the Verse was removed earlier — Who Said
+It? does the same job better.
+
+Three renderers are built, tested and unused: `binary`, `order` and `text`.
+Three of the four proposals need no renderer work because of it.
 
 **Who Said It? is drafted, not verified.** All 113 quotes carry
 `flag: 'unverified'` until a human has compared the wording to an NKJV Bible.
