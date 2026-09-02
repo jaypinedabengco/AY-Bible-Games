@@ -265,21 +265,37 @@ something different, and the distinction matters to whoever writes the deck:
 That is why this is the proposal worth spending artwork on and Bible Character
 Names is not: no picture here has to carry a second meaning.
 
-### Show the verse
+### The verses appear at the reveal, one per step
 
-The reveal carries the reference for the story, the way Who Said It? does — the
-answer, then where to go and read it:
+Every step carries its own reference, and they are all shown **at the reveal** —
+never while the puzzle is running. The reveal becomes the teaching moment: the
+answer, and then where each object came from.
 
 ```
-    SAMSON
-    Judges 14:8
+1   honey  +  a lion
+
+2   honey  +  a lion        long hair
+
+3   honey  +  a lion        long hair        two pillars
+
+4   SAMSON
+
+    honey + a lion      Judges 14:8
+    long hair           Judges 16:17
+    two pillars         Judges 16:29
 ```
 
-A step may also carry **its own** verse, shown small beneath that step as it
-appears. That turns the trail into something a leader can walk a room through
-afterwards — *honey and a lion, that is Judges 14; the hair is chapter 16* — and
-it is optional per step, so a deck can stay clean where the detail would only
-crowd the pictures.
+**A reference shown during the puzzle would give the game away**, and it is the
+same trap the quote game already fell into. "Judges 14:8" printed beside step one
+names the book, and for a story like this the book is very nearly the answer — a
+room that knows Judges knows who the strong man is. So the references wait.
+
+That also keeps the puzzle screens clean: pictures only, nothing to read while
+the room is looking.
+
+A step with no verse of its own is fine — the line is simply omitted for it. A
+puzzle whose objects all come from one passage can carry a single reference on
+the puzzle itself, exactly as the other games do.
 
 ### Renderer
 
@@ -289,33 +305,22 @@ between pictures and the sizing that shrinks them as the count grows. So the
 work is a `byType` entry, a paint branch that draws N rows instead of one, and
 some CSS.
 
-```js
-trail: {
-  // one stage per step, then the reveal
-  stages: function (variant) { return variant.items.length; },
-  view: function (puzzle, variant, stage) {
-    var v = base('trail', puzzle);
-    // every step up to and including this one, so the trail accumulates
-    v.steps = variant.items.slice(0, Math.min(stage + 1, variant.items.length));
-    v.answered = answered(puzzle, stage, variant.items.length);
-    return v;
-  },
-}
-```
-
 **Deck shape** — text first, so it is playable before any artwork exists:
 
 ```js
 {
   id: 'ot-01', answer: 'SAMSON', difficulty: 2,
-  ref: 'Judges 14:8',
   type: 'trail',
   // vaguest step FIRST: the room should not get it on step one
   items: [
-    // a step is a list, because one object is usually ambiguous
-    [{ word: 'honey' }, { word: 'a lion' }],
-    [{ word: 'long hair' }],
-    [{ word: 'two pillars' }],
+    // `pictures` is a list, because one object is usually ambiguous.
+    // `verse` is shown at the REVEAL, never with the step.
+    { verse: 'Judges 14:8',
+      pictures: [{ word: 'honey' }, { word: 'a lion' }] },
+    { verse: 'Judges 16:17',
+      pictures: [{ word: 'long hair' }] },
+    { verse: 'Judges 16:29',
+      pictures: [{ word: 'two pillars' }] },
   ],
 }
 ```
@@ -324,17 +329,31 @@ and later, when the pictures exist, the same puzzle grows an `img` per object
 without being rewritten:
 
 ```js
-  items: [
-    [{ word: 'honey', img: 'honey.png' }, { word: 'a lion', img: 'lion.png' }],
-    [{ word: 'long hair', img: 'long-hair.png' }],
-    [{ word: 'two pillars', img: 'pillars.png' }],
-  ],
+    { verse: 'Judges 14:8',
+      pictures: [{ word: 'honey', img: 'honey.png' },
+                 { word: 'a lion', img: 'lion.png' }] },
 ```
 
-with an optional per-step reference:
+The renderer therefore hands the painter two things: the steps revealed so far,
+and — only once answered — the full list of steps with their references.
 
 ```js
-    [{ word: 'honey' }, { word: 'a lion' }],   verse: 'Judges 14:8'
+trail: {
+  // one stage per step, then the reveal
+  stages: function (variant) { return variant.items.length; },
+  view: function (puzzle, variant, stage) {
+    var v = base('trail', puzzle);
+    var done = stage >= variant.items.length;
+    // every step up to and including this one, so the trail accumulates
+    v.steps = variant.items.slice(0, Math.min(stage + 1, variant.items.length));
+    // where each object came from - held back until the answer, because a
+    // reference beside step one names the book, and the book is very nearly
+    // the answer
+    v.sources = done ? variant.items : null;
+    v.answered = answered(puzzle, stage, variant.items.length);
+    return v;
+  },
+}
 ```
 
 **Content.** Free in its text form. The pictures are a later, separate piece of
