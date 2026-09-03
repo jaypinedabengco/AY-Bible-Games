@@ -50,6 +50,14 @@ below, and any new drafting brief should quote them.
 4. **Nothing shown before the answer may contain the answer.** The id, the clue,
    the reference. This is the only rule with no exceptions, and it should be
    enforced by `validate.js` rather than by whoever writes the deck.
+5. **And nothing shown may point harder at somebody ELSE in the deck.** Rule 4
+   is a string check and passes happily on a puzzle that is still wrong. The
+   Object Trail's MARY was a manger, swaddling cloths and the Cana water jars —
+   none of which names her, and all of which are her son's. A room shouts JESUS
+   and is more right than the deck. Jesus absorbs anyone who shares a scene with
+   him; so do Elijah and Elisha, and Zacchaeus takes any other tax collector.
+   This one cannot be automated: read the puzzle as a whole and ask which name
+   the room actually calls out.
 
 ---
 

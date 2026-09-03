@@ -239,7 +239,11 @@
 
     function hasPictures(g) {
       return g.rows.some(function (r) {
-        return r.pictures.some(function (set) { return set.length; });
+        if (r.pictures.some(function (set) { return set.length; })) { return true; }
+        // A trail keeps its pictures inside its steps.
+        return (r.trails || []).some(function (t) {
+          return t.some(function (step) { return (step.imgs || []).length; });
+        });
       });
     }
 
@@ -302,6 +306,28 @@
             var line = el('div', 'gmq', (si + 1) + '.  ' + step.words);
             line.style.fontSize = '0.95rem';
             block.appendChild(line);
+            // The pictures the room is looking at, where they have been
+            // sourced. A step with none is normal - the trail is written in
+            // words and grows pictures - so nothing is drawn for it.
+            if (showPics && step.imgs && step.imgs.length) {
+              var strip = el('div', 'pics');
+              strip.style.marginTop = '0.25rem';
+              step.imgs.forEach(function (name, i) {
+                if (i > 0) { strip.appendChild(el('span', 'plus', '+')); }
+                var img = document.createElement('img');
+                img.src = current.images + name;
+                img.alt = name;
+                img.loading = 'lazy';
+                img.style.height = '3rem';
+                img.addEventListener('error', function () {
+                  var miss = el('div', 'miss', '?');
+                  miss.title = name;
+                  img.replaceWith(miss);
+                });
+                strip.appendChild(img);
+              });
+              block.appendChild(strip);
+            }
             if (step.verse) { block.appendChild(el('div', 'gmc', step.verse)); }
           });
           box.appendChild(block);

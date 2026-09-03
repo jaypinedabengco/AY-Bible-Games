@@ -205,9 +205,34 @@ test('a trail puzzle gives the game master its objects and verses', () => {
   });
   assert.equal(out[0].answer, 'SAMSON');
   assert.deepEqual(out[0].trails, [[
-    { words: 'honey + a lion', verse: 'Judges 14:8' },
-    { words: 'two pillars', verse: 'Judges 16:29' },
+    { words: 'honey + a lion', verse: 'Judges 14:8', imgs: [] },
+    { words: 'two pillars', verse: 'Judges 16:29', imgs: [] },
   ]]);
   assert.equal(out[0].working, 'honey + a lion → two pillars',
     'so the filter and the row line still say something useful');
+});
+
+test('a trail carries whatever pictures have been sourced for it', () => {
+  // The game master had the words and the verses but never the pictures, so a
+  // sourced trail looked bare on the phone while every other game showed its
+  // artwork.
+  const out = rows({
+    id: 'object-trail',
+    puzzles: [{
+      id: 'ot-14', answer: 'ABRAHAM',
+      variants: [{
+        type: 'trail',
+        items: [
+          { verse: 'Genesis 22:6', pictures: [
+            { word: 'firewood', img: 'abraham-firewood.webp' },
+            { word: 'a knife', img: 'abraham-knife.jpg' }] },
+          { verse: 'Genesis 22:13', pictures: [{ word: 'a ram' }] },
+        ],
+      }],
+    }],
+  });
+  assert.deepEqual(out[0].trails[0][0].imgs,
+    ['abraham-firewood.webp', 'abraham-knife.jpg']);
+  assert.deepEqual(out[0].trails[0][1].imgs, [],
+    'a step with no picture yet simply has none');
 });

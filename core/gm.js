@@ -117,6 +117,10 @@
                 words: (step.pictures || []).map(function (pic) { return pic.word; })
                   .filter(Boolean).join(' + '),
                 verse: step.verse || null,
+                // Whatever pictures have been sourced. A trail grows them one
+                // at a time, so a step with none is normal, not missing.
+                imgs: (step.pictures || []).map(function (pic) { return pic.img; })
+                  .filter(Boolean),
               };
             });
           }),

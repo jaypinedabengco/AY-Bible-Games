@@ -27,6 +27,14 @@
  * 3. The verses print ONLY at the reveal. A reference beside step one names
  *    the book, and the book is very nearly the answer.
  *
+ * 4. A trail must point at ITS OWN answer, not at somebody else in this deck.
+ *    Checking that no object NAMES the answer is not enough. MARY's trail was
+ *    a manger, swaddling cloths and the Cana water jars - every one of them
+ *    her son's - so a room shouted JESUS and was more right than the deck. He
+ *    absorbs anyone who shares a scene with him, and Elijah and Elisha do the
+ *    same to each other. Read a new trail as a whole and ask which name the
+ *    room actually calls out.
+ *
  * PICTURES ARE OPTIONAL. Written in words first, and playable that way: an
  * object with no `img` shows its word, larger. Add `img` as the pictures are
  * found and nothing else changes. `node tools/manage.js` lists exactly which
@@ -54,14 +62,14 @@ window.DECK = {
       variants: [
         { type: 'trail', difficulty: 2, items: [
           { verse: 'Judges 14:8', pictures: [
-            { word: 'honey' },
-            { word: 'a lion' },
+            { word: 'honey', img: 'samson-honey.jpg' },
+            { word: 'a lion', img: 'samson-lion.jpg' },
           ] },
           { verse: 'Judges 16:17', pictures: [
-            { word: 'long hair' },
+            { word: 'long hair', img: 'samson-long-hair.jpg' },
           ] },
           { verse: 'Judges 16:29', pictures: [
-            { word: 'two pillars' },
+            { word: 'two pillars', img: 'samson-pillars.png' },
           ] },
         ] },
         { type: 'trail', difficulty: 2, items: [
@@ -95,15 +103,15 @@ window.DECK = {
       variants: [
         { type: 'trail', difficulty: 2, items: [
           { verse: 'Genesis 37:28', pictures: [
-            { word: 'a deep dry pit' },
-            { word: 'twenty pieces of silver' },
+            { word: 'a deep dry pit', img: 'joseph-deep-dry-pit.jpg' },
+            { word: 'twenty pieces of silver', img: 'joseph-twenty-pieces-of-silver.jpg' },
           ] },
           { verse: 'Genesis 44:2', pictures: [
-            { word: 'a silver cup' },
-            { word: 'a sack of grain' },
+            { word: 'a silver cup', img: 'joseph-silver-cup.jpg' },
+            { word: 'a sack of grain', img: 'joseph-sack-of-grain.jpg' },
           ] },
           { verse: 'Genesis 37:3', pictures: [
-            { word: 'a coat of many colours' },
+            { word: 'a coat of many colours', img: 'joseph-coat-of-many-colours.jpg' },
           ] },
         ] },
         { type: 'trail', difficulty: 3, items: [
@@ -125,15 +133,15 @@ window.DECK = {
       variants: [
         { type: 'trail', difficulty: 1, items: [
           { verse: 'Genesis 6:14', pictures: [
-            { word: 'wooden planks' },
-            { word: 'black pitch' },
+            { word: 'wooden planks', img: 'noah-wooden-planks.jpg' },
+            { word: 'black pitch', img: 'noah-black-pitch.jpg' },
           ] },
           { verse: 'Genesis 8:11', pictures: [
-            { word: 'a dove' },
-            { word: 'an olive leaf' },
+            { word: 'a dove', img: 'noah-dove.png' },
+            { word: 'an olive leaf', img: 'noah-olive-leaf.jpg' },
           ] },
           { verse: 'Genesis 9:13', pictures: [
-            { word: 'a rainbow' },
+            { word: 'a rainbow', img: 'noah-rainbow.jpg' },
           ] },
         ] },
         { type: 'trail', difficulty: 2, items: [
@@ -154,14 +162,14 @@ window.DECK = {
       variants: [
         { type: 'trail', difficulty: 1, items: [
           { verse: 'Exodus 2:3', pictures: [
-            { word: 'a basket of reeds' },
-            { word: 'tall river reeds' },
+            { word: 'a basket of reeds', img: 'moses-basket-of-reeds.jpg' },
+            { word: 'tall river reeds', img: 'moses-tall-river-reeds.jpg' },
           ] },
           { verse: 'Exodus 3:2', pictures: [
-            { word: 'a bush on fire' },
+            { word: 'a bush on fire', img: 'moses-bush-on-fire.jpg' },
           ] },
           { verse: 'Exodus 31:18', pictures: [
-            { word: 'two stone tablets' },
+            { word: 'two stone tablets', img: 'moses-stone-tablets.jpg' },
           ] },
         ] },
         { type: 'trail', difficulty: 2, items: [
@@ -195,16 +203,16 @@ window.DECK = {
       variants: [
         { type: 'trail', difficulty: 1, items: [
           { verse: '1 Samuel 17:34', pictures: [
-            { word: 'a lion' },
-            { word: 'a bear' },
-            { word: 'a flock of sheep' },
+            { word: 'a lion', img: 'david-lion.jpg' },
+            { word: 'a bear', img: 'david-bear.jpg' },
+            { word: 'a flock of sheep', img: 'david-flock-of-sheep.jpg' },
           ] },
           { verse: '1 Samuel 16:23', pictures: [
-            { word: 'a harp' },
+            { word: 'a harp', img: 'david-harp.jpg' },
           ] },
           { verse: '1 Samuel 17:40', pictures: [
-            { word: 'a sling' },
-            { word: 'five smooth stones' },
+            { word: 'a sling', img: 'david-sling.avif' },
+            { word: 'five smooth stones', img: 'david-smooth-stones.jpg' },
           ] },
         ] },
         { type: 'trail', difficulty: 3, items: [
@@ -226,14 +234,14 @@ window.DECK = {
       variants: [
         { type: 'trail', difficulty: 2, items: [
           { verse: 'Daniel 1:12', pictures: [
-            { word: 'a plate of vegetables' },
-            { word: 'a cup of water' },
+            { word: 'a plate of vegetables', img: 'daniel-plate-of-vegetables.jpg' },
+            { word: 'a cup of water', img: 'daniel-cup-of-water.jpg' },
           ] },
           { verse: 'Daniel 5:5', pictures: [
-            { word: 'a hand writing', find: 'a hand writing on a palace wall' },
+            { word: 'a hand writing', img: 'daniel-hand-writing.webp' },
           ] },
           { verse: 'Daniel 6:16', pictures: [
-            { word: 'a den of lions' },
+            { word: 'a den of lions', img: 'daniel-den-of-lions.jpg' },
           ] },
         ] },
         { type: 'trail', difficulty: 2, items: [
@@ -254,15 +262,15 @@ window.DECK = {
       variants: [
         { type: 'trail', difficulty: 1, items: [
           { verse: 'Daniel 3:5', pictures: [
-            { word: 'a horn' },
-            { word: 'a flute' },
-            { word: 'a harp' },
+            { word: 'a horn', img: 'shadrach-meshach-and-abed-nego-horn.webp' },
+            { word: 'a flute', img: 'shadrach-meshach-and-abed-nego-flute.webp' },
+            { word: 'a harp', img: 'shadrach-meshach-and-abed-nego-harp.webp' },
           ] },
           { verse: 'Daniel 3:1', pictures: [
-            { word: 'a giant golden statue' },
+            { word: 'a giant golden statue', img: 'shadrach-meshach-and-abed-nego-giant-golden-statue.jpg' },
           ] },
           { verse: 'Daniel 3:6', pictures: [
-            { word: 'a burning furnace' },
+            { word: 'a burning furnace', img: 'shadrach-meshach-and-abed-nego-burning-furnace.jpg' },
           ] },
         ] },
       ],
@@ -272,14 +280,14 @@ window.DECK = {
       variants: [
         { type: 'trail', difficulty: 1, items: [
           { verse: 'Jonah 1:5', pictures: [
-            { word: 'a wooden sailing ship' },
-            { word: 'cargo thrown into the sea' },
+            { word: 'a wooden sailing ship', img: 'jonah-wooden-sailing-ship.png' },
+            { word: 'cargo thrown into the sea', img: 'jonah-cargo-thrown-into-the-sea.jpg' },
           ] },
           { verse: 'Jonah 4:6', pictures: [
-            { word: 'a leafy gourd vine' },
+            { word: 'a leafy gourd vine', img: 'jonah-leafy-gourd-vine.webp' },
           ] },
           { verse: 'Jonah 1:17', pictures: [
-            { word: 'a great fish' },
+            { word: 'a great fish', img: 'jonah-great-fish.jpg' },
           ] },
         ] },
         { type: 'trail', difficulty: 2, items: [
@@ -301,16 +309,16 @@ window.DECK = {
       variants: [
         { type: 'trail', difficulty: 2, items: [
           { verse: 'Judges 6:11', pictures: [
-            { word: 'wheat' },
-            { word: 'a winepress' },
+            { word: 'wheat', img: 'gideon-wheat.webp' },
+            { word: 'a winepress', img: 'gideon-winepress.jpg' },
           ] },
           { verse: 'Judges 6:37', pictures: [
-            { word: 'a wool fleece', find: 'a wool fleece on the ground' },
+            { word: 'a wool fleece', img: 'gideon-wool-fleece.jpg' },
           ] },
           { verse: 'Judges 7:16', pictures: [
-            { word: 'a trumpet' },
-            { word: 'a clay pitcher' },
-            { word: 'a lamp' },
+            { word: 'a trumpet', img: 'gideon-trumpet.webp' },
+            { word: 'a clay pitcher', img: 'gideon-clay-pitcher.avif' },
+            { word: 'a lamp', img: 'gideon-lamp.jpg' },
           ] },
         ] },
         { type: 'trail', difficulty: 3, items: [
@@ -333,16 +341,16 @@ window.DECK = {
       variants: [
         { type: 'trail', difficulty: 2, items: [
           { verse: '1 Kings 17:6', pictures: [
-            { word: 'a raven' },
-            { word: 'a loaf of bread' },
+            { word: 'a raven', img: 'elijah-raven.jpg' },
+            { word: 'a loaf of bread', img: 'elijah-loaf-of-bread.avif' },
           ] },
           { verse: '1 Kings 18:33', pictures: [
-            { word: 'firewood soaked', find: 'firewood soaked with water' },
-            { word: 'four barrels of water' },
+            { word: 'firewood soaked', img: 'elijah-firewood-soaked.webp' },
+            { word: 'four barrels of water', img: 'elijah-four-barrels-of-water.avif' },
           ] },
           { verse: '2 Kings 2:11', pictures: [
-            { word: 'a chariot of fire' },
-            { word: 'horses of fire' },
+            { word: 'a chariot of fire', img: 'elijah-chariot-of-fire.jpg' },
+            { word: 'horses of fire', img: 'elijah-horses-of-fire.webp' },
           ] },
         ] },
         { type: 'trail', difficulty: 3, items: [
@@ -354,9 +362,8 @@ window.DECK = {
             { word: 'a handful of flour' },
             { word: 'a little jar of oil' },
           ] },
-          { verse: '1 Kings 19:19', pictures: [
-            { word: 'a cloak thrown', find: 'a cloak thrown over a ploughman' },
-            { word: 'twelve oxen' },
+          { verse: '1 Kings 18:44', pictures: [
+            { word: 'a small cloud', find: 'a small cloud like a man\'s hand rising over the sea' },
           ] },
         ] },
       ],
@@ -366,15 +373,15 @@ window.DECK = {
       variants: [
         { type: 'trail', difficulty: 3, items: [
           { verse: '2 Kings 4:41', pictures: [
-            { word: 'a cooking pot of stew' },
-            { word: 'a handful of flour' },
+            { word: 'a cooking pot of stew', img: 'elisha-cooking-pot-of-stew.webp' },
+            { word: 'a handful of flour', img: 'elisha-handful-of-flour.jpg' },
           ] },
           { verse: '2 Kings 6:6', pictures: [
-            { word: 'an iron axe head', find: 'an iron axe head floating on water' },
+            { word: 'an iron axe head', img: 'elisha-iron-axe-head.jpg' },
           ] },
           { verse: '2 Kings 2:14', pictures: [
-            { word: 'a rolled-up cloak' },
-            { word: 'a river struck with it' },
+            { word: 'a rolled-up cloak', img: 'elisha-rolled-up-cloak.jpg' },
+            { word: 'a river struck with it', img: 'elisha-river-struck-with-it.jpg' },
           ] },
         ] },
         { type: 'trail', difficulty: 3, items: [
@@ -397,13 +404,13 @@ window.DECK = {
       variants: [
         { type: 'trail', difficulty: 3, items: [
           { verse: 'Ruth 4:7', pictures: [
-            { word: 'a sandal handed over' },
+            { word: 'a sandal handed over', img: 'ruth-sandal-handed-over.webp' },
           ] },
           { verse: 'Ruth 3:6', pictures: [
-            { word: 'a threshing floor' },
+            { word: 'a threshing floor', img: 'ruth-threshing-floor.jpg' },
           ] },
           { verse: 'Ruth 2:17', pictures: [
-            { word: 'a heap of gleaned barley' },
+            { word: 'a heap of gleaned barley', img: 'ruth-heap-of-gleaned-barley.jpg' },
           ] },
         ] },
       ],
@@ -413,14 +420,14 @@ window.DECK = {
       variants: [
         { type: 'trail', difficulty: 2, items: [
           { verse: 'Esther 8:8', pictures: [
-            { word: 'a scroll' },
-            { word: 'a king\'s signet ring' },
+            { word: 'a scroll', img: 'esther-scroll.jpg' },
+            { word: 'a king\'s signet ring', img: 'esther-king-s-signet-ring.png' },
           ] },
           { verse: 'Esther 5:2', pictures: [
-            { word: 'a golden sceptre' },
+            { word: 'a golden sceptre', img: 'esther-golden-sceptre.jpg' },
           ] },
           { verse: 'Esther 2:17', pictures: [
-            { word: 'a royal crown' },
+            { word: 'a royal crown', img: 'esther-royal-crown.png' },
           ] },
         ] },
       ],
@@ -430,14 +437,14 @@ window.DECK = {
       variants: [
         { type: 'trail', difficulty: 2, items: [
           { verse: 'Genesis 22:6', pictures: [
-            { word: 'firewood' },
-            { word: 'a knife' },
+            { word: 'firewood', img: 'abraham-firewood.webp' },
+            { word: 'a knife', img: 'abraham-knife.jpg' },
           ] },
           { verse: 'Genesis 15:5', pictures: [
-            { word: 'stars in the night sky' },
+            { word: 'stars in the night sky', img: 'abraham-stars-in-the-night-sky.webp' },
           ] },
           { verse: 'Genesis 22:13', pictures: [
-            { word: 'a ram caught', find: 'a ram caught in a thicket' },
+            { word: 'a ram caught', img: 'abraham-ram-caught.jpg' },
           ] },
         ] },
         { type: 'trail', difficulty: 3, items: [
@@ -461,14 +468,14 @@ window.DECK = {
       variants: [
         { type: 'trail', difficulty: 2, items: [
           { verse: 'Genesis 25:34', pictures: [
-            { word: 'a bowl of red lentil stew' },
-            { word: 'a loaf of bread' },
+            { word: 'a bowl of red lentil stew', img: 'jacob-bowl-of-red-lentil-stew.jpg' },
+            { word: 'a loaf of bread', img: 'jacob-loaf-of-bread.avif' },
           ] },
           { verse: 'Genesis 28:11', pictures: [
-            { word: 'a stone pillow', find: 'a flat stone used as a pillow' },
+            { word: 'a stone pillow', img: 'jacob-stone-pillow.jpg' },
           ] },
           { verse: 'Genesis 28:12', pictures: [
-            { word: 'a ladder', find: 'a ladder reaching up into the sky' },
+            { word: 'a ladder', img: 'jacob-ladder.jpg' },
           ] },
         ] },
         { type: 'trail', difficulty: 3, items: [
@@ -840,23 +847,6 @@ window.DECK = {
       ],
     },
     {
-      id: 'ot-30', answer: 'MARY', difficulty: 2,
-      variants: [
-        { type: 'trail', difficulty: 2, items: [
-          { verse: 'John 2:6', pictures: [
-            { word: 'six large stone water jars' },
-          ] },
-          { verse: 'Luke 2:24', pictures: [
-            { word: 'a pair of turtledoves', find: 'a pair of turtledoves in a basket' },
-          ] },
-          { verse: 'Luke 2:7', pictures: [
-            { word: 'a manger of straw' },
-            { word: 'swaddling cloths' },
-          ] },
-        ] },
-      ],
-    },
-    {
       id: 'ot-31', answer: 'THOMAS', difficulty: 2,
       variants: [
         { type: 'trail', difficulty: 2, items: [
@@ -865,6 +855,9 @@ window.DECK = {
           ] },
           { verse: 'John 20:25', pictures: [
             { word: 'nail wounds', find: 'nail wounds in two hands' },
+          ] },
+          { verse: 'John 20:27', pictures: [
+            { word: 'a reaching hand', find: 'a hand reaching out one finger to touch' },
           ] },
         ] },
       ],
@@ -893,15 +886,6 @@ window.DECK = {
           { verse: 'Matthew 27:24', pictures: [
             { word: 'a basin of water' },
             { word: 'wet hands' },
-          ] },
-        ] },
-        { type: 'trail', difficulty: 2, items: [
-          { verse: 'Matthew 27:66', pictures: [
-            { word: 'a tomb stone stamped', find: 'a tomb stone stamped with a seal' },
-            { word: 'soldiers on guard' },
-          ] },
-          { verse: 'John 19:19', pictures: [
-            { word: 'a wooden sign', find: 'a wooden sign written in three languages' },
           ] },
         ] },
       ],
@@ -976,7 +960,7 @@ window.DECK = {
             { word: 'an open tomb at dawn' },
           ] },
           { verse: 'John 20:15', pictures: [
-            { word: 'a garden' },
+            { word: 'a weeping woman', find: 'a woman weeping, turning to speak to a gardener' },
             { word: 'a gardener\'s tools' },
           ] },
         ] },
@@ -1024,20 +1008,6 @@ window.DECK = {
           ] },
           { verse: 'Revelation 5:1', pictures: [
             { word: 'a scroll closed', find: 'a scroll closed with seven seals' },
-          ] },
-        ] },
-      ],
-    },
-    {
-      id: 'ot-42', answer: 'MATTHEW', difficulty: 3,
-      variants: [
-        { type: 'trail', difficulty: 3, items: [
-          { verse: 'Matthew 9:9', pictures: [
-            { word: 'a tax booth' },
-            { word: 'coins stacked', find: 'coins stacked on a table' },
-          ] },
-          { verse: 'Luke 5:29', pictures: [
-            { word: 'a great feast', find: 'a great feast laid out in a house' },
           ] },
         ] },
       ],
