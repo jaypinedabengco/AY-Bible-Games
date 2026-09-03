@@ -112,7 +112,11 @@
     } else if (view.kind === 'text') {
       body.appendChild(el('div', 'prompt', view.prompt));
     } else if (view.kind === 'trail') {
-      var trail = el('div', 'trail');
+      // The count drives the size, the same way the rebus row does it: one step
+      // can fill a projector, four have to share it with the answer and the
+      // references underneath. CSS cannot count children, so say it here.
+      var trail = el('div', 'trail steps-' + Math.min(view.steps.length, 4)
+        + (view.answered ? ' answered' : ''));
       view.steps.forEach(function (step) {
         trail.appendChild(trailRow(step, srcFor));
       });
