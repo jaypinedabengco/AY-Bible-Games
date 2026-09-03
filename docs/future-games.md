@@ -164,6 +164,13 @@ game, and the deck should be honest about that: fifty puzzles, not two hundred.
 
 ## 3. Who Did It?
 
+> **BUILT** — `games/who-did-it/`, 46 people and 94 deeds, English. What
+> follows is the proposal it was built from, kept as a record of the intent.
+> Two things went differently: it reuses the `quote` renderer untouched rather
+> than getting one of its own, and a deck-level `spoken: false` drops the
+> quotation marks, since a deed is our sentence and marks around it send the
+> room hunting for a speaker.
+
 **The idea.** The sibling of Who Said It?, with an **action** instead of a
 quote.
 
@@ -228,6 +235,10 @@ in the other game.
 ---
 
 ## 4. The Object Trail
+
+> **BUILT** — `games/object-trail/`, 42 people and 66 trails, playable in
+> words while the pictures are sourced one at a time. What follows is the
+> proposal it was built from, kept as a record of the intent.
 
 **The idea.** Objects from one story, revealed a step at a time, getting easier —
 and **a step is one picture or several together.**

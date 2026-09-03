@@ -202,12 +202,16 @@ then removed as the deck changed. They are small, and `deck.js` carries a
 commented example, so switching one on is deck data — but don't be surprised
 they're dormant.
 
-**Five games are listed on the front page, greyed out.** Bible Character Names
+**Three games are listed on the front page, greyed out.** Bible Character Names
 is built and wired but its deck is empty until it has pictures; its start screen
-says so rather than failing. The other four — Before or After, Higher or Lower,
-Who Did It?, The Object Trail — are PROPOSALS, and `docs/future-games.md` sets
-out how each is meant to work, which renderer it needs, what its deck looks like
-and what would make it fail.
+says so rather than failing. The other two — Before or After and Higher or
+Lower — are PROPOSALS, and `docs/future-games.md` sets out how each is meant to
+work, which renderer it needs, what its deck looks like and what would make it
+fail. Both want the `binary` renderer, which is built and idle.
+
+Who Did It? and The Object Trail were proposals in that document and are now
+built; their sections are kept as a record of what was intended, with a note at
+the top of each saying so.
 
 Old or New? was removed from that list: for most of the 66 books it is a coin
 flip the room wins instantly. Finish the Verse was removed earlier — Who Said

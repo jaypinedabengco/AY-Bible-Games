@@ -129,12 +129,31 @@ test('a quote puzzle gives the game master every line it might ask', () => {
     lang: 'en',
     answer: 'PETER',
     waiting: false,
+    spoken: true,
   });
   assert.equal(r.quotes[2].lang, 'fil');
   assert.equal(r.quotes[2].answer, 'PEDRO');
   assert.equal(r.quotes[2].waiting, true, 'no text yet, so it is dormant');
   assert.equal(r.working, 'You are the Christ, the Son of the living God.');
   assert.deepEqual(r.flags, ['unverified']);
+});
+
+// The game master page prints these lines too, and a deed shown in quotation
+// marks there reads as something the person said - the same confusion the
+// projector avoids, on the page that settles arguments.
+test('a deed reaches the game master page unquoted', () => {
+  const out = rows({
+    id: 'who-did-it',
+    spoken: false,
+    puzzles: [{
+      id: 'wd-01', answer: 'MOSES',
+      variants: [
+        { type: 'quote', quote: 'Smashed two stone tablets at the foot of a mountain',
+          verse: 'Exodus 32:19', clue: 'he came down to find a golden calf and dancing' },
+      ],
+    }],
+  });
+  assert.equal(out[0].quotes[0].spoken, false);
 });
 
 test('a picture puzzle has no quotes', () => {

@@ -118,6 +118,9 @@
         v.badge = badgeFor(lang);
         var clueAt = variant.verse ? 2 : 1;
         v.quote = variant.quote;
+        // Whether to put quotation marks round it - see `spoken` in
+        // normalize.js. A deed is our own sentence, not a quotation.
+        v.spoken = variant.spoken !== false;
         // Dropped again at the reveal: the answer block prints the verse
         // under the name, and showing it twice on one screen reads as a
         // mistake from the back of a hall.

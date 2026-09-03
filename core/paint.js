@@ -131,7 +131,11 @@
       });
       body.appendChild(trail);
     } else if (view.kind === 'quote') {
-      body.appendChild(el('div', 'quote', '\u201c' + view.quote + '\u201d'));
+      // Quotation marks are a claim that somebody said this. A deed is our
+      // own sentence, so it gets none - see `spoken` in normalize.js.
+      body.appendChild(view.spoken === false
+        ? el('div', 'quote narrated', view.quote)
+        : el('div', 'quote', '\u201c' + view.quote + '\u201d'));
       if (view.verse) { body.appendChild(el('div', 'verse', view.verse)); }
       if (view.clue) { body.appendChild(el('div', 'clue-text', view.clue)); }
     } else if (view.kind === 'binary') {

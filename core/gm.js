@@ -105,6 +105,7 @@
               lang: v.lang || p.lang || 'en',
               answer: v.answer || p.answer,
               waiting: !v.quote,
+              spoken: v.spoken !== false,
             };
           }),
         // Each trail as the game master needs it: the objects of every step

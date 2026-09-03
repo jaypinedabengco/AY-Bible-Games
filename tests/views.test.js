@@ -357,3 +357,36 @@ test('stagesForItem reads the step count off a trail', () => {
   const p = trailPuzzle();
   assert.equal(stagesForItem({ puzzle: p, variant: p.variants[0] }), 3);
 });
+
+// Quotation marks are a CLAIM that somebody said the words. Who Did It? shows
+// a sentence of ours describing a deed, so marks around it send the room off
+// hunting for a speaker - and reading "Smashed two stone tablets" as a
+// quotation is exactly the confusion the two games have to avoid. Nothing on
+// screen says which mode is on, so only a test keeps it honest.
+test('a deck can say its text is not spoken, and loses the quote marks', () => {
+  const { normalizeDeck } = globalThis.BibleGames.normalize;
+  // Raw, not quotePuzzle(): that helper is already normalized, and the whole
+  // point here is what normalizeDeck hands down to a variant.
+  const raw = (extra) => Object.assign({
+    id: 'wd-01', answer: 'MOSES', type: 'quote',
+    quote: 'Smashed two stone tablets at the foot of a mountain',
+    verse: 'Exodus 32:19',
+    clue: 'he came down to find a golden calf and dancing',
+  }, extra || {});
+
+  const said = normalizeDeck({ puzzles: [raw()] });
+  assert.equal(said.puzzles[0].variants[0].spoken, true,
+    'a deck that says nothing still shows quotation marks');
+
+  const did = normalizeDeck({ spoken: false, puzzles: [raw()] });
+  assert.equal(did.puzzles[0].variants[0].spoken, false);
+
+  const view = byType.quote.view(did.puzzles[0], did.puzzles[0].variants[0], 0);
+  assert.equal(view.spoken, false, 'the view has to carry it, or paint cannot see it');
+  assert.equal(view.quote, 'Smashed two stone tablets at the foot of a mountain',
+    'the text itself is untouched');
+
+  // One variant may override its deck, so a mixed deck stays possible.
+  const mixed = normalizeDeck({ spoken: false, puzzles: [raw({ spoken: true })] });
+  assert.equal(mixed.puzzles[0].variants[0].spoken, true);
+});

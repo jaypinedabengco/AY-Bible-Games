@@ -29,6 +29,22 @@ window.GAMES = [
     status: 'ready',
   },
   {
+    title: 'Who Did It?',
+    href: 'games/who-did-it/index.html',
+    blurb: 'A deed instead of a line. Cut off a soldier’s ear. Climbed a tree.',
+    meta: '46 people · English',
+    status: 'ready',
+  },
+  {
+    // Playable in words now; the pictures arrive object by object through the
+    // deck manager, and nothing else changes when they do.
+    title: 'The Object Trail',
+    href: 'games/object-trail/index.html',
+    blurb: 'Honey and a lion. Objects from one story, a step at a time, until the room has it.',
+    meta: 'Ready to play',
+    status: 'ready',
+  },
+  {
     // Built and wired, deliberately greyed out: the deck is empty until it has
     // pictures. Set status to 'ready' once it can fill a round.
     title: 'Bible Character Names',
@@ -50,21 +66,5 @@ window.GAMES = [
     blurb: 'A number from scripture, then a second one to bet on. Noah or Methuselah?',
     meta: 'Proposed',
     status: 'parked',
-  },
-  {
-    title: 'Who Did It?',
-    href: 'games/who-did-it/index.html',
-    blurb: 'A deed instead of a line. Cut off a soldier’s ear. Climbed a tree.',
-    meta: 'Proposed',
-    status: 'parked',
-  },
-  {
-    // Playable in words now; the pictures arrive object by object through the
-    // deck manager, and nothing else changes when they do.
-    title: 'The Object Trail',
-    href: 'games/object-trail/index.html',
-    blurb: 'Honey and a lion. Objects from one story, a step at a time, until the room has it.',
-    meta: 'Ready to play',
-    status: 'ready',
   },
 ];

@@ -174,9 +174,15 @@
         if (!v.quote) { waiting++; }
       });
     });
+    // What "unverified" means depends on where the words came from. In Who
+    // Said It? the line IS scripture, so the whole sentence has to be checked.
+    // In Who Did It? the sentence is ours and only the reference is a claim
+    // about the Bible - a far smaller job, and saying so stops it looking
+    // like the same mountain of work.
     if (unverified) {
-      notices.push(unverified + ' of ' + quotes + ' quotes still unverified - '
-        + 'check the wording against the Bible before a service');
+      notices.push(unverified + ' of ' + quotes + ' ' + (deck.quoteNoun || 'quotes')
+        + ' still unverified - '
+        + (deck.verifyJob || 'check the wording against the Bible before a service'));
     }
     if (waiting) {
       notices.push(waiting + ' quotes waiting for their text - dormant until '
