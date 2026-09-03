@@ -39,6 +39,11 @@ const GAMES = [
   { slug: 'character-names', title: 'Bible Character Names', canon: null, kind: 'pictures' },
   { slug: 'who-said-it', title: 'Who Said It?', canon: null, kind: 'quotes' },
   { slug: 'object-trail', title: 'The Object Trail', canon: null, kind: 'trails' },
+  // Same deck shape as Who Said It?, so the same quote tabs edit it. What
+  // "checked" MEANS differs though: there the sentence is scripture, here it
+  // is ours and only the reference is a claim about the Bible.
+  { slug: 'who-did-it', title: 'Who Did It?', canon: null, kind: 'quotes',
+    checkLabel: 'reference checked' },
 ];
 
 function pickGame(slug) {
@@ -48,6 +53,7 @@ function pickGame(slug) {
     title: g.title,
     canon: g.canon,
     kind: g.kind || 'pictures',
+    checkLabel: g.checkLabel || 'wording checked',
     images: path.join(ROOT, 'games', g.slug, 'images'),
     deck: path.join(ROOT, 'games', g.slug, 'deck.js'),
   };
@@ -711,6 +717,7 @@ http.createServer((req, res) => {
   if (req.method === 'GET' && route === '/api/games') {
     return send(res, 200, JSON.stringify(GAMES.map((x) => ({
       slug: x.slug, title: x.title, canon: x.canon, kind: x.kind || 'pictures',
+      checkLabel: x.checkLabel || 'wording checked',
       exists: fs.existsSync(path.join(ROOT, 'games', x.slug, 'deck.js')),
     }))));
   }

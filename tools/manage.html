@@ -93,6 +93,9 @@
   // you were working on - and so a picture can never be posted to one deck
   // while the page thinks it is looking at another.
   var GAME = (location.search.match(/[?&]game=([^&]*)/) || [null, 'book-names'])[1];
+  // Filled in once /api/games answers. Anything drawn before then must cope
+  // with it being null.
+  var GAME_META = null;
   function api(u) { return u + (u.indexOf('?') === -1 ? '?' : '&') + 'game=' + encodeURIComponent(GAME); }
   function imgUrl(name) { return '/games/' + GAME + '/images/' + name; }
 
@@ -640,7 +643,13 @@
     }, '1 is a line the room shouts instantly, 3 needs the clue'));
 
     var tick = document.createElement('label');
-    tick.style.cssText = hold.style.cssText;
+    // This used to borrow the style off the "hold the verse" checkbox, which
+    // was removed from the game - leaving a reference to a variable that no
+    // longer existed. It threw on the FIRST quote block, so the whole quotes
+    // tab rendered empty with the reason only in the console: both quote
+    // games were unmanageable and nothing said why.
+    tick.style.cssText = 'display:flex;gap:0.35rem;align-items:center;'
+      + 'font-size:0.8rem;color:var(--dim);cursor:pointer';
     var tickBox = document.createElement('input');
     tickBox.type = 'checkbox';
     tickBox.checked = !v.unverified;
@@ -649,7 +658,8 @@
            tickBox.checked ? 'checked against the Bible' : 'back to unverified');
     });
     tick.appendChild(tickBox);
-    tick.appendChild(document.createTextNode('wording checked'));
+    tick.appendChild(document.createTextNode(
+      (GAME_META && GAME_META.checkLabel) || 'wording checked'));
     controls.appendChild(tick);
 
     var save = document.createElement('button');
@@ -1014,6 +1024,7 @@
   var gameSel = document.getElementById('game');
   fetch('/api/games').then(function (r) { return r.json(); }).then(function (games) {
     var here = games.filter(function (x) { return x.slug === GAME; })[0] || games[0];
+    GAME_META = here;
     KIND = here.canon === 'books' ? 'book' : 'character';
     document.title = 'Deck manager — ' + here.title;
     tabBook.textContent = 'add a ' + KIND;
@@ -1045,7 +1056,19 @@
       tabQuotes.style.display = '';
       tabWaiting.style.display = '';
       q.placeholder = 'filter is on the quotes tabs';
-      showTab('waiting');
+      // Open on "waiting for text" only if anything IS waiting. Who Said It?
+      // has a half-translated Tagalog side, so that tab is the job; Who Did
+      // It? wrote its own sentences and nothing there ever waits, so opening
+      // on it means landing on an empty page every single time.
+      fetch('/api/quotes?game=' + encodeURIComponent(GAME))
+        .then(function (r) { return r.json(); })
+        .then(function (rows) {
+          var waiting = rows.some(function (r) {
+            return (r.quotes || []).some(function (qt) { return qt.waiting; });
+          });
+          showTab(waiting ? 'waiting' : 'quotes');
+        })
+        .catch(function () { showTab('waiting'); });
     }
     games.forEach(function (x) {
       var o = document.createElement('option');
