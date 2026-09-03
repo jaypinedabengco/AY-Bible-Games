@@ -118,6 +118,9 @@
         v.badge = badgeFor(lang);
         var clueAt = variant.verse ? 2 : 1;
         v.quote = variant.quote;
+        // Whether to put quotation marks round it - see `spoken` in
+        // normalize.js. A deed is our own sentence, not a quotation.
+        v.spoken = variant.spoken !== false;
         // Dropped again at the reveal: the answer block prints the verse
         // under the name, and showing it twice on one screen reads as a
         // mistake from the back of a hall.
@@ -145,6 +148,49 @@
         v.img = variant.img;
         v.options = variant.options;
         v.answered = answered(puzzle, stage, 1);
+        return v;
+      },
+    },
+    // The object trail. Objects from one story, a step at a time, getting
+    // easier - and a step is a ROW of pictures, because one object alone is
+    // usually ambiguous. Honey is vague; a lion is Daniel or David; honey
+    // beside a lion is exactly one story, and neither picture names him.
+    //
+    // Not a rebus, though it renders like one: a rebus picture is a PUN and
+    // stands for a sound, whereas a trail picture is a THING from the story.
+    // Honey means honey, which is why any clear picture of honey will do.
+    trail: {
+      stages: function (variant) { return (variant.items || []).length; },
+      view: function (puzzle, variant, stage) {
+        var v = base('trail', puzzle);
+        var steps = variant.items || [];
+        var done = stage >= steps.length;
+
+        // Every step up to and including this one, so the trail accumulates
+        // on screen rather than replacing itself.
+        v.steps = steps.slice(0, Math.min(stage + 1, steps.length)).map(function (s) {
+          return {
+            pictures: (s.pictures || []).map(function (pic) {
+              return { word: pic.word || null, img: pic.img || null };
+            }),
+          };
+        });
+
+        // Where each object came from - held back until the answer. A
+        // reference beside step one names the book, and the book is very
+        // nearly the answer: a room that knows Judges knows who the strong
+        // man is.
+        v.sources = done
+          ? steps.filter(function (s) { return s.verse; }).map(function (s) {
+              return {
+                verse: s.verse,
+                words: (s.pictures || []).map(function (pic) { return pic.word; })
+                  .filter(Boolean).join(' + '),
+              };
+            })
+          : null;
+
+        v.answered = answered(puzzle, stage, steps.length);
         return v;
       },
     },

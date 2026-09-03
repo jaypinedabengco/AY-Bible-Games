@@ -17,6 +17,19 @@
     if (variant.clues) {
       return variant.clues.map(function (c) { return c.img; });
     }
+    // A trail keeps its pictures inside its steps, not at the top of the
+    // variant. Leaving them out here meant they were never resolved, so
+    // uploaded pictures sat in the folder while the game went on showing
+    // words - with nothing to say anything was wrong.
+    if (variant.items) {
+      var names = [];
+      variant.items.forEach(function (step) {
+        (step.pictures || []).forEach(function (pic) {
+          if (pic.img) { names.push(pic.img); }
+        });
+      });
+      return names;
+    }
     return variant.img ? [variant.img] : [];
   }
 
@@ -124,6 +137,11 @@
         // gets picked and paints the word "null" on the projector - which it
         // did, in front of a test round.
         if (variant.type === 'quote' && !variant.quote) { return false; }
+        // A trail is the opposite case, and the distinction matters: it is
+        // written in words and GROWS pictures, so a missing one is expected
+        // rather than broken. Requiring them would make every unfinished trail
+        // vanish from the deck.
+        if (variant.type === 'trail') { return (variant.items || []).length > 0; }
         var names = imageNames(variant);
         if (!names.length) { return true; }   // text and order need no picture
         return names.every(function (n) { return srcFor(n) !== null; });
@@ -297,6 +315,8 @@
         position: s.index + 1,
         total: items.length,
         round: round,
+        stage: s.stage,
+        stages: s.stages,
         showBadge: session.deck.languages.length > 1,
       });
     }

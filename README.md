@@ -66,7 +66,12 @@ again — the start screen says how many have gone. Only the Game Master page ca
 clear that record, behind the sign-in and behind a confirm tap, because it
 throws away weeks of a programme's progress.
 
-### The three games
+The record is kept **by the browser running the game**, so it lives on the
+laptop driving the projector. Clearing it has to be done there too: open
+`gm.html` on that laptop, sign in, and clear. Doing it from a phone clears that
+phone's record, which is not the one the game is reading.
+
+### The four games
 
 - **Bible Book Names** — pictures combine into a book of the Bible.
   Jeans + sis. XO + dos. 43 books, three rounds.
@@ -75,6 +80,15 @@ throws away weeks of a programme's progress.
   Playable in English and Tagalog — pick the language on the start screen,
   which also names the translation it will use: New King James Version in
   English, Ang Dating Biblia (1905) in Tagalog.
+- **Who Did It?** — the same four beats with a *deed* instead of a line.
+  Cut off a soldier's ear. Climbed a tree to see over a crowd. 46 people,
+  94 deeds, four rounds. English only for now — the sentences are ours, not
+  scripture, so a Tagalog side is a translation job rather than a licensing
+  one. Nothing on screen is in quotation marks, because nobody said it.
+- **The Object Trail** — objects from one story, a step at a time, getting
+  easier. Honey and a lion, then long hair, then two pillars. 44 people, 69
+  trails. Playable in words today; the pictures arrive one at a time through
+  the deck manager and nothing else changes when they do.
 - **Bible Character Names** — the same idea as the book game, with people.
   Greyed out on the front page until it has pictures; its start screen says so
   rather than failing.

@@ -9,10 +9,10 @@
   'use strict';
 
   var VARIANT_KEYS = ['type', 'clues', 'img', 'prompt', 'options', 'items',
-                      'correct', 'quote', 'verse', 'clue',
-                      'lang', 'answer', 'flag', 'weight', 'difficulty'];
+                      'correct', 'quote', 'verse', 'clue', 'items',
+                      'lang', 'answer', 'flag', 'spoken', 'weight', 'difficulty'];
 
-  function normalizeVariant(v, puzzleDifficulty) {
+  function normalizeVariant(v, puzzleDifficulty, spokenDefault) {
     return {
       type: v.type || 'rebus',
       clues: v.clues || null,
@@ -30,12 +30,19 @@
       lang: v.lang || null,
       answer: v.answer || null,
       flag: v.flag || null,
+      // Whether the text on screen is something somebody SAID. Who Said It?
+      // shows scripture and wants quotation marks; Who Did It? shows a
+      // sentence of ours describing a deed, and marks around that would claim
+      // somebody said it. Defaults to true, so no existing deck changes.
+      spoken: v.spoken === undefined
+        ? (spokenDefault === undefined ? true : spokenDefault !== false)
+        : v.spoken !== false,
       weight: v.weight === undefined ? 1 : v.weight,
       difficulty: v.difficulty || puzzleDifficulty || 2,
     };
   }
 
-  function normalizePuzzle(p) {
+  function normalizePuzzle(p, spokenDefault) {
     var variants = p.variants;
     if (!variants || !variants.length) {
       // A bare puzzle is a puzzle with exactly one variant: lift the
@@ -55,7 +62,7 @@
       slot: p.slot || 'anywhere',
       difficulty: difficulty,
       variants: variants.map(function (v) {
-        return normalizeVariant(v, difficulty);
+        return normalizeVariant(v, difficulty, spokenDefault);
       }),
     };
   }
@@ -72,7 +79,10 @@
       howToPlay: d.howToPlay || [],
       credits: d.credits || null,
       versions: d.versions || null,
-      puzzles: (d.puzzles || []).map(normalizePuzzle),
+      spoken: d.spoken !== false,
+      puzzles: (d.puzzles || []).map(function (p) {
+        return normalizePuzzle(p, d.spoken);
+      }),
     };
   }
 

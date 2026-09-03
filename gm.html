@@ -140,6 +140,10 @@
 <script>window.DECKS.push({ slug: 'who-said-it', deck: window.DECK });</script>
 <script src="games/character-names/deck.js"></script>
 <script>window.DECKS.push({ slug: 'character-names', deck: window.DECK });</script>
+<script src="games/object-trail/deck.js"></script>
+<script>window.DECKS.push({ slug: 'object-trail', deck: window.DECK });</script>
+<script src="games/who-did-it/deck.js"></script>
+<script>window.DECKS.push({ slug: 'who-did-it', deck: window.DECK });</script>
 
 <script>
   (function () {
@@ -237,7 +241,11 @@
 
     function hasPictures(g) {
       return g.rows.some(function (r) {
-        return r.pictures.some(function (set) { return set.length; });
+        if (r.pictures.some(function (set) { return set.length; })) { return true; }
+        // A trail keeps its pictures inside its steps.
+        return (r.trails || []).some(function (t) {
+          return t.some(function (step) { return (step.imgs || []).length; });
+        });
       });
     }
 
@@ -281,12 +289,49 @@
           var block = el('div', qt.waiting ? 'gmquote waiting' : 'gmquote');
           block.appendChild(el('div', 'gmq', qt.waiting
             ? '(waiting for the ' + (qt.lang === 'fil' ? 'Tagalog' : 'English') + ' line)'
-            : '“' + qt.quote + '”'));
+            : (qt.spoken === false ? qt.quote : '“' + qt.quote + '”')));
           var meta = [];
           if (qt.verse) { meta.push(qt.verse); }
           if (qt.lang === 'fil') { meta.push('Tagalog · ' + qt.answer); }
           if (meta.length) { block.appendChild(el('div', 'gmv', meta.join('  ·  '))); }
           if (qt.clue) { block.appendChild(el('div', 'gmc', 'clue: ' + qt.clue)); }
+          box.appendChild(block);
+        });
+
+        // A trail's objects, step by step, with where each came from.
+        (r.trails || []).forEach(function (trail, ti) {
+          var block = el('div', 'gmquote');
+          if ((r.trails || []).length > 1) {
+            block.appendChild(el('div', 'gmv', 'trail ' + (ti + 1)));
+          }
+          trail.forEach(function (step, si) {
+            var line = el('div', 'gmq', (si + 1) + '.  ' + step.words);
+            line.style.fontSize = '0.95rem';
+            block.appendChild(line);
+            // The pictures the room is looking at, where they have been
+            // sourced. A step with none is normal - the trail is written in
+            // words and grows pictures - so nothing is drawn for it.
+            if (showPics && step.imgs && step.imgs.length) {
+              var strip = el('div', 'pics');
+              strip.style.marginTop = '0.25rem';
+              step.imgs.forEach(function (name, i) {
+                if (i > 0) { strip.appendChild(el('span', 'plus', '+')); }
+                var img = document.createElement('img');
+                img.src = current.images + name;
+                img.alt = name;
+                img.loading = 'lazy';
+                img.style.height = '3rem';
+                img.addEventListener('error', function () {
+                  var miss = el('div', 'miss', '?');
+                  miss.title = name;
+                  img.replaceWith(miss);
+                });
+                strip.appendChild(img);
+              });
+              block.appendChild(strip);
+            }
+            if (step.verse) { block.appendChild(el('div', 'gmc', step.verse)); }
+          });
           box.appendChild(block);
         });
 
@@ -299,8 +344,8 @@
           line.appendChild(document.createTextNode(r.names[lang]));
           box.appendChild(line);
         });
-        // On a quote deck the working IS the quote, already shown above.
-        if (!r.quotes.length) {
+        // On a quote or trail deck the working is already shown above.
+        if (!r.quotes.length && !(r.trails || []).length) {
           r.workings.forEach(function (w) { box.appendChild(el('div', 'rwork', w)); });
         }
         if (r.ref) { box.appendChild(el('div', 'rref', r.ref)); }
@@ -334,11 +379,17 @@
       var deckId = current.deckId;
       var n = askedCount(deckId);
       if (!n) {
-        askedEl.textContent = 'Nothing asked yet in ' + current.title + '.';
+        askedEl.textContent = 'Nothing asked yet in ' + current.title
+          + ' on this device.';
         return;
       }
+      // "On this device" is not padding. The record lives in the browser
+      // running the GAME, so a game master clearing it from their own phone
+      // would change nothing on the laptop driving the projector - and would
+      // have no way of telling.
       askedEl.appendChild(document.createTextNode(
-        n + ' already asked in ' + current.title + ', and not coming back.'));
+        n + ' already asked in ' + current.title + ' on this device, and not '
+        + 'coming back. Clear it on the laptop running the game.'));
       var b = document.createElement('button');
       b.type = 'button';
       b.textContent = 'Ask them all again';

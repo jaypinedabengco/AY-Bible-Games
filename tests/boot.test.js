@@ -311,3 +311,49 @@ test('a later round honours the size chosen at the start', async () => {
   const overlap = r2.keys.filter((k) => r1.keys.includes(k));
   assert.deepEqual(overlap, [], 'and must not repeat round 1');
 });
+
+// ---- the object trail ---------------------------------------------------
+
+const trailDeck = () => ({
+  id: 'object-trail', imageDirs: ['images/'], languages: ['en'],
+  shuffle: false, sessionSize: 10,
+  puzzles: [{
+    id: 'ot-01', answer: 'ABRAHAM',
+    variants: [{
+      type: 'trail',
+      items: [
+        { verse: 'Genesis 22:6',
+          pictures: [{ word: 'firewood', img: 'abraham-firewood.webp' },
+                     { word: 'a knife', img: 'abraham-knife.jpg' }] },
+        { verse: 'Genesis 22:13', pictures: [{ word: 'a ram' }] },
+      ],
+    }],
+  }],
+});
+
+test('a trail\'s pictures are resolved, wherever they sit in the variant', async () => {
+  // They live in items[].pictures[].img, which imageNames had never heard of -
+  // so 69 uploaded pictures sat in the folder while the game showed words.
+  const s = await buildSession(trailDeck(), allPresent, seeded(1));
+  assert.equal(s.items.length, 1);
+  assert.equal(s.srcFor('abraham-firewood.webp'), 'images/abraham-firewood.webp');
+  assert.equal(s.srcFor('abraham-knife.jpg'), 'images/abraham-knife.jpg');
+});
+
+test('a trail with no pictures at all is still playable', async () => {
+  // Words first is the whole design: a picture is an enhancement, never a
+  // requirement, so a missing one must not make the puzzle dormant.
+  const d = trailDeck();
+  const s = await buildSession(d, resolverWithout('abraham-firewood.webp',
+                                                  'abraham-knife.jpg'), seeded(1));
+  assert.equal(s.items.length, 1, 'the puzzle must not vanish');
+  assert.equal(s.srcFor('abraham-firewood.webp'), null, 'and the word carries it');
+});
+
+test('a half-illustrated trail plays with the pictures it has', async () => {
+  const s = await buildSession(trailDeck(), resolverWithout('abraham-knife.jpg'),
+                               seeded(1));
+  assert.equal(s.items.length, 1);
+  assert.equal(s.srcFor('abraham-firewood.webp'), 'images/abraham-firewood.webp');
+  assert.equal(s.srcFor('abraham-knife.jpg'), null);
+});

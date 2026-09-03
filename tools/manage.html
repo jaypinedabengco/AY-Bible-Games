@@ -74,6 +74,8 @@
   <button id="tab-book" class="tab" type="button">add</button>
   <button id="tab-quotes" class="tab" type="button" style="display:none">quotes</button>
   <button id="tab-waiting" class="tab" type="button" style="display:none">waiting for text</button>
+  <button id="tab-trails" class="tab" type="button" style="display:none">trails</button>
+  <button id="tab-shopping" class="tab" type="button" style="display:none">pictures to find</button>
   <input id="q" type="search" placeholder="filter by book, id or filename">
   <span class="note" id="count"></span>
   <span class="note">drag a picture onto a card &mdash; or click it</span>
@@ -82,6 +84,7 @@
 <div id="vars" style="display:none;padding:1.2rem"></div>
 <div id="newbook" style="display:none;padding:1.2rem;max-width:46rem"></div>
 <div id="quotes" style="display:none;padding:1.2rem;max-width:58rem"></div>
+<div id="trails" style="display:none;padding:1.2rem;max-width:62rem"></div>
 
 <script>
 (function () {
@@ -90,6 +93,9 @@
   // you were working on - and so a picture can never be posted to one deck
   // while the page thinks it is looking at another.
   var GAME = (location.search.match(/[?&]game=([^&]*)/) || [null, 'book-names'])[1];
+  // Filled in once /api/games answers. Anything drawn before then must cope
+  // with it being null.
+  var GAME_META = null;
   function api(u) { return u + (u.indexOf('?') === -1 ? '?' : '&') + 'game=' + encodeURIComponent(GAME); }
   function imgUrl(name) { return '/games/' + GAME + '/images/' + name; }
 
@@ -637,7 +643,13 @@
     }, '1 is a line the room shouts instantly, 3 needs the clue'));
 
     var tick = document.createElement('label');
-    tick.style.cssText = hold.style.cssText;
+    // This used to borrow the style off the "hold the verse" checkbox, which
+    // was removed from the game - leaving a reference to a variable that no
+    // longer existed. It threw on the FIRST quote block, so the whole quotes
+    // tab rendered empty with the reason only in the console: both quote
+    // games were unmanageable and nothing said why.
+    tick.style.cssText = 'display:flex;gap:0.35rem;align-items:center;'
+      + 'font-size:0.8rem;color:var(--dim);cursor:pointer';
     var tickBox = document.createElement('input');
     tickBox.type = 'checkbox';
     tickBox.checked = !v.unverified;
@@ -646,7 +658,8 @@
            tickBox.checked ? 'checked against the Bible' : 'back to unverified');
     });
     tick.appendChild(tickBox);
-    tick.appendChild(document.createTextNode('wording checked'));
+    tick.appendChild(document.createTextNode(
+      (GAME_META && GAME_META.checkLabel) || 'wording checked'));
     controls.appendChild(tick);
 
     var save = document.createElement('button');
@@ -703,19 +716,293 @@
     });
   }
 
+  // ---- object trails -----------------------------------------------------
+  var trailHost = document.getElementById('trails');
+  var shoppingOnly = false;
+  // 274 objects is a wall to stare at. These two make it a list you can work
+  // through: the quickest wins first, and one trail per person so a whole
+  // round can be illustrated before anything is done twice.
+  var quickestFirst = true;
+  var onePerPerson = false;
+
+  function objectCard(row, trail, step, pic) {
+    var card = el('div');
+    card.style.cssText = 'display:flex;flex-direction:column;gap:0.3rem;'
+      + 'align-items:center;min-width:6.5rem';
+
+    if (pic.img && !pic.missing) {
+      var img = document.createElement('img');
+      img.src = imgUrl(pic.img);
+      img.alt = pic.word || '';
+      img.loading = 'lazy';
+      img.style.cssText = 'height:4.5rem;max-width:6rem;object-fit:contain;'
+        + 'background:var(--bg);border-radius:0.4rem;padding:0.2rem';
+      card.appendChild(img);
+    } else {
+      // The words-only state is the NORMAL one here, not a fault: the deck is
+      // written in words and grows pictures. So it is a dashed invitation, not
+      // a red error.
+      var box = el('div', null, 'no picture');
+      box.style.cssText = 'height:4.5rem;width:6rem;display:grid;place-items:center;'
+        + 'border:1px dashed #3a4354;border-radius:0.4rem;color:var(--dim);'
+        + 'font-size:0.62rem;letter-spacing:0.08em;text-transform:uppercase';
+      card.appendChild(box);
+    }
+
+    card.appendChild(el('div', null, pic.word || '(no word)'));
+    card.lastChild.style.cssText = 'font-size:0.85rem;text-align:center';
+
+    // What to hunt for. Shown only here - it is often longer than the word the
+    // projector shows, because it does not have to fit a screen.
+    if (pic.find && pic.find !== pic.word) {
+      var hint = el('div', null, pic.find);
+      hint.style.cssText = 'font-size:0.66rem;color:var(--dim);text-align:center;'
+        + 'max-width:9rem;line-height:1.35';
+      card.appendChild(hint);
+    }
+
+    var msg = el('div', 'why');
+    msg.style.cssText = 'font-size:0.6rem;text-align:center;min-height:0.8rem';
+
+    var picker = document.createElement('input');
+    picker.type = 'file';
+    picker.accept = 'image/*';
+    picker.style.display = 'none';
+    picker.addEventListener('change', function () {
+      var f = picker.files[0];
+      if (!f) { return; }
+      var ext = (f.name.match(/\.[^.]+$/) || [''])[0].toLowerCase();
+      say(msg, 'saving…');
+      var fr = new FileReader();
+      fr.onload = function () {
+        fetch(api('/api/trail-picture'), {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: row.id, object: pic.object, word: pic.word, answer: row.answer,
+            ext: ext, data: String(fr.result).split(',')[1],
+          }),
+        }).then(function (r) { return r.json(); }).then(function (out) {
+          if (out.error) { say(msg, out.error, true); return; }
+          say(msg, out.file);
+          loadTrails();
+        }).catch(function (e) { say(msg, String(e.message || e), true); });
+      };
+      fr.readAsDataURL(f);
+    });
+    card.appendChild(picker);
+
+    var pick = document.createElement('button');
+    pick.type = 'button';
+    pick.textContent = pic.missing ? 'add picture' : 'replace';
+    pick.style.cssText = 'font:inherit;font-size:0.65rem;padding:0.2rem 0.5rem;'
+      + 'border-radius:0.4rem;border:1px solid #2c3444;background:var(--card);'
+      + 'color:var(--fg);cursor:pointer';
+    pick.addEventListener('click', function () { picker.click(); });
+    card.appendChild(pick);
+    card.appendChild(msg);
+
+    // drag a picture straight onto the object
+    ['dragenter', 'dragover'].forEach(function (ev) {
+      card.addEventListener(ev, function (e) { e.preventDefault(); card.style.opacity = '0.6'; });
+    });
+    ['dragleave', 'drop'].forEach(function (ev) {
+      card.addEventListener(ev, function () { card.style.opacity = '1'; });
+    });
+    card.addEventListener('drop', function (e) {
+      e.preventDefault();
+      var f = e.dataTransfer.files && e.dataTransfer.files[0];
+      if (!f) { return; }
+      var dt = new DataTransfer();
+      dt.items.add(f);
+      picker.files = dt.files;
+      picker.dispatchEvent(new Event('change'));
+    });
+
+    return card;
+  }
+
+  function trailBlock(row) {
+    var box = el('div', 'book-row');
+    var missing = 0;
+    var total = 0;
+    row.trails.forEach(function (t) {
+      t.steps.forEach(function (st) {
+        st.pictures.forEach(function (p) { total++; if (p.missing) { missing++; } });
+      });
+    });
+
+    box.appendChild(el('h3', null, row.answer));
+    box.appendChild(el('div', 'sub', '#' + row.id + ' · '
+      + row.trails.length + (row.trails.length === 1 ? ' trail' : ' trails')
+      + ' · ' + (total - missing) + ' of ' + total + ' pictures found'));
+
+    row.trails.forEach(function (t) {
+      var wrap = el('div', 'vrow');
+      wrap.style.cssText += ';flex-direction:column;align-items:stretch';
+      if (row.trails.length > 1) {
+        wrap.appendChild(el('span', 'tag', 'trail ' + (t.index + 1)
+          + ' · difficulty ' + t.difficulty));
+      }
+      t.steps.forEach(function (st) {
+        var stepRow = el('div');
+        stepRow.style.cssText = 'display:flex;gap:0.8rem;align-items:flex-start;'
+          + 'flex-wrap:wrap;padding:0.4rem 0';
+        var n = el('span', 'tag', 'step ' + (st.index + 1));
+        n.style.marginTop = '1.6rem';
+        stepRow.appendChild(n);
+        st.pictures.forEach(function (p) {
+          stepRow.appendChild(objectCard(row, t, st, p));
+        });
+        if (st.verse) {
+          var v = el('span', 'word', st.verse);
+          v.style.marginTop = '1.6rem';
+          v.title = 'shown only at the reveal';
+          stepRow.appendChild(v);
+        }
+        wrap.appendChild(stepRow);
+      });
+      box.appendChild(wrap);
+    });
+    return box;
+  }
+
+  function trailControls(missing) {
+    var bar = el('div', 'addbox');
+    bar.style.marginBottom = '0.8rem';
+
+    function toggle(label, get, set, help) {
+      var wrap = document.createElement('label');
+      wrap.style.cssText = 'display:flex;gap:0.35rem;align-items:center;'
+        + 'font-size:0.7rem;letter-spacing:0.08em;text-transform:uppercase;'
+        + 'color:var(--dim);cursor:pointer';
+      var box = document.createElement('input');
+      box.type = 'checkbox';
+      box.checked = get();
+      box.addEventListener('change', function () { set(box.checked); loadTrails(); });
+      wrap.appendChild(box);
+      wrap.appendChild(document.createTextNode(label));
+      wrap.title = help || '';
+      return wrap;
+    }
+
+    bar.appendChild(toggle('quickest trails first',
+      function () { return quickestFirst; },
+      function (v) { quickestFirst = v; },
+      'Finish a whole trail in two or three pictures rather than picking at a big one'));
+    bar.appendChild(toggle('one trail per person',
+      function () { return onePerPerson; },
+      function (v) { onePerPerson = v; },
+      'Illustrate every person once before doing anyone twice'));
+    bar.appendChild(el('span', 'why',
+      missing + ' objects still to find. A trail is done at four pictures on '
+      + 'average, and a finished trail plays with pictures while everything '
+      + 'else keeps playing in words.'));
+    return bar;
+  }
+
+  function loadTrails() {
+    fetch(api('/api/trails')).then(function (r) { return r.json(); }).then(function (rows) {
+      trailHost.innerHTML = '';
+      if (rows.error) { trailHost.appendChild(el('p', null, rows.error)); return; }
+
+      var term = q.value.trim().toLowerCase();
+      var missing = 0;
+      var total = 0;
+      rows.forEach(function (row) {
+        row.trails.forEach(function (t) {
+          t.steps.forEach(function (st) {
+            st.pictures.forEach(function (p) { total++; if (p.missing) { missing++; } });
+          });
+        });
+      });
+
+      if (shoppingOnly) { trailHost.appendChild(trailControls(missing)); }
+
+      var order = rows.slice();
+      if (shoppingOnly && onePerPerson) {
+        order = order.map(function (row) {
+          return Object.assign({}, row, { trails: row.trails.slice(0, 1) });
+        });
+      }
+      if (shoppingOnly && quickestFirst) {
+        // fewest pictures outstanding first, so something gets FINISHED
+        var left = function (row) {
+          var n = 0;
+          row.trails.forEach(function (t) {
+            t.steps.forEach(function (st) {
+              st.pictures.forEach(function (p) { if (p.missing) { n++; } });
+            });
+          });
+          return n;
+        };
+        order.sort(function (a, b) { return left(a) - left(b); });
+      }
+
+      var shown = 0;
+      order.forEach(function (row) {
+        if (term && row.answer.toLowerCase().indexOf(term) === -1
+                 && row.id.toLowerCase().indexOf(term) === -1) { return; }
+        if (shoppingOnly) {
+          // Only what is still to find, and only the objects that need it.
+          var hasMissing = row.trails.some(function (t) {
+            return t.steps.some(function (st) {
+              return st.pictures.some(function (p) { return p.missing; });
+            });
+          });
+          if (!hasMissing) { return; }
+          var trimmed = {
+            id: row.id, answer: row.answer, difficulty: row.difficulty,
+            trails: row.trails.map(function (t) {
+              return {
+                index: t.index, difficulty: t.difficulty,
+                steps: t.steps.map(function (st) {
+                  return {
+                    index: st.index, verse: st.verse,
+                    pictures: st.pictures.filter(function (p) { return p.missing; }),
+                  };
+                }).filter(function (st) { return st.pictures.length; }),
+              };
+            }).filter(function (t) { return t.steps.length; }),
+          };
+          trailHost.appendChild(trailBlock(trimmed));
+        } else {
+          trailHost.appendChild(trailBlock(row));
+        }
+        shown++;
+      });
+
+      countEl.textContent = total + ' objects · ' + (total - missing) + ' found · '
+        + missing + ' still to find';
+      if (!shown) {
+        trailHost.appendChild(el('p', null, shoppingOnly
+          ? 'Every object has a picture. Nothing left to find.'
+          : 'This deck has no trails yet.'));
+      }
+    });
+  }
+
+  var tabTrails = document.getElementById('tab-trails');
+  var tabShopping = document.getElementById('tab-shopping');
   var tabQuotes = document.getElementById('tab-quotes');
   var tabWaiting = document.getElementById('tab-waiting');
   var tabBook = document.getElementById('tab-book');
   var tabClues = document.getElementById('tab-clues');
   var tabVars = document.getElementById('tab-vars');
   function showTab(which) {
-    [tabClues, tabVars, tabBook, tabQuotes, tabWaiting].forEach(function (t) {
-      t.classList.remove('on');
-    });
+    [tabClues, tabVars, tabBook, tabQuotes, tabWaiting, tabTrails, tabShopping]
+      .forEach(function (t) { t.classList.remove('on'); });
     grid.style.display = 'none';
     varsHost.style.display = 'none';
     bookHost.style.display = 'none';
     quoteHost.style.display = 'none';
+    trailHost.style.display = 'none';
+    if (which === 'trails' || which === 'shopping') {
+      shoppingOnly = which === 'shopping';
+      (shoppingOnly ? tabShopping : tabTrails).classList.add('on');
+      trailHost.style.display = '';
+      loadTrails();
+      return;
+    }
     if (which === 'clues') { tabClues.classList.add('on'); grid.style.display = ''; }
     if (which === 'vars') { tabVars.classList.add('on'); varsHost.style.display = ''; loadBooks(); }
     if (which === 'book') { tabBook.classList.add('on'); bookHost.style.display = ''; newBookView(); }
@@ -731,10 +1018,13 @@
   tabBook.addEventListener('click', function () { showTab('book'); });
   tabQuotes.addEventListener('click', function () { showTab('quotes'); });
   tabWaiting.addEventListener('click', function () { showTab('waiting'); });
+  tabTrails.addEventListener('click', function () { showTab('trails'); });
+  tabShopping.addEventListener('click', function () { showTab('shopping'); });
 
   var gameSel = document.getElementById('game');
   fetch('/api/games').then(function (r) { return r.json(); }).then(function (games) {
     var here = games.filter(function (x) { return x.slug === GAME; })[0] || games[0];
+    GAME_META = here;
     KIND = here.canon === 'books' ? 'book' : 'character';
     document.title = 'Deck manager — ' + here.title;
     tabBook.textContent = 'add a ' + KIND;
@@ -743,6 +1033,22 @@
     // empty and the add-a-picture form meaningless. It gets the quotes tabs
     // instead, and opens on the one that gets used most: the lines still
     // waiting to be pasted in.
+    if (here.kind === 'trails') {
+      // A trail deck has no rebus clues and no books to add. It opens on the
+      // shopping list, because "what is still to find" is the question this
+      // page exists to answer.
+      tabClues.style.display = 'none';
+      tabVars.style.display = 'none';
+      tabBook.style.display = 'none';
+      tabTrails.style.display = '';
+      tabShopping.style.display = '';
+      q.placeholder = 'filter by person or id';
+      q.addEventListener('input', function () {
+        if (trailHost.style.display !== 'none') { loadTrails(); }
+      });
+      showTab('shopping');
+    }
+
     if (here.kind === 'quotes') {
       tabClues.style.display = 'none';
       tabVars.style.display = 'none';
@@ -750,7 +1056,19 @@
       tabQuotes.style.display = '';
       tabWaiting.style.display = '';
       q.placeholder = 'filter is on the quotes tabs';
-      showTab('waiting');
+      // Open on "waiting for text" only if anything IS waiting. Who Said It?
+      // has a half-translated Tagalog side, so that tab is the job; Who Did
+      // It? wrote its own sentences and nothing there ever waits, so opening
+      // on it means landing on an empty page every single time.
+      fetch('/api/quotes?game=' + encodeURIComponent(GAME))
+        .then(function (r) { return r.json(); })
+        .then(function (rows) {
+          var waiting = rows.some(function (r) {
+            return (r.quotes || []).some(function (qt) { return qt.waiting; });
+          });
+          showTab(waiting ? 'waiting' : 'quotes');
+        })
+        .catch(function () { showTab('waiting'); });
     }
     games.forEach(function (x) {
       var o = document.createElement('option');

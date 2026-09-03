@@ -60,6 +60,14 @@ html, body {
 }
 
 .stamp-id { text-transform: uppercase; }
+/* How far through this puzzle's reveal. Brighter than the id, because the
+   person driving actually reads it and the room does not need to. */
+.stamp-stage { color: var(--accent); letter-spacing: 0.18em; }
+
+/* Separated, because "3 / 3  2 / 20" is two number pairs side by side and the
+   person driving reads it at a glance from across a laptop. */
+.stamp > span + span::before { content: '\00b7'; margin-right: 0.9vmin;
+                               color: var(--dim); opacity: 0.6; }
 
 .body { display: flex; flex-direction: column; align-items: center; gap: 3vmin; }
 
@@ -264,3 +272,55 @@ html, body {
                background: var(--card); color: var(--fg); cursor: pointer;
                white-space: nowrap; }
 .start-empty { font-size: 2.6vmin; color: var(--bad); max-width: 60vw; line-height: 1.4; }
+
+/* ---- the object trail --------------------------------------------------
+   Each step is a row, and the rows stack as the trail accumulates. A step
+   with no picture yet shows its word large, because the deck is written in
+   words first and grows pictures later - the game has to look deliberate
+   either way, not broken. */
+.trail { display: flex; flex-direction: column; align-items: center;
+         gap: var(--trail-gap, 2.4vmin); }
+.trail-row { display: flex; align-items: center; justify-content: center;
+             gap: 2vmin; flex-wrap: wrap; }
+.trail-object { display: flex; flex-direction: column; align-items: center;
+                gap: 0.6vmin; }
+.trail-object img { height: var(--trail-img, 18vmin); max-width: 24vw;
+                    object-fit: contain; background: var(--card);
+                    border-radius: 1vmin; padding: 0.8vmin; }
+.trail-word { font-size: var(--trail-word, 3.4vmin); letter-spacing: 0.02em;
+              text-align: center; line-height: 1.2; }
+
+/* A trail grows a step at a time, and on the last screen it shares the height
+   with the answer and every reference. So each step gets smaller as they
+   accumulate - the alternative is a trail that runs off the bottom of the
+   projector, taking the last verse with it. */
+.trail.steps-1 { --trail-img: 26vmin; --trail-word: 4vmin;   --trail-gap: 2.4vmin; }
+.trail.steps-2 { --trail-img: 19vmin; --trail-word: 3.4vmin; --trail-gap: 2vmin; }
+.trail.steps-3 { --trail-img: 14vmin; --trail-word: 2.9vmin; --trail-gap: 1.4vmin; }
+.trail.steps-4 { --trail-img: 10vmin; --trail-word: 2.4vmin; --trail-gap: 1vmin; }
+
+/* Tighter again once the answer is up, because that screen carries the most. */
+.trail.answered.steps-2 { --trail-img: 16vmin; }
+.trail.answered.steps-3 { --trail-img: 12vmin; --trail-word: 2.6vmin; }
+.trail.answered.steps-4 { --trail-img: 9vmin;  --trail-word: 2.2vmin; }
+
+/* Words-only steps are shorter than picture ones, so they can afford more. */
+.trail.steps-3 .trail-object.wordsonly .trail-word,
+.trail.steps-4 .trail-object.wordsonly .trail-word { font-size: 3.4vmin; }
+
+/* No picture sourced yet: the word carries the step on its own. */
+.trail-object.wordsonly .trail-word {
+  font-size: 5.6vmin;
+  padding: 1.4vmin 3vmin;
+  border: 0.3vmin solid var(--card);
+  border-radius: 1vmin;
+}
+
+/* Where each object came from. Only ever on the reveal screen: a reference
+   beside a step would name the book, and the book is very nearly the answer. */
+.sources { display: flex; flex-direction: column; gap: 0.35vmin; margin-top: 0.6vmin; }
+.source { display: flex; gap: 1.4vmin; align-items: baseline;
+          justify-content: center; }
+.source-words { font-size: 2.2vmin; color: var(--dim); }
+.source-verse { font-size: 2.2vmin; color: var(--accent); letter-spacing: 0.1em;
+                text-transform: uppercase; }

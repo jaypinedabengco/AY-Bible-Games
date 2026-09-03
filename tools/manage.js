@@ -38,6 +38,12 @@ const GAMES = [
   { slug: 'book-names', title: 'Bible Book Names', canon: 'books', kind: 'pictures' },
   { slug: 'character-names', title: 'Bible Character Names', canon: null, kind: 'pictures' },
   { slug: 'who-said-it', title: 'Who Said It?', canon: null, kind: 'quotes' },
+  { slug: 'object-trail', title: 'The Object Trail', canon: null, kind: 'trails' },
+  // Same deck shape as Who Said It?, so the same quote tabs edit it. What
+  // "checked" MEANS differs though: there the sentence is scripture, here it
+  // is ours and only the reference is a claim about the Bible.
+  { slug: 'who-did-it', title: 'Who Did It?', canon: null, kind: 'quotes',
+    checkLabel: 'reference checked' },
 ];
 
 function pickGame(slug) {
@@ -47,6 +53,7 @@ function pickGame(slug) {
     title: g.title,
     canon: g.canon,
     kind: g.kind || 'pictures',
+    checkLabel: g.checkLabel || 'wording checked',
     images: path.join(ROOT, 'games', g.slug, 'images'),
     deck: path.join(ROOT, 'games', g.slug, 'deck.js'),
   };
@@ -600,6 +607,88 @@ function setQuote(g, id, index, fields) {
   return writeDeckSafely(g, nextLines.join('\n'));
 }
 
+// ---- object trails --------------------------------------------------------
+
+// Every object in the deck, with the picture it wants and whether that picture
+// exists yet. This is the shopping list: the deck is written in words first,
+// so the useful question is not "what is broken" but "what is still to find".
+function trailRows(g) {
+  const deck = loadDeck(g);
+  return deck.puzzles.map((p) => ({
+    id: p.id,
+    answer: p.answer,
+    difficulty: p.difficulty || 2,
+    // `object` is the flat index the picture endpoint addresses: object 0, 1,
+    // 2 ... across the whole puzzle, in the order they appear in the file.
+    trails: (function () {
+      let n = -1;
+      return (p.variants || [p]).map((v, vi) => ({
+        index: vi,
+        difficulty: v.difficulty === undefined ? (p.difficulty || 2) : v.difficulty,
+        steps: (v.items || []).map((step, si) => ({
+          index: si,
+          verse: step.verse || null,
+          pictures: (step.pictures || []).map((pic) => {
+            n++;
+            return {
+              object: n,
+              word: pic.word || null,
+              // What to go and look for. Often longer than the on-screen word,
+              // because the word has to fit a projector and this does not.
+              find: pic.find || pic.word || null,
+              img: pic.img || null,
+              missing: !pic.img || !fs.existsSync(path.join(g.images, pic.img)),
+            };
+          }),
+        })),
+      }));
+    })(),
+  }));
+}
+
+// The filename an object's picture should take, derived from the word so the
+// folder stays readable: "a lion" under SAMSON becomes samson-lion.png. Two
+// objects in one deck can want the same word, so the puzzle id disambiguates.
+function pictureName(answer, word, ext) {
+  const slug = (t) => String(t).toLowerCase()
+    .replace(/^(a|an|the|some|two|three|five)\s+/, '')
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  return slug(answer) + '-' + slug(word) + (ext || '.png');
+}
+
+// Point one object at a picture.
+//
+// Objects are addressed by a FLAT index across the whole puzzle - object 0, 1,
+// 2 ... in the order they appear - and the deck is written with ONE OBJECT PER
+// LINE so that index is simply the nth line carrying a word. The first attempt
+// tracked (trail, step, picture) by watching indentation, which is exactly the
+// kind of thing that breaks the first time someone reformats the file.
+function setTrailPicture(g, id, objectIndex, file) {
+  const src = fs.readFileSync(g.deck, 'utf8');
+  const { lines, start, end } = findBlock(src, id);
+  const block = lines.slice(start, end + 1);
+
+  const objectLines = [];
+  block.forEach((line, i) => {
+    if (/^\s*\{ word: '/.test(line)) { objectLines.push(i); }
+  });
+  const at = objectLines[objectIndex];
+  if (at === undefined) {
+    throw new Error('no object ' + objectIndex + ' on ' + id
+      + ' (it has ' + objectLines.length + ')');
+  }
+
+  const line = block[at];
+  const word = (line.match(/\{ word: '((?:[^'\\]|\\.)*)'/) || [])[1];
+  if (word === undefined) { throw new Error('could not read that object'); }
+  const tail = line.slice(line.indexOf('}'));   // keep whatever closes the line
+  block[at] = line.slice(0, line.indexOf('{ word:'))
+    + "{ word: '" + word + "', img: '" + file.replace(/'/g, "\\'") + "' " + tail;
+
+  const nextLines = lines.slice(0, start).concat(block, lines.slice(end + 1));
+  return writeDeckSafely(g, nextLines.join('\n'));
+}
+
 function send(res, code, body, type) {
   res.writeHead(code, { 'Content-Type': type || 'application/json; charset=utf-8',
                         'Cache-Control': 'no-store' });
@@ -628,6 +717,7 @@ http.createServer((req, res) => {
   if (req.method === 'GET' && route === '/api/games') {
     return send(res, 200, JSON.stringify(GAMES.map((x) => ({
       slug: x.slug, title: x.title, canon: x.canon, kind: x.kind || 'pictures',
+      checkLabel: x.checkLabel || 'wording checked',
       exists: fs.existsSync(path.join(ROOT, 'games', x.slug, 'deck.js')),
     }))));
   }
@@ -694,6 +784,55 @@ http.createServer((req, res) => {
         }));
       } catch (e) {
         written.forEach((f) => { try { fs.unlinkSync(f); } catch (x) { /* ignore */ } });
+        send(res, 400, JSON.stringify({ error: e.message }));
+      }
+    });
+    return;
+  }
+
+  if (req.method === 'GET' && route === '/api/trails') {
+    try { return send(res, 200, JSON.stringify(trailRows(g))); }
+    catch (e) { return send(res, 500, JSON.stringify({ error: e.message })); }
+  }
+
+  if (req.method === 'POST' && route === '/api/trail-picture') {
+    const chunks = [];
+    let size = 0;
+    req.on('data', (c) => {
+      size += c.length;
+      if (size > MAX_UPLOAD) { req.destroy(); return; }
+      chunks.push(c);
+    });
+    req.on('end', () => {
+      let written = null;
+      try {
+        const body = JSON.parse(Buffer.concat(chunks).toString('utf8'));
+        const id = String(body.id || '');
+        const objectIndex = Number(body.object);
+        const word = String(body.word || 'object');
+        const answer = String(body.answer || id);
+        const ext = String(body.ext || '.png').toLowerCase();
+        if (!/^\.(png|jpe?g|webp|gif|avif|svg)$/.test(ext)) {
+          throw new Error('that is not a picture file');
+        }
+        const bytes = Buffer.from(String(body.data || ''), 'base64');
+        if (!bytes.length) { throw new Error('no picture came through');
+
+        }
+        let name = pictureName(answer, word, ext);
+        let n = 2;
+        while (fs.existsSync(path.join(g.images, name))) {
+          name = pictureName(answer, word, '').replace(/\.$/, '') + '-' + n + ext;
+          n++;
+        }
+        fs.writeFileSync(path.join(g.images, name), bytes);
+        written = path.join(g.images, name);
+        const sized = shrink(written);
+        setTrailPicture(g, id, objectIndex, name);
+        send(res, 200, JSON.stringify({ ok: true, file: name, sized: sized }));
+      } catch (e) {
+        // Never leave a picture in the folder that the deck does not point at.
+        if (written && fs.existsSync(written)) { fs.unlinkSync(written); }
         send(res, 400, JSON.stringify({ error: e.message }));
       }
     });

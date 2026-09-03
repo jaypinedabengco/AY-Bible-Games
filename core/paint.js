@@ -31,6 +31,32 @@
     return card;
   }
 
+  // A trail step: a row of objects. Unlike a rebus clue, a missing picture is
+  // NOT an error here - the trail is written in words first and grows pictures
+  // later, so an object with no image yet simply shows its word, larger. The
+  // word is shown either way: it is not a secret, it IS the clue, and it stops
+  // the room arguing about whether that is honey or oil.
+  function trailRow(step, srcFor) {
+    var pictures = step.pictures || [];
+    var row = el('div', 'trail-row clues-' + Math.min(pictures.length, 4));
+    pictures.forEach(function (pic, i) {
+      if (i > 0) { row.appendChild(el('div', 'plus', '+')); }
+      var card = el('div', 'trail-object');
+      var src = pic.img ? srcFor(pic.img) : null;
+      if (src) {
+        var img = document.createElement('img');
+        img.src = src;
+        img.alt = '';
+        card.appendChild(img);
+      } else {
+        card.classList.add('wordsonly');
+      }
+      if (pic.word) { card.appendChild(el('div', 'trail-word', pic.word)); }
+      row.appendChild(card);
+    });
+    return row;
+  }
+
   function clueRow(clues, srcFor) {
     // The count drives the size: one picture should fill a projector, four
     // must still fit side by side. CSS cannot count siblings, so say it here.
@@ -68,6 +94,15 @@
     if (view.id || meta) {
       var stamp = el('div', 'stamp');
       if (view.id) { stamp.appendChild(el('span', 'stamp-id', '#' + view.id)); }
+      // How far through this puzzle's own reveal we are. "3 / 3" means the next
+      // press is the answer, which is the thing the person driving cannot
+      // otherwise tell - a trail of two steps and a trail of four look
+      // identical on the first screen. Dropped once the answer is up, because
+      // the answer itself says so.
+      if (meta && meta.stages > 1 && meta.stage < meta.stages) {
+        stamp.appendChild(el('span', 'stamp-stage',
+          (meta.stage + 1) + ' / ' + meta.stages));
+      }
       if (meta && meta.total) {
         stamp.appendChild(el('span', 'stamp-pos',
           (meta.round > 1 ? 'R' + meta.round + '  ' : '')
@@ -85,8 +120,22 @@
       body.appendChild(clueRow([{ img: view.img, word: null }], srcFor));
     } else if (view.kind === 'text') {
       body.appendChild(el('div', 'prompt', view.prompt));
+    } else if (view.kind === 'trail') {
+      // The count drives the size, the same way the rebus row does it: one step
+      // can fill a projector, four have to share it with the answer and the
+      // references underneath. CSS cannot count children, so say it here.
+      var trail = el('div', 'trail steps-' + Math.min(view.steps.length, 4)
+        + (view.answered ? ' answered' : ''));
+      view.steps.forEach(function (step) {
+        trail.appendChild(trailRow(step, srcFor));
+      });
+      body.appendChild(trail);
     } else if (view.kind === 'quote') {
-      body.appendChild(el('div', 'quote', '\u201c' + view.quote + '\u201d'));
+      // Quotation marks are a claim that somebody said this. A deed is our
+      // own sentence, so it gets none - see `spoken` in normalize.js.
+      body.appendChild(view.spoken === false
+        ? el('div', 'quote narrated', view.quote)
+        : el('div', 'quote', '\u201c' + view.quote + '\u201d'));
       if (view.verse) { body.appendChild(el('div', 'verse', view.verse)); }
       if (view.clue) { body.appendChild(el('div', 'clue-text', view.clue)); }
     } else if (view.kind === 'binary') {
@@ -108,6 +157,18 @@
 
     if (view.answered && view.kind !== 'binary') {
       body.appendChild(answerBlock(view.answered));
+      // Where each object came from - after the answer, because the answer is
+      // what the room is waiting for and this is the bit they read afterwards.
+      if (view.kind === 'trail' && view.sources && view.sources.length) {
+        var sources = el('div', 'sources');
+        view.sources.forEach(function (src) {
+          var line = el('div', 'source');
+          line.appendChild(el('span', 'source-words', src.words));
+          line.appendChild(el('span', 'source-verse', src.verse));
+          sources.appendChild(line);
+        });
+        body.appendChild(sources);
+      }
     } else if (view.answered && view.kind === 'binary') {
       if (view.answered.ref) { body.appendChild(el('div', 'ref', view.answered.ref)); }
     }

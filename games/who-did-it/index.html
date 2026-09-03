@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Who Did It? — San Fernando Adventist Church</title>
+<link rel="stylesheet" href="../../core/theme.css">
+</head>
+<body>
+<div class="host" id="host"></div>
+
+<script src="../../core/normalize.js"></script>
+<script src="../../core/variants.js"></script>
+<script src="../../core/order.js"></script>
+<script src="../../core/machine.js"></script>
+<script src="../../core/views.js"></script>
+<script src="../../core/images.js"></script>
+<script src="../../core/paint.js"></script>
+<script src="../../core/controls.js"></script>
+<script src="../../core/boot.js"></script>
+<script src="deck.js"></script>
+<script>
+  // Never show a blank screen. A dropped script or a deck that fails to parse
+  // must say so ON THE PROJECTOR - a black rectangle in front of a room, with
+  // the reason hidden in a console nobody has open, is the worst failure this
+  // game can have.
+  (function () {
+    var host = document.getElementById('host');
+
+    function fail(detail) {
+      host.innerHTML = '';
+      var box = document.createElement('div');
+      box.className = 'startup-error';
+      box.appendChild(Object.assign(document.createElement('strong'),
+        { textContent: 'This game did not start.' }));
+      box.appendChild(Object.assign(document.createElement('span'),
+        { textContent: detail }));
+      box.appendChild(Object.assign(document.createElement('span'),
+        { textContent: 'Reload the page. If it keeps happening, copy this message.' }));
+      host.appendChild(box);
+    }
+
+    var needed = ['normalize', 'variants', 'order', 'machine', 'views',
+                  'images', 'paint', 'controls', 'boot'];
+    var missing = needed.filter(function (m) {
+      return !window.BibleGames || !window.BibleGames[m];
+    });
+    if (!window.DECK) { missing.push('deck'); }
+
+    if (missing.length) {
+      fail('These files did not load: ' + missing.join(', ') + '.');
+      return;
+    }
+
+    try {
+      BibleGames.boot.start(window.DECK, host).catch(function (e) {
+        fail(String((e && e.message) || e));
+      });
+    } catch (e) {
+      fail(String((e && e.message) || e));
+    }
+  })();
+</script>
+</body>
+</html>

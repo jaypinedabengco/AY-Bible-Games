@@ -32,6 +32,8 @@ applies to either. The only difference is what the **add** tab asks for:
   the reveal, so keep the answer out of it.
 - **Who Said It?** — a text deck, so it has no pictures at all. It gets the two
   quote tabs described below instead.
+- **The Object Trail** — pictures, but sourced rather than drawn. It gets the
+  two trail tabs described below.
 
 The character deck starts **empty**, and its card on the front page stays greyed
 out until it can fill a round. `tools/validate.js` will report that `sessionSize`
@@ -155,6 +157,43 @@ exists.
 Apostrophes are fine and are escaped for you — a quote is full of them.
 Backslashes and line breaks are refused: neither belongs in a line read aloud
 from a screen.
+
+### Trail tabs — The Object Trail
+
+This deck is written in **words first and plays that way**, so an object without
+a picture is the normal state, not a fault. Pictures are added one at a time and
+nothing else changes when they arrive.
+
+**pictures to find** opens first, and it is the shopping list. It shows only the
+objects that still need a picture, grouped by person and step, with the verse
+each step comes from. Under each object is **what to look for** — often longer
+than the word the projector shows, because that word has to fit a screen and
+this does not:
+
+```
+   [ no picture ]          [ no picture ]
+      a large sheet            animals
+   a large sheet let      four-footed beasts,
+   down by its four        creeping things
+        corners                and birds
+```
+
+Drop a picture onto an object, or press **add picture**. The file is named after
+the person and the object — `samson-honey.png` — so the folder stays readable,
+and it is downsized on the way in like every other picture in this repo. The
+count at the top tells you how far through you are.
+
+**trails** shows everything, found and not, so you can see a whole trail as the
+room will meet it: the steps in order, the objects in each, and the verse that
+prints at the reveal.
+
+Two things worth knowing before you source anything:
+
+- **A trail picture is a THING, not a pun.** This is the opposite of the book
+  game. Honey means honey, so any clear photograph of honey works — you are not
+  hunting for a picture that also *sounds* like something.
+- **The verses never appear during the puzzle**, only at the reveal. A reference
+  beside step one names the book, and the book is very nearly the answer.
 
 ### What it will not do
 

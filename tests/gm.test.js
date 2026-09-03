@@ -129,12 +129,31 @@ test('a quote puzzle gives the game master every line it might ask', () => {
     lang: 'en',
     answer: 'PETER',
     waiting: false,
+    spoken: true,
   });
   assert.equal(r.quotes[2].lang, 'fil');
   assert.equal(r.quotes[2].answer, 'PEDRO');
   assert.equal(r.quotes[2].waiting, true, 'no text yet, so it is dormant');
   assert.equal(r.working, 'You are the Christ, the Son of the living God.');
   assert.deepEqual(r.flags, ['unverified']);
+});
+
+// The game master page prints these lines too, and a deed shown in quotation
+// marks there reads as something the person said - the same confusion the
+// projector avoids, on the page that settles arguments.
+test('a deed reaches the game master page unquoted', () => {
+  const out = rows({
+    id: 'who-did-it',
+    spoken: false,
+    puzzles: [{
+      id: 'wd-01', answer: 'MOSES',
+      variants: [
+        { type: 'quote', quote: 'Smashed two stone tablets at the foot of a mountain',
+          verse: 'Exodus 32:19', clue: 'he came down to find a golden calf and dancing' },
+      ],
+    }],
+  });
+  assert.equal(out[0].quotes[0].spoken, false);
 });
 
 test('a picture puzzle has no quotes', () => {
@@ -187,4 +206,52 @@ test('a picture puzzle lists only its one name', () => {
                 clues: [{ img: 'jeans.jpg', word: 'JEANS' }] }],
   });
   assert.deepEqual(out[0].names, { en: 'GENESIS' });
+});
+
+test('a trail puzzle gives the game master its objects and verses', () => {
+  const out = rows({
+    id: 'object-trail',
+    puzzles: [{
+      id: 'ot-01', answer: 'SAMSON',
+      variants: [{
+        type: 'trail',
+        items: [
+          { verse: 'Judges 14:8', pictures: [{ word: 'honey' }, { word: 'a lion' }] },
+          { verse: 'Judges 16:29', pictures: [{ word: 'two pillars' }] },
+        ],
+      }],
+    }],
+  });
+  assert.equal(out[0].answer, 'SAMSON');
+  assert.deepEqual(out[0].trails, [[
+    { words: 'honey + a lion', verse: 'Judges 14:8', imgs: [] },
+    { words: 'two pillars', verse: 'Judges 16:29', imgs: [] },
+  ]]);
+  assert.equal(out[0].working, 'honey + a lion → two pillars',
+    'so the filter and the row line still say something useful');
+});
+
+test('a trail carries whatever pictures have been sourced for it', () => {
+  // The game master had the words and the verses but never the pictures, so a
+  // sourced trail looked bare on the phone while every other game showed its
+  // artwork.
+  const out = rows({
+    id: 'object-trail',
+    puzzles: [{
+      id: 'ot-14', answer: 'ABRAHAM',
+      variants: [{
+        type: 'trail',
+        items: [
+          { verse: 'Genesis 22:6', pictures: [
+            { word: 'firewood', img: 'abraham-firewood.webp' },
+            { word: 'a knife', img: 'abraham-knife.jpg' }] },
+          { verse: 'Genesis 22:13', pictures: [{ word: 'a ram' }] },
+        ],
+      }],
+    }],
+  });
+  assert.deepEqual(out[0].trails[0][0].imgs,
+    ['abraham-firewood.webp', 'abraham-knife.jpg']);
+  assert.deepEqual(out[0].trails[0][1].imgs, [],
+    'a step with no picture yet simply has none');
 });

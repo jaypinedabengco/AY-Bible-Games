@@ -44,6 +44,15 @@
     // A quote puzzle's working IS the line on screen: it is what the game
     // master needs to match against what the room is staring at.
     if (variant.type === 'quote') { return variant.quote || null; }
+    // A trail's is the objects in order, so the row still reads as something
+    // rather than a bare name.
+    if (variant.type === 'trail') {
+      var steps = (variant.items || []).map(function (step) {
+        return (step.pictures || []).map(function (pic) { return pic.word; })
+          .filter(Boolean).join(' + ');
+      }).filter(Boolean);
+      return steps.length ? steps.join(' \u2192 ') : null;
+    }
     if (!variant.clues) { return null; }
     return variant.clues.map(function (c) { return c.word; }).join(' + ');
   }
@@ -96,7 +105,25 @@
               lang: v.lang || p.lang || 'en',
               answer: v.answer || p.answer,
               waiting: !v.quote,
+              spoken: v.spoken !== false,
             };
+          }),
+        // Each trail as the game master needs it: the objects of every step
+        // with the verse they came from, so they can answer "where is that
+        // from" without leaving the page.
+        trails: p.variants.filter(function (v) { return v.type === 'trail'; })
+          .map(function (v) {
+            return (v.items || []).map(function (step) {
+              return {
+                words: (step.pictures || []).map(function (pic) { return pic.word; })
+                  .filter(Boolean).join(' + '),
+                verse: step.verse || null,
+                // Whatever pictures have been sourced. A trail grows them one
+                // at a time, so a step with none is normal, not missing.
+                imgs: (step.pictures || []).map(function (pic) { return pic.img; })
+                  .filter(Boolean),
+              };
+            });
           }),
         flags: flags,
       };

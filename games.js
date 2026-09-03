@@ -7,6 +7,11 @@
  *
  * status: 'ready'  - a playable link
  *         'parked' - greyed out and not clickable
+ *
+ * The parked ones are not placeholders. docs/future-games.md sets out how each
+ * is meant to work, which renderer it needs, what its deck looks like and what
+ * would make it fail - written while the reasoning was fresh, so nobody has to
+ * reconstruct it later.
  */
 window.GAMES = [
   {
@@ -24,11 +29,20 @@ window.GAMES = [
     status: 'ready',
   },
   {
-    title: 'Old or New?',
-    href: 'games/old-or-new/index.html',
-    blurb: 'A book flashes up; the room shouts which testament. A fast warm-up.',
-    meta: 'Planned',
-    status: 'parked',
+    title: 'Who Did It?',
+    href: 'games/who-did-it/index.html',
+    blurb: 'A deed instead of a line. Cut off a soldier’s ear. Climbed a tree.',
+    meta: '46 people · English',
+    status: 'ready',
+  },
+  {
+    // Playable in words now; the pictures arrive object by object through the
+    // deck manager, and nothing else changes when they do.
+    title: 'The Object Trail',
+    href: 'games/object-trail/index.html',
+    blurb: 'Honey and a lion. Objects from one story, a step at a time, until the room has it.',
+    meta: 'Ready to play',
+    status: 'ready',
   },
   {
     // Built and wired, deliberately greyed out: the deck is empty until it has
@@ -37,6 +51,20 @@ window.GAMES = [
     href: 'games/character-names/index.html',
     blurb: 'Picture clues combine into a person from a story. Same game, new answers.',
     meta: 'Collecting pictures',
+    status: 'parked',
+  },
+  {
+    title: 'Before or After',
+    href: 'games/before-or-after/index.html',
+    blurb: 'Two people, two events. Which came first? The timeline nobody is sure of.',
+    meta: 'Proposed',
+    status: 'parked',
+  },
+  {
+    title: 'Higher or Lower',
+    href: 'games/higher-or-lower/index.html',
+    blurb: 'A number from scripture, then a second one to bet on. Noah or Methuselah?',
+    meta: 'Proposed',
     status: 'parked',
   },
 ];

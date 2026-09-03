@@ -20,6 +20,10 @@
         return {
           index: index,
           stage: stage,
+          // How many stages THIS item has, so whoever is driving can see
+          // whether the next press is another step or the answer. The machine
+          // always knew; it just never said.
+          stages: lastStage(),
           item: items[index],
           atEnd: index === items.length - 1 && stage === lastStage(),
         };
