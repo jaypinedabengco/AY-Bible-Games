@@ -60,6 +60,14 @@ html, body {
 }
 
 .stamp-id { text-transform: uppercase; }
+/* How far through this puzzle's reveal. Brighter than the id, because the
+   person driving actually reads it and the room does not need to. */
+.stamp-stage { color: var(--accent); letter-spacing: 0.18em; }
+
+/* Separated, because "3 / 3  2 / 20" is two number pairs side by side and the
+   person driving reads it at a glance from across a laptop. */
+.stamp > span + span::before { content: '\00b7'; margin-right: 0.9vmin;
+                               color: var(--dim); opacity: 0.6; }
 
 .body { display: flex; flex-direction: column; align-items: center; gap: 3vmin; }
 

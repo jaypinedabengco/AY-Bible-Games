@@ -94,6 +94,15 @@
     if (view.id || meta) {
       var stamp = el('div', 'stamp');
       if (view.id) { stamp.appendChild(el('span', 'stamp-id', '#' + view.id)); }
+      // How far through this puzzle's own reveal we are. "3 / 3" means the next
+      // press is the answer, which is the thing the person driving cannot
+      // otherwise tell - a trail of two steps and a trail of four look
+      // identical on the first screen. Dropped once the answer is up, because
+      // the answer itself says so.
+      if (meta && meta.stages > 1 && meta.stage < meta.stages) {
+        stamp.appendChild(el('span', 'stamp-stage',
+          (meta.stage + 1) + ' / ' + meta.stages));
+      }
       if (meta && meta.total) {
         stamp.appendChild(el('span', 'stamp-pos',
           (meta.round > 1 ? 'R' + meta.round + '  ' : '')

@@ -315,6 +315,8 @@
         position: s.index + 1,
         total: items.length,
         round: round,
+        stage: s.stage,
+        stages: s.stages,
         showBadge: session.deck.languages.length > 1,
       });
     }

@@ -72,3 +72,19 @@ test('stagesFor is honoured per item', () => {
   m.advance(); m.advance();  // 1,2
   assert.deepEqual(at(m), [1, 2]);
 });
+
+test('the state says how many stages this item has', () => {
+  // The person driving needs to know whether the next press is another step or
+  // the answer. The machine knew - lastStage() - and never said.
+  const m = createMachine(
+    [{ n: 'trail' }, { n: 'rebus' }],
+    function (item) { return item.n === 'trail' ? 3 : 2; },
+  );
+  assert.equal(m.state().stages, 3);
+  m.advance(); m.advance(); m.advance();
+  assert.equal(m.state().stage, 3, 'the answer is up');
+  assert.equal(m.state().stages, 3);
+
+  m.next();
+  assert.equal(m.state().stages, 2, 'and it follows the item, not the round');
+});
