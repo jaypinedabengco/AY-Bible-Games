@@ -497,7 +497,7 @@ window.DECK = {
       variants: [
         { type: 'trail', difficulty: 2, items: [
           { verse: 'Joshua 4:20', pictures: [
-            { word: 'twelve stones', find: 'twelve river stones stacked into a heap' },
+            { word: 'twelve stones', img: 'joshua-twelve-stones.jpg' },
           ] },
           { verse: 'Joshua 6:4', pictures: [
             { word: 'seven ram\'s-horn trumpets' },
