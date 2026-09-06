@@ -92,6 +92,23 @@ test('the scramble is never the answer, and no two items share a date', () => {
   assert.deepEqual(wrong, [], wrong.join('\n'));
 });
 
+test('no scramble is too wide to read from the back of a hall', () => {
+  // Measured on the ROW, because that is what has to fit. 72 characters is
+  // where the widest row in the deck sat when it was checked on a screen; the
+  // row wraps rather than overflowing, but three lines of chips stops being a
+  // glance and starts being a reading exercise.
+  const wide = [];
+  deck().puzzles.forEach((p) => {
+    p.variants.forEach((v) => {
+      const width = v.items.join('   ').length;
+      if (width > 72) {
+        wide.push(p.id + ' [' + (v.lang || 'en') + ']: ' + width + ' chars');
+      }
+    });
+  });
+  assert.deepEqual(wide, [], wide.join('\n'));
+});
+
 test('the committed deck is what the generator produces', () => {
   // Otherwise the deck and the chronology drift apart silently, and every
   // check above starts testing a file nobody generates any more.
@@ -118,10 +135,13 @@ test('the chronology itself is sane', () => {
     if (!/^(mga |ang simula)/.test(a.display_fil)) {
       problems.push(a.label + ': "' + a.display_fil + '" is not hedged');
     }
-    // Three of these sit in a row on one screen.
+    // Three of these sit in a row on one screen, so the real constraint is the
+    // width of the ROW, not of any one label - the row check is below. This is
+    // only a guard against a label nothing could fit; a genuinely long name is
+    // allowed to be long, and the row wraps.
     [a.label, a.label_fil].forEach((lab) => {
       if (!lab) { problems.push(a.label + ': no Tagalog label'); }
-      else if (lab.length > 24) { problems.push(lab + ': label too long for a projector'); }
+      else if (lab.length > 32) { problems.push(lab + ': label too long for a projector'); }
     });
   });
   assert.deepEqual(problems, [], problems.join('\n'));
