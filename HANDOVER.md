@@ -210,23 +210,50 @@ then removed as the deck changed. They are small, and `deck.js` carries a
 commented example, so switching one on is deck data — but don't be surprised
 they're dormant.
 
-**Three games are listed on the front page, greyed out.** Bible Character Names
+**Two games are listed on the front page, greyed out.** Bible Character Names
 is built and wired but its deck is empty until it has pictures; its start screen
-says so rather than failing. The other two — Before or After and Higher or
-Lower — are PROPOSALS, and `docs/future-games.md` sets out how each is meant to
-work, which renderer it needs, what its deck looks like and what would make it
-fail. Both want the `binary` renderer, which is built and idle.
+says so rather than failing. The other — Higher or Lower — is a PROPOSAL, and
+`docs/future-games.md` sets out how it is meant to work, which renderer it
+needs, what its deck looks like and what would make it fail. It wants the
+`binary` renderer, which is built and still idle.
 
-Who Did It? and The Object Trail were proposals in that document and are now
-built; their sections are kept as a record of what was intended, with a note at
-the top of each saying so.
+Who Did It?, The Object Trail and What Came First? were proposals in that
+document and are now built; their sections are kept as a record of what was
+intended, with a note at the top of each saying so.
+
+**"Before or After" was built as What Came First?, and the rename records a
+real decision.** A two-way question is a coin flip: half a hall shouts each way
+and somebody is always right by luck, so the room never converges. Three items
+have six orderings. That is the same objection that killed Old or New?, and it
+is worth applying to any future proposal that offers the room a binary.
+
+**What Came First? is the one GENERATED deck.** `tools/chronology.json` holds
+one dated list of 33 anchors, and `tools/make-what-came-first.js` derives every
+triple from it. Every other deck is hand-written, and rightly - a person is the
+right author of a pun or a clue. This one is a list of ORDERINGS, and a person
+typing fifty of those will eventually type one backwards, which looks perfectly
+fine on the page and only looks wrong on a projector, in front of a room, once.
+So the only hand-written thing is the anchor list, short enough to check
+properly. `tests/what-came-first.test.js` checks every sequence back against
+that list in BOTH languages, and checks the committed deck is still what the
+generator produces - run `node tools/make-what-came-first.js` after editing a
+date.
+
+The accuracy bar there is not "we know the date" but "the ORDER survives the
+argument". Job, Jonah and six minor prophets are excluded on exactly that
+basis, and `chronology.json` records what was left out and why.
 
 Old or New? was removed from that list: for most of the 66 books it is a coin
 flip the room wins instantly. Finish the Verse was removed earlier — Who Said
 It? does the same job better.
 
-Three renderers are built, tested and unused: `binary`, `order` and `text`.
-Three of the four proposals need no renderer work because of it.
+Two renderers are built, tested and unused: `binary` and `text`. `order` was in
+that list until What Came First? used it - and the lesson is worth keeping: it
+had a passing unit test and was still nowhere near usable, because nothing had
+ever rendered it on a screen. It had no prompt, it numbered the scrambled items
+(asserting an order, and the wrong one), it printed `puzzle.answer` at
+projector size where there is no name to shout, and `.order-item` had no CSS at
+all. Treat the two that remain as sketches, not as finished work.
 
 **Who Said It? is drafted, not verified.** All 113 quotes carry
 `flag: 'unverified'` until a human has compared the wording to an NKJV Bible.

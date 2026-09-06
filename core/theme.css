@@ -141,7 +141,22 @@ html, body {
 
 .option-correct { background: var(--good); color: var(--bg); }
 
-.order-list { display: flex; flex-direction: column; gap: 1.2vmin; font-size: 5vmin; }
+/* What Came First? Two screens: the scramble, then the sequence.
+   The scramble is a ROW of chips, so nothing about it suggests an order. */
+.order-scramble { display: flex; gap: 3vmin; flex-wrap: wrap;
+                  justify-content: center; max-width: 90vw; }
+.order-chip { border: 0.35vmin solid var(--dim); border-radius: 1.2vmin;
+              padding: 1.6vmin 3vmin; font-size: 4.6vmin; letter-spacing: 0.04em; }
+
+/* The answer. A three-column grid so the ranks, the names and the dates each
+   line up down the screen - ragged columns are hard to read from the back. */
+.order-list { display: grid; grid-template-columns: auto auto auto;
+              gap: 1.4vmin 3vmin; align-items: baseline; font-size: 5vmin; }
+.order-item { display: contents; }
+.order-rank { color: var(--dim); font-size: 3.6vmin; text-align: right; }
+.order-label { font-weight: 700; letter-spacing: 0.02em; }
+.order-when { color: var(--accent); font-size: 3.4vmin; letter-spacing: 0.1em;
+              white-space: nowrap; }
 
 /* Startup failure, shown on the projector rather than hidden in a console. */
 .startup-error {

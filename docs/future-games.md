@@ -63,6 +63,20 @@ below, and any new drafting brief should quote them.
 
 ## 1. Before or After
 
+> **BUILT, and renamed** — `games/what-came-first/`, 50 puzzles in English and
+> Tagalog. What follows is the proposal it was built from, kept as a record of
+> the intent. It changed shape on the way, for a reason worth keeping: a
+> two-way question is a COIN FLIP. Half a hall shouts each way and somebody is
+> always right by luck, so the moment where a room converges and knows never
+> arrives - the same objection that killed Old or New?, reached by a different
+> route. Asking for the ORDER of three has six answers and cannot be fluked.
+>
+> Two other things went differently. The `order` renderer had a passing test
+> but had never been on a projector, and needed a prompt, an unnumbered
+> scramble, a date column and its own CSS - so "Effort: Small" below was
+> wrong. And the deck is GENERATED from `tools/chronology.json` rather than
+> written by hand: see that file, and the top of the generator, for why.
+
 **The idea.** Two people, two events, or one of each. Which came first?
 
 Chronology is the thing a room is haziest about. Most people hold the whole Old

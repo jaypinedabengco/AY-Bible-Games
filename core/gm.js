@@ -53,6 +53,15 @@
       }).filter(Boolean);
       return steps.length ? steps.join(' \u2192 ') : null;
     }
+    // An ordering puzzle's working is the SEQUENCE. The game master is being
+    // asked "was the room right?", and the only way to answer that is to see
+    // the order, so a row showing anything else is useless here.
+    if (variant.type === 'order') {
+      var seq = (variant.correct || []).map(function (entry) {
+        return typeof entry === 'string' ? entry : entry.label;
+      });
+      return seq.length ? seq.join(' \u2192 ') : null;
+    }
     if (!variant.clues) { return null; }
     return variant.clues.map(function (c) { return c.word; }).join(' + ');
   }
@@ -111,6 +120,19 @@
         // Each trail as the game master needs it: the objects of every step
         // with the verse they came from, so they can answer "where is that
         // from" without leaving the page.
+        // The sequence with its dates, so an argument in the room can be
+        // settled from this page without opening the deck file.
+        orders: p.variants.filter(function (v) { return v.type === 'order'; })
+          .map(function (v) {
+            return {
+              prompt: v.prompt || null,
+              steps: (v.correct || []).map(function (entry) {
+                return typeof entry === 'string'
+                  ? { label: entry, when: null }
+                  : { label: entry.label, when: entry.when || null };
+              }),
+            };
+          }),
         trails: p.variants.filter(function (v) { return v.type === 'trail'; })
           .map(function (v) {
             return (v.items || []).map(function (step) {

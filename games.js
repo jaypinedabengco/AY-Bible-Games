@@ -54,11 +54,13 @@ window.GAMES = [
     status: 'parked',
   },
   {
-    title: 'Before or After',
-    href: 'games/before-or-after/index.html',
-    blurb: 'Two people, two events. Which came first? The timeline nobody is sure of.',
-    meta: 'Proposed',
-    status: 'parked',
+    // Grew out of the "Before or After" proposal, and outgrew its name: a
+    // two-way question is a coin flip, so it asks for an ORDER of three.
+    title: 'What Came First?',
+    href: 'games/what-came-first/index.html',
+    blurb: 'Three things from the Bible, scrambled. The room puts them in order.',
+    meta: '50 puzzles · English and Tagalog',
+    status: 'ready',
   },
   {
     title: 'Higher or Lower',

@@ -148,11 +148,27 @@
       });
       body.appendChild(opts);
     } else if (view.kind === 'order') {
-      var list = el('div', 'order-list');
-      (view.correct || view.items).forEach(function (item, i) {
-        list.appendChild(el('div', 'order-item', (i + 1) + '. ' + item));
-      });
-      body.appendChild(list);
+      if (view.prompt) { body.appendChild(el('div', 'prompt', view.prompt)); }
+      if (view.correct) {
+        var list = el('div', 'order-list');
+        view.correct.forEach(function (row, i) {
+          var line = el('div', 'order-item');
+          line.appendChild(el('span', 'order-rank', String(i + 1)));
+          line.appendChild(el('span', 'order-label', row.label));
+          // A date is optional: an ordering can be worth showing without one.
+          line.appendChild(el('span', 'order-when', row.when || ''));
+          list.appendChild(line);
+        });
+        body.appendChild(list);
+      } else {
+        // The scramble. A ROW rather than a list, and with no numbers at all -
+        // a numbered column reads as an answer, and this one would be wrong.
+        var scramble = el('div', 'order-scramble');
+        (view.items || []).forEach(function (item) {
+          scramble.appendChild(el('div', 'order-chip', item));
+        });
+        body.appendChild(scramble);
+      }
     }
 
     if (view.answered && view.kind !== 'binary') {

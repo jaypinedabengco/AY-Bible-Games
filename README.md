@@ -71,7 +71,7 @@ laptop driving the projector. Clearing it has to be done there too: open
 `gm.html` on that laptop, sign in, and clear. Doing it from a phone clears that
 phone's record, which is not the one the game is reading.
 
-### The four games
+### The five games
 
 - **Bible Book Names** — pictures combine into a book of the Bible.
   Jeans + sis. XO + dos. 43 books, three rounds.
@@ -87,6 +87,10 @@ phone's record, which is not the one the game is reading.
   unlike Who Said It?, the screen carries no translation credit, because
   the sentences are ours in both languages and a chapter-and-verse reference
   belongs to nobody.
+- **What Came First?** — three things from the Bible, scrambled; the room puts
+  them in order. Two beats rather than four, so it moves fast. 50 puzzles in
+  English and Tagalog, generated from one dated list so no two puzzles can
+  contradict each other.
 - **The Object Trail** — objects from one story, a step at a time, getting
   easier. Honey and a lion, then long hair, then two pillars. 44 people, 69
   trails. Playable in words today; the pictures arrive one at a time through

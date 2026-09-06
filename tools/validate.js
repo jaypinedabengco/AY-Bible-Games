@@ -94,8 +94,30 @@
     if (v.type === 'order') {
       if (!v.items || !v.correct) {
         errors.push(where + ': order needs items and correct');
-      } else if (String(sortedCopy(v.items)) !== String(sortedCopy(v.correct))) {
-        errors.push(where + ': correct is not a permutation of items');
+      } else {
+        // An entry is a label with a date, or a bare label. Compare on the
+        // label: an item missing from the answer, or an answer inventing one,
+        // is a puzzle that cannot be got right.
+        var labels = v.correct.map(function (c) {
+          return typeof c === 'string' ? c : c.label;
+        });
+        if (String(sortedCopy(v.items)) !== String(sortedCopy(labels))) {
+          errors.push(where + ': correct is not a permutation of items');
+        }
+        // Showing the answer and asking for it gives the game away.
+        if (String(v.items) === String(labels)) {
+          errors.push(where + ': the scramble IS the answer');
+        }
+        // Two rows printing the same date, with numbers beside them claiming
+        // an order, read from the back of a hall as a mistake.
+        var shown = v.correct.map(function (c) {
+          return typeof c === 'string' ? null : c.when;
+        }).filter(Boolean);
+        if (shown.length && sortedCopy(shown).some(function (w, i, a) {
+          return i > 0 && a[i - 1] === w;
+        })) {
+          errors.push(where + ': two items show the same date');
+        }
       }
     }
   }

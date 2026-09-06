@@ -144,6 +144,8 @@
 <script>window.DECKS.push({ slug: 'object-trail', deck: window.DECK });</script>
 <script src="games/who-did-it/deck.js"></script>
 <script>window.DECKS.push({ slug: 'who-did-it', deck: window.DECK });</script>
+<script src="games/what-came-first/deck.js"></script>
+<script>window.DECKS.push({ slug: 'what-came-first', deck: window.DECK });</script>
 
 <script>
   (function () {
@@ -335,6 +337,20 @@
           box.appendChild(block);
         });
 
+        // An ordering puzzle's sequence, with the dates. The game master is
+        // being asked "were they right?", so the order is the whole row.
+        (r.orders || []).forEach(function (ord) {
+          var block = el('div', 'gmquote');
+          if (ord.prompt) { block.appendChild(el('div', 'gmv', ord.prompt)); }
+          ord.steps.forEach(function (step, i) {
+            var line = el('div', 'gmq', (i + 1) + '.  ' + step.label);
+            line.style.fontSize = '0.95rem';
+            block.appendChild(line);
+            if (step.when) { block.appendChild(el('div', 'gmc', step.when)); }
+          });
+          box.appendChild(block);
+        });
+
         box.appendChild(el('div', 'ranswer', r.answer));
         // Every other language this puzzle is asked in, named.
         Object.keys(r.names || {}).forEach(function (lang) {
@@ -344,8 +360,8 @@
           line.appendChild(document.createTextNode(r.names[lang]));
           box.appendChild(line);
         });
-        // On a quote or trail deck the working is already shown above.
-        if (!r.quotes.length && !(r.trails || []).length) {
+        // On a quote, trail or ordering deck the working is already shown above.
+        if (!r.quotes.length && !(r.trails || []).length && !(r.orders || []).length) {
           r.workings.forEach(function (w) { box.appendChild(el('div', 'rwork', w)); });
         }
         if (r.ref) { box.appendChild(el('div', 'rref', r.ref)); }
