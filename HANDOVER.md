@@ -210,16 +210,29 @@ then removed as the deck changed. They are small, and `deck.js` carries a
 commented example, so switching one on is deck data — but don't be surprised
 they're dormant.
 
-**Two games are listed on the front page, greyed out.** Bible Character Names
-is built and wired but its deck is empty until it has pictures; its start screen
-says so rather than failing. The other — Higher or Lower — is a PROPOSAL, and
-`docs/future-games.md` sets out how it is meant to work, which renderer it
-needs, what its deck looks like and what would make it fail. It wants the
-`binary` renderer, which is built and still idle.
+**One game is listed on the front page, greyed out.** Bible Character Names is
+built and wired but its deck is empty until it has pictures; its start screen
+says so rather than failing.
 
-Who Did It?, The Object Trail and What Came First? were proposals in that
-document and are now built; their sections are kept as a record of what was
-intended, with a note at the top of each saying so.
+Every proposal in `docs/future-games.md` has now been built. The sections are
+kept as a record of what was intended, each with a note at the top saying how
+the built thing differs.
+
+**Two decks are GENERATED, and the rest are not.** What Came First? comes from
+`tools/chronology.json`, Higher or Lower from `tools/numbers.json`. The rule is
+about what KIND of content it is: a pun or a clue is writing, and a person is
+the right author of it. An ordering and a number are facts, and a person typing
+fifty of those will eventually type one backwards - which looks perfectly fine
+on the page and only looks wrong on a projector, in front of a room, once. So
+the hand-written thing is one short list, and everything else is derived. Run
+the matching `tools/make-*.js` after editing a list; a test fails if the
+committed deck has drifted from it.
+
+Both lists carry the same shape of accuracy rule, and both record what was
+excluded and why. For chronology it is "the ORDER survives the argument"; for
+numbers it is "STATED in the text, and the same in any common translation".
+That is what put Job, Jonah, Goliath's height, "seventy times seven" and the
+ten plagues outside the decks.
 
 **"Before or After" was built as What Came First?, and the rename records a
 real decision.** A two-way question is a coin flip: half a hall shouts each way
@@ -247,13 +260,17 @@ Old or New? was removed from that list: for most of the 66 books it is a coin
 flip the room wins instantly. Finish the Verse was removed earlier — Who Said
 It? does the same job better.
 
-Two renderers are built, tested and unused: `binary` and `text`. `order` was in
-that list until What Came First? used it - and the lesson is worth keeping: it
-had a passing unit test and was still nowhere near usable, because nothing had
-ever rendered it on a screen. It had no prompt, it numbered the scrambled items
-(asserting an order, and the wrong one), it printed `puzzle.answer` at
-projector size where there is no name to shout, and `.order-item` had no CSS at
-all. Treat the two that remain as sketches, not as finished work.
+One renderer is built, tested and unused: `text`. `order` was in
+that list until What Came First? used it, and `binary` until Higher or Lower
+did. The lesson is worth keeping, because it held BOTH times: a passing unit
+test meant nowhere near usable, since nothing had ever rendered either on a
+screen. `order` had no prompt, numbered the scrambled items (asserting an
+order, and the wrong one), printed `puzzle.answer` at projector size where
+there is no name to shout, and `.order-item` had no CSS at all. `binary` read
+the answer off the puzzle, so a bilingual reveal - where the OPTIONS are
+per-variant - would have highlighted nothing; it drew its options in `--dim`,
+which is the wrong half of the screen to make hard to read; and its row could
+not wrap. Treat `text` as a sketch, not as finished work.
 
 **Who Said It? is drafted, not verified.** All 113 quotes carry
 `flag: 'unverified'` until a human has compared the wording to an NKJV Bible.

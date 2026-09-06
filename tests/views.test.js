@@ -206,6 +206,36 @@ test('every renderer badges the round in the language it is actually asking in',
   assert.deepEqual(wrong, [], wrong.join('\n'));
 });
 
+// The binary renderer had never been on a screen either. In a bilingual deck
+// the OPTIONS are per-variant - LONGER/SHORTER become MAS MAHABA/MAS MAIKLI -
+// so an answer read off the puzzle matches none of them and the reveal
+// highlights nothing at all. Same shape as the badge bug: a shared helper
+// reading the puzzle where language lives on the variant.
+test('a reveal marks the right option in the language being played', () => {
+  const p = normalizePuzzle({
+    answer: 'SHORTER', type: 'binary',
+    prompt: 'Methuselah lived 969 years. Did NOAH live longer or shorter?',
+    options: ['LONGER', 'SHORTER'],
+    ref: 'Noah lived 950 years',
+    variants: [
+      { type: 'binary', prompt: 'en', options: ['LONGER', 'SHORTER'] },
+      { type: 'binary', lang: 'fil', answer: 'MAS MAIKLI',
+        ref: 'Nabuhay si Noe ng 950 taon',
+        prompt: 'fil', options: ['MAS MAHABA', 'MAS MAIKLI'] },
+    ],
+  });
+  const en = byType.binary.view(p, p.variants[0], 1);
+  assert.equal(en.answered.answer, 'SHORTER');
+  assert.ok(en.options.includes(en.answered.answer), 'English answer is one of its options');
+
+  const fil = byType.binary.view(p, p.variants[1], 1);
+  assert.equal(fil.answered.answer, 'MAS MAIKLI');
+  assert.ok(fil.options.includes(fil.answered.answer),
+    'the Tagalog answer must be one of the Tagalog options, or nothing lights up');
+  assert.equal(fil.answered.ref, 'Nabuhay si Noe ng 950 taon',
+    'the reveal note is translated too');
+});
+
 test('every view carries the puzzle id for the projector corner', () => {
   const p = normalizePuzzle({ id: 'bn-07', answer: 'JONAH', type: 'image', img: 'whale.jpg' });
   assert.equal(byType.image.view(p, p.variants[0], 0).id, 'bn-07');

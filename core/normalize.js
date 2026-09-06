@@ -10,7 +10,7 @@
 
   var VARIANT_KEYS = ['type', 'clues', 'img', 'prompt', 'options', 'items',
                       'correct', 'quote', 'verse', 'clue', 'items',
-                      'lang', 'answer', 'flag', 'spoken', 'weight', 'difficulty'];
+                      'lang', 'answer', 'ref', 'flag', 'spoken', 'weight', 'difficulty'];
 
   function normalizeVariant(v, puzzleDifficulty, spokenDefault) {
     return {
@@ -29,6 +29,9 @@
       // the puzzle's own values, so every existing deck is unaffected.
       lang: v.lang || null,
       answer: v.answer || null,
+      // A bilingual deck translates the reveal note too, so ref may sit on
+      // the variant as well as the puzzle.
+      ref: v.ref === undefined ? null : v.ref,
       flag: v.flag || null,
       // Whether the text on screen is something somebody SAID. Who Said It?
       // shows scripture and wants quotation marks; Who Did It? shows a

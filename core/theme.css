@@ -129,14 +129,21 @@ html, body {
                margin-top: -0.6vmin; }
 .ref { font-size: 2.6vmin; color: var(--dim); letter-spacing: 0.14em; text-transform: uppercase; }
 
-.options { display: flex; gap: 4vmin; }
+/* Higher or Lower. Two options for a bet, three for a guess - so the row has
+   to wrap rather than run off the side of the screen. */
+.options { display: flex; gap: 4vmin; flex-wrap: wrap;
+           justify-content: center; max-width: 90vw; }
 
 .option {
   font-size: 6vmin;
   padding: 1.5vmin 4vmin;
   border-radius: 2vmin;
   background: var(--card);
-  color: var(--dim);
+  /* Full brightness, not --dim. Before the reveal these ARE the question, and
+     a room reading them from the back needs them as legible as the prompt.
+     The correct one is marked by its background, which needs no help from
+     making the others hard to read. */
+  color: var(--fg);
 }
 
 .option-correct { background: var(--good); color: var(--bg); }

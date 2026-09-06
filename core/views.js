@@ -31,11 +31,17 @@
 
   function badgeFor(lang) { return BADGES[lang] || BADGES.en; }
 
-  function answered(puzzle, stage, revealAt) {
+  function answered(puzzle, stage, revealAt, variant) {
     if (stage < revealAt) { return null; }
+    // The VARIANT's answer wins where it has one, for the same reason the
+    // badge reads the variant: in a bilingual deck the answer is a different
+    // word in each language. It matters more here than it looks - the binary
+    // renderer marks the correct option by comparing this string against the
+    // options, which are also per-variant, so an answer taken off the puzzle
+    // matches nothing and the reveal highlights NOTHING at all.
     return {
-      answer: puzzle.answer,
-      ref: formatRef(puzzle.ref),
+      answer: (variant && variant.answer) || puzzle.answer,
+      ref: formatRef((variant && variant.ref) || puzzle.ref),
     };
   }
 
@@ -94,7 +100,7 @@
           return { img: c.img, word: stage >= 1 ? c.word : null };
         });
         v.working = stage >= 1 ? words.join(' + ') : null;
-        v.answered = answered(puzzle, stage, 2);
+        v.answered = answered(puzzle, stage, 2, variant);
         return v;
       },
     },
@@ -103,7 +109,7 @@
       view: function (puzzle, variant, stage) {
         var v = base('image', puzzle, variant);
         v.img = variant.img;
-        v.answered = answered(puzzle, stage, 1);
+        v.answered = answered(puzzle, stage, 1, variant);
         return v;
       },
     },
@@ -112,7 +118,7 @@
       view: function (puzzle, variant, stage) {
         var v = base('text', puzzle, variant);
         v.prompt = variant.prompt;
-        v.answered = answered(puzzle, stage, 1);
+        v.answered = answered(puzzle, stage, 1, variant);
         return v;
       },
     },
@@ -157,7 +163,7 @@
         v.prompt = variant.prompt;
         v.img = variant.img;
         v.options = variant.options;
-        v.answered = answered(puzzle, stage, 1);
+        v.answered = answered(puzzle, stage, 1, variant);
         return v;
       },
     },
@@ -200,7 +206,7 @@
             })
           : null;
 
-        v.answered = answered(puzzle, stage, steps.length);
+        v.answered = answered(puzzle, stage, steps.length, variant);
         return v;
       },
     },

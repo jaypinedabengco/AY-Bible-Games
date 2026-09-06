@@ -129,6 +129,19 @@ genuinely disagrees does not belong in a youth game.
 
 ## 2. Higher or Lower
 
+> **BUILT** — `games/higher-or-lower/`, 34 numbers asked two ways each. What
+> follows is the proposal it was built from, kept as a record of the intent.
+>
+> The coin-flip objection that reshaped Before or After was deliberately NOT
+> applied here, and the distinction is worth keeping: there the room is meant
+> to know, so luck robs them of the moment of knowing; here nobody is expected
+> to know, and the bet IS the game. So this one keeps its two options - and
+> gains a three-way guess as well, which costs nothing because the renderer
+> always drew any number of options.
+>
+> Like What Came First?, the deck is GENERATED - from `tools/numbers.json` -
+> because the content is facts rather than writing.
+
 **The idea.** A number from scripture, then a second one to bet on.
 
 This is the only proposal with a gambling shape — the room commits before it

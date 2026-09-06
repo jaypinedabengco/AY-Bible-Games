@@ -71,7 +71,7 @@ laptop driving the projector. Clearing it has to be done there too: open
 `gm.html` on that laptop, sign in, and clear. Doing it from a phone clears that
 phone's record, which is not the one the game is reading.
 
-### The five games
+### The six games
 
 - **Bible Book Names** — pictures combine into a book of the Bible.
   Jeans + sis. XO + dos. 43 books, three rounds.
@@ -95,6 +95,10 @@ phone's record, which is not the one the game is reading.
   easier. Honey and a lion, then long hair, then two pillars. 44 people, 69
   trails. Playable in words today; the pictures arrive one at a time through
   the deck manager and nothing else changes when they do.
+- **Higher or Lower** — a number from the Bible, then one to bet on: *Methuselah
+  lived 969 years. Did Noah live longer or shorter?* Sometimes three numbers to
+  choose from instead. 34 numbers, two ways of asking each. The one game here
+  with a gambling shape — the room commits before it knows.
 - **Bible Character Names** — the same idea as the book game, with people.
   Greyed out on the front page until it has pictures; its start screen says so
   rather than failing.

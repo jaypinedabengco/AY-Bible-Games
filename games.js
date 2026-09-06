@@ -45,13 +45,14 @@ window.GAMES = [
     status: 'ready',
   },
   {
-    // Built and wired, deliberately greyed out: the deck is empty until it has
-    // pictures. Set status to 'ready' once it can fill a round.
-    title: 'Bible Character Names',
-    href: 'games/character-names/index.html',
-    blurb: 'Picture clues combine into a person from a story. Same game, new answers.',
-    meta: 'Collecting pictures',
-    status: 'parked',
+    // The one game here with a gambling shape: the room commits before it
+    // knows - which is exactly why a two-way question is right here and was
+    // wrong for What Came First?.
+    title: 'Higher or Lower',
+    href: 'games/higher-or-lower/index.html',
+    blurb: 'A number from scripture, then a second one to bet on. Noah or Methuselah?',
+    meta: '34 numbers · English',
+    status: 'ready',
   },
   {
     // Grew out of the "Before or After" proposal, and outgrew its name: a
@@ -63,10 +64,12 @@ window.GAMES = [
     status: 'ready',
   },
   {
-    title: 'Higher or Lower',
-    href: 'games/higher-or-lower/index.html',
-    blurb: 'A number from scripture, then a second one to bet on. Noah or Methuselah?',
-    meta: 'Proposed',
+    // Built and wired, deliberately greyed out: the deck is empty until it has
+    // pictures. Set status to 'ready' once it can fill a round.
+    title: 'Bible Character Names',
+    href: 'games/character-names/index.html',
+    blurb: 'Picture clues combine into a person from a story. Same game, new answers.',
+    meta: 'Collecting pictures',
     status: 'parked',
   },
 ];

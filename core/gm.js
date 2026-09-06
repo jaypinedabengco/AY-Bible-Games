@@ -53,6 +53,9 @@
       }).filter(Boolean);
       return steps.length ? steps.join(' \u2192 ') : null;
     }
+    // A binary puzzle's working is the question, because that is what the room
+    // is staring at. The answer itself is the row's own answer line.
+    if (variant.type === 'binary') { return variant.prompt || null; }
     // An ordering puzzle's working is the SEQUENCE. The game master is being
     // asked "was the room right?", and the only way to answer that is to see
     // the order, so a row showing anything else is useless here.
@@ -120,6 +123,19 @@
         // Each trail as the game master needs it: the objects of every step
         // with the verse they came from, so they can answer "where is that
         // from" without leaving the page.
+        // Every way this puzzle can be asked, with the right option marked -
+        // a bet and a guess have DIFFERENT answers for the same number, so a
+        // single answer line on the row would be wrong half the time.
+        choices: p.variants.filter(function (v) { return v.type === 'binary'; })
+          .map(function (v) {
+            return {
+              prompt: v.prompt || null,
+              lang: v.lang || 'en',
+              answer: v.answer || p.answer,
+              options: (v.options || []).slice(),
+              ref: v.ref || null,
+            };
+          }),
         // The sequence with its dates, so an argument in the room can be
         // settled from this page without opening the deck file.
         orders: p.variants.filter(function (v) { return v.type === 'order'; })

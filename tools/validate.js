@@ -51,10 +51,25 @@
     }
     if (v.type === 'binary') {
       if (!v.prompt && !v.img) { errors.push(where + ': binary needs prompt or img'); }
-      if (!v.options || v.options.length !== 2) {
-        errors.push(where + ': binary needs exactly 2 options');
-      } else if (v.options.indexOf(p.answer) === -1) {
-        errors.push(where + ': answer "' + p.answer + '" is not one of its options');
+      // Two options for a bet, three for a guess. The renderer always drew any
+      // number of them - this check was the only thing insisting on two, and
+      // it was written before anything used the type at all.
+      if (!v.options || v.options.length < 2) {
+        errors.push(where + ': binary needs at least 2 options');
+      } else {
+        // The VARIANT's answer where it has one. The options are per-variant
+        // too - LONGER/SHORTER against MAS MAHABA/MAS MAIKLI - so checking a
+        // puzzle-level answer against them fails on every bilingual deck.
+        var ans = v.answer || p.answer;
+        if (v.options.indexOf(ans) === -1) {
+          errors.push(where + ': answer "' + ans + '" is not one of its options');
+        }
+        var dupes = v.options.filter(function (o, i) {
+          return v.options.indexOf(o) !== i;
+        });
+        if (dupes.length) {
+          errors.push(where + ': the same option twice (' + dupes[0] + ')');
+        }
       }
     }
     if (v.type === 'quote') {

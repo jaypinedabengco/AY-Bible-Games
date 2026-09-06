@@ -1,0 +1,435 @@
+{
+  "_about": [
+    "The one hand-written thing behind Higher or Lower. Every puzzle in",
+    "games/higher-or-lower/deck.js is DERIVED from this list by",
+    "tools/make-higher-or-lower.js - so a number corrected here corrects every",
+    "puzzle that uses it, and the bet and the guess about one number can never",
+    "disagree with each other.",
+    "",
+    "Each number is asked two ways. As a BET, where another number from its",
+    "group is given first and the room says higher or lower. As a GUESS, with",
+    "three numbers to choose from. Both are variants of ONE puzzle, so a round",
+    "never asks about the same number twice.",
+    "",
+    "Wrong options in a guess are always OTHER REAL NUMBERS from the same",
+    "group, never invented ones. An invented plausible number risks being a",
+    "real figure from somewhere else in the Bible, and a room told that 40 is",
+    "wrong deserves better than a number we made up."
+  ],
+  "_rule": [
+    "The bar is not 'the number appears somewhere'. It is that the number is",
+    "STATED in the text - never summed or inferred - and reads the SAME in any",
+    "common translation. A confident wrong number on a screen in church is",
+    "worse than not having the game."
+  ],
+  "_excluded": [
+    {
+      "what": "GOLIATH'S HEIGHT",
+      "why": "the Masoretic 'six cubits and a span' against the Septuagint and Dead Sea Scrolls 'four cubits and a span'. Every common English Bible footnotes the other figure"
+    },
+    {
+      "what": "SEVENTY TIMES SEVEN (Matthew 18:22)",
+      "why": "KJV and NKJV read seventy times seven; NIV and ESV read seventy-seven times. A different number, not a different wording"
+    },
+    {
+      "what": "THE SEVENTY SENT OUT (Luke 10:1)",
+      "why": "manuscripts split between seventy and seventy-two"
+    },
+    {
+      "what": "THE TEN PLAGUES",
+      "why": "Exodus never says ten. The count is arrived at by tallying, and the rule is that the number must be stated"
+    },
+    {
+      "what": "SEVEN DAYS AT JERICHO",
+      "why": "the text says six days and 'the seventh day'. Seven days is a sum. The seven circuits ON the last day ARE stated, and are used instead"
+    },
+    {
+      "what": "ANNA'S 84 YEARS (Luke 2:37)",
+      "why": "the number is stable but translations split on whether it is her age or her years of widowhood, so no question can be asked unambiguously"
+    },
+    {
+      "what": "THE 430 YEARS IN EGYPT (Exodus 12:40)",
+      "why": "conflicts with the 400 of Genesis 15:13, which is used instead. A sharp youth with an NIV may still raise it - the host should know"
+    },
+    {
+      "what": "1 SAMUEL 6:19, THE CENSUS TOTALS, SOLOMON'S STALLS",
+      "why": "the parallel passages disagree with each other"
+    },
+    {
+      "what": "JESUS' AGE AT DEATH",
+      "why": "arrived at by arithmetic, never stated"
+    }
+  ],
+  "_collisions": [
+    "Only one value per group, so a bet is always answerable. That cost some",
+    "famous numbers: keeping the 40 days of rain excluded Jesus' fast, Moses on",
+    "the mountain, the spies and Nineveh; keeping the 40 years of wandering",
+    "excluded David's and Solomon's reigns; keeping Jonah's three days excluded",
+    "Saul's blindness and Esther's fast. Any of them can be swapped in for the",
+    "one that holds the value."
+  ],
+  "groups": {
+    "ages": {
+      "more": "LONGER",
+      "less": "SHORTER"
+    },
+    "days": {
+      "more": "MORE",
+      "less": "FEWER"
+    },
+    "spans": {
+      "more": "LONGER",
+      "less": "SHORTER"
+    },
+    "people": {
+      "more": "MORE",
+      "less": "FEWER"
+    },
+    "counts": {
+      "more": "MORE",
+      "less": "FEWER"
+    }
+  },
+  "numbers": [
+    {
+      "id": "methuselah-age",
+      "group": "ages",
+      "value": 969,
+      "statement": "Methuselah lived 969 years",
+      "ask_bet": "Did METHUSELAH live longer or shorter?",
+      "ask_guess": "How many years did METHUSELAH live?",
+      "note": "the oldest age in the Bible",
+      "verse": "Genesis 5:27"
+    },
+    {
+      "id": "noah-age",
+      "group": "ages",
+      "value": 950,
+      "statement": "Noah lived 950 years",
+      "ask_bet": "Did NOAH live longer or shorter?",
+      "ask_guess": "How many years did NOAH live?",
+      "note": "nineteen short of the record",
+      "verse": "Genesis 9:29"
+    },
+    {
+      "id": "adam-age",
+      "group": "ages",
+      "value": 930,
+      "statement": "Adam lived 930 years",
+      "ask_bet": "Did ADAM live longer or shorter?",
+      "ask_guess": "How many years did ADAM live?",
+      "note": "the first man, and nearly the oldest",
+      "verse": "Genesis 5:5"
+    },
+    {
+      "id": "enoch-age",
+      "group": "ages",
+      "value": 365,
+      "statement": "Enoch lived 365 years",
+      "ask_bet": "Did ENOCH live longer or shorter?",
+      "ask_guess": "How many years did ENOCH live?",
+      "note": "he walked with God and did not die",
+      "verse": "Genesis 5:23"
+    },
+    {
+      "id": "isaac-age",
+      "group": "ages",
+      "value": 180,
+      "statement": "Isaac lived 180 years",
+      "ask_bet": "Did ISAAC live longer or shorter?",
+      "ask_guess": "How many years did ISAAC live?",
+      "note": "he outlived his father Abraham",
+      "verse": "Genesis 35:28"
+    },
+    {
+      "id": "abraham-age",
+      "group": "ages",
+      "value": 175,
+      "statement": "Abraham lived 175 years",
+      "ask_bet": "Did ABRAHAM live longer or shorter?",
+      "ask_guess": "How many years did ABRAHAM live?",
+      "note": "the father of the faithful",
+      "verse": "Genesis 25:7"
+    },
+    {
+      "id": "sarah-age",
+      "group": "ages",
+      "value": 127,
+      "statement": "Sarah lived 127 years",
+      "ask_bet": "Did SARAH live longer or shorter?",
+      "ask_guess": "How many years did SARAH live?",
+      "note": "Abraham’s wife, who laughed at the promise",
+      "verse": "Genesis 23:1"
+    },
+    {
+      "id": "moses-age",
+      "group": "ages",
+      "value": 120,
+      "statement": "Moses lived 120 years",
+      "ask_bet": "Did MOSES live longer or shorter?",
+      "ask_guess": "How many years did MOSES live?",
+      "note": "his eye was not dim at the end",
+      "verse": "Deuteronomy 34:7"
+    },
+    {
+      "id": "joseph-age",
+      "group": "ages",
+      "value": 110,
+      "statement": "Joseph lived 110 years",
+      "ask_bet": "Did JOSEPH live longer or shorter?",
+      "ask_guess": "How many years did JOSEPH live?",
+      "note": "he died in Egypt and was embalmed",
+      "verse": "Genesis 50:26"
+    },
+    {
+      "id": "flood-waters-days",
+      "group": "days",
+      "value": 150,
+      "statement": "The floodwaters prevailed for 150 days",
+      "ask_bet": "Did the FLOODWATERS last more or fewer days?",
+      "ask_guess": "How many days did the FLOODWATERS prevail?",
+      "note": "before the water began to go down",
+      "verse": "Genesis 7:24"
+    },
+    {
+      "id": "flood-rain-days",
+      "group": "days",
+      "value": 40,
+      "statement": "Rain fell on the earth for 40 days",
+      "ask_bet": "Did the RAIN fall for more or fewer days?",
+      "ask_guess": "How many days did the RAIN fall?",
+      "note": "forty days and forty nights",
+      "verse": "Genesis 7:12"
+    },
+    {
+      "id": "creation-days",
+      "group": "days",
+      "value": 6,
+      "statement": "God made heaven and earth in 6 days",
+      "ask_bet": "Did CREATION take more or fewer days?",
+      "ask_guess": "In how many days did God make the world?",
+      "note": "and He rested on the seventh",
+      "verse": "Exodus 20:11"
+    },
+    {
+      "id": "lazarus-tomb-days",
+      "group": "days",
+      "value": 4,
+      "statement": "Lazarus was in the tomb 4 days",
+      "ask_bet": "Was LAZARUS in the tomb more or fewer days?",
+      "ask_guess": "How many days was LAZARUS in the tomb?",
+      "note": "already dead when Jesus arrived",
+      "verse": "John 11:17"
+    },
+    {
+      "id": "jonah-fish-days",
+      "group": "days",
+      "value": 3,
+      "statement": "Jonah was in the great fish 3 days",
+      "ask_bet": "Was JONAH in the fish more or fewer days?",
+      "ask_guess": "How many days was JONAH in the fish?",
+      "note": "three days and three nights",
+      "verse": "Jonah 1:17"
+    },
+    {
+      "id": "egypt-affliction-years",
+      "group": "spans",
+      "value": 400,
+      "statement": "Abraham's seed was afflicted 400 years",
+      "ask_bet": "Was the AFFLICTION in Egypt longer or shorter?",
+      "ask_guess": "How long was Abraham's seed afflicted?",
+      "note": "God told Abraham before it happened",
+      "verse": "Genesis 15:13"
+    },
+    {
+      "id": "babylon-captivity-years",
+      "group": "spans",
+      "value": 70,
+      "statement": "Judah served Babylon 70 years",
+      "ask_bet": "Was the BABYLON captivity longer or shorter?",
+      "ask_guess": "How many years was Judah in Babylon?",
+      "note": "Jeremiah named the length in advance",
+      "verse": "Jeremiah 25:11"
+    },
+    {
+      "id": "wilderness-years",
+      "group": "spans",
+      "value": 40,
+      "statement": "Israel wandered the wilderness 40 years",
+      "ask_bet": "Was the WILDERNESS wandering longer or shorter?",
+      "ask_guess": "How many years did Israel wander?",
+      "note": "one year for each day the spies searched",
+      "verse": "Numbers 14:33"
+    },
+    {
+      "id": "bethesda-man-years",
+      "group": "spans",
+      "value": 38,
+      "statement": "The man at the pool was ill 38 years",
+      "ask_bet": "Was the POOL man's illness longer or shorter?",
+      "ask_guess": "How long was the man at the pool ill?",
+      "note": "Jesus told him to take up his bed",
+      "verse": "John 5:5"
+    },
+    {
+      "id": "bleeding-woman-years",
+      "group": "spans",
+      "value": 12,
+      "statement": "A woman had an issue of blood 12 years",
+      "ask_bet": "Did the SICK WOMAN suffer longer or shorter?",
+      "ask_guess": "How long had the bleeding woman suffered?",
+      "note": "healed by touching Jesus' garment",
+      "verse": "Mark 5:25"
+    },
+    {
+      "id": "egypt-famine-years",
+      "group": "spans",
+      "value": 7,
+      "statement": "The famine in Egypt lasted 7 years",
+      "ask_bet": "Was EGYPT'S FAMINE longer or shorter?",
+      "ask_guess": "How long did the famine in Egypt last?",
+      "note": "it followed the years of plenty",
+      "verse": "Genesis 41:30"
+    },
+    {
+      "id": "sealed-in-revelation",
+      "group": "people",
+      "value": 144000,
+      "statement": "144,000 were sealed out of Israel's tribes",
+      "ask_bet": "Were more or fewer sealed in Revelation?",
+      "ask_guess": "How many were sealed in Revelation?",
+      "note": "twelve thousand from each tribe",
+      "verse": "Revelation 7:4"
+    },
+    {
+      "id": "fed-first-crowd",
+      "group": "people",
+      "value": 5000,
+      "statement": "Jesus fed 5000 men beside women and children",
+      "ask_bet": "At the FIRST feeding, more or fewer men?",
+      "ask_guess": "How many men did Jesus feed the first time?",
+      "note": "from a boy's loaves and fish",
+      "verse": "Matthew 14:21"
+    },
+    {
+      "id": "fed-second-crowd",
+      "group": "people",
+      "value": 4000,
+      "statement": "Jesus later fed 4000 men the same way",
+      "ask_bet": "At the SECOND feeding, more or fewer men?",
+      "ask_guess": "How many men did Jesus feed the second time?",
+      "note": "a second miracle most people forget",
+      "verse": "Matthew 15:38"
+    },
+    {
+      "id": "pentecost-baptized",
+      "group": "people",
+      "value": 3000,
+      "statement": "3000 were baptized at Pentecost",
+      "ask_bet": "Were more or fewer baptized at Pentecost?",
+      "ask_guess": "How many were baptized at Pentecost?",
+      "note": "after one sermon by Peter",
+      "verse": "Acts 2:41"
+    },
+    {
+      "id": "gideon-army",
+      "group": "people",
+      "value": 300,
+      "statement": "Gideon kept 300 men to fight Midian",
+      "ask_bet": "Did GIDEON keep more or fewer men?",
+      "ask_guess": "How many men did Gideon keep?",
+      "note": "chosen by the way they drank",
+      "verse": "Judges 7:7"
+    },
+    {
+      "id": "upper-room-believers",
+      "group": "people",
+      "value": 120,
+      "statement": "About 120 believers met in the upper room",
+      "ask_bet": "Were more or fewer in the UPPER ROOM?",
+      "ask_guess": "How many believers met in the upper room?",
+      "note": "waiting together for Pentecost",
+      "verse": "Acts 1:15"
+    },
+    {
+      "id": "disciples-chosen",
+      "group": "people",
+      "value": 12,
+      "statement": "Jesus chose 12 disciples",
+      "ask_bet": "Did Jesus choose more or fewer disciples?",
+      "ask_guess": "How many disciples did Jesus choose?",
+      "note": "He named them apostles",
+      "verse": "Luke 6:13"
+    },
+    {
+      "id": "judas-silver",
+      "group": "counts",
+      "value": 30,
+      "statement": "Judas was paid 30 pieces of silver",
+      "ask_bet": "Was JUDAS paid more or fewer pieces of silver?",
+      "ask_guess": "How many pieces of silver was Judas paid?",
+      "note": "the price of a slave",
+      "verse": "Matthew 26:15"
+    },
+    {
+      "id": "leftover-baskets",
+      "group": "counts",
+      "value": 12,
+      "statement": "12 baskets of leftovers were gathered",
+      "ask_bet": "Were more or fewer baskets of leftovers taken up?",
+      "ask_guess": "How many baskets of leftovers were gathered?",
+      "note": "more left over than they started with",
+      "verse": "Matthew 14:20"
+    },
+    {
+      "id": "commandments-given",
+      "group": "counts",
+      "value": 10,
+      "statement": "God gave 10 commandments",
+      "ask_bet": "Did God give more or fewer commandments?",
+      "ask_guess": "How many commandments did God give?",
+      "note": "written with the finger of God",
+      "verse": "Exodus 34:28"
+    },
+    {
+      "id": "jericho-circuits",
+      "group": "counts",
+      "value": 7,
+      "statement": "They circled Jericho 7 times on the last day",
+      "ask_bet": "More or fewer laps of Jericho on the last day?",
+      "ask_guess": "How many laps of Jericho on the last day?",
+      "note": "then the walls fell down flat",
+      "verse": "Joshua 6:4"
+    },
+    {
+      "id": "loaves-at-feeding",
+      "group": "counts",
+      "value": 5,
+      "statement": "Jesus fed the crowd from 5 loaves",
+      "ask_bet": "Did they start with more or fewer loaves?",
+      "ask_guess": "How many loaves did they start with?",
+      "note": "and two small fish",
+      "verse": "Matthew 14:17"
+    },
+    {
+      "id": "peter-denials",
+      "group": "counts",
+      "value": 3,
+      "statement": "Peter denied Jesus 3 times",
+      "ask_bet": "Did PETER deny Jesus more or fewer times?",
+      "ask_guess": "How many times did Peter deny Jesus?",
+      "note": "before the rooster crowed",
+      "verse": "Matthew 26:34"
+    },
+    {
+      "id": "stone-tablets",
+      "group": "counts",
+      "value": 2,
+      "statement": "Moses carried 2 tablets of stone",
+      "ask_bet": "Did Moses carry more or fewer tablets of stone?",
+      "ask_guess": "How many tablets of stone did Moses carry?",
+      "note": "he broke the first pair in anger",
+      "verse": "Exodus 34:1"
+    }
+  ]
+}
