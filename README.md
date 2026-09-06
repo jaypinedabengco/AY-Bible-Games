@@ -82,9 +82,11 @@ phone's record, which is not the one the game is reading.
   English, Ang Dating Biblia (1905) in Tagalog.
 - **Who Did It?** — the same four beats with a *deed* instead of a line.
   Cut off a soldier's ear. Climbed a tree to see over a crowd. 46 people,
-  94 deeds, four rounds. English only for now — the sentences are ours, not
-  scripture, so a Tagalog side is a translation job rather than a licensing
-  one. Nothing on screen is in quotation marks, because nobody said it.
+  94 deeds in each language, four rounds. Playable in English and Tagalog.
+  Nothing on screen is in quotation marks, because nobody said it — and
+  unlike Who Said It?, the screen carries no translation credit, because
+  the sentences are ours in both languages and a chapter-and-verse reference
+  belongs to nobody.
 - **The Object Trail** — objects from one story, a step at a time, getting
   easier. Honey and a lion, then long hair, then two pillars. 44 people, 69
   trails. Playable in words today; the pictures arrive one at a time through

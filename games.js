@@ -32,7 +32,7 @@ window.GAMES = [
     title: 'Who Did It?',
     href: 'games/who-did-it/index.html',
     blurb: 'A deed instead of a line. Cut off a soldier’s ear. Climbed a tree.',
-    meta: '46 people · English',
+    meta: '46 people · English and Tagalog',
     status: 'ready',
   },
   {

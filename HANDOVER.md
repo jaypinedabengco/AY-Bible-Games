@@ -122,12 +122,20 @@ the deck ship complete except the copyrighted line. It is also a rule with a
 scar — before it existed, a Tagalog scaffold was drawn in a test round and
 painted the word "null" across the projector.
 
-**Tagalog is back, for the quote game only.** It was removed from Bible Book
-Names deliberately and that still stands: there, a Tagalog book changed the
+**Tagalog is back, for the two quote-shaped games.** It was removed from Bible
+Book Names deliberately and that still stands: there, a Tagalog book changed the
 puzzle itself, because Santiago is not "Jam + S" and the pictures stopped
-working. Here a Tagalog quote is another line by the same person, which is what
-a variant already is. Language sits on the VARIANT, with its own answer, so
-PEDRO and PETER are one puzzle and one game-master row.
+working. In Who Said It? and Who Did It? a Tagalog line is another line by the
+same person, which is what a variant already is. Language sits on the VARIANT,
+with its own answer, so PEDRO and PETER are one puzzle and one game-master row.
+
+**What the two Tagalog halves cost is very different, and it is worth knowing
+why before adding a third.** In Who Said It? the line IS scripture, so the
+Tagalog had to be fetched from a public-domain source, cut out of narration by
+hand and checked as a genuine substring of its own verse. In Who Did It? the
+sentence is ours, so the Tagalog is simply a translation of it: no licence, no
+fetching, no substring check, and no credit line on the screen. Where a game's
+words can be written rather than quoted, write them.
 
 **Noah is not in the quote deck.** His only substantial recorded speech is
 Genesis 9:25, the curse of Canaan — obscure as a quotation and the verse abused
@@ -239,7 +247,20 @@ second centurion and a second Herod that collided with entries already there,
 and the demon-possessed man whose line is "My name is Legion" — which answers
 itself. If a third pass is ever drafted, put that rule in the brief.
 
-**Tagalog is playable, in Ang Dating Biblia (1905).**
+**Who Did It? holds 46 people and 94 deeds, in both languages.** Every English
+deed has a Tagalog sibling, so the two rounds are the same length. Names use
+Ang Dating Biblia spelling, because that is what a congregation reading along
+recognises; where the two forms are one word spelled two ways (JESUS, not
+HESUS) the deck gives the same string, so the reveal prints it once instead of
+looking like a mistake.
+
+Its 188 deeds are flagged `unverified` too, but that flag means something much
+smaller here: the words are ours, so only the REFERENCE is a claim about the
+Bible. `validate.js` says which job a deck is asking for - `quoteNoun` and
+`verifyJob` on the deck - rather than demanding a wording audit this one does
+not need.
+
+**Tagalog scripture is playable in Who Said It?, in Ang Dating Biblia (1905).**
 
 The text was FETCHED from a public API, not written from memory. That
 distinction is the whole reason there is Tagalog scripture in this repository

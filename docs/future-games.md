@@ -164,12 +164,15 @@ game, and the deck should be honest about that: fifty puzzles, not two hundred.
 
 ## 3. Who Did It?
 
-> **BUILT** — `games/who-did-it/`, 46 people and 94 deeds, English. What
-> follows is the proposal it was built from, kept as a record of the intent.
-> Two things went differently: it reuses the `quote` renderer untouched rather
-> than getting one of its own, and a deck-level `spoken: false` drops the
-> quotation marks, since a deed is our sentence and marks around it send the
-> room hunting for a speaker.
+> **BUILT** — `games/who-did-it/`, 46 people and 94 deeds in each of English
+> and Tagalog. What follows is the proposal it was built from, kept as a
+> record of the intent. Three things went differently: it reuses the `quote`
+> renderer untouched rather than getting one of its own; a deck-level
+> `spoken: false` drops the quotation marks, since a deed is our sentence and
+> marks around it send the room hunting for a speaker; and the Tagalog side
+> cost almost nothing, because translating our own prose needs neither a
+> licence nor a fetched text — which is the strongest argument for writing a
+> game's words yourself where you can.
 
 **The idea.** The sibling of Who Said It?, with an **action** instead of a
 quote.
