@@ -511,6 +511,11 @@
     function drawStart(counts) {
       var byLang = counts.left;
       var everything = counts.all;
+      // Read everything BEFORE clearing the screen. This function once threw
+      // between the clear and the redraw, and the result was a black
+      // rectangle in front of a room. Anything that throws up here now leaves
+      // the previous screen standing, which is always the better failure.
+      var langs = langOptions(normalized.languages, byLang);
       host.innerHTML = '';
       var card = el('div', 'startcard');
       card.appendChild(el('div', 'start-church', 'San Fernando Adventist Church'));
@@ -519,7 +524,6 @@
         card.appendChild(el('div', 'start-how', line));
       });
 
-      var langs = langOptions(normalized.languages, byLang);
       var lang = langs.length
         ? remembered('round-lang', langs[0].value)
         : (normalized.languages.length > 1 ? normalized.languages[0] : null);
@@ -569,7 +573,12 @@
           remember('round-lang', langSel.value);
           // A different language means a different count, so the size dropdown
           // is rebuilt rather than left showing a stale one.
-          chosen = drawStart(byLang);
+          //
+          // `counts`, not `byLang`: byLang is one FIELD of counts, and passing
+          // it meant the redraw read counts.left off a plain map, got
+          // undefined, and threw - after the screen had already been cleared.
+          // Changing the language blanked the projector.
+          chosen = drawStart(counts);
         });
         lrow.appendChild(langSel);
         card.appendChild(lrow);

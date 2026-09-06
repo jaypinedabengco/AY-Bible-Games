@@ -104,7 +104,106 @@ test('order shows the scrambled items and reveals the sequence', () => {
   const v = p.variants[0];
   assert.deepEqual(byType.order.view(p, v, 0).items, ['Mark', 'Matthew', 'Luke', 'John']);
   assert.equal(byType.order.view(p, v, 0).correct, null);
-  assert.deepEqual(byType.order.view(p, v, 1).correct, ['Matthew', 'Mark', 'Luke', 'John']);
+  // Rows now, not bare strings, so each can carry a date - see the test below
+  // that a plain string still works.
+  assert.deepEqual(byType.order.view(p, v, 1).correct.map((r) => r.label),
+                   ['Matthew', 'Mark', 'Luke', 'John']);
+});
+
+// What Came First? puts three things on the screen and the room shouts the
+// order. The renderer existed but had never been on a projector, and three
+// things about it were wrong for that job.
+test('an ordering puzzle asks the room something', () => {
+  const p = normalizePuzzle({
+    answer: 'ABRAHAM \u2192 THE EXODUS \u2192 DAVID', type: 'order',
+    prompt: 'Put these in order, earliest first',
+    items: ['THE EXODUS', 'DAVID BECOMES KING', 'ABRAHAM'],
+    correct: [
+      { label: 'ABRAHAM', when: 'c. 2000 BC' },
+      { label: 'THE EXODUS', when: 'c. 1400 BC' },
+      { label: 'DAVID BECOMES KING', when: 'c. 1000 BC' },
+    ],
+  });
+  const v = p.variants[0];
+  // Without this the screen shows three words and no task.
+  assert.equal(byType.order.view(p, v, 0).prompt, 'Put these in order, earliest first');
+});
+
+test('an ordering puzzle does not number the items until they are ordered', () => {
+  const p = normalizePuzzle({
+    answer: 'A \u2192 B', type: 'order',
+    items: ['B', 'A'],
+    correct: ['A', 'B'],
+  });
+  const v = p.variants[0];
+  // The scrambled row must say it is scrambled. Numbering it 1, 2, 3 tells the
+  // room an order that is wrong - the one thing this screen must not do.
+  assert.equal(byType.order.view(p, v, 0).numbered, false);
+  assert.equal(byType.order.view(p, v, 1).numbered, true);
+});
+
+test('an ordering puzzle carries a date for each item, and still takes plain strings', () => {
+  const dated = normalizePuzzle({
+    answer: 'x', type: 'order',
+    items: ['B', 'A'],
+    correct: [{ label: 'A', when: 'c. 2000 BC' }, { label: 'B', when: 'c. 1400 BC' }],
+  });
+  const rows = byType.order.view(dated, dated.variants[0], 1).correct;
+  assert.deepEqual(rows, [
+    { label: 'A', when: 'c. 2000 BC' },
+    { label: 'B', when: 'c. 1400 BC' },
+  ]);
+
+  // The shape that already existed keeps working: a bare string is an item
+  // with no date, not a crash.
+  const plain = normalizePuzzle({
+    answer: 'Gospel order', type: 'order',
+    items: ['Mark', 'Matthew'],
+    correct: ['Matthew', 'Mark'],
+  });
+  assert.deepEqual(byType.order.view(plain, plain.variants[0], 1).correct, [
+    { label: 'Matthew', when: null },
+    { label: 'Mark', when: null },
+  ]);
+});
+
+test('an ordering puzzle has no shoutable answer, so it prints no answer block', () => {
+  const p = normalizePuzzle({
+    answer: 'ABRAHAM \u2192 MOSES', type: 'order',
+    items: ['MOSES', 'ABRAHAM'], correct: ['ABRAHAM', 'MOSES'],
+  });
+  // The ordered list IS the answer. Printing puzzle.answer underneath it at
+  // projector size would repeat the same thing in a worse format - and the
+  // answer field here exists only so the game master page has a row label.
+  assert.equal(byType.order.view(p, p.variants[0], 1).answered, null);
+});
+
+// This bug has now happened twice: a Tagalog round labelled ENGLISH, because
+// language lives on the VARIANT and the badge was read off the puzzle. Fixed
+// the first time inside the quote renderer alone, which is exactly why it came
+// back on a different one. The check belongs on EVERY renderer.
+test('every renderer badges the round in the language it is actually asking in', () => {
+  const wrong = [];
+  const cases = {
+    rebus: { answer: 'A', clues: [{ img: 'a.jpg', word: 'A' }] },
+    image: { answer: 'A', type: 'image', img: 'a.jpg' },
+    text: { answer: 'A', type: 'text', clue: 'a' },
+    quote: { answer: 'A', type: 'quote', quote: 'a', verse: 'X 1:1', clue: 'c' },
+    binary: { answer: 'A', type: 'binary', prompt: 'p', options: ['A', 'B'] },
+    trail: { answer: 'A', type: 'trail', items: [{ pictures: [{ word: 'a' }] }] },
+    order: { answer: 'A', type: 'order', items: ['B', 'A'], correct: ['A', 'B'] },
+  };
+  Object.keys(cases).forEach((kind) => {
+    // The puzzle says nothing about language; the variant says Tagalog. That
+    // is the real shape of every bilingual deck here.
+    const p = normalizePuzzle(Object.assign({ lang: 'en' }, cases[kind]));
+    p.variants[0].lang = 'fil';
+    const badge = byType[kind].view(p, p.variants[0], 0).badge;
+    if (badge !== badgeFor('fil')) {
+      wrong.push(kind + ' badged "' + badge + '" on a Tagalog variant');
+    }
+  });
+  assert.deepEqual(wrong, [], wrong.join('\n'));
 });
 
 test('every view carries the puzzle id for the projector corner', () => {

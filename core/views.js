@@ -39,11 +39,22 @@
     };
   }
 
-  function base(kind, puzzle) {
+  function base(kind, puzzle, variant) {
     // `id` rides on every view because the projector prints it in a corner:
     // it is how the Game Master finds this puzzle's answer on their phone
     // without needing to know the running order at all (spec 16).
-    return { kind: kind, id: puzzle.id, badge: badgeFor(puzzle.lang) };
+    //
+    // The badge reads the VARIANT's language first. Language lives on the
+    // variant in every bilingual game - PEDRO and PETER are one puzzle - so
+    // taking it off the puzzle labelled a Tagalog round ENGLISH. That was
+    // fixed once inside the quote renderer alone, and came straight back the
+    // next time a bilingual game was built on a different one. It belongs
+    // here, where no renderer can forget it.
+    return {
+      kind: kind,
+      id: puzzle.id,
+      badge: badgeFor((variant && variant.lang) || puzzle.lang),
+    };
   }
 
   // The same person's name in the OTHER language, when it differs. A bilingual
@@ -77,7 +88,7 @@
     rebus: {
       stages: function () { return 2; },
       view: function (puzzle, variant, stage) {
-        var v = base('rebus', puzzle);
+        var v = base('rebus', puzzle, variant);
         var words = variant.clues.map(function (c) { return c.word; });
         v.clues = variant.clues.map(function (c) {
           return { img: c.img, word: stage >= 1 ? c.word : null };
@@ -90,7 +101,7 @@
     image: {
       stages: function () { return 1; },
       view: function (puzzle, variant, stage) {
-        var v = base('image', puzzle);
+        var v = base('image', puzzle, variant);
         v.img = variant.img;
         v.answered = answered(puzzle, stage, 1);
         return v;
@@ -99,7 +110,7 @@
     text: {
       stages: function () { return 1; },
       view: function (puzzle, variant, stage) {
-        var v = base('text', puzzle);
+        var v = base('text', puzzle, variant);
         v.prompt = variant.prompt;
         v.answered = answered(puzzle, stage, 1);
         return v;
@@ -111,11 +122,10 @@
       // The machine asks the variant, so nothing here is special-cased there.
       stages: function (variant) { return revealStage(variant); },
       view: function (puzzle, variant, stage) {
-        var v = base('quote', puzzle);
+        var v = base('quote', puzzle, variant);
         // Language lives on the VARIANT here, so the badge has to read it from
         // there - taking it off the puzzle labelled a Tagalog round ENGLISH.
         var lang = variant.lang || puzzle.lang || 'en';
-        v.badge = badgeFor(lang);
         var clueAt = variant.verse ? 2 : 1;
         v.quote = variant.quote;
         // Whether to put quotation marks round it - see `spoken` in
@@ -143,7 +153,7 @@
     binary: {
       stages: function () { return 1; },
       view: function (puzzle, variant, stage) {
-        var v = base('binary', puzzle);
+        var v = base('binary', puzzle, variant);
         v.prompt = variant.prompt;
         v.img = variant.img;
         v.options = variant.options;
@@ -162,7 +172,7 @@
     trail: {
       stages: function (variant) { return (variant.items || []).length; },
       view: function (puzzle, variant, stage) {
-        var v = base('trail', puzzle);
+        var v = base('trail', puzzle, variant);
         var steps = variant.items || [];
         var done = stage >= steps.length;
 
@@ -194,17 +204,41 @@
         return v;
       },
     },
+    // Three things on the screen; the room shouts which order they go in. Two
+    // beats: the scramble, then the sequence with its dates.
+    //
+    // Chosen over a two-way "before or after" because a binary question is a
+    // coin flip - half a hall shouts each way and somebody is always right by
+    // luck, so there is never the moment where the room converges and KNOWS.
+    // Three items have six orderings, which cannot be flukes.
     order: {
       stages: function () { return 1; },
       view: function (puzzle, variant, stage) {
-        var v = base('order', puzzle);
+        var v = base('order', puzzle, variant);
+        var done = stage >= 1;
+        // Without this the screen is three words and no task.
+        v.prompt = variant.prompt || null;
         v.items = variant.items;
-        v.correct = stage >= 1 ? variant.correct : null;
-        v.answered = answered(puzzle, stage, 1);
+        // Numbering the SCRAMBLE would assert an order, and the order it
+        // asserts is the wrong one. The numbers arrive with the answer.
+        v.numbered = done;
+        v.correct = done ? (variant.correct || []).map(orderRow) : null;
+        // No answer block. The ordered list is the answer; puzzle.answer
+        // exists only to give the game master page a row label, and printing
+        // it underneath at projector size would say the same thing worse.
+        v.answered = null;
         return v;
       },
     },
   };
+
+  // An ordered item is a label and, usually, a date. A plain string is still
+  // accepted: it is an item with no date, not a crash.
+  function orderRow(entry) {
+    return typeof entry === 'string'
+      ? { label: entry, when: null }
+      : { label: entry.label, when: entry.when || null };
+  }
 
   function stagesForItem(item) {
     return byType[item.variant.type].stages(item.variant);
