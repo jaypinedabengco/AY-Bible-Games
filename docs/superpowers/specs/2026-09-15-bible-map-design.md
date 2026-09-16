@@ -2,10 +2,11 @@
 
 Design, 15 September 2026.
 
-Two games, staged, sharing one map component: **Name the Place** first, **Trace
-the Journey** second. This spec covers the shared map and the first game in
-full; the second is sketched only far enough to prove the map is shaped to
-carry it.
+Two games, staged, sharing one map component over **two extents** — a close map
+of the Holy Land and a wide one of the whole Bible world. **Name the Place**
+first, **Trace the Journey** second. This spec covers the map and the first
+game in full; the second is sketched only far enough to show it needs no map
+work of its own.
 
 ## Why SVG, and not Canvas
 
@@ -38,6 +39,17 @@ show. The result was **76 coastline points, both lakes, the Jordan's real
 meanders — 3.5 KB**, baked into a plain `<script>` tag. Nothing is fetched at
 runtime, so the USB-stick requirement is untouched.
 
+The same tool clips the wide extent from the same three files at a coarser
+tolerance. That file will be bigger — the Mediterranean, Red Sea and Persian
+Gulf coastlines plus the Nile, Euphrates and Tigris — but it is measured and
+committed, not fetched, so its only cost is repository size.
+
+Natural Earth's coastline arrives **split by country**, which the probe found
+the hard way: the Levant came back as three separate runs that had to be
+chained back into one line before it could be filled. The generator does that
+chaining with a gap tolerance and refuses to join runs further apart than it,
+so two genuinely different coasts are never welded together.
+
 A real map *image* was considered and rejected. Almost every modern Bible atlas
 map is copyrighted; the pre-1929 public-domain ones have **labels printed on
 them**, which ends a name-the-place game; and a raster cannot be themed,
@@ -59,16 +71,44 @@ deciding that Carmel matters and Meron does not is an editorial judgement, not
 a survey. The division holds generally: **geometry comes from data, judgement
 comes from us.**
 
-## The map extent
+## The map extents — two of them
 
-**The Holy Land** — roughly lon 33.4–36.9, lat 30.3–34.0. Dan to Beersheba,
-coast to Moab.
+| | window | holds |
+|---|---|---|
+| `holyland` | lon 33.4–36.9, lat 30.3–34.0 | Dan to Beersheba, coast to Moab |
+| `bibleworld` | lon 11.5–47.5, lat 26.5–42.5 | Rome to Ur, Upper Egypt to Ararat |
 
-The whole-Bible-world extent was considered for stage 1 and rejected: at 3,000
-miles across, Jerusalem and Bethlehem are the same dot, so stage 1 would get
-materially worse in order to make stage 2 easier. Staging exists precisely to
-avoid that trade — stage 2 gets its own wider extent, which costs a data file
-and no code.
+A single extent was the original design and it was wrong. Checked against
+twenty-nine well-known places, the Holy Land window holds fourteen — Jerusalem,
+Bethlehem, Nazareth, Jericho, Capernaum, Joppa, Beersheba, Gaza, Tyre, Sidon,
+Damascus, Hermon, Dan, Petra — and leaves out **fifteen**: Egypt entirely,
+Babylon, Nineveh, Ur, Haran, Sinai, Ararat, Antioch, Tarsus, Ephesus, Athens,
+Corinth and Rome. A deck built on it would have no Exodus, no exile, no Jonah at
+Nineveh, no Abraham leaving Ur, and none of Paul's world — roughly half the
+recognisable place-names in scripture.
+
+Widening the single map does not fix it either: across 3,000 miles Jerusalem and
+Bethlehem are the same dot, so the close questions become unanswerable to buy
+the far ones.
+
+So both, and **each place is asked on the tightest map that contains it.**
+Jerusalem is only ever asked close-up, where it is a distinct dot; Babylon is
+only ever asked wide. The generator decides from the coordinates, so nobody has
+to remember, and no puzzle can be set on a map that cannot show it.
+
+This costs a second Natural Earth clip and a second furniture list. It costs no
+new code, because `draw(extent)` already took the extent as a parameter — a
+decision made for stage 2 that turned out to be what stage 1 needed.
+
+**The simplification tolerance is per-extent**, derived from how many degrees
+one screen unit covers. The close map simplifies at about 400 m; the wide map
+can go far coarser, because a metre of coastline detail is invisible at that
+scale and the file would otherwise be an order of magnitude bigger for nothing.
+
+**The wide map carries a locator**: a faint rectangle showing where the close
+map sits. Without it the two read as two unrelated pictures instead of one world
+at two zooms, and the room has to re-orient from scratch every time the scale
+changes mid-round.
 
 ## Labelling
 
@@ -85,18 +125,36 @@ more weight**, and the deck should open with places findable from the coast and
 the Jordan alone — Jerusalem, Bethlehem, Jericho, Nazareth — before its harder
 tail.
 
+**The wide map needs more furniture, and that costs answers.** Egypt and
+Mesopotamia are unrecognisable without their rivers, so `bibleworld` labels
+`THE GREAT SEA`, `THE NILE` and `THE EUPHRATES`. Unlike the Great Sea and the
+Jordan, the Nile and the Euphrates are plausible puzzle answers — so labelling
+them retires them, and that is a deliberate trade recorded here rather than
+discovered later. Nothing else on the wide map is named: not Egypt, not
+Babylonia, not Asia Minor, and no borders on either map.
+
 ## Component 1 — `core/atlas.js`
 
 ```js
 BibleGames.atlas = {
-  extents: { holyland: { …bbox, geometry, furniture… } },
+  extents: {
+    holyland:   { …bbox, geometry, furniture… },
+    bibleworld: { …bbox, geometry, furniture, locator: 'holyland'… },
+  },
   project: function (extent, lon, lat) { return { x: …, y: … }; },
   draw:    function (extent) { /* → a detached <svg> element */ },
+  fits:    function (lon, lat) { /* → the tightest extent containing it */ },
 };
 ```
 
 **The extent is a parameter, not a constant.** That single decision is what
-makes a second map a data file rather than a rewrite.
+made the second map a data file rather than a rewrite — and it was needed a
+whole stage earlier than it was designed for.
+
+**`fits` is the only place the tightest-map rule lives.** It takes a coordinate
+and returns the smallest extent containing it. The generator calls it to assign
+each place its map; a test calls it to check the assignment; nothing else needs
+to know the rule exists.
 
 **Projection** is equirectangular with a `cos(midLat)` squeeze on longitude.
 Correct enough at this scale, and cheap to invert if a click-the-place variant
@@ -115,7 +173,8 @@ for the same reason.
 
 **Furniture lives in the extent data**, each label with its own coordinates and
 a `label_fil` beside it, so a different map names different things and Tagalog
-needs no new mechanism.
+needs no new mechanism. An extent may also carry `locator`, naming another
+extent whose window it draws as a faint rectangle.
 
 **Two rules in the module header.** No borders, ever — they differ by era, and
 political lines on the modern Levant are not something this projector should
@@ -172,6 +231,12 @@ Tagalog variant, exactly as Who Did It? and What Came First? are built.
 }
 ```
 
+**No `extent` field.** It would be a second source of truth for something the
+coordinates already determine, and the failure it invites is the worst kind: a
+place tagged `holyland` whose coordinates are in Mesopotamia draws a map with
+no pin visible on it. The generator asks `atlas.fits` and writes the answer
+into the deck.
+
 Difficulty is how *findable* the place is, not how famous: coastal and
 well-known is 1, inland and known is 2, obscure is 3.
 
@@ -218,14 +283,23 @@ in water and is checked the other way round — the Sea of Galilee failing to be
 inside its own lake would be just as wrong. `region` is unconstrained, since a
 region's pin is a placed label rather than a point that means anything.
 
+The test runs against **the coastline of the place's own extent**, not a
+global one. That matters: the wide map's coastline is simplified far more
+coarsely, so a coastal city like Joppa can sit a pixel out to sea there while
+being correctly inland on the close map. Testing Joppa against the wide
+coastline would fail it for a rounding error in data it is never drawn on.
+
 Alongside that:
 
 - every place's coordinates match `places.json`
+- every place is on the tightest extent that contains it, per `atlas.fits`
+- no place falls outside BOTH extents — a silent way to lose a puzzle
 - no clue names its own place, in either language
 - no clue names another place in the deck
 - the committed deck is what the generator produces
-- pin separation is measured, with close pairs reported
-- projection round-trips within tolerance
+- pin separation is measured per extent, with close pairs reported
+- projection round-trips within tolerance, on both extents
+- the wide map's locator rectangle matches the close map's actual window
 - `gm.html` registers the new deck — `tests/pages.test.js` fails otherwise, as
   it has caught twice before
 
@@ -235,9 +309,12 @@ restore.
 ## Stage 2, sketched only
 
 **Trace the Journey** — a route draws itself one leg at a time, and the room
-names the journey. Abraham from Ur, the Exodus, Paul's voyages. It needs a
-second, wider extent and a `journeys.json`, and it reuses `core/atlas.js`
-untouched: the legs are appended to the same `.pins` group the pin game uses.
+names the journey. Abraham from Ur, the Exodus, Paul's voyages.
+
+It now needs **no map work at all.** `bibleworld` was built for stage 1, so
+stage 2 is a `journeys.json` and a renderer branch that appends legs to the
+same `.pins` group the pin game uses. That is the whole return on deciding the
+extent was a parameter.
 
 Its own risk, not solved here: **route legs are argued about far more than city
 locations are.** The Exodus route in particular has several reconstructions. It
@@ -247,7 +324,10 @@ gets its own exclusion list and its own design pass.
 
 - No borders, no provinces, no tribal allotments.
 - No relief data. The hill country is a few strokes, honest about being an
-  impression rather than a survey.
+  impression rather than a survey — and on the wide map, not even that.
+- No third extent. Two is the answer to "close enough to see Bethlehem, wide
+  enough to reach Ur"; a third would be a zoom control, and this engine is
+  driven by one person with a spacebar.
 - No deck-manager tab. The manager exists to source pictures and paste
   scripture, and this deck has neither; a coordinate is edited in
   `places.json` and regenerated.
