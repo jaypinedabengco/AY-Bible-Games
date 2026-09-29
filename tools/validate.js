@@ -10,7 +10,7 @@
 (function (root) {
   'use strict';
 
-  var TYPES = ['rebus', 'image', 'text', 'binary', 'order', 'quote', 'trail'];
+  var TYPES = ['rebus', 'image', 'text', 'binary', 'order', 'quote', 'trail', 'map'];
   var LANGS = ['en', 'fil'];
   var SLOTS = ['early', 'middle', 'late', 'anywhere'];
 
@@ -104,6 +104,11 @@
           }
         });
       });
+    }
+
+    if (v.type === 'map') {
+      if (!v.extent) { errors.push(where + ': map needs an extent'); }
+      if (!v.at || v.at.length !== 2) { errors.push(where + ': map needs at [lon, lat]'); }
     }
 
     if (v.type === 'order') {

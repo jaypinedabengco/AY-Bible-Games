@@ -1,0 +1,63 @@
+{
+  "_about": [
+    "The one hand-written thing behind Name the Place. Every puzzle in",
+    "games/name-the-place/deck.js is DERIVED from this list by",
+    "tools/make-name-the-place.js.",
+    "",
+    "`at` is [longitude, latitude], GeoJSON order, and is the ONLY thing that",
+    "decides which map a place is asked on - the deck has no extent field,",
+    "because a second source of truth for that invites a map drawn with no",
+    "pin visible on it."
+  ],
+  "_rule": [
+    "The location must not be seriously disputed. Where a site is argued over,",
+    "it is left out rather than guessed at: a confident wrong pin on a church",
+    "projector is worse than not having the place."
+  ],
+  "_excluded": [
+    { "what": "MOUNT SINAI", "why": "several rival mountains and no consensus; Jebel Musa is tradition, not evidence" },
+    { "what": "CANA", "why": "at least three candidate sites" },
+    { "what": "EMMAUS", "why": "the distance in Luke 24:13 varies by manuscript and no site fits all readings" },
+    { "what": "BETHSAIDA", "why": "two excavated candidates, both argued" },
+    { "what": "AI", "why": "the identification with et-Tell is contested on dating grounds" },
+    { "what": "THE MOUNT OF BEATITUDES", "why": "a traditional site, never located in the text" }
+  ],
+  "places": [
+    { "id": "jerusalem", "kind": "city", "label": "JERUSALEM", "label_fil": "JERUSALEM",
+      "at": [35.23, 31.78], "verse": "2 Samuel 5:7", "clue": "David took its stronghold and called it his city",
+      "clue_fil": "sinakop ito ni David at tinawag na kaniyang lungsod", "difficulty": 1 },
+    { "id": "bethlehem", "kind": "city", "label": "BETHLEHEM", "label_fil": "BETLEHEM",
+      "at": [35.20, 31.70], "verse": "Micah 5:2", "clue": "little among the thousands of Judah",
+      "clue_fil": "maliit sa mga angkan ng Juda", "difficulty": 1 },
+    { "id": "jericho", "kind": "city", "label": "JERICHO", "label_fil": "JERICO",
+      "at": [35.44, 31.87], "verse": "Joshua 6:20", "clue": "the walls fell down flat",
+      "clue_fil": "gumuho ang pader nito", "difficulty": 1 },
+    { "id": "nazareth", "kind": "city", "label": "NAZARETH", "label_fil": "NAZARET",
+      "at": [35.30, 32.70], "verse": "Luke 2:39", "clue": "can anything good come out of it?",
+      "clue_fil": "may mabuti bang manggagaling dito?", "difficulty": 1 },
+    { "id": "sea-of-galilee", "kind": "water", "label": "THE SEA OF GALILEE", "label_fil": "DAGAT NG GALILEA",
+      "at": [35.58, 32.80], "verse": "Matthew 4:18", "clue": "four fishermen were called from this shore",
+      "clue_fil": "apat na mangingisda ang tinawag sa baybaying ito", "difficulty": 1 },
+    { "id": "dead-sea", "kind": "water", "label": "THE DEAD SEA", "label_fil": "DAGAT NA PATAY",
+      "at": [35.45, 31.45], "verse": "Genesis 19:24", "clue": "two cities burned at its southern end",
+      "clue_fil": "dalawang lungsod ang nasunog sa timog nito", "difficulty": 2 },
+    { "id": "joppa", "kind": "city", "label": "JOPPA", "label_fil": "JOPE",
+      "at": [34.75, 32.05], "verse": "Jonah 1:3", "clue": "he paid his fare and sailed the other way",
+      "clue_fil": "nagbayad siya ng pamasahe at naglayag paurong", "difficulty": 2 },
+    { "id": "mount-carmel", "kind": "mountain", "label": "MOUNT CARMEL", "label_fil": "BUNDOK CARMELO",
+      "at": [35.05, 32.73], "verse": "1 Kings 18:38", "clue": "fire fell on a soaked altar here",
+      "clue_fil": "bumaba ang apoy sa basang altar dito", "difficulty": 2 },
+    { "id": "egypt-goshen", "kind": "region", "label": "GOSHEN", "label_fil": "GOSEN",
+      "at": [31.80, 30.80], "verse": "Genesis 47:27", "clue": "Jacob's family settled in the best of the land",
+      "clue_fil": "dito tumira ang sambahayan ni Jacob", "difficulty": 2 },
+    { "id": "babylon", "kind": "city", "label": "BABYLON", "label_fil": "BABILONIA",
+      "at": [44.42, 32.54], "verse": "Daniel 1:1", "clue": "Judah was carried here for seventy years",
+      "clue_fil": "dito dinala ang Juda sa loob ng pitumpung taon", "difficulty": 1 },
+    { "id": "nineveh", "kind": "city", "label": "NINEVEH", "label_fil": "NINIVE",
+      "at": [43.15, 36.36], "verse": "Jonah 3:4", "clue": "forty days, and it shall be overthrown",
+      "clue_fil": "apatnapung araw, at gugain ito", "difficulty": 2 },
+    { "id": "ur", "kind": "city", "label": "UR", "label_fil": "UR",
+      "at": [46.10, 30.96], "verse": "Genesis 11:31", "clue": "Abraham's family left here for Canaan",
+      "clue_fil": "mula rito umalis ang angkan ni Abraham", "difficulty": 3 }
+  ]
+}
