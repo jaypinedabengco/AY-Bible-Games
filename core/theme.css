@@ -348,10 +348,48 @@ html, body {
                 text-transform: uppercase; }
 
 /* Map labels: a halo in the page colour, so a label that ends up over a river
-   or a ridge stays readable. Task 4 builds the rest of the map styling. */
+   or a ridge stays readable. The rest of the map styling follows below. */
 .furniture text, .peaks text {
   paint-order: stroke fill;
   stroke: var(--bg);
   stroke-width: 6;
   stroke-linejoin: round;
 }
+
+/* Name the Place. The map is the question, so it gets the screen; the reveal
+   lines take what is left. 56vh is a starting point checked on a screen, not
+   a derivation - all four beats have to fit without the map moving.
+   The body is a FIXED height for this game and packs from the top: the host
+   centres its contents, so a body that grew as the verse, clue and answer
+   arrived would push the map upward on every press. */
+.body-map { height: 88vh; justify-content: flex-start; }
+.mapwrap { width: 92vw; height: 56vh; max-height: 56vh; flex: none;
+           display: flex; justify-content: center; }
+/* The svg letterboxes (preserveAspectRatio meet) inside this box: a stretched
+   coastline is a wrong map. */
+.mapwrap svg { width: 100%; height: 100%; }
+.body-map .answer { font-size: 9vmin; }
+
+.sea  { fill: #0b1119; }
+/* Filled, NOT stroked. Clipping a continent to a rectangle leaves segments
+   lying exactly along the window edge, and stroking those draws a faint frame
+   round three sides of the map - an artifact of the clip, not a coastline.
+   The land/sea contrast is what shows the coast, which is how the probe read.
+   If the coast needs more definition on a real projector, give it back a
+   stroke built from the non-boundary segments only. */
+.land path { fill: #3b4657; }
+.ridges path { fill: none; stroke: #4d5768; stroke-width: 2.2; stroke-linecap: round; }
+.lakes path  { fill: #16324f; stroke: #4d7fb0; stroke-width: 1.4; }
+.rivers path { fill: none; stroke: #4d7fb0; stroke-width: 2.4;
+               stroke-linejoin: round; stroke-linecap: round; }
+.peaks path  { fill: #7d8ba1; }
+.peaks text  { fill: #9fb0c6; font-size: 13px; letter-spacing: 0.06em; }
+.furniture text { fill: #8fa0b8; font-size: 17px; letter-spacing: 0.12em; }
+/* Where the close map sits, so the two read as one world at two zooms. */
+.locator { fill: none; stroke: var(--dim); stroke-width: 2;
+           stroke-dasharray: 8 6; opacity: 0.55; }
+
+.pin-dot  { fill: var(--accent); stroke: var(--bg); stroke-width: 3; }
+.pin-halo { fill: var(--accent); opacity: 0.25; }
+@keyframes pin-pulse { from { r: 10; opacity: 0.45; } to { r: 34; opacity: 0; } }
+.pin-halo { animation: pin-pulse 1.8s ease-out infinite; }

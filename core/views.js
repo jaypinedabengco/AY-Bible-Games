@@ -236,6 +236,36 @@
         return v;
       },
     },
+    // Name the Place. A pin drops on the map and the room shouts where it is.
+    // Four beats, the same shape as the quote games - pin, verse, clue, name -
+    // and the map is on screen for all of them, because the pin IS the
+    // question and the room is still looking at it when the answer lands.
+    //
+    // A place with no clue written yet has one beat FEWER, not one blank one:
+    // the count comes from revealStage, exactly as the quote games do it.
+    map: {
+      stages: function (variant) { return revealStage(variant); },
+      view: function (puzzle, variant, stage) {
+        var v = base('map', puzzle, variant);
+        var reveal = revealStage(variant);
+        var clueAt = variant.verse ? 2 : 1;
+        v.extent = variant.extent;
+        v.at = variant.at;
+        // The map names its own water in the language being played.
+        v.lang = variant.lang || puzzle.lang || 'en';
+        // Dropped at the reveal, as on the quote games: the answer block
+        // prints it under the name, and twice on one screen reads as a mistake.
+        v.verse = (variant.verse && stage >= 1 && stage < reveal) ? variant.verse : null;
+        v.clue = (variant.clue && stage >= clueAt) ? variant.clue : null;
+        v.answered = answered(puzzle, stage, reveal, variant);
+        if (v.answered) {
+          // JERICHO / JERICO for free, and the verse moves down here.
+          v.answered.alt = otherName(puzzle, variant);
+          v.answered.ref = v.answered.ref || variant.verse || null;
+        }
+        return v;
+      },
+    },
   };
 
   // An ordered item is a label and, usually, a date. A plain string is still

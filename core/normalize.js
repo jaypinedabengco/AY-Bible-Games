@@ -10,6 +10,7 @@
 
   var VARIANT_KEYS = ['type', 'clues', 'img', 'prompt', 'options', 'items',
                       'correct', 'quote', 'verse', 'clue', 'items',
+                      'extent', 'at',
                       'lang', 'answer', 'ref', 'flag', 'spoken', 'weight', 'difficulty'];
 
   function normalizeVariant(v, puzzleDifficulty, spokenDefault) {
@@ -21,6 +22,9 @@
       options: v.options || null,
       items: v.items || null,
       correct: v.correct || null,
+      // Name the Place: which map, and where the pin drops on it.
+      extent: v.extent || null,
+      at: v.at || null,
       quote: v.quote || null,
       verse: v.verse || null,
       clue: v.clue || null,

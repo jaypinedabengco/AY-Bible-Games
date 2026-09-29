@@ -519,3 +519,109 @@ test('a deck can say its text is not spoken, and loses the quote marks', () => {
   const mixed = normalizeDeck({ spoken: false, puzzles: [raw({ spoken: true })] });
   assert.equal(mixed.puzzles[0].variants[0].spoken, true);
 });
+
+test('a map puzzle reveals over four beats', () => {
+  const p = normalizePuzzle({
+    id: 'np-01', answer: 'JERICHO', type: 'map',
+    extent: 'holyland', at: [35.44, 31.87],
+    verse: 'Joshua 6:20', clue: 'the walls fell down flat',
+  });
+  const v = p.variants[0];
+  assert.equal(byType.map.stages(v), 3, 'pin, verse, clue - then the answer');
+
+  const s0 = byType.map.view(p, v, 0);
+  assert.equal(s0.kind, 'map');
+  assert.deepEqual(s0.at, [35.44, 31.87]);
+  assert.equal(s0.extent, 'holyland');
+  assert.equal(s0.verse, null, 'the verse is beat 2, not beat 1');
+  assert.equal(s0.clue, null);
+  assert.equal(s0.answered, null);
+
+  assert.equal(byType.map.view(p, v, 1).verse, 'Joshua 6:20');
+  assert.equal(byType.map.view(p, v, 1).clue, null);
+  assert.equal(byType.map.view(p, v, 2).clue, 'the walls fell down flat');
+  assert.equal(byType.map.view(p, v, 3).answered.answer, 'JERICHO');
+  // The pin is on screen from the first beat and never leaves - it is the
+  // question, and the room is still looking at it when the answer lands.
+  [0, 1, 2, 3].forEach((s) => {
+    assert.deepEqual(byType.map.view(p, v, s).at, [35.44, 31.87]);
+    assert.equal(byType.map.view(p, v, s).extent, 'holyland');
+  });
+});
+
+// A place whose clue is not written yet.
+test('a map puzzle with no clue has one beat fewer, not an empty one', () => {
+  const p = normalizePuzzle({
+    id: 'np-02', answer: 'GAZA', type: 'map',
+    extent: 'holyland', at: [34.47, 31.50], verse: 'Judges 16:21',
+  });
+  const v = p.variants[0];
+  assert.equal(byType.map.stages(v), 2, 'pin, verse - then the answer');
+  assert.equal(byType.map.view(p, v, 1).verse, 'Judges 16:21');
+  assert.equal(byType.map.view(p, v, 1).clue, null);
+  assert.equal(byType.map.view(p, v, 2).answered.answer, 'GAZA',
+    'the answer arrives one beat earlier, not after a blank screen');
+});
+
+test('a Tagalog map puzzle is badged and answered in Tagalog', () => {
+  const p = normalizePuzzle({
+    id: 'np-03', answer: 'JERICHO', type: 'map',
+    variants: [
+      { type: 'map', extent: 'holyland', at: [35.44, 31.87],
+        verse: 'Joshua 6:20', clue: 'the walls fell down flat' },
+      { type: 'map', lang: 'fil', answer: 'JERICO',
+        extent: 'holyland', at: [35.44, 31.87],
+        verse: 'Josue 6:20', clue: 'gumuho ang pader' },
+    ],
+  });
+  const fil = byType.map.view(p, p.variants[1], 3);
+  assert.equal(fil.badge, badgeFor('fil'));
+  assert.equal(fil.answered.answer, 'JERICO');
+  assert.equal(fil.answered.alt, 'JERICHO', 'both name forms at the reveal');
+  assert.equal(fil.lang, 'fil', 'the map labels its water in the language played');
+  assert.equal(byType.map.view(p, p.variants[0], 0).lang, 'en');
+});
+
+test('a map puzzle with neither verse nor clue is pin then answer', () => {
+  const p = normalizePuzzle({
+    id: 'np-04', answer: 'NAZARETH', type: 'map',
+    extent: 'holyland', at: [35.3, 32.7],
+  });
+  const v = p.variants[0];
+  assert.equal(byType.map.stages(v), 1);
+  assert.equal(byType.map.view(p, v, 0).answered, null);
+  assert.equal(byType.map.view(p, v, 1).answered.answer, 'NAZARETH');
+});
+
+test('the verse leaves the screen at the reveal, as on the quote games', () => {
+  const p = normalizePuzzle({
+    id: 'np-05', answer: 'JERICHO', type: 'map',
+    extent: 'holyland', at: [35.44, 31.87],
+    verse: 'Joshua 6:20', clue: 'the walls fell down flat',
+  });
+  const v = p.variants[0];
+  const s3 = byType.map.view(p, v, 3);
+  assert.equal(s3.verse, null, 'the answer block prints it instead');
+  assert.equal(s3.answered.ref, 'Joshua 6:20');
+});
+
+// Land is FILLED, never stroked. Clipping a continent to the window leaves
+// segments lying exactly on its edge, and a stroke draws them as a border -
+// and borders are the one thing this map must not assert.
+test('the stylesheet never strokes the land', () => {
+  const css = require('node:fs').readFileSync(
+    require('node:path').join(__dirname, '..', 'core', 'theme.css'), 'utf8');
+  const rules = css.replace(/\/\*[\s\S]*?\*\//g, '').match(/[^{}]+\{[^}]*\}/g) || [];
+  const land = rules.filter((r) => /\.land\b/.test(r.split('{')[0]));
+  assert.ok(land.length > 0, 'there is a land rule to check');
+  land.forEach((r) => {
+    assert.ok(!/stroke/.test(r.split('{')[1]), 'no stroke on land: ' + r.trim());
+  });
+});
+
+test('the map body holds a fixed height so the map cannot move', () => {
+  const css = require('node:fs').readFileSync(
+    require('node:path').join(__dirname, '..', 'core', 'theme.css'), 'utf8');
+  assert.match(css, /\.body-map\s*\{[^}]*\bheight:/);
+  assert.match(css, /\.mapwrap\s*\{[^}]*max-height:/);
+});

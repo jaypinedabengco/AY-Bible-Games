@@ -147,6 +147,27 @@
         opts.appendChild(el('div', chosen ? 'option option-correct' : 'option', o));
       });
       body.appendChild(opts);
+    } else if (view.kind === 'map') {
+      // A fixed-height body, so the map holds still while the verse, clue and
+      // answer arrive beneath it - see .body-map in theme.css.
+      body.className = 'body body-map';
+      var map = BibleGames.atlas.draw(view.extent, view.lang);
+      var wrap = el('div', 'mapwrap');
+      wrap.appendChild(map);
+      body.appendChild(wrap);
+      // The pin goes in the group the atlas left empty for exactly this.
+      var pins = map.querySelector('.pins');
+      var at = BibleGames.atlas.project(view.extent, view.at[0], view.at[1]);
+      ['pin-halo', 'pin-dot'].forEach(function (cls) {
+        var c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        c.setAttribute('cx', at.x);
+        c.setAttribute('cy', at.y);
+        c.setAttribute('r', cls === 'pin-halo' ? 14 : 9);
+        c.setAttribute('class', cls);
+        pins.appendChild(c);
+      });
+      if (view.verse) { body.appendChild(el('div', 'verse', view.verse)); }
+      if (view.clue) { body.appendChild(el('div', 'clue-text', view.clue)); }
     } else if (view.kind === 'order') {
       if (view.prompt) { body.appendChild(el('div', 'prompt', view.prompt)); }
       if (view.correct) {
