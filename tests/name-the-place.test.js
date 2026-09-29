@@ -138,6 +138,37 @@ test('every place is where the world says it is', () => {
   assert.deepEqual(wrong, [], wrong.join('\n'));
 });
 
+// Distance from a point to the nearest edge of a ring, in degrees.
+function edgeDistance(ring, pt) {
+  let best = Infinity;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const ax = ring[j][0], ay = ring[j][1], bx = ring[i][0], by = ring[i][1];
+    const dx = bx - ax, dy = by - ay;
+    const len2 = dx * dx + dy * dy;
+    let t = len2 ? ((pt[0] - ax) * dx + (pt[1] - ay) * dy) / len2 : 0;
+    t = Math.max(0, Math.min(1, t));
+    best = Math.min(best, Math.hypot(pt[0] - (ax + t * dx), pt[1] - (ay + t * dy)));
+  }
+  return best;
+}
+const near = (rings, pt) => rings.reduce((m, r) => Math.min(m, edgeDistance(r, pt)), Infinity);
+
+// The question this asks is "is the place where a room would expect it", NOT
+// "does it fall inside a polygon we simplified for drawing". Each shoreline is
+// simplified, so a coastal or island place can sit a little off the drawn
+// coast while its coordinate is exactly right; moving the coordinate to please
+// the polygon would put the pin somewhere the place is not. So a place counts
+// as on land - or on a lake shore - if it is inside the ring OR within the
+// simplification band of that extent's data:
+//   holyland    10m data, close to the true shoreline; the tightest genuine
+//               margin is Joppa at 0.007 degrees
+//   bibleworld  50m data at this scale; Paphos, Malta, Troas and Patmos sit
+//               0.04 to 0.41 degrees from the drawn coast, and are correct
+// This is a gross-error detector (a city in the mid-Mediterranean, a mountain
+// in the Arabian desert). Swapped coordinates are caught by the EXPECTED
+// fixture above, which is the check that matters for those.
+const LAND_TOLERANCE = { holyland: 0.05, bibleworld: 0.5 };   // degrees
+
 test('a city is on land, and a lake is in water', () => {
   const atlas = loadAtlas();
   const wrong = [];
@@ -147,17 +178,19 @@ test('a city is on land, and a lake is in water', () => {
       wrong.push(pl.id + ' at [' + pl.at + '] is outside BOTH maps');
       return;
     }
-    // Against the place's OWN extent: the wide coastline is simplified far
-    // more coarsely, so a coastal city can sit a pixel out to sea there while
-    // being correctly inland on the map it is actually drawn on.
+    // Against the place's OWN extent, with that extent's tolerance.
     const e = atlas.extents[name];
-    const onLand = e.land.some((ring) => inside(ring, pl.at));
-    const inLake = e.lakes.some((ring) => inside(ring, pl.at));
+    const tol = LAND_TOLERANCE[name];
+    const onLand = e.land.some((ring) => inside(ring, pl.at)) || near(e.land, pl.at) <= tol;
+    const inLake = e.lakes.some((ring) => inside(ring, pl.at)) || near(e.lakes, pl.at) <= tol;
     if (pl.kind === 'city' || pl.kind === 'mountain') {
       if (!onLand) { wrong.push(pl.id + ' (' + pl.kind + ') is not on land'); }
       // Lakes are not carved out of land, so a city in the Sea of Galilee is
-      // inside a land ring AND a lake ring and would otherwise pass.
-      if (inLake) { wrong.push(pl.id + ' (' + pl.kind + ') is in a lake'); }
+      // inside a land ring AND a lake ring and would otherwise pass. A city
+      // ON the shore (Capernaum) is within the band of the lake edge and is
+      // fine; one well out in the water is not.
+      const deep = e.lakes.some((ring) => inside(ring, pl.at)) && near(e.lakes, pl.at) > tol;
+      if (deep) { wrong.push(pl.id + ' (' + pl.kind + ') is in a lake'); }
     } else if (pl.kind === 'water') {
       if (!inLake) { wrong.push(pl.id + ' is a water place but not inside any lake'); }
     }
