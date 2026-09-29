@@ -337,3 +337,61 @@ test('furniture labels are centred on their coordinate', () => {
         name + ' ' + t.textContent + ' would extend right of its coordinate'));
   });
 });
+
+// fits() feeds the deck generator: a place with a missing or garbled coordinate
+// must come back null and fail there, not be quietly given the close map.
+test('fits refuses anything that is not a real coordinate', () => {
+  const a = loadAtlas();
+  assert.equal(a.fits(undefined, undefined), null, 'missing coordinates');
+  assert.equal(a.fits(NaN, 0), null, 'NaN');
+  assert.equal(a.fits(0, NaN), null, 'NaN latitude');
+  assert.equal(a.fits('35', '32'), null,
+    'strings would coerce in a comparison and pass, so they must be refused');
+  assert.equal(a.fits(null, null), null, 'null');
+  assert.equal(a.fits(Infinity, 32), null, 'infinity');
+});
+
+// Pinned directly: project and unproject both call height(), so a wrong height
+// cancels in a round trip and only shows on screen as a stretched coastline.
+test('the map is not stretched: height follows the window shape, squeezed for latitude', () => {
+  const a = loadAtlas();
+  ['holyland', 'bibleworld'].forEach((name) => {
+    const [W, E, S, N] = a.extents[name].window;
+    const expected = 1000 * (N - S) / ((E - W) * Math.cos((S + N) / 2 * Math.PI / 180));
+    assert.ok(Math.abs(a.height(name) - expected) <= 1,
+      name + ' is ' + a.height(name) + ' tall but should be about ' + Math.round(expected)
+      + ': without the cos(latitude) squeeze the map would be stretched sideways');
+  });
+  assert.ok(Math.abs(a.height('holyland') - 1249) <= 2, 'holyland is about 1249 tall');
+});
+
+test('land and lakes are closed and filled; ridges and rivers are open lines', () => {
+  const a = loadAtlas();
+  ['holyland', 'bibleworld'].forEach((name) => {
+    const groups = {};
+    a.draw(name).children.forEach((c) => { groups[c.attrs['class']] = c; });
+    ['land', 'lakes'].forEach((cls) => {
+      assert.ok(groups[cls].children.length > 0, name + ' ' + cls + ' has paths');
+      groups[cls].children.forEach((p) => assert.ok(/ Z$/.test(p.attrs.d),
+        name + ' ' + cls + ' path is not closed: the data is not always closed, so the path must be'));
+    });
+    ['ridges', 'rivers'].forEach((cls) => groups[cls].children.forEach((p) =>
+      assert.ok(!/Z$/.test(p.attrs.d), name + ' ' + cls + ' path must stay an open line')));
+    // Stroking land would draw a faint frame along the window edge, which
+    // reads as a border. Land is filled only.
+    groups.land.children.forEach((p) => {
+      assert.equal(p.attrs.stroke, undefined, name + ' land path has a stroke');
+      assert.equal(p.attrs.style, undefined, name + ' land path has inline style');
+    });
+    assert.equal(groups.land.attrs.stroke, undefined, name + ' land group has a stroke');
+  });
+});
+
+test('an unknown extent name is named in the error, not "reading window of undefined"', () => {
+  const a = loadAtlas();
+  ['draw', 'height'].forEach((fn) => assert.throws(() => a[fn]('nope'),
+    /no extent named "nope".*known: holyland, bibleworld/, fn));
+  assert.throws(() => a.project(null, 35, 32), /no extent named null/,
+    'fits() returns null; forwarding it should say so');
+  assert.throws(() => a.unproject('nope', 0, 0), /no extent named "nope"/);
+});

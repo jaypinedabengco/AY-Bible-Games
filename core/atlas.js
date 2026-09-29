@@ -31,14 +31,26 @@
     return Math.cos(((win[2] + win[3]) / 2) * Math.PI / 180);
   }
 
+  // The one place an unknown extent name is turned into a useful error.
+  // fits() returns null for a place off the map, and a caller that forwards
+  // that straight into draw() or project() should be told what happened, not
+  // handed "cannot read properties of undefined".
+  function extent(name) {
+    if (!Object.prototype.hasOwnProperty.call(atlas.extents, name)) {
+      throw new Error('atlas: no extent named ' + JSON.stringify(name)
+        + ' (known: ' + Object.keys(atlas.extents).join(', ') + ')');
+    }
+    return atlas.extents[name];
+  }
+
   function height(name) {
-    var win = atlas.extents[name].window;
+    var win = extent(name).window;
     var lonSpan = (win[1] - win[0]) * squeeze(win);
     return Math.round(WIDTH * (win[3] - win[2]) / lonSpan);
   }
 
   function project(name, lon, lat) {
-    var win = atlas.extents[name].window;
+    var win = extent(name).window;
     return {
       x: (lon - win[0]) / (win[1] - win[0]) * WIDTH,
       y: (win[3] - lat) / (win[3] - win[2]) * height(name),
@@ -46,7 +58,7 @@
   }
 
   function unproject(name, x, y) {
-    var win = atlas.extents[name].window;
+    var win = extent(name).window;
     return {
       lon: win[0] + (x / WIDTH) * (win[1] - win[0]),
       lat: win[3] - (y / height(name)) * (win[3] - win[2]),
@@ -66,11 +78,18 @@
   // window's edge would fall through to the wide map, where it is a speck -
   // and which side of the line a float lands on is not a decision anybody
   // should be making.
+  //
+  // Anything that is not a finite number fits nowhere. Every comparison with
+  // NaN is false, so testing for "outside" lets garbage fall through to "the
+  // close map"; and a string like '35' would coerce and pass. A place with a
+  // missing or garbled coordinate must come back null and fail loudly, not
+  // quietly get a pin somewhere arbitrary.
   function fits(lon, lat) {
+    if (typeof lon !== 'number' || typeof lat !== 'number') { return null; }
     var best = null;
     Object.keys(atlas.extents).forEach(function (name) {
       var w = atlas.extents[name].window;
-      if (lon < w[0] || lon > w[1] || lat < w[2] || lat > w[3]) { return; }
+      if (!(lon >= w[0] && lon <= w[1] && lat >= w[2] && lat <= w[3])) { return; }
       if (best === null || area(name) < area(best)) { best = name; }
     });
     return best;
@@ -97,7 +116,7 @@
   }
 
   function draw(name, lang) {
-    var e = atlas.extents[name];
+    var e = extent(name);
     var h = height(name);
     var svg = node('svg', {
       viewBox: '0 0 ' + WIDTH + ' ' + h,
