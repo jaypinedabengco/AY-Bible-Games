@@ -197,3 +197,124 @@ test('the wide map rivers reach the sea, the Nile included', () => {
     'the Nile stops short of the Mediterranean: the northernmost river point is '
     + north.toFixed(2) + ' N, but the delta meets the coast near 31.5 N');
 });
+
+// A DOM stub small enough to sit here. The atlas builds SVG with
+// createElementNS and appendChild and nothing else, so this is the whole
+// surface it touches - and testing it means the layer order is pinned.
+function domStub() {
+  function el(tag) {
+    return {
+      tagName: tag, children: [], attrs: {}, textContent: '',
+      setAttribute: function (k, v) { this.attrs[k] = String(v); },
+      appendChild: function (c) { this.children.push(c); return c; },
+    };
+  }
+  return { createElementNS: function (ns, tag) { return el(tag); } };
+}
+
+function loadAtlas() {
+  const g = { BibleGames: { atlas: { extents: {} } } };
+  g.window = g;
+  g.document = domStub();
+  ['atlas-holyland', 'atlas-bibleworld', 'atlas'].forEach((f) => {
+    new Function('window', 'document', 'globalThis', fs.readFileSync(
+      path.join(ROOT, 'core', f + '.js'), 'utf8')).call(g, g, g.document, g);
+  });
+  return g.BibleGames.atlas;
+}
+
+test('project puts a known place where it belongs on the close map', () => {
+  const a = loadAtlas();
+  // Jerusalem: west of the Dead Sea, a little below the middle of the window.
+  const p = a.project('holyland', 35.23, 31.78);
+  assert.ok(p.x > 0 && p.x < 1000, 'x inside the viewBox');
+  assert.ok(p.y > 0 && p.y < a.height('holyland'), 'y inside the viewBox');
+  // Joppa is west of Jerusalem and north of it.
+  const j = a.project('holyland', 34.75, 32.05);
+  assert.ok(j.x < p.x, 'Joppa is west of Jerusalem');
+  assert.ok(j.y < p.y, 'Joppa is north of Jerusalem, so higher on screen');
+});
+
+test('project round-trips through unproject within a pixel', () => {
+  const a = loadAtlas();
+  [['holyland', 35.23, 31.78], ['bibleworld', 44.42, 32.54]].forEach((c) => {
+    const p = a.project(c[0], c[1], c[2]);
+    const back = a.unproject(c[0], p.x, p.y);
+    assert.ok(Math.abs(back.lon - c[1]) < 0.01, c[0] + ' lon round-trip');
+    assert.ok(Math.abs(back.lat - c[2]) < 0.01, c[0] + ' lat round-trip');
+  });
+});
+
+test('fits returns the tightest extent that contains a place', () => {
+  const a = loadAtlas();
+  assert.equal(a.fits(35.23, 31.78), 'holyland', 'Jerusalem is close-up');
+  assert.equal(a.fits(44.42, 32.54), 'bibleworld', 'Babylon is wide');
+  assert.equal(a.fits(12.50, 41.90), 'bibleworld', 'Rome is wide');
+  assert.equal(a.fits(-60, 0), null, 'nowhere in the Bible world');
+});
+
+// REVIEW FOCUS 1. A place exactly on a boundary must resolve the same way
+// every time, not flap on a floating-point comparison.
+test('a place exactly on an extent boundary resolves deterministically', () => {
+  const a = loadAtlas();
+  const hl = a.extents.holyland.window;
+  [[hl[0], 32.0], [hl[1], 32.0], [35.0, hl[2]], [35.0, hl[3]]].forEach((c) => {
+    const first = a.fits(c[0], c[1]);
+    assert.equal(a.fits(c[0], c[1]), first, 'same answer twice for ' + c);
+    assert.equal(first, 'holyland',
+      'a point ON the close boundary is inside it, not pushed out to the wide map');
+  });
+});
+
+test('draw builds its layers in order and ends with an empty pins group', () => {
+  const a = loadAtlas();
+  const svg = a.draw('holyland');
+  const classes = svg.children.map((c) => c.attrs['class']);
+  assert.deepEqual(classes.slice(0, 4), ['sea', 'land', 'ridges', 'lakes'],
+    'sea under land under ridges under water');
+  const last = svg.children[svg.children.length - 1];
+  assert.equal(last.attrs['class'], 'pins');
+  assert.equal(last.children.length, 0, 'the caller fills this, not the atlas');
+});
+
+// REVIEW FOCUS 2. holyland has no locator; draw must not reach for one.
+test('draw works on an extent with no locator, and draws one when there is', () => {
+  const a = loadAtlas();
+  assert.doesNotThrow(() => a.draw('holyland'));
+  const wide = a.draw('bibleworld');
+  const locator = wide.children.filter((c) => c.attrs['class'] === 'locator');
+  assert.equal(locator.length, 1, 'the wide map shows where the close map sits');
+  assert.equal(a.draw('holyland').children
+    .filter((c) => c.attrs['class'] === 'locator').length, 0);
+});
+
+test('the locator rectangle is actually where the close map is', () => {
+  const a = loadAtlas();
+  const rect = a.draw('bibleworld').children
+    .filter((c) => c.attrs['class'] === 'locator')[0];
+  const w = a.extents.holyland.window;
+  const topLeft = a.project('bibleworld', w[0], w[3]);
+  const botRight = a.project('bibleworld', w[1], w[2]);
+  assert.ok(Math.abs(Number(rect.attrs.x) - topLeft.x) < 0.5, 'left edge');
+  assert.ok(Math.abs(Number(rect.attrs.y) - topLeft.y) < 0.5, 'top edge');
+  assert.ok(Math.abs(Number(rect.attrs.width) - (botRight.x - topLeft.x)) < 0.5, 'width');
+  assert.ok(Math.abs(Number(rect.attrs.height) - (botRight.y - topLeft.y)) < 0.5, 'height');
+});
+
+test('no extent draws a border, ever', () => {
+  const a = loadAtlas();
+  ['holyland', 'bibleworld'].forEach((name) => {
+    const classes = a.draw(name).children.map((c) => c.attrs['class']).join(' ');
+    assert.ok(!/border|country|admin/.test(classes),
+      name + ' drew something border-shaped');
+  });
+});
+
+test('the map names its water in the language being played', () => {
+  const a = loadAtlas();
+  const labels = (lang) => a.draw('holyland', lang).children
+    .filter((c) => c.attrs['class'] === 'furniture')[0]
+    .children.map((t) => t.textContent);
+  assert.ok(labels('en').includes('THE GREAT SEA'));
+  assert.ok(labels('fil').includes('ANG MALAKING DAGAT'));
+});
