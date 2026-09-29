@@ -39,12 +39,12 @@ const JOIN = { holyland: 0.05, bibleworld: 0.05 };
 const FURNITURE = {
   holyland: [
     { label: 'THE GREAT SEA', label_fil: 'ANG MALAKING DAGAT', at: [34.05, 32.20] },
-    { label: 'THE JORDAN', label_fil: 'ILOG JORDAN', at: [35.95, 32.45] },
+    { label: 'THE JORDAN', label_fil: 'ILOG JORDAN', at: [35.9, 32.6] },
   ],
   bibleworld: [
     { label: 'THE GREAT SEA', label_fil: 'ANG MALAKING DAGAT', at: [18.0, 34.5] },
     { label: 'THE NILE', label_fil: 'ILOG NILO', at: [31.0, 27.5] },
-    { label: 'THE EUPHRATES', label_fil: 'ILOG EUFRATES', at: [41.0, 34.0] },
+    { label: 'THE EUPHRATES', label_fil: 'ILOG EUFRATES', at: [40.7, 31.5] },
   ],
 };
 

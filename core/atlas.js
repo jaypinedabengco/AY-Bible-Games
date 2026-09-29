@@ -149,7 +149,7 @@
 
     svg.appendChild(group('furniture', e.furniture.map(function (f) {
       var q = project(name, f.at[0], f.at[1]);
-      var t = node('text', { x: q.x, y: q.y });
+      var t = node('text', { x: q.x, y: q.y, 'text-anchor': 'middle' });
       t.textContent = (lang === 'fil' && f.label_fil) ? f.label_fil : f.label;
       return t;
     })));

@@ -318,3 +318,22 @@ test('the map names its water in the language being played', () => {
   assert.ok(labels('en').includes('THE GREAT SEA'));
   assert.ok(labels('fil').includes('ANG MALAKING DAGAT'));
 });
+
+test('the peaks are named in the language being played, too', () => {
+  const a = loadAtlas();
+  const peaks = (lang) => a.draw('holyland', lang).children
+    .filter((c) => c.attrs['class'] === 'peaks')[0]
+    .children.map((g) => g.children[1].textContent);
+  assert.ok(peaks('en').includes('CARMEL'));
+  assert.ok(peaks('fil').includes('CARMELO'), 'Carmel is Carmelo in Tagalog');
+  assert.ok(!peaks('fil').includes('CARMEL'));
+});
+
+test('furniture labels are centred on their coordinate', () => {
+  const a = loadAtlas();
+  ['holyland', 'bibleworld'].forEach((name) => {
+    a.draw(name).children.filter((c) => c.attrs['class'] === 'furniture')[0]
+      .children.forEach((t) => assert.equal(t.attrs['text-anchor'], 'middle',
+        name + ' ' + t.textContent + ' would extend right of its coordinate'));
+  });
+});

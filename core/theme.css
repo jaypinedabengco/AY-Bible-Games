@@ -346,3 +346,12 @@ html, body {
 .source-words { font-size: 2.2vmin; color: var(--dim); }
 .source-verse { font-size: 2.2vmin; color: var(--accent); letter-spacing: 0.1em;
                 text-transform: uppercase; }
+
+/* Map labels: a halo in the page colour, so a label that ends up over a river
+   or a ridge stays readable. Task 4 builds the rest of the map styling. */
+.furniture text, .peaks text {
+  paint-order: stroke fill;
+  stroke: var(--bg);
+  stroke-width: 6;
+  stroke-linejoin: round;
+}
