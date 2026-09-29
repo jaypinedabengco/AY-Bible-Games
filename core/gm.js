@@ -65,6 +65,10 @@
       });
       return seq.length ? seq.join(' \u2192 ') : null;
     }
+    // A map puzzle's working is the CLUE, because the game master is looking
+    // at a page of text while the room looks at a dot - the clue is the only
+    // thing that connects the two.
+    if (variant.type === 'map') { return variant.clue || variant.verse || null; }
     if (!variant.clues) { return null; }
     return variant.clues.map(function (c) { return c.word; }).join(' + ');
   }
@@ -134,6 +138,19 @@
               answer: v.answer || p.answer,
               options: (v.options || []).slice(),
               ref: v.ref || null,
+            };
+          }),
+        // Where the pin is, and on which map, so an argument can be settled
+        // from this page without opening the deck.
+        places: p.variants.filter(function (v) { return v.type === 'map'; })
+          .map(function (v) {
+            return {
+              lang: v.lang || 'en',
+              answer: v.answer || p.answer,
+              extent: v.extent,
+              at: v.at,
+              verse: v.verse || null,
+              clue: v.clue || null,
             };
           }),
         // The sequence with its dates, so an argument in the room can be

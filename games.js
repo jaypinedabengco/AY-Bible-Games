@@ -72,4 +72,13 @@ window.GAMES = [
     meta: 'Collecting pictures',
     status: 'parked',
   },
+  {
+    // The first game with a map. Two extents, and the deck picks the tighter
+    // one automatically from each place's coordinates.
+    title: 'Name the Place',
+    href: 'games/name-the-place/index.html',
+    blurb: 'A dot on the map of the Bible world. The room says what place it is.',
+    meta: 'Being written',
+    status: 'parked',
+  },
 ];

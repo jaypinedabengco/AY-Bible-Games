@@ -146,6 +146,8 @@
 <script>window.DECKS.push({ slug: 'who-did-it', deck: window.DECK });</script>
 <script src="games/what-came-first/deck.js"></script>
 <script>window.DECKS.push({ slug: 'what-came-first', deck: window.DECK });</script>
+<script src="games/name-the-place/deck.js"></script>
+<script>window.DECKS.push({ slug: 'name-the-place', deck: window.DECK });</script>
 <script src="games/higher-or-lower/deck.js"></script>
 <script>window.DECKS.push({ slug: 'higher-or-lower', deck: window.DECK });</script>
 
@@ -368,6 +370,19 @@
           box.appendChild(block);
         });
 
+        // A map puzzle: the answer, which map it is on, and the clue. The room
+        // is looking at a dot; this is what says what the dot is.
+        (r.places || []).forEach(function (pl) {
+          var block = el('div', 'gmquote');
+          block.appendChild(el('div', 'gmq', pl.answer));
+          var meta = [pl.extent === 'holyland' ? 'close map' : 'wide map'];
+          if (pl.verse) { meta.push(pl.verse); }
+          if (pl.lang === 'fil') { meta.push('Tagalog'); }
+          block.appendChild(el('div', 'gmv', meta.join('  \u00b7  ')));
+          if (pl.clue) { block.appendChild(el('div', 'gmc', 'clue: ' + pl.clue)); }
+          box.appendChild(block);
+        });
+
         box.appendChild(el('div', 'ranswer', r.answer));
         // Every other language this puzzle is asked in, named.
         Object.keys(r.names || {}).forEach(function (lang) {
@@ -380,7 +395,8 @@
         // On a quote, trail, ordering or binary deck the working is already
         // shown above.
         if (!r.quotes.length && !(r.trails || []).length
-            && !(r.orders || []).length && !(r.choices || []).length) {
+            && !(r.orders || []).length && !(r.choices || []).length
+            && !(r.places || []).length) {
           r.workings.forEach(function (w) { box.appendChild(el('div', 'rwork', w)); });
         }
         if (r.ref) { box.appendChild(el('div', 'rref', r.ref)); }
