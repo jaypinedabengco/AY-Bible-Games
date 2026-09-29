@@ -357,18 +357,27 @@ html, body {
 }
 
 /* Name the Place. The map is the question, so it gets the screen; the reveal
-   lines take what is left. 56vh is a starting point checked on a screen, not
-   a derivation - all four beats have to fit without the map moving.
-   The body is a FIXED height for this game and packs from the top: the host
-   centres its contents, so a body that grew as the verse, clue and answer
-   arrived would push the map upward on every press. */
-.body-map { height: 88vh; justify-content: flex-start; }
-.mapwrap { width: 92vw; height: 56vh; max-height: 56vh; flex: none;
+   lines take what is left. 62% of the body is a starting point checked on a
+   screen, not a derivation - all four beats have to fit without the map
+   moving.
+   The body FILLS the host (flex: 1, not a vh height: on a phone whose toolbar
+   collapses, vh is the large viewport and would overflow and clip the answer)
+   and packs from the top. The host centres its contents, so a body that grew
+   as the verse, clue and answer arrived would push the map upward on every
+   press. */
+.body-map { flex: 1; min-height: 0; justify-content: flex-start; }
+.mapwrap { width: 92vw; height: 62%; max-height: 62%; flex: none;
            display: flex; justify-content: center; }
 /* The svg letterboxes (preserveAspectRatio meet) inside this box: a stretched
    coastline is a wrong map. */
 .mapwrap svg { width: 100%; height: 100%; }
 .body-map .answer { font-size: 9vmin; }
+/* Nearly the answer, so it is sized like the answer. The wide tracking is what
+   makes the underscores read as separate slots - one per letter, countable from
+   the back of a hall - rather than one long rule. */
+.masked { font-size: 8vmin; font-weight: 700; letter-spacing: 0.35em;
+          padding-left: 0.35em; /* balances the trailing tracking so it centres */
+          color: var(--accent); white-space: pre-wrap; text-align: center; }
 
 .sea  { fill: #0b1119; }
 /* Filled, NOT stroked. Clipping a continent to a rectangle leaves segments
@@ -389,7 +398,7 @@ html, body {
 .locator { fill: none; stroke: var(--dim); stroke-width: 2;
            stroke-dasharray: 8 6; opacity: 0.55; }
 
-.pin-dot  { fill: var(--accent); stroke: var(--bg); stroke-width: 3; }
+.pin-dot  { fill: var(--accent); stroke: var(--bg); stroke-width: 5; }
 .pin-halo { fill: var(--accent); opacity: 0.25; }
-@keyframes pin-pulse { from { r: 10; opacity: 0.45; } to { r: 34; opacity: 0; } }
+@keyframes pin-pulse { from { r: 30; opacity: 0.45; } to { r: 75; opacity: 0; } }
 .pin-halo { animation: pin-pulse 1.8s ease-out infinite; }

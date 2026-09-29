@@ -520,14 +520,14 @@ test('a deck can say its text is not spoken, and loses the quote marks', () => {
   assert.equal(mixed.puzzles[0].variants[0].spoken, true);
 });
 
-test('a map puzzle reveals over four beats', () => {
+test('a map puzzle reveals over five beats', () => {
   const p = normalizePuzzle({
     id: 'np-01', answer: 'JERICHO', type: 'map',
     extent: 'holyland', at: [35.44, 31.87],
     verse: 'Joshua 6:20', clue: 'the walls fell down flat',
   });
   const v = p.variants[0];
-  assert.equal(byType.map.stages(v), 3, 'pin, verse, clue - then the answer');
+  assert.equal(byType.map.stages(v), 4, 'pin, verse, clue, first letter - then the answer');
 
   const s0 = byType.map.view(p, v, 0);
   assert.equal(s0.kind, 'map');
@@ -535,15 +535,23 @@ test('a map puzzle reveals over four beats', () => {
   assert.equal(s0.extent, 'holyland');
   assert.equal(s0.verse, null, 'the verse is beat 2, not beat 1');
   assert.equal(s0.clue, null);
+  assert.equal(s0.masked, null);
   assert.equal(s0.answered, null);
 
   assert.equal(byType.map.view(p, v, 1).verse, 'Joshua 6:20');
   assert.equal(byType.map.view(p, v, 1).clue, null);
+  assert.equal(byType.map.view(p, v, 1).masked, null);
   assert.equal(byType.map.view(p, v, 2).clue, 'the walls fell down flat');
-  assert.equal(byType.map.view(p, v, 3).answered.answer, 'JERICHO');
+  assert.equal(byType.map.view(p, v, 2).masked, null);
+  const s3 = byType.map.view(p, v, 3);
+  assert.equal(s3.masked, 'J______', 'the first letter, with the rest hidden');
+  assert.equal(s3.answered, null);
+  assert.equal(s3.verse, 'Joshua 6:20', 'the earlier lines stay up');
+  assert.equal(s3.clue, 'the walls fell down flat');
+  assert.equal(byType.map.view(p, v, 4).answered.answer, 'JERICHO');
   // The pin is on screen from the first beat and never leaves - it is the
   // question, and the room is still looking at it when the answer lands.
-  [0, 1, 2, 3].forEach((s) => {
+  [0, 1, 2, 3, 4].forEach((s) => {
     assert.deepEqual(byType.map.view(p, v, s).at, [35.44, 31.87]);
     assert.equal(byType.map.view(p, v, s).extent, 'holyland');
   });
@@ -556,14 +564,16 @@ test('a map puzzle with no clue has one beat fewer, not an empty one', () => {
     extent: 'holyland', at: [34.47, 31.50], verse: 'Judges 16:21',
   });
   const v = p.variants[0];
-  assert.equal(byType.map.stages(v), 2, 'pin, verse - then the answer');
+  assert.equal(byType.map.stages(v), 3, 'pin, verse, first letter - then the answer');
   assert.equal(byType.map.view(p, v, 1).verse, 'Judges 16:21');
   assert.equal(byType.map.view(p, v, 1).clue, null);
-  assert.equal(byType.map.view(p, v, 2).answered.answer, 'GAZA',
+  assert.equal(byType.map.view(p, v, 2).masked, 'G___');
+  assert.equal(byType.map.view(p, v, 2).clue, null, 'no blank clue beat');
+  assert.equal(byType.map.view(p, v, 3).answered.answer, 'GAZA',
     'the answer arrives one beat earlier, not after a blank screen');
 });
 
-test('a Tagalog map puzzle is badged and answered in Tagalog', () => {
+test('a Tagalog map puzzle is badged, masked and answered in Tagalog', () => {
   const p = normalizePuzzle({
     id: 'np-03', answer: 'JERICHO', type: 'map',
     variants: [
@@ -574,23 +584,29 @@ test('a Tagalog map puzzle is badged and answered in Tagalog', () => {
         verse: 'Josue 6:20', clue: 'gumuho ang pader' },
     ],
   });
-  const fil = byType.map.view(p, p.variants[1], 3);
+  const fil = byType.map.view(p, p.variants[1], 4);
   assert.equal(fil.badge, badgeFor('fil'));
   assert.equal(fil.answered.answer, 'JERICO');
   assert.equal(fil.answered.alt, 'JERICHO', 'both name forms at the reveal');
   assert.equal(fil.lang, 'fil', 'the map labels its water in the language played');
   assert.equal(byType.map.view(p, p.variants[0], 0).lang, 'en');
+  // The mask reads the VARIANT's answer - the trap the badge fell into twice.
+  assert.equal(byType.map.view(p, p.variants[1], 3).masked, 'J_____');
+  assert.equal(byType.map.view(p, p.variants[0], 3).masked, 'J______');
 });
 
-test('a map puzzle with neither verse nor clue is pin then answer', () => {
+test('a map puzzle with neither verse nor clue is pin, first letter, answer', () => {
   const p = normalizePuzzle({
     id: 'np-04', answer: 'NAZARETH', type: 'map',
     extent: 'holyland', at: [35.3, 32.7],
   });
   const v = p.variants[0];
-  assert.equal(byType.map.stages(v), 1);
+  assert.equal(byType.map.stages(v), 2, 'the mask needs nothing from the deck');
+  assert.equal(byType.map.view(p, v, 0).masked, null);
   assert.equal(byType.map.view(p, v, 0).answered, null);
-  assert.equal(byType.map.view(p, v, 1).answered.answer, 'NAZARETH');
+  assert.equal(byType.map.view(p, v, 1).masked, 'N_______');
+  assert.equal(byType.map.view(p, v, 1).answered, null);
+  assert.equal(byType.map.view(p, v, 2).answered.answer, 'NAZARETH');
 });
 
 test('the verse leaves the screen at the reveal, as on the quote games', () => {
@@ -600,28 +616,211 @@ test('the verse leaves the screen at the reveal, as on the quote games', () => {
     verse: 'Joshua 6:20', clue: 'the walls fell down flat',
   });
   const v = p.variants[0];
-  const s3 = byType.map.view(p, v, 3);
-  assert.equal(s3.verse, null, 'the answer block prints it instead');
-  assert.equal(s3.answered.ref, 'Joshua 6:20');
+  const s4 = byType.map.view(p, v, 4);
+  assert.equal(s4.verse, null, 'the answer block prints it instead');
+  assert.equal(s4.answered.ref, 'Joshua 6:20');
+});
+
+test('the mask is derived: words keep their spaces, punctuation stays put', () => {
+  const { maskAnswer } = globalThis.BibleGames.views;
+  assert.equal(maskAnswer('JERICHO'), 'J______');
+  assert.equal(maskAnswer('THE DEAD SEA'), 'T__ D___ S__');
+  assert.equal(maskAnswer('ANTIOCH IN PISIDIA'), 'A______ I_ P______');
+  assert.equal(maskAnswer("PATMOS-ISLE O'ER"), "P_____-____ O'__");
+  assert.equal(maskAnswer('BETHLEHEM EPHRATAH').split(' ').length, 2);
+  assert.equal(maskAnswer(''), null);
+});
+
+test('the mask never shares a stage with the answer, whatever the puzzle has', () => {
+  [
+    { verse: 'A 1:1', clue: 'c' }, { verse: 'A 1:1' }, { clue: 'c' }, {},
+  ].forEach((extra) => {
+    const p = normalizePuzzle(Object.assign({
+      id: 'np-09', answer: 'THE DEAD SEA', type: 'map',
+      extent: 'holyland', at: [35.4, 31.5],
+    }, extra));
+    const v = p.variants[0];
+    const n = byType.map.stages(v);
+    let masks = 0;
+    for (let s = 0; s <= n; s += 1) {
+      const view = byType.map.view(p, v, s);
+      assert.ok(!(view.masked && view.answered), 'stage ' + s + ' ' + JSON.stringify(extra));
+      if (view.masked) { masks += 1; assert.equal(s, n - 1, 'mask is the beat before the answer'); }
+    }
+    assert.equal(masks, 1, 'exactly one mask beat ' + JSON.stringify(extra));
+  });
 });
 
 // Land is FILLED, never stroked. Clipping a continent to the window leaves
 // segments lying exactly on its edge, and a stroke draws them as a border -
 // and borders are the one thing this map must not assert.
-test('the stylesheet never strokes the land', () => {
-  const css = require('node:fs').readFileSync(
-    require('node:path').join(__dirname, '..', 'core', 'theme.css'), 'utf8');
-  const rules = css.replace(/\/\*[\s\S]*?\*\//g, '').match(/[^{}]+\{[^}]*\}/g) || [];
-  const land = rules.filter((r) => /\.land\b/.test(r.split('{')[0]));
-  assert.ok(land.length > 0, 'there is a land rule to check');
-  land.forEach((r) => {
-    assert.ok(!/stroke/.test(r.split('{')[1]), 'no stroke on land: ' + r.trim());
+//
+// So the check is not "does a .land rule mention stroke" but "does ANY rule
+// with a stroke have a selector that could match a land path". A stroke is
+// only allowed where the selector explicitly names something that is not land.
+const NOT_LAND = ['ridges', 'rivers', 'lakes', 'peaks', 'locator', 'furniture', 'pin-'];
+
+// Every style rule in a stylesheet, at-rules flattened: the rules inside an
+// @media block are returned as rules of their own. @keyframes and @font-face
+// hold no selectors, so they are skipped.
+function styleRules(css) {
+  const text = css.replace(/\/\*[\s\S]*?\*\//g, '');
+  const out = [];
+  (function walk(from, to) {
+    let i = from;
+    while (i < to) {
+      const open = text.indexOf('{', i);
+      if (open === -1 || open >= to) { break; }
+      let depth = 1, j = open + 1;
+      while (j < to && depth > 0) {
+        if (text[j] === '{') { depth++; } else if (text[j] === '}') { depth--; }
+        j++;
+      }
+      const head = text.slice(i, open).trim();
+      if (/^@(media|supports|layer|container)/.test(head)) {
+        walk(open + 1, j - 1);
+      } else if (!head.startsWith('@')) {
+        out.push({ selector: head, body: text.slice(open + 1, j - 1) });
+      }
+      i = j;
+    }
+  })(0, text.length);
+  return out;
+}
+
+// The rules that stroke something that might be land.
+function landStrokeLeaks(css) {
+  const leaks = [];
+  styleRules(css).forEach((r) => {
+    if (!/stroke/.test(r.body)) { return; }
+    r.selector.split(',').forEach((part) => {
+      const named = NOT_LAND.some((cls) => part.indexOf('.' + cls) !== -1);
+      if (!named) { leaks.push(part.trim() + ' { ' + r.body.trim() + ' }'); }
+    });
   });
+  return leaks;
+}
+
+const THEME_CSS = require('node:fs').readFileSync(
+  require('node:path').join(__dirname, '..', 'core', 'theme.css'), 'utf8');
+
+test('the stylesheet never strokes the land', () => {
+  assert.ok(styleRules(THEME_CSS).some((r) => /\.land\b/.test(r.selector)),
+    'there is a land rule to check');
+  assert.deepEqual(landStrokeLeaks(THEME_CSS), []);
 });
 
-test('the map body holds a fixed height so the map cannot move', () => {
-  const css = require('node:fs').readFileSync(
-    require('node:path').join(__dirname, '..', 'core', 'theme.css'), 'utf8');
-  assert.match(css, /\.body-map\s*\{[^}]*\bheight:/);
-  assert.match(css, /\.mapwrap\s*\{[^}]*max-height:/);
+test('the land-stroke check catches every way of stroking land it knows of', () => {
+  [
+    '.land path { stroke: #fff; }',
+    '.land { stroke: #fff; }',
+    'svg path { stroke: #fff; }',
+    '[class=land] path { stroke: #fff; }',
+    'path { stroke-width: 2; }',
+    '@media (min-width: 1px) { .land path { stroke: #fff; } }',
+    '.ridges path, .land path { stroke: #fff; }',
+  ].forEach((mutation) => {
+    assert.ok(landStrokeLeaks(THEME_CSS + '\n' + mutation).length > 0,
+      'not caught: ' + mutation);
+  });
+  // ...and does not cry wolf at a stroke that is plainly not on land.
+  assert.deepEqual(landStrokeLeaks('.rivers path { stroke: #fff; }'), []);
+});
+
+test('the map body fills the host, so the map cannot move as text arrives', () => {
+  const rule = (sel) => styleRules(THEME_CSS).find((r) => r.selector === sel);
+  const body = rule('.body-map');
+  assert.ok(body, 'a .body-map rule exists');
+  assert.match(body.body, /flex:\s*1/);
+  assert.match(body.body, /min-height:\s*0/);
+  assert.match(body.body, /justify-content:\s*flex-start/,
+    'packs from the top; centring would move the map on every beat');
+  assert.doesNotMatch(body.body, /\d\s*vh/,
+    'vh is the large viewport on a phone and overflows the host');
+  assert.match(rule('.mapwrap').body, /max-height:/);
+});
+
+// A clue with no verse: the clue is beat 1, and it must not wait for a beat
+// that does not exist.
+test('a map puzzle with a clue but no verse shows the clue on the first press', () => {
+  const p = normalizePuzzle({
+    id: 'np-06', answer: 'BABEL', type: 'map', extent: 'bibleworld',
+    at: [44.4, 32.5], clue: 'a tower that reached for heaven',
+  });
+  const v = p.variants[0];
+  assert.equal(byType.map.stages(v), 3, 'pin, clue, first letter - then the answer');
+  assert.equal(byType.map.view(p, v, 0).clue, null);
+  assert.equal(byType.map.view(p, v, 1).clue, 'a tower that reached for heaven');
+  assert.equal(byType.map.view(p, v, 1).verse, null);
+  assert.equal(byType.map.view(p, v, 2).masked, 'B____');
+  assert.equal(byType.map.view(p, v, 3).answered.answer, 'BABEL');
+});
+
+test('a map puzzle carries whichever extent it names', () => {
+  const p = normalizePuzzle({
+    id: 'np-07', answer: 'ROME', type: 'map', extent: 'bibleworld', at: [12.5, 41.9],
+  });
+  const v = byType.map.view(p, p.variants[0], 0);
+  assert.equal(v.extent, 'bibleworld');
+  assert.deepEqual(v.at, [12.5, 41.9]);
+});
+
+// The paint branch has no browser here, so this stubs the little of the DOM it
+// touches. It pins the three things that are otherwise only checked by eye:
+// the pin goes INTO the atlas's .pins group, nothing is appended after that
+// group, and the body carries the class that stops the map moving.
+test('painting a map puts the pin in .pins and marks the body fixed', () => {
+  function node(tag) {
+    return {
+      tagName: tag, className: '', textContent: '', children: [], attrs: {},
+      setAttribute(k, v) { this.attrs[k] = String(v); },
+      appendChild(c) { this.children.push(c); return c; },
+    };
+  }
+  const pins = node('g'); pins.attrs.class = 'pins';
+  const svg = node('svg');
+  svg.children.push(node('g'), pins);          // pins LAST, as the atlas draws it
+  svg.querySelector = (sel) => (sel === '.pins' ? pins : null);
+  const asked = [];
+  const saved = { document: globalThis.document, atlas: globalThis.BibleGames.atlas };
+  globalThis.document = {
+    createElement: node,
+    createElementNS: (ns, tag) => node(tag),
+  };
+  globalThis.BibleGames.atlas = {
+    draw: (extent, lang) => { asked.push([extent, lang]); return svg; },
+    project: () => ({ x: 412, y: 267 }),
+  };
+  try {
+    require('../core/paint.js');
+    const host = node('div');
+    const p = normalizePuzzle({
+      id: 'np-08', answer: 'JERICHO', type: 'map', extent: 'holyland',
+      at: [35.44, 31.87], verse: 'Joshua 6:20',
+    });
+    globalThis.BibleGames.paint.render(host, byType.map.view(p, p.variants[0], 1), null, null);
+
+    const body = host.children.find((c) => /\bbody\b/.test(c.className));
+    assert.ok(body, 'the body was added to the host');
+    assert.match(body.className, /\bbody-map\b/);
+    assert.deepEqual(asked, [['holyland', 'en']]);
+    assert.equal(svg.children[svg.children.length - 1], pins,
+      'nothing is appended after the pins group');
+    assert.equal(pins.children.length, 2, 'a halo and a dot');
+    pins.children.forEach((c) => {
+      assert.equal(c.tagName, 'circle');
+      assert.equal(c.attrs.cx, '412');
+      assert.equal(c.attrs.cy, '267');
+    });
+    assert.deepEqual(pins.children.map((c) => c.attrs.class), ['pin-halo', 'pin-dot']);
+    assert.ok(Number(pins.children[1].attrs.r) >= 20, 'the dot is big enough to see');
+    assert.ok(!body.children.some((c) => c.className === 'masked'),
+      'no mask before its beat');
+    const wrap = body.children.find((c) => c.className === 'mapwrap');
+    assert.ok(wrap && wrap.children[0] === svg, 'the svg sits in the map wrapper');
+  } finally {
+    if (saved.document === undefined) { delete globalThis.document; }
+    else { globalThis.document = saved.document; }
+    globalThis.BibleGames.atlas = saved.atlas;
+  }
 });

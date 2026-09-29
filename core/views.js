@@ -90,6 +90,20 @@
     return 1 + (variant.verse ? 1 : 0) + (variant.clue ? 1 : 0);
   }
 
+  // The first letter of each word, every other LETTER an underscore. The count
+  // is part of the hint, so runs are not collapsed; spaces, apostrophes and
+  // hyphens stay as they are. A letter is anything with a case, which is how
+  // to say so without a Unicode-aware regex in code that has to run in ES5.
+  function maskAnswer(answer) {
+    if (!answer) { return null; }
+    return String(answer).split(' ').map(function (word) {
+      return word.split('').map(function (ch, i) {
+        var letter = ch.toLowerCase() !== ch.toUpperCase();
+        return (i === 0 || !letter) ? ch : '_';
+      }).join('');
+    }).join(' ');
+  }
+
   var byType = {
     rebus: {
       stages: function () { return 2; },
@@ -237,17 +251,21 @@
       },
     },
     // Name the Place. A pin drops on the map and the room shouts where it is.
-    // Four beats, the same shape as the quote games - pin, verse, clue, name -
-    // and the map is on screen for all of them, because the pin IS the
-    // question and the room is still looking at it when the answer lands.
+    // Five beats at most - pin, verse, clue, the first letter with the rest
+    // hidden, then the name - and the map is on screen for all of them,
+    // because the pin IS the question and the room is still looking at it
+    // when the answer lands.
     //
     // A place with no clue written yet has one beat FEWER, not one blank one:
-    // the count comes from revealStage, exactly as the quote games do it.
+    // the count comes from revealStage, exactly as the quote games do it. The
+    // masked beat is always there, because it is derived from the answer and
+    // needs nothing from the deck.
     map: {
-      stages: function (variant) { return revealStage(variant); },
+      stages: function (variant) { return revealStage(variant) + 1; },
       view: function (puzzle, variant, stage) {
         var v = base('map', puzzle, variant);
-        var reveal = revealStage(variant);
+        var maskAt = revealStage(variant);
+        var reveal = maskAt + 1;
         var clueAt = variant.verse ? 2 : 1;
         v.extent = variant.extent;
         v.at = variant.at;
@@ -257,6 +275,11 @@
         // prints it under the name, and twice on one screen reads as a mistake.
         v.verse = (variant.verse && stage >= 1 && stage < reveal) ? variant.verse : null;
         v.clue = (variant.clue && stage >= clueAt) ? variant.clue : null;
+        // On its own beat only. Earlier it would give the answer's shape away
+        // for free; at the reveal the answer itself has replaced it. The
+        // VARIANT's answer, so JERICO masks as J_____ and not as JERICHO.
+        v.masked = stage === maskAt
+          ? maskAnswer((variant && variant.answer) || puzzle.answer) : null;
         v.answered = answered(puzzle, stage, reveal, variant);
         if (v.answered) {
           // JERICHO / JERICO for free, and the verse moves down here.
@@ -289,6 +312,7 @@
     formatRef: formatRef,
     badgeFor: badgeFor,
     byType: byType,
+    maskAnswer: maskAnswer,
     stagesForItem: stagesForItem,
     viewForItem: viewForItem,
   };

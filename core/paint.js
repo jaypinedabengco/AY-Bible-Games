@@ -162,12 +162,17 @@
         var c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
         c.setAttribute('cx', at.x);
         c.setAttribute('cy', at.y);
-        c.setAttribute('r', cls === 'pin-halo' ? 14 : 9);
+        // In viewBox units, so they scale with the map. The pin is the
+        // question: at 1080p the close map is drawn at about half size, and
+        // the dot has to be seen from the back of a hall.
+        c.setAttribute('r', cls === 'pin-halo' ? 30 : 20);
         c.setAttribute('class', cls);
         pins.appendChild(c);
       });
       if (view.verse) { body.appendChild(el('div', 'verse', view.verse)); }
       if (view.clue) { body.appendChild(el('div', 'clue-text', view.clue)); }
+      // The first letter and a slot for each of the rest.
+      if (view.masked) { body.appendChild(el('div', 'masked', view.masked)); }
     } else if (view.kind === 'order') {
       if (view.prompt) { body.appendChild(el('div', 'prompt', view.prompt)); }
       if (view.correct) {
