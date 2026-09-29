@@ -190,16 +190,29 @@ coordinates. That boundary is the reason stage 2 reuses it untouched.
 1   [ a dot pulses, west of the Dead Sea ]
 2   JOSHUA 6:20
 3   the walls fell down flat
-4   JERICHO  /  JERICO
+4   J _ _ _ _ _ _
+5   JERICHO  /  JERICO
 ```
 
-Four beats, matching the quote-shaped games, with the map visible throughout
-because the pin *is* the question.
+Five beats, with the map visible throughout because the pin *is* the question.
+
+**The fourth beat is the first letter with the rest masked** — the move a host
+makes when a room is stuck, and the natural last nudge before giving it away.
+It costs no deck content, because the mask is DERIVED from the answer: each
+word keeps its first character and every other letter becomes an underscore,
+spaces preserved. `THE DEAD SEA` becomes `T__ D___ S__`. The letter count is
+part of the hint, so runs are never collapsed.
+
+Deriving it also means it works in both languages for nothing, and it must be
+derived from the VARIANT's answer rather than the puzzle's — JERICO masks to
+`J_____`, not to JERICHO's `J______`. That is the same variant-versus-puzzle
+trap that produced an English badge on a Tagalog round, twice.
 
 `views.js` gains a `map` type whose `stages` is `1 + (verse ? 1 : 0) +
-(clue ? 1 : 0)` — the expression the `quote` type already uses, so a place
-whose clue is not written yet simply has fewer beats. The view carries
-`extent`, `at: [lon, lat]`, and the usual `verse` / `clue` / `answered`.
+(clue ? 1 : 0) + 1` — the `quote` type's expression, so a place whose clue is
+not written yet simply has fewer beats, plus one for the mask, which is always
+available because it needs nothing from the deck. The view carries `extent`,
+`at: [lon, lat]`, `masked`, and the usual `verse` / `clue` / `answered`.
 
 Unlike `order`, this renderer **keeps `answerBlock`**: a place name is a
 shoutable answer, so the existing bilingual pairing yields JERICHO / JERICO
