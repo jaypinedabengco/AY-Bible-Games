@@ -253,6 +253,11 @@ test('a name identical in both languages is printed once', () => {
     'UR and UR are one word; printing it twice reads as a mistake');
 });
 
+// The pin is a dot 40 viewBox units across inside a halo of radius 30
+// (core/paint.js), so 45 is roughly the distance at which two pins would clear
+// each other. It was 20 when the pin was 18 units across.
+const MIN_SEPARATION = 45;
+
 test('pin separation is measured, and close pairs are named', () => {
   const atlas = loadAtlas();
   const close = [];
@@ -268,16 +273,33 @@ test('pin separation is measured, and close pairs are named', () => {
         const a = atlas.project(e, list[i].at[0], list[i].at[1]);
         const b = atlas.project(e, list[j].at[0], list[j].at[1]);
         const d = Math.hypot(a.x - b.x, a.y - b.y);
-        // A pin is about 18 viewBox units across. Closer than 20 and the room
-        // is being shown a distinction it cannot see.
-        if (d < 20) { close.push(list[i].id + ' / ' + list[j].id + ': ' + d.toFixed(1)); }
+        if (d < MIN_SEPARATION) { close.push(list[i].id + ' / ' + list[j].id + ': ' + d.toFixed(1)); }
       }
     }
   });
-  // Allowing a pair is a deliberate act: name it here, with the reason. There
-  // are none today - Jerusalem and Bethlehem are 28 units apart on the Holy
-  // Land map, clear of the 20 a pin needs.
-  const ALLOWED = [];
+  // Allowing a pair is a deliberate act: name it here, with the reason.
+  //
+  // These pairs are closer than a pin, and every one is a real place pair a
+  // room could be asked about. They are not live defects: exactly ONE pin is
+  // drawn per puzzle, so two pins never overlap on screen. What closeness costs
+  // is that the pin alone barely separates the two, so the clue and the verse
+  // have to do the telling apart - which is why each pair below has clues that
+  // point different ways. A NEW close pair still fails until it is named here.
+  const ALLOWED = [
+    'jerusalem / bethlehem',      // 28: the two most famous towns of Judah
+    'nazareth / mount-tabor',     // 26
+    'sea-of-galilee / capernaum', // 27: a lake and its own shore town
+    'shechem / samaria',          // 35
+    'bethel / shiloh',            // 43
+    'mount-gilboa / beth-shan',   // 28: Saul's last battle and where his body hung
+    'egypt-goshen / memphis',     // 36
+    'athens / corinth',           // 22: Paul's two Greek cities
+    'ephesus / patmos',           // 31
+    'philippi / thessalonica',    // 40
+    'thessalonica / berea',       // 21
+    'antioch-syria / tarsus',     // 43
+    'antioch-pisidia / lystra',   // 43
+  ];
   const surprise = close.filter((c) => ALLOWED.indexOf(c.split(':')[0]) === -1);
   assert.deepEqual(surprise, [], 'pins too close to tell apart:\n' + surprise.join('\n'));
 });
