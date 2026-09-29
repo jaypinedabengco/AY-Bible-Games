@@ -374,12 +374,16 @@
         // is looking at a dot; this is what says what the dot is.
         (r.places || []).forEach(function (pl) {
           var block = el('div', 'gmquote');
-          block.appendChild(el('div', 'gmq', pl.answer));
-          var meta = [pl.extent === 'holyland' ? 'close map' : 'wide map'];
+          // Lead with what the ROOM sees, as the quote, trail and order blocks do:
+          // the answer is already the row's own line, and repeating it here
+          // put a bilingual place's name on screen four times.
+          block.appendChild(el('div', 'gmq', pl.clue || pl.verse || ''));
+          var meta = [pl.extent === 'holyland' ? 'close map'
+            : pl.extent === 'bibleworld' ? 'wide map'
+            : String(pl.extent)];
           if (pl.verse) { meta.push(pl.verse); }
           if (pl.lang === 'fil') { meta.push('Tagalog'); }
           block.appendChild(el('div', 'gmv', meta.join('  \u00b7  ')));
-          if (pl.clue) { block.appendChild(el('div', 'gmc', 'clue: ' + pl.clue)); }
           box.appendChild(block);
         });
 

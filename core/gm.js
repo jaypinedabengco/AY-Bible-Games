@@ -148,7 +148,7 @@
               lang: v.lang || 'en',
               answer: v.answer || p.answer,
               extent: v.extent,
-              at: v.at,
+              at: v.at && v.at.slice(),
               verse: v.verse || null,
               clue: v.clue || null,
             };

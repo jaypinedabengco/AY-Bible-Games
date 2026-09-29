@@ -44,18 +44,22 @@
     }
 
     var needed = ['normalize', 'variants', 'order', 'machine', 'views',
-                  'images', 'paint', 'controls', 'boot', 'atlas'];
+                  'images', 'paint', 'controls', 'boot'];
     var missing = needed.filter(function (m) {
       return !window.BibleGames || !window.BibleGames[m];
     });
-    // The two atlas DATA files each create BibleGames.atlas, so the name alone
-    // is present even if atlas.js itself was dropped. Look for the module's
-    // own function, and for both extents, before trusting it.
+    // The atlas is three files, and "atlas" alone would not tell whoever is at
+    // the laptop which one to restore. The two DATA files each create
+    // BibleGames.atlas, so the name is present even when atlas.js is dropped;
+    // look for the module's own function and for each extent by name.
     var at = window.BibleGames && window.BibleGames.atlas;
-    if (at && (typeof at.draw !== 'function' || !at.extents
-        || !at.extents.holyland || !at.extents.bibleworld)
-        && missing.indexOf('atlas') < 0) {
-      missing.push('atlas');
+    var ext = (at && at.extents) || {};
+    if (!at) {
+      missing.push('atlas.js', 'atlas (holyland data)', 'atlas (bibleworld data)');
+    } else {
+      if (typeof at.draw !== 'function') { missing.push('atlas.js'); }
+      if (!ext.holyland) { missing.push('atlas (holyland data)'); }
+      if (!ext.bibleworld) { missing.push('atlas (bibleworld data)'); }
     }
     if (!window.DECK) { missing.push('deck'); }
 

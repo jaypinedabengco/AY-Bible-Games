@@ -59,6 +59,36 @@ test('every page that plays a game loads the whole engine', () => {
   assert.deepEqual(missing, [], missing.join('\n'));
 });
 
+test('a page whose deck has a map loads the atlas, and loads it BEFORE the deck', () => {
+  // The atlas is a set of plain <script> tags with no build step to notice one
+  // going missing. Drop a tag, or move the block after deck.js, and the suite
+  // would otherwise stay green while the page painted a black rectangle in
+  // front of the room. Order is half the requirement: presence alone would
+  // pass a page that loads them too late.
+  const files = ['atlas-holyland.js', 'atlas-bibleworld.js', 'atlas.js'];
+  const problems = [];
+  let checked = 0;
+  fs.readdirSync(path.join(ROOT, 'games')).forEach((slug) => {
+    const page = path.join(ROOT, 'games', slug, 'index.html');
+    const deck = path.join(ROOT, 'games', slug, 'deck.js');
+    if (!fs.existsSync(page) || !fs.existsSync(deck)) { return; }
+    if (!/type:\s*['"]map['"]/.test(fs.readFileSync(deck, 'utf8'))) { return; }
+    checked += 1;
+    const src = fs.readFileSync(page, 'utf8');
+    const deckAt = src.search(/<script[^>]*src="deck\.js"/);
+    if (deckAt === -1) { problems.push(slug + ' does not load deck.js'); }
+    files.forEach((f) => {
+      const at = src.search(new RegExp('<script[^>]*src="\\.\\./\\.\\./core/' + f.replace('.', '\\.') + '"'));
+      if (at === -1) { problems.push(slug + ' does not load ' + f); }
+      else if (deckAt !== -1 && at > deckAt) {
+        problems.push(slug + ' loads ' + f + ' after deck.js');
+      }
+    });
+  });
+  assert.ok(checked > 0, 'no map deck found - the test is not looking at anything');
+  assert.deepEqual(problems, [], problems.join('\n'));
+});
+
 test('every game in the catalogue that is ready actually exists', () => {
   globalThis.window = globalThis;
   require(path.join(ROOT, 'games.js'));
