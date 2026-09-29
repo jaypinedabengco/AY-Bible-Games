@@ -78,7 +78,7 @@ window.GAMES = [
     title: 'Name the Place',
     href: 'games/name-the-place/index.html',
     blurb: 'A dot on the map of the Bible world. The room says what place it is.',
-    meta: 'Being written',
-    status: 'parked',
+    meta: '53 places · English and Tagalog',
+    status: 'ready',
   },
 ];
