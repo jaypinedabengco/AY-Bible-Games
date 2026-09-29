@@ -26,7 +26,7 @@
     furniture: [{"label":"THE GREAT SEA","label_fil":"ANG MALAKING DAGAT","at":[34.05,32.2]},{"label":"THE JORDAN","label_fil":"ILOG JORDAN","at":[35.95,32.45]}],
     peaks: [{"label":"HERMON","label_fil":"HERMON","at":[35.85,33.42],"m":2814},{"label":"CARMEL","label_fil":"CARMELO","at":[35.05,32.73],"m":546},{"label":"TABOR","label_fil":"TABOR","at":[35.39,32.69],"m":575},{"label":"GILBOA","label_fil":"GILBOA","at":[35.4,32.5],"m":536},{"label":"GERIZIM","label_fil":"GERIZIM","at":[35.27,32.2],"m":881},{"label":"NEBO","label_fil":"NEBO","at":[35.73,31.77],"m":817}],
     ridges: [[[35.3,32.9],[35.25,32.6],[35.28,32.3],[35.2,32],[35.15,31.7],[35.1,31.35]],
-             [[35.55,32.5],[35.6,32.2],[35.62,31.9]]],
+             [[35.8,32.5],[35.82,32.2],[35.83,31.9]]],
     locator: null,
   };
 })(typeof globalThis !== 'undefined' ? globalThis : window);

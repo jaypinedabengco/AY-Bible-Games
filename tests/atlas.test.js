@@ -49,6 +49,25 @@ test('the clipped source lies inside its window, category by category', () => {
     });
     // Lakes are kept whole when any vertex is inside, so one may overhang.
     src.lakes.forEach((l) => check('lake ' + l.name, l.ring, 0.5));
+    // The actual rules behind those slacks. Lakes are kept whole when ANY
+    // vertex is inside the window; a river run's end is the point that carried
+    // it out, so the point NEXT to each end is inside.
+    src.lakes.forEach((l) => {
+      if (!l.ring.some((p) => past(p, win) === 0)) {
+        bad.push(name + ' lake ' + l.name + ' has no vertex inside its window');
+      }
+    });
+    src.rivers.forEach((r) => {
+      const n = r.line.length;
+      // [end, its neighbour] at each end. Only an end that IS outside needs an
+      // inside neighbour; a two-point run has each end as the other's neighbour.
+      [[r.line[0], r.line[1]], [r.line[n - 1], r.line[n - 2]]].forEach((pair) => {
+        if (past(pair[0], win) > 1e-9 && past(pair[1], win) > 1e-9) {
+          bad.push(name + ' river ' + r.name
+            + ': an end is outside and so is the point beside it');
+        }
+      });
+    });
   });
   assert.deepEqual(bad, [], bad.join('\n'));
 });
@@ -79,22 +98,45 @@ function atlas(name) {
   return g.BibleGames.atlas.extents[name];
 }
 
-test('land arrives as closed rings that enclose something', () => {
+// Shoelace. A ring with no area fills as nothing, so an island whose ring
+// collapsed to [A,B,A] has silently vanished from the map.
+const areaOf = (r) => Math.abs(r.reduce((sum, p, i) => {
+  const q = r[(i + 1) % r.length];
+  return sum + (p[0] * q[1] - q[0] * p[1]);
+}, 0) / 2);
+
+test('land rings enclose an area', () => {
   ['holyland', 'bibleworld'].forEach((name) => {
     const e = atlas(name);
     assert.ok(e.land.length >= 1, name + ': no land at all');
     e.land.forEach((ring, i) => {
       assert.ok(ring.length >= 3,
         name + ' ring ' + i + ' has ' + ring.length + ' points and encloses nothing');
+      assert.ok(areaOf(ring) > 0,
+        name + ' ring ' + i + ' has zero area: an island has collapsed to a sliver');
     });
-    // Shoelace: a ring with no area is a degenerate sliver, which fills as a
-    // hairline and reads as a rendering fault.
-    const areaOf = (r) => Math.abs(r.reduce((sum, p, i) => {
-      const q = r[(i + 1) % r.length];
-      return sum + (p[0] * q[1] - q[0] * p[1]);
-    }, 0) / 2);
+    // Real figures: holyland holds 8.66 of its 12.95 square degrees as land,
+    // bibleworld 386 of 576 - about two thirds each. A collapse of the
+    // simplifier would fall far below a third.
+    const [W, E, S, N] = e.window;
     const total = e.land.reduce((s, r) => s + areaOf(r), 0);
-    assert.ok(total > 0.5, name + ': total land area ' + total.toFixed(3) + ' is too small');
+    assert.ok(total > (E - W) * (N - S) / 3,
+      name + ': total land area ' + total.toFixed(2) + ' square degrees is too small');
+  });
+});
+
+test('the small islands the Bible names survive simplification', () => {
+  const rings = atlas('bibleworld').land;
+  const near = (lon, lat) => rings.some((r) => r.some(
+    (p) => Math.abs(p[0] - lon) < 0.3 && Math.abs(p[1] - lat) < 0.3));
+  assert.ok(near(14.31, 36.03), 'Malta (Acts 28) has vanished from the wide map');
+  assert.ok(near(12.05, 36.76), 'Pantelleria has vanished');
+});
+
+test('each extent has exactly the keys the renderer reads', () => {
+  ['holyland', 'bibleworld'].forEach((name) => {
+    assert.deepEqual(Object.keys(atlas(name)),
+      ['window', 'land', 'lakes', 'rivers', 'furniture', 'peaks', 'ridges', 'locator']);
   });
 });
 
@@ -137,11 +179,12 @@ test('only the wide map carries a locator', () => {
 });
 
 test('the committed atlas is what the generator produces', () => {
-  const { build, render } = require('../tools/make-atlas.js');
+  const { build, render, headerFor } = require('../tools/make-atlas.js');
   ['holyland', 'bibleworld'].forEach((name) => {
     const file = fs.readFileSync(path.join(ROOT, 'core', 'atlas-' + name + '.js'), 'utf8');
-    const header = file.slice(0, file.indexOf('*/') + 2);
-    assert.equal(render(name, build(name), header), file,
+    // headerFor, not a header sliced out of the file: otherwise a hand-edited
+    // header would pass.
+    assert.equal(render(name, build(name), headerFor(name)), file,
       'run: node tools/make-atlas.js');
   });
 });

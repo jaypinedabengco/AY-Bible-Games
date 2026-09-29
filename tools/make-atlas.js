@@ -68,7 +68,7 @@ const RIDGES = {
   holyland: [
     [[35.30, 32.90], [35.25, 32.60], [35.28, 32.30], [35.20, 32.00],
      [35.15, 31.70], [35.10, 31.35]],
-    [[35.55, 32.50], [35.60, 32.20], [35.62, 31.90]],
+    [[35.80, 32.50], [35.82, 32.20], [35.83, 31.90]],
   ],
   bibleworld: [],
 };
@@ -95,6 +95,16 @@ function simplify(pts, tol) {
     .concat(simplify(pts.slice(idx), tol));
 }
 
+// Shoelace. The ring need not be closed; the last edge wraps to the first.
+function area(r) {
+  let sum = 0;
+  for (let i = 0; i < r.length; i++) {
+    const q = r[(i + 1) % r.length];
+    sum += r[i][0] * q[1] - q[0] * r[i][1];
+  }
+  return Math.abs(sum / 2);
+}
+
 function dist(a, b) { return Math.hypot(a[0] - b[0], a[1] - b[1]); }
 
 // Natural Earth splits a river into named segments, so the Jordan arrives as
@@ -109,7 +119,7 @@ function dist(a, b) { return Math.hypot(a[0] - b[0], a[1] - b[1]); }
 // the window CUT comes back open, because the clip replaced that point with
 // crossing points. Everything downstream must cope with both - `simplify`
 // does, and the renderer closes with 'Z' rather than relying on the data.
-function chain(runs, tol) {
+function chain(runs, tol, label) {
   const pool = runs.filter(function (r) { return r.length > 2; })
     .map(function (r) { return r.slice(); });
   if (!pool.length) { return []; }
@@ -134,6 +144,12 @@ function chain(runs, tol) {
       out = pick[3] === 'end' ? out.concat(pick[2]) : pick[2].concat(out);
       joined = true;
     }
+  }
+  // Anything still in the pool could not be joined within tolerance. Say so:
+  // a truncated river would otherwise be invisible.
+  if (pool.length) {
+    process.stderr.write('warning: ' + (label || 'river') + ': ' + pool.length
+      + ' run(s) could not be joined within ' + tol + ' degrees and were dropped\n');
   }
   return out;
 }
@@ -162,11 +178,18 @@ function build(name) {
   const win = src.window;
 
   // Land arrives already clipped to the window, as one ring per land mass and
-  // island. Simplify each; drop anything that falls below a triangle, since it
-  // encloses nothing and fills as a hairline.
-  const land = src.land
-    .map(function (ring) { return simplify(ring, tol); })
-    .filter(function (ring) { return ring.length >= 3; });
+  // island. Simplify each. A small island can collapse at the extent tolerance
+  // to [A,B,A] - three points, zero area - which fills as nothing, and losing
+  // it silently would lose Malta (Acts 28). A 0.005 square-degree island is
+  // below the simplifier's resolution but not below the game's, so a collapsed
+  // ring is retried at a much finer tolerance and dropped only if it is STILL
+  // degenerate.
+  const land = [];
+  src.land.forEach(function (ring) {
+    let out = simplify(ring, tol);
+    if (out.length < 3 || area(out) === 0) { out = simplify(ring, tol / 20); }
+    if (out.length >= 3 && area(out) > 0) { land.push(out); }
+  });
 
   const lakes = [];
   const named = {};
@@ -180,6 +203,8 @@ function build(name) {
     if (nm === 'Dead Sea' && rings.length > 1) {
       lakes.push(simplify(hull([].concat.apply([], rings)), tol));
     } else {
+      // NB: 'largest' by point count, not area. Fine for every lake today; a
+      // multi-piece lake with a detailed islet would need area instead.
       let biggest = rings[0];
       rings.forEach(function (r) { if (r.length > biggest.length) { biggest = r; } });
       lakes.push(simplify(biggest, tol));
@@ -210,7 +235,7 @@ function build(name) {
     const runs = src.rivers
       .filter(function (r) { return names.indexOf(r.name) !== -1; })
       .map(function (r) { return r.line; });
-    const line = chain(runs, JOIN[name]);
+    const line = chain(runs, JOIN[name], want);
     if (line.length > 1) { rivers.push(simplify(line, tol)); }
   });
 
@@ -281,4 +306,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { build, render, chain, simplify, hull };
+module.exports = { build, render, headerFor, chain, simplify, hull };
