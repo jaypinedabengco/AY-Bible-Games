@@ -190,3 +190,33 @@ test('a reference is never rewritten or refused, whatever its book', () => {
   ));
   assert.deepEqual(r.errors, []);
 });
+
+// --- map variants ------------------------------------------------------------
+// The atlas is what knows which extents exist, so it is loaded for these.
+globalThis.window = globalThis;
+['atlas-holyland', 'atlas-bibleworld', 'atlas'].forEach((f) => {
+  require('../core/' + f + '.js');
+});
+
+const mapDeck = (over) => ({
+  id: 'name-the-place',
+  puzzles: [{ id: 'np-01', answer: 'JERICHO', variants: [Object.assign(
+    { type: 'map', difficulty: 1, extent: 'holyland', at: [35.44, 31.87],
+      verse: 'Joshua 6:20', clue: 'the walls fell' }, over)] }],
+});
+
+test('a well-formed map variant has no errors', () => {
+  assert.deepEqual(validate(mapDeck({})).errors, []);
+});
+
+test('a map extent the atlas does not know is an error', () => {
+  assert.match(errs(mapDeck({ extent: 'atlantis' })), /unknown map extent "atlantis"/);
+});
+
+test('a map coordinate that is not two finite numbers is an error', () => {
+  [['35.44', '31.87'], [NaN, 31.87], [35.44, Infinity], [35.44, null], [35.44]]
+    .forEach((at) => {
+      assert.match(errs(mapDeck({ at })), /map (needs at|at must be)/,
+        JSON.stringify(at));
+    });
+});

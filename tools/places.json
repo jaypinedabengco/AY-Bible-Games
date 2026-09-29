@@ -49,7 +49,8 @@
       "clue_fil": "bumaba ang apoy sa basang altar dito", "difficulty": 2 },
     { "id": "egypt-goshen", "kind": "region", "label": "GOSHEN", "label_fil": "GOSEN",
       "at": [31.80, 30.80], "verse": "Genesis 47:27", "clue": "Jacob's family settled in the best of the land",
-      "clue_fil": "dito tumira ang sambahayan ni Jacob", "difficulty": 2 },
+      "clue_fil": "dito tumira ang sambahayan ni Jacob", "difficulty": 2,
+      "note": "A region, not a site: no single pin is claimed. The eastern Nile delta (Wadi Tumilat) is the agreed area even though no one settlement is. Unlike Sinai, the rival candidates are not hundreds of kilometres apart." },
     { "id": "babylon", "kind": "city", "label": "BABYLON", "label_fil": "BABILONIA",
       "at": [44.42, 32.54], "verse": "Daniel 1:1", "clue": "Judah was carried here for seventy years",
       "clue_fil": "dito dinala ang Juda sa loob ng pitumpung taon", "difficulty": 1 },
@@ -58,6 +59,7 @@
       "clue_fil": "apatnapung araw, at gugain ito", "difficulty": 2 },
     { "id": "ur", "kind": "city", "label": "UR", "label_fil": "UR",
       "at": [46.10, 30.96], "verse": "Genesis 11:31", "clue": "Abraham's family left here for Canaan",
-      "clue_fil": "mula rito umalis ang angkan ni Abraham", "difficulty": 3 }
+      "clue_fil": "mula rito umalis ang angkan ni Abraham", "difficulty": 3,
+      "note": "Tell el-Muqayyar in southern Iraq, the mainstream identification. A minority tradition places Ur at Urfa (Sanliurfa) in Turkey; it is not followed here." }
   ]
 }

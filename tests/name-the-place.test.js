@@ -56,18 +56,67 @@ test('every place is on the tightest map that contains it', () => {
   assert.deepEqual(wrong, [], wrong.join('\n'));
 });
 
+// An INDEPENDENT record of where each place is, written from the world and not
+// copied out of places.json. "Is this point on some land" is a weaker claim than
+// "is this point where it should be": Mount Carmel with its coordinates swapped
+// lands on Cyprus, which is real land, and a region is never checked against
+// land at all. This asks the second question, with no geometry involved.
+const EXPECTED = {
+  'jerusalem':      [35.21, 31.77],
+  'bethlehem':      [35.20, 31.70],
+  'jericho':        [35.46, 31.87],
+  'nazareth':       [35.30, 32.70],
+  'sea-of-galilee': [35.59, 32.82],
+  'dead-sea':       [35.47, 31.50],
+  'joppa':          [34.75, 32.05],
+  'mount-carmel':   [35.04, 32.73],
+  'egypt-goshen':   [31.90, 30.70],
+  'babylon':        [44.42, 32.54],
+  'nineveh':        [43.15, 36.36],
+  'ur':             [46.10, 30.96],
+};
+const TOLERANCE = 0.5;   // degrees, each axis
+
+test('every place is where the world says it is', () => {
+  const wrong = [];
+  const ids = src.places.map((pl) => pl.id);
+  Object.keys(EXPECTED).forEach((id) => {
+    if (ids.indexOf(id) === -1) { wrong.push(id + ' is in the fixture but not in places.json'); }
+  });
+  src.places.forEach((pl) => {
+    const want = EXPECTED[pl.id];
+    if (!want) {
+      wrong.push(pl.id + ' has no expected coordinate: add it to EXPECTED, from a map');
+      return;
+    }
+    if (Math.abs(pl.at[0] - want[0]) > TOLERANCE || Math.abs(pl.at[1] - want[1]) > TOLERANCE) {
+      wrong.push(pl.id + ' is at [' + pl.at + '], expected about [' + want + ']'
+        + ' - longitude comes FIRST');
+    }
+  });
+  assert.deepEqual(wrong, [], wrong.join('\n'));
+});
+
 test('a city is on land, and a lake is in water', () => {
   const atlas = loadAtlas();
   const wrong = [];
   src.places.forEach((pl) => {
+    const name = atlas.fits(pl.at[0], pl.at[1]);
+    if (name === null) {
+      wrong.push(pl.id + ' at [' + pl.at + '] is outside BOTH maps');
+      return;
+    }
     // Against the place's OWN extent: the wide coastline is simplified far
     // more coarsely, so a coastal city can sit a pixel out to sea there while
     // being correctly inland on the map it is actually drawn on.
-    const e = atlas.extents[atlas.fits(pl.at[0], pl.at[1])];
+    const e = atlas.extents[name];
     const onLand = e.land.some((ring) => inside(ring, pl.at));
     const inLake = e.lakes.some((ring) => inside(ring, pl.at));
     if (pl.kind === 'city' || pl.kind === 'mountain') {
       if (!onLand) { wrong.push(pl.id + ' (' + pl.kind + ') is not on land'); }
+      // Lakes are not carved out of land, so a city in the Sea of Galilee is
+      // inside a land ring AND a lake ring and would otherwise pass.
+      if (inLake) { wrong.push(pl.id + ' (' + pl.kind + ') is in a lake'); }
     } else if (pl.kind === 'water') {
       if (!inLake) { wrong.push(pl.id + ' is a water place but not inside any lake'); }
     }
@@ -77,9 +126,14 @@ test('a city is on land, and a lake is in water', () => {
 
 test('nothing on screen gives the place away, in either language', () => {
   const stop = { THE: 1, OF: 1, MOUNT: 1, SEA: 1, ANG: 1, NG: 1, SA: 1, DAGAT: 1, BUNDOK: 1 };
-  const words = (s) => s.split(/[ ,]+/)
-    .map((w) => w.replace(/[^A-Za-z]/g, ''))
-    .filter((w) => w.length > 3 && !stop[w.toUpperCase()]);
+  const words = (s) => {
+    const all = s.split(/[ ,]+/).map((w) => w.replace(/[^A-Za-z]/g, ''))
+      .filter((w) => w && !stop[w.toUpperCase()]);
+    const long = all.filter((w) => w.length > 3);
+    // A short word is ignored inside a longer name ("ANG", "NG") but a name
+    // that IS short - UR, and one day AI - must still be caught.
+    return long.length ? long : all;
+  };
   const all = [];
   deck().puzzles.forEach((p) => {
     p.variants.forEach((v) => { all.push(v.answer || p.answer); });
@@ -146,11 +200,12 @@ test('pin separation is measured, and close pairs are named', () => {
       }
     }
   });
-  // Reported, not rejected: Jerusalem and Bethlehem are both too good to lose
-  // and their clues stand alone. This exists so the NEXT close pair is a
-  // decision somebody makes rather than one that happens quietly.
-  if (close.length) { console.log('  close pins:\n    ' + close.join('\n    ')); }
-  assert.ok(close.length <= 2, 'more close pairs than expected:\n' + close.join('\n'));
+  // Allowing a pair is a deliberate act: name it here, with the reason. There
+  // are none today - Jerusalem and Bethlehem are 28 units apart on the Holy
+  // Land map, clear of the 20 a pin needs.
+  const ALLOWED = [];
+  const surprise = close.filter((c) => ALLOWED.indexOf(c.split(':')[0]) === -1);
+  assert.deepEqual(surprise, [], 'pins too close to tell apart:\n' + surprise.join('\n'));
 });
 
 test('the committed deck is what the generator produces', () => {

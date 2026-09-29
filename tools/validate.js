@@ -107,8 +107,21 @@
     }
 
     if (v.type === 'map') {
-      if (!v.extent) { errors.push(where + ': map needs an extent'); }
-      if (!v.at || v.at.length !== 2) { errors.push(where + ': map needs at [lon, lat]'); }
+      var atlas = root.BibleGames && root.BibleGames.atlas;
+      if (!v.extent) {
+        errors.push(where + ': map needs an extent');
+      } else if (atlas && atlas.extents && !atlas.extents[v.extent]) {
+        // Only checkable where the atlas is loaded (the CLI loads it). The name
+        // is looked up rather than listed here so the two cannot drift.
+        errors.push(where + ': unknown map extent "' + v.extent + '"');
+      }
+      if (!v.at || v.at.length !== 2) {
+        errors.push(where + ': map needs at [lon, lat]');
+      } else if (typeof v.at[0] !== 'number' || typeof v.at[1] !== 'number'
+          || !isFinite(v.at[0]) || !isFinite(v.at[1])) {
+        errors.push(where + ': map at must be two finite numbers (got ' +
+          JSON.stringify(v.at) + ')');
+      }
     }
 
     if (v.type === 'order') {
@@ -272,6 +285,11 @@ if (typeof require !== 'undefined' && typeof module !== 'undefined' && require.m
     require(path.resolve(__dirname, '../core/normalize.js'));
     require(path.resolve(__dirname, '../core/order.js'));
     globalThis.window = globalThis;          // deck.js assigns window.DECK
+    // Loaded so a map's extent can be checked against the names the atlas
+    // actually has. Drawing needs a document; nothing here draws.
+    ['atlas-holyland', 'atlas-bibleworld', 'atlas'].forEach(function (f) {
+      require(path.resolve(__dirname, '../core/' + f + '.js'));
+    });
     require(path.resolve(process.cwd(), target));
 
     var result = globalThis.BibleGames.validate.validate(globalThis.DECK);
