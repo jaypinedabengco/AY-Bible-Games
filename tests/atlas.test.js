@@ -345,6 +345,11 @@ test('fits refuses anything that is not a real coordinate', () => {
   assert.equal(a.fits(undefined, undefined), null, 'missing coordinates');
   assert.equal(a.fits(NaN, 0), null, 'NaN');
   assert.equal(a.fits(0, NaN), null, 'NaN latitude');
+  // The other coordinate is inside the close window here, so only a
+  // NaN-proof containment test returns null: with (NaN, 0) both are already
+  // outside and the old comparison would have passed by accident.
+  assert.equal(a.fits(NaN, 32), null, 'NaN longitude, latitude inside');
+  assert.equal(a.fits(35, NaN), null, 'NaN latitude, longitude inside');
   assert.equal(a.fits('35', '32'), null,
     'strings would coerce in a comparison and pass, so they must be refused');
   assert.equal(a.fits(null, null), null, 'null');
