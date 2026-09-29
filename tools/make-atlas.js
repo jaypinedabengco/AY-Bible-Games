@@ -32,7 +32,9 @@ const SOURCE = path.join(__dirname, 'atlas-source');
 // that and the file would be an order of magnitude larger for nothing.
 const TOLERANCE = { holyland: 0.004, bibleworld: 0.05 };
 // How far apart two river segments may be and still be the same river.
-const JOIN = { holyland: 0.25, bibleworld: 1.5 };
+// Measured real joins are 0.001 (holyland) and 0.004 (bibleworld) degrees, so
+// 0.05 is over ten times the largest gap that is genuinely one river.
+const JOIN = { holyland: 0.05, bibleworld: 0.05 };
 
 const FURNITURE = {
   holyland: [
@@ -122,6 +124,9 @@ function dist(a, b) { return Math.hypot(a[0] - b[0], a[1] - b[1]); }
 function chain(runs, tol, label) {
   const pool = runs.filter(function (r) { return r.length > 2; })
     .map(function (r) { return r.slice(); });
+  // Runs of two points or fewer are stubs and are discarded up front; count
+  // them so they are as visible as a run that failed to join.
+  let dropped = runs.length - pool.length;
   if (!pool.length) { return []; }
   let best = 0;
   pool.forEach(function (r, i) { if (r.length > pool[best].length) { best = i; } });
@@ -147,9 +152,11 @@ function chain(runs, tol, label) {
   }
   // Anything still in the pool could not be joined within tolerance. Say so:
   // a truncated river would otherwise be invisible.
-  if (pool.length) {
-    process.stderr.write('warning: ' + (label || 'river') + ': ' + pool.length
-      + ' run(s) could not be joined within ' + tol + ' degrees and were dropped\n');
+  dropped += pool.length;
+  if (dropped) {
+    process.stderr.write('warning: ' + (label || 'river') + ': ' + dropped
+      + ' of ' + runs.length + ' run(s) dropped (stubs of 2 points or fewer, or'
+      + ' further than ' + tol + ' degrees from the chain)\n');
   }
   return out;
 }

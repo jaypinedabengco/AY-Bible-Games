@@ -45,10 +45,10 @@ test('the clipped source lies inside its window, category by category', () => {
     // edge: only its two ENDS may sit outside. Interior points may not.
     src.rivers.forEach((r) => {
       check('river ' + r.name, r.line.slice(1, -1), 1e-9);
-      check('river end ' + r.name, [r.line[0], r.line[r.line.length - 1]], 0.5);
+      check('river end ' + r.name, [r.line[0], r.line[r.line.length - 1]], 0.15);
     });
     // Lakes are kept whole when any vertex is inside, so one may overhang.
-    src.lakes.forEach((l) => check('lake ' + l.name, l.ring, 0.5));
+    src.lakes.forEach((l) => check('lake ' + l.name, l.ring, 0.15));
     // The actual rules behind those slacks. Lakes are kept whole when ANY
     // vertex is inside the window; a river run's end is the point that carried
     // it out, so the point NEXT to each end is inside.
