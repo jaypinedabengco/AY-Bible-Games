@@ -133,9 +133,6 @@
     svg.appendChild(group('land', e.land.map(function (ring) {
       return node('path', { d: pathOf(name, ring, true) });
     })));
-    svg.appendChild(group('ridges', e.ridges.map(function (r) {
-      return node('path', { d: pathOf(name, r, false) });
-    })));
     svg.appendChild(group('lakes', e.lakes.map(function (l) {
       return node('path', { d: pathOf(name, l, true) });
     })));

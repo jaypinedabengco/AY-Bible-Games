@@ -6,7 +6,7 @@
  *
  * Geometry from Natural Earth (public domain); judgement from us. The
  * coastline, the lakes and the rivers are survey data and are generated. The
- * mountains, the ridges and the furniture labels are editorial - deciding that
+ * mountains and the furniture labels are editorial - deciding that
  * Carmel matters and Meron does not is not cartography - and are written here
  * by hand.
  *
@@ -64,16 +64,14 @@ const PEAKS = {
   bibleworld: [],
 };
 
-// The central hill country as a few strokes. An impression, not relief data,
-// and the header says so rather than letting it look like a survey.
-const RIDGES = {
-  holyland: [
-    [[35.30, 32.90], [35.25, 32.60], [35.28, 32.30], [35.20, 32.00],
-     [35.15, 31.70], [35.10, 31.35]],
-    [[35.80, 32.50], [35.82, 32.20], [35.83, 31.90]],
-  ],
-  bibleworld: [],
-};
+// EMPTY ON PURPOSE - do not refill it. This table once held two strokes to hint
+// at the hill country: one through Judea, one in Transjordan. On a projector
+// they read as two unexplained grey lines running north-south through the
+// modern Levant, which is to say as borders, and this map may not appear to
+// draw one - not even by accident, not even for atmosphere. The key stays, as
+// an empty array, so the shape of an extent does not change; a test fails if
+// anything is put back, and the renderer no longer draws the layer at all.
+const RIDGES = { holyland: [], bibleworld: [] };
 
 const LOCATOR = { holyland: null, bibleworld: 'holyland' };
 

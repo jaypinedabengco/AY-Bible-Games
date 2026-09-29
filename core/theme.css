@@ -387,7 +387,6 @@ html, body {
    If the coast needs more definition on a real projector, give it back a
    stroke built from the non-boundary segments only. */
 .land path { fill: #3b4657; }
-.ridges path { fill: none; stroke: #4d5768; stroke-width: 2.2; stroke-linecap: round; }
 .lakes path  { fill: #16324f; stroke: #4d7fb0; stroke-width: 1.4; }
 .rivers path { fill: none; stroke: #4d7fb0; stroke-width: 2.4;
                stroke-linejoin: round; stroke-linecap: round; }

@@ -270,8 +270,9 @@ test('draw builds its layers in order and ends with an empty pins group', () => 
   const a = loadAtlas();
   const svg = a.draw('holyland');
   const classes = svg.children.map((c) => c.attrs['class']);
-  assert.deepEqual(classes.slice(0, 4), ['sea', 'land', 'ridges', 'lakes'],
-    'sea under land under ridges under water');
+  assert.deepEqual(classes.slice(0, 4), ['sea', 'land', 'lakes', 'rivers'],
+    'sea under land under water');
+  assert.ok(!classes.includes('ridges'), 'there is no ridges layer to draw');
   const last = svg.children[svg.children.length - 1];
   assert.equal(last.attrs['class'], 'pins');
   assert.equal(last.children.length, 0, 'the caller fills this, not the atlas');
@@ -370,7 +371,7 @@ test('the map is not stretched: height follows the window shape, squeezed for la
   assert.ok(Math.abs(a.height('holyland') - 1249) <= 2, 'holyland is about 1249 tall');
 });
 
-test('land and lakes are closed and filled; ridges and rivers are open lines', () => {
+test('land and lakes are closed and filled; rivers are open lines', () => {
   const a = loadAtlas();
   ['holyland', 'bibleworld'].forEach((name) => {
     const groups = {};
@@ -380,8 +381,8 @@ test('land and lakes are closed and filled; ridges and rivers are open lines', (
       groups[cls].children.forEach((p) => assert.ok(/ Z$/.test(p.attrs.d),
         name + ' ' + cls + ' path is not closed: the data is not always closed, so the path must be'));
     });
-    ['ridges', 'rivers'].forEach((cls) => groups[cls].children.forEach((p) =>
-      assert.ok(!/Z$/.test(p.attrs.d), name + ' ' + cls + ' path must stay an open line')));
+    groups.rivers.children.forEach((p) =>
+      assert.ok(!/Z$/.test(p.attrs.d), name + ' river path must stay an open line'));
     // Stroking land would draw a faint frame along the window edge, which
     // reads as a border. Land is filled only.
     groups.land.children.forEach((p) => {
@@ -399,4 +400,15 @@ test('an unknown extent name is named in the error, not "reading window of undef
   assert.throws(() => a.project(null, 35, 32), /no extent named null/,
     'fits() returns null; forwarding it should say so');
   assert.throws(() => a.unproject('nope', 0, 0), /no extent named "nope"/);
+});
+
+// Two faint lines through the hill country were read, on a real projector, as
+// borders. The key stays so the shape of an extent does not change.
+test('the ridges are empty, and stay empty', () => {
+  const a = loadAtlas();
+  ['holyland', 'bibleworld'].forEach((name) => {
+    assert.deepEqual(a.extents[name].ridges, [],
+      name + ' has ridge lines: refilling ridges would draw lines that a room '
+      + 'may read as borders, and this map must never appear to draw one');
+  });
 });
