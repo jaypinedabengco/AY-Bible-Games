@@ -196,8 +196,14 @@ function build(name) {
     Nile: ['Nile', 'Bahr el Nil', 'An Nil'],
     Euphrates: ['Euphrates', 'Al Furat', 'Firat'],
     Tigris: ['Tigris', 'Dicle'],
+    // The delta branches are separate entries, NOT aliases of the Nile. The
+    // delta is two channels that diverge from the apex; chaining them into the
+    // Nile would join Rosetta to Damietta by nearest endpoints and weld them
+    // into one zigzag river that does not exist.
+    'Rosetta Branch': ['Rosetta Branch'],
+    'Damietta Branch': ['Damietta Branch'],
   };
-  const WANT = { holyland: ['Jordan'], bibleworld: ['Nile', 'Euphrates', 'Tigris'] };
+  const WANT = { holyland: ['Jordan'], bibleworld: ['Nile', 'Rosetta Branch', 'Damietta Branch', 'Euphrates', 'Tigris'] };
   const rivers = [];
   WANT[name].forEach(function (want) {
     const names = ALIASES[want];

@@ -145,3 +145,12 @@ test('the committed atlas is what the generator produces', () => {
       'run: node tools/make-atlas.js');
   });
 });
+
+test('the wide map rivers reach the sea, the Nile included', () => {
+  const e = atlas('bibleworld');
+  assert.equal(e.rivers.length, 5, 'Nile, two delta branches, Euphrates, Tigris');
+  const north = Math.max.apply(null, [].concat.apply([], e.rivers).map((p) => p[1]));
+  assert.ok(north >= 31.3,
+    'the Nile stops short of the Mediterranean: the northernmost river point is '
+    + north.toFixed(2) + ' N, but the delta meets the coast near 31.5 N');
+});
