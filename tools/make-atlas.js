@@ -43,7 +43,7 @@ const FURNITURE = {
   ],
   bibleworld: [
     { label: 'THE GREAT SEA', label_fil: 'ANG MALAKING DAGAT', at: [18.0, 34.5] },
-    { label: 'THE NILE', label_fil: 'ILOG NILO', at: [31.0, 27.5] },
+    { label: 'THE NILE', label_fil: 'ILOG NILO', at: [28.0, 27.5] },
     { label: 'THE EUPHRATES', label_fil: 'ILOG EUFRATES', at: [40.7, 31.5] },
   ],
 };
