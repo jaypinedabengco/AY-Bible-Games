@@ -15,7 +15,7 @@ function source(name) {
 // file under test would let a wrong window pass every containment check.
 const SPEC_WINDOWS = {
   holyland: [33.4, 36.9, 30.3, 34.0],
-  bibleworld: [11.5, 47.5, 26.5, 42.5],
+  bibleworld: [11.2, 47.5, 26.5, 42.8],
 };
 
 test('each source window is the one the spec names', () => {

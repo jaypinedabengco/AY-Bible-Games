@@ -341,6 +341,34 @@ test('pin separation is measured, and close pairs are named', () => {
   assert.deepEqual(surprise, [], 'pins too close to tell apart:\n' + surprise.join('\n'));
 });
 
+// A pin at the very edge is drawn with its halo cut off by the viewBox, which
+// on a projector reads as a smudge in the corner rather than a dot on a place.
+// Rome projected to (28, 20) on a wide map whose halo is 24 units across and
+// was clipped by the top-left corner.
+//
+// This test DICTATES THE WINDOW rather than the other way round: when a new
+// place fails it, the window moves (tools/fetch-atlas-source.js, then
+// tools/make-atlas.js), because moving the coordinate would put the pin
+// somewhere the place is not.
+test('every pin clears the edge of its map by a whole halo', () => {
+  const atlas = loadAtlas();
+  const tight = [];
+  src.places.forEach((pl) => {
+    const name = atlas.fits(pl.at[0], pl.at[1]);
+    if (name === null) { tight.push(pl.id + ' is outside both maps'); return; }
+    const h = atlas.height(name);
+    const r = atlas.sizes(name).pinHalo;
+    const p = atlas.project(name, pl.at[0], pl.at[1]);
+    const clear = Math.min(p.x, 1000 - p.x, p.y, h - p.y);
+    if (clear < r) {
+      tight.push(pl.id + ' on ' + name + ': ' + clear.toFixed(1)
+        + ' units from the nearest edge, and the pin halo is ' + r.toFixed(1)
+        + ' - the halo would be cut off. Move the window, not the place.');
+    }
+  });
+  assert.deepEqual(tight, [], tight.join('\n'));
+});
+
 test('the committed deck is what the generator produces', () => {
   // The generator's own HEADER, not one sliced out of the file under test.
   // Slicing meant the comment block was compared against itself, so any change

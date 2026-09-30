@@ -76,7 +76,16 @@ comes from us.**
 | | window | holds |
 |---|---|---|
 | `holyland` | lon 33.4–36.9, lat 30.3–34.0 | Dan to Beersheba, coast to Moab |
-| `bibleworld` | lon 11.5–47.5, lat 26.5–42.5 | Rome to Ur, Upper Egypt to Ararat |
+| `bibleworld` | lon 11.2–47.5, lat 26.5–42.8 | Rome to Ur, Upper Egypt to Ararat |
+
+The wide window was originally lon 11.5–47.5, lat 26.5–42.5. It was nudged
+0.3° north and west because Rome — its most north-westerly place — projected
+close enough to the corner that its pin halo was clipped by the viewBox, and a
+half-drawn halo reads from a hall as a smudge in the corner rather than a dot
+on a place. The rule is now a test (`every pin clears the edge of its map by a
+whole halo`), and that test dictates the window: when a new place fails it, the
+window moves, because moving the coordinate would put the pin somewhere the
+place is not.
 
 A single extent was the original design and it was wrong. Checked against
 twenty-nine well-known places, the Holy Land window holds fourteen — Jerusalem,

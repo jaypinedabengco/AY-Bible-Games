@@ -60,7 +60,7 @@ const OUT = path.join(__dirname, 'atlas-source');
 
 const WINDOWS = {
   holyland:   { window: [33.4, 36.9, 30.3, 34.0], resolution: '10m' },
-  bibleworld: { window: [11.5, 47.5, 26.5, 42.5], resolution: '50m' },
+  bibleworld: { window: [11.2, 47.5, 26.5, 42.8], resolution: '50m' },
 };
 
 function get(url) {
