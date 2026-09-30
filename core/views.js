@@ -90,10 +90,13 @@
     return 1 + (variant.verse ? 1 : 0) + (variant.clue ? 1 : 0);
   }
 
-  // The first letter of each word, every other LETTER an underscore. The count
-  // is part of the hint, so runs are not collapsed; spaces, apostrophes and
-  // hyphens stay as they are. A letter is anything with a case, which is how
-  // to say so without a Unicode-aware regex in code that has to run in ES5.
+  // The first letter of each SPACE-SEPARATED word, every other LETTER an
+  // underscore. A hyphen deliberately does NOT start a new word - BETH-SHAN
+  // masks to B___-____, not B___-S___ - because the second half of a compound
+  // name is usually the half that gives it away. The count is part of the hint,
+  // so runs are not collapsed; spaces, apostrophes and hyphens stay as they
+  // are. A letter is anything with a case, which is how to say so without a
+  // Unicode-aware regex in code that has to run in ES5.
   function maskAnswer(answer) {
     if (!answer) { return null; }
     return String(answer).split(' ').map(function (word) {
@@ -102,6 +105,27 @@
         return (i === 0 || !letter) ? ch : '_';
       }).join('');
     }).join(' ');
+  }
+
+  // The masked beat, or null when there is no point in having one. UR masks to
+  // U_ and AI to A_: half the name, handed over for free, on a beat that is
+  // supposed to be a hint held back. Three letters or fewer and the beat is
+  // skipped altogether - one beat FEWER, exactly as a place with no clue
+  // written yet already produces, rather than a beat that does nothing.
+  //
+  // Counting LETTERS, not characters, so a name with a hyphen or an apostrophe
+  // is judged on the part that gets hidden.
+  var MIN_MASKABLE = 4;
+  function maskBeat(puzzle, variant) {
+    // The VARIANT's answer where it has one, as everywhere else: JERICO masks
+    // as J_____ and not as JERICHO.
+    var answer = (variant && variant.answer) || (puzzle && puzzle.answer);
+    if (!answer) { return null; }
+    var letters = 0;
+    String(answer).split('').forEach(function (ch) {
+      if (ch.toLowerCase() !== ch.toUpperCase()) { letters += 1; }
+    });
+    return letters >= MIN_MASKABLE ? maskAnswer(answer) : null;
   }
 
   var byType = {
@@ -258,14 +282,22 @@
     //
     // A place with no clue written yet has one beat FEWER, not one blank one:
     // the count comes from revealStage, exactly as the quote games do it. The
-    // masked beat is always there, because it is derived from the answer and
-    // needs nothing from the deck.
+    // masked beat needs nothing from the deck - it is derived from the answer -
+    // so it is there for every name long enough to be worth masking. See
+    // maskBeat: UR would mask to U_, and that is not a beat.
+    //
+    // stages() takes the PUZZLE as well, because in a bilingual deck the
+    // English variant carries no answer of its own and the length of the name
+    // is what decides the count.
     map: {
-      stages: function (variant) { return revealStage(variant) + 1; },
+      stages: function (variant, puzzle) {
+        return revealStage(variant) + (maskBeat(puzzle, variant) ? 1 : 0);
+      },
       view: function (puzzle, variant, stage) {
         var v = base('map', puzzle, variant);
-        var maskAt = revealStage(variant);
-        var reveal = maskAt + 1;
+        var mask = maskBeat(puzzle, variant);
+        var maskAt = mask ? revealStage(variant) : -1;
+        var reveal = revealStage(variant) + (mask ? 1 : 0);
         var clueAt = variant.verse ? 2 : 1;
         v.extent = variant.extent;
         v.at = variant.at;
@@ -276,10 +308,8 @@
         v.verse = (variant.verse && stage >= 1 && stage < reveal) ? variant.verse : null;
         v.clue = (variant.clue && stage >= clueAt) ? variant.clue : null;
         // On its own beat only. Earlier it would give the answer's shape away
-        // for free; at the reveal the answer itself has replaced it. The
-        // VARIANT's answer, so JERICO masks as J_____ and not as JERICHO.
-        v.masked = stage === maskAt
-          ? maskAnswer((variant && variant.answer) || puzzle.answer) : null;
+        // for free; at the reveal the answer itself has replaced it.
+        v.masked = stage === maskAt ? mask : null;
         v.answered = answered(puzzle, stage, reveal, variant);
         if (v.answered) {
           // JERICHO / JERICO for free, and the verse moves down here.
@@ -300,7 +330,10 @@
   }
 
   function stagesForItem(item) {
-    return byType[item.variant.type].stages(item.variant);
+    // The puzzle goes too: a bilingual deck keeps the answer on the puzzle for
+    // the language it was written in, and Name the Place's beat count depends
+    // on how long that answer is. Every other type ignores the second argument.
+    return byType[item.variant.type].stages(item.variant, item.puzzle);
   }
 
   function viewForItem(item, stage) {

@@ -631,6 +631,55 @@ test('the mask is derived: words keep their spaces, punctuation stays put', () =
   assert.equal(maskAnswer(''), null);
 });
 
+// UR masks to U_ - half the name, handed over on the beat that is supposed to
+// be the last hint held back. One beat fewer is the right answer, exactly as a
+// place with no clue written yet already produces.
+test('a name of three letters or fewer has no masked beat at all', () => {
+  const short = (answer, extra) => normalizePuzzle(Object.assign({
+    id: 'np-10', answer: answer, type: 'map', extent: 'bibleworld', at: [46.1, 30.96],
+  }, extra || {}));
+
+  const ur = short('UR', { verse: 'Genesis 11:31', clue: 'where Abram set out from' });
+  const v = ur.variants[0];
+  assert.equal(byType.map.stages(v), 3, 'pin, verse, clue - then the answer, with no U_');
+  for (let s = 0; s <= 3; s += 1) {
+    assert.equal(byType.map.view(ur, v, s).masked, null, 'stage ' + s);
+  }
+  assert.equal(byType.map.view(ur, v, 3).answered.answer, 'UR',
+    'the answer arrives one beat earlier, not after a beat that gave it away');
+
+  // The boundary, and the letter count is of LETTERS: a hyphen does not buy a
+  // name an extra beat.
+  assert.equal(byType.map.view(short('DAN'), short('DAN').variants[0], 1).masked, null);
+  assert.equal(byType.map.view(short('A-B'), short('A-B').variants[0], 1).masked, null);
+  const four = short('GAZA');
+  assert.equal(byType.map.view(four, four.variants[0], 1).masked, 'G___',
+    'four letters is enough to be worth hiding three of them');
+});
+
+test('the beat count follows the answer of the language being played', () => {
+  // The English variant of a generated puzzle carries no answer of its own, so
+  // stagesForItem has to read the puzzle's. UR is UR in both languages; a name
+  // that is short in one language only would differ, and should.
+  const p = normalizePuzzle({
+    id: 'np-11', answer: 'UR', type: 'map',
+    variants: [
+      { type: 'map', extent: 'bibleworld', at: [46.1, 30.96], verse: 'Genesis 11:31' },
+      { type: 'map', lang: 'fil', answer: 'UR',
+        extent: 'bibleworld', at: [46.1, 30.96], verse: 'Genesis 11:31' },
+    ],
+  });
+  assert.equal(stagesForItem({ puzzle: p, variant: p.variants[0] }), 2,
+    'pin, verse - then the answer');
+  assert.equal(stagesForItem({ puzzle: p, variant: p.variants[1] }), 2);
+  const long = normalizePuzzle({
+    id: 'np-12', answer: 'NAZARETH', type: 'map',
+    variants: [{ type: 'map', extent: 'holyland', at: [35.3, 32.7], verse: 'Luke 4:16' }],
+  });
+  assert.equal(stagesForItem({ puzzle: long, variant: long.variants[0] }), 3,
+    'the masked beat is back when the name is long enough for it');
+});
+
 test('the mask never shares a stage with the answer, whatever the puzzle has', () => {
   [
     { verse: 'A 1:1', clue: 'c' }, { verse: 'A 1:1' }, { clue: 'c' }, {},
