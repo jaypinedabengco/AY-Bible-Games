@@ -116,8 +116,9 @@ function render(puzzles, header) {
     "  title: 'Higher or Lower',",
     "  idPrefix: 'hl',   // shown on the projector, so it must never hint the answer",
     '  shuffle: true,',
-    '  // Two beats a puzzle, like What Came First?, so a round moves fast.',
-    '  sessionSize: 15,',
+    '  // Two beats a puzzle, like What Came First?, so a round moves fast. Capped',
+    '  // at the list: the validator rejects a session longer than it.',
+    '  sessionSize: ' + Math.min(15, puzzles.length) + ',',
     "  languages: ['en'],",
     '  howToPlay: [',
     "    'A number from the Bible, then one to bet on.',",
@@ -197,4 +198,7 @@ if (require.main === module) {
     + '  (easy ' + by[1] + ', medium ' + by[2] + ', hard ' + by[3] + ')');
 }
 
-module.exports = { build, render, bandOf, money };
+// HEADER is exported so the "committed deck is what the generator produces"
+// test can compare against it, instead of slicing the comment block out of the
+// file it is checking - which passed any change to either.
+module.exports = { build, render, bandOf, money, HEADER };

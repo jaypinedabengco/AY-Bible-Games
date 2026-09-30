@@ -116,11 +116,13 @@ test('nothing on screen gives its own answer away', () => {
 });
 
 test('the committed deck is what the generator produces', () => {
-  const { build, render } = require('../tools/make-higher-or-lower.js');
+  // The generator's own HEADER, not one sliced out of the file under test: a
+  // sliced header is compared against itself, so any change to either passes.
+  // make-atlas.js already got this right; the lesson never propagated.
+  const { build, render, HEADER } = require('../tools/make-higher-or-lower.js');
   const file = fs.readFileSync(
     path.join(ROOT, 'games', 'higher-or-lower', 'deck.js'), 'utf8');
-  const header = file.slice(0, file.indexOf('*/') + 2);
-  assert.equal(render(build(), header), file,
+  assert.equal(render(build(), HEADER), file,
     'run: node tools/make-higher-or-lower.js');
 });
 

@@ -112,11 +112,13 @@ test('no scramble is too wide to read from the back of a hall', () => {
 test('the committed deck is what the generator produces', () => {
   // Otherwise the deck and the chronology drift apart silently, and every
   // check above starts testing a file nobody generates any more.
-  const { build, render } = require('../tools/make-what-came-first.js');
+  // The generator's own HEADER, not one sliced out of the file under test: a
+  // sliced header is compared against itself, so any change to either passes.
+  // make-atlas.js already got this right; the lesson never propagated.
+  const { build, render, HEADER } = require('../tools/make-what-came-first.js');
   const src = fs.readFileSync(
     path.join(ROOT, 'games', 'what-came-first', 'deck.js'), 'utf8');
-  const header = src.slice(0, src.indexOf('*/') + 2);
-  assert.equal(render(build(), header), src,
+  assert.equal(render(build(), HEADER), src,
     'run: node tools/make-what-came-first.js');
 });
 

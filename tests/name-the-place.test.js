@@ -342,10 +342,14 @@ test('pin separation is measured, and close pairs are named', () => {
 });
 
 test('the committed deck is what the generator produces', () => {
-  const { build, render } = require('../tools/make-name-the-place.js');
+  // The generator's own HEADER, not one sliced out of the file under test.
+  // Slicing meant the comment block was compared against itself, so any change
+  // to the generator's header - or any hand-edit of the deck's - passed. That
+  // is how "Four beats: the pin, the verse, a clue, the name" survived the
+  // arrival of a fifth beat. make-atlas.js already got this right.
+  const { build, render, HEADER } = require('../tools/make-name-the-place.js');
   const file = fs.readFileSync(
     path.join(ROOT, 'games', 'name-the-place', 'deck.js'), 'utf8');
-  const header = file.slice(0, file.indexOf('*/') + 2);
-  assert.equal(render(build(), header), file,
+  assert.equal(render(build(), HEADER), file,
     'run: node tools/make-name-the-place.js');
 });

@@ -54,12 +54,14 @@ function render(rows, header) {
     "  idPrefix: 'np',   // shown on the projector, so it must never hint the answer",
     '  shuffle: true,',
     // Capped at the list: the validator rejects a session longer than the
-    // number of playable puzzles, and the starter set is only twelve.
+    // number of playable puzzles, and the list has been as short as twelve.
     '  sessionSize: ' + Math.min(15, rows.length) + ',',
     "  languages: ['en', 'fil'],",
     '  howToPlay: [',
     "    'A dot appears on the map. The room says what place it is.',",
-    "    'Stuck? The next click gives the verse, then a clue.',",
+    // The first-letter beat was never announced, so a room that had given up
+    // did not know there was one more hint coming before the name.
+    "    'Stuck? The next clicks give the verse, then a clue, then the first letter.',",
     '  ],',
     '  // No credits and no versions: nothing here is quoted. The clues are ours',
     '  // in both languages, and a coastline belongs to nobody.',
@@ -102,14 +104,17 @@ const HEADER = `/*
  * this game and the only place a coordinate should ever be corrected.
  *
  * THE GAME. A dot pulses on a map of the Bible world; the room shouts what
- * place it is. Four beats: the pin, the verse, a clue, the name.
+ * place it is. Five beats: the pin, the verse, a clue, the first letter with
+ * the rest of the name masked, then the name. A place with no clue written
+ * yet has one beat fewer, not a blank one.
  *
  * WHICH MAP. Each place is asked on the TIGHTEST map that contains it, which
  * the generator reads off the coordinates. Jerusalem is only ever asked
  * close-up, where it is a distinct dot; Babylon is only ever asked on the wide
- * map. There is deliberately no hand-written extent field: it would be a
- * second source of truth for something the coordinates already decide, and
- * the failure it invites is a map drawn with no pin visible on it.
+ * map. The extent IS written into the deck, but it is DERIVED here from the
+ * coordinates and re-checked by a test - never typed by hand. A hand-written
+ * extent would be a second source of truth for something the coordinates
+ * already decide, and the failure it invites is a map drawn with no pin on it.
  *
  * THE ACCURACY RULE. The location must not be seriously disputed. Mount Sinai,
  * Cana, Emmaus, Bethsaida and Ai are all left out on exactly that basis - see
@@ -126,4 +131,7 @@ if (require.main === module) {
     + path.relative(ROOT, TARGET) + '  ' + JSON.stringify(by));
 }
 
-module.exports = { build, render };
+// HEADER is exported so the "committed deck is what the generator produces"
+// test can compare against it, instead of slicing the comment block out of the
+// file it is checking - which passed any change to either.
+module.exports = { build, render, HEADER };

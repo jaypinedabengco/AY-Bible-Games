@@ -5,9 +5,11 @@
     "tools/make-name-the-place.js.",
     "",
     "`at` is [longitude, latitude], GeoJSON order, and is the ONLY thing that",
-    "decides which map a place is asked on - the deck has no extent field,",
-    "because a second source of truth for that invites a map drawn with no",
-    "pin visible on it."
+    "decides which map a place is asked on. The deck DOES carry an extent",
+    "field, but it is derived from `at` at generation time by atlas.fits and",
+    "re-verified by a test - it is never written by hand here or there. A",
+    "hand-written extent would be a second source of truth for something the",
+    "coordinate already decides, and it invites a map drawn with no pin on it."
   ],
   "_rule": [
     "The location must not be seriously disputed. Where a site is argued over,",

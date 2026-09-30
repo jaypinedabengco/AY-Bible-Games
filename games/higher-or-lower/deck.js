@@ -32,7 +32,8 @@ window.DECK = {
   title: 'Higher or Lower',
   idPrefix: 'hl',   // shown on the projector, so it must never hint the answer
   shuffle: true,
-  // Two beats a puzzle, like What Came First?, so a round moves fast.
+  // Two beats a puzzle, like What Came First?, so a round moves fast. Capped
+  // at the list: the validator rejects a session longer than it.
   sessionSize: 15,
   languages: ['en'],
   howToPlay: [

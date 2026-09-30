@@ -29,7 +29,8 @@ window.DECK = {
   idPrefix: 'wc',   // shown on the projector, so it must never hint the answer
   shuffle: true,
   // Two beats a puzzle rather than four, so a round moves fast. Fifteen
-  // sits about level with the others in playing time.
+  // sits about level with the others in playing time - capped at the list,
+  // because the validator rejects a session longer than it.
   sessionSize: 15,
   languages: ['en', 'fil'],
   howToPlay: [
