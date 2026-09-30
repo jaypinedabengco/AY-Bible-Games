@@ -348,11 +348,14 @@ html, body {
                 text-transform: uppercase; }
 
 /* Map labels: a halo in the page colour, so a label that ends up over a river
-   or a ridge stays readable. The rest of the map styling follows below. */
+   or a ridge stays readable. The rest of the map styling follows below.
+   NO SIZES in here: font-size, stroke-width and radii are set as attributes by
+   atlas.js and paint.js, as fractions of the viewBox height, because a fixed
+   size is unreadable on the portrait map on a projector (see FRACTION in
+   atlas.js). A size written here would silently override them. */
 .furniture text, .peaks text {
   paint-order: stroke fill;
   stroke: var(--bg);
-  stroke-width: 6;
   stroke-linejoin: round;
 }
 
@@ -387,17 +390,21 @@ html, body {
    If the coast needs more definition on a real projector, give it back a
    stroke built from the non-boundary segments only. */
 .land path { fill: #3b4657; }
-.lakes path  { fill: #16324f; stroke: #4d7fb0; stroke-width: 1.4; }
-.rivers path { fill: none; stroke: #4d7fb0; stroke-width: 2.4;
+.lakes path  { fill: #16324f; stroke: #4d7fb0; }
+.rivers path { fill: none; stroke: #4d7fb0;
                stroke-linejoin: round; stroke-linecap: round; }
 .peaks path  { fill: #7d8ba1; }
-.peaks text  { fill: #9fb0c6; font-size: 13px; letter-spacing: 0.06em; }
-.furniture text { fill: #8fa0b8; font-size: 17px; letter-spacing: 0.12em; }
+.peaks text  { fill: #9fb0c6; letter-spacing: 0.06em; }
+.furniture text { fill: #8fa0b8; letter-spacing: 0.12em; }
 /* Where the close map sits, so the two read as one world at two zooms. */
-.locator { fill: none; stroke: var(--dim); stroke-width: 2;
-           stroke-dasharray: 8 6; opacity: 0.55; }
+.locator { fill: none; stroke: var(--dim); opacity: 0.55; }
 
-.pin-dot  { fill: var(--accent); stroke: var(--bg); stroke-width: 5; }
+.pin-dot  { fill: var(--accent); stroke: var(--bg); }
 .pin-halo { fill: var(--accent); opacity: 0.25; }
-@keyframes pin-pulse { from { r: 30; opacity: 0.45; } to { r: 75; opacity: 0; } }
-.pin-halo { animation: pin-pulse 1.8s ease-out infinite; }
+/* The pulse is a transform, not an animated radius: the halo's radius is set in
+   viewBox units per map, and a keyframe that named a radius would be the wrong
+   size on one of them. Scaling is relative to whatever the radius is. */
+@keyframes pin-pulse { from { transform: scale(1); opacity: 0.45; }
+                       to   { transform: scale(2.5); opacity: 0; } }
+.pin-halo { transform-box: fill-box; transform-origin: center;
+            animation: pin-pulse 1.8s ease-out infinite; }

@@ -49,6 +49,41 @@
     return Math.round(WIDTH * (win[3] - win[2]) / lonSpan);
   }
 
+  // EVERY in-map size is a fraction of the viewBox HEIGHT. On a wide screen the
+  // map is fitted by height (the box is short, not narrow), so the height is
+  // what decides how many screen pixels one viewBox unit is: a size that is a
+  // fixed number of units is a different size on screen on each map. The close
+  // map is 1000x1249 (portrait, in a landscape box) and the wide one is
+  // 1000x539, so a fixed 17-unit label came out about 5 px on the first and 12
+  // on the second, on a projector - unreadable exactly where the map is most
+  // zoomed. As a fraction of height, a label is the same share of the screen
+  // on both, and 0.030 of a 700 px box is about 13 px.
+  //
+  // The pin lives in paint.js but takes its size from here, so that there is
+  // one place a size is decided and they cannot drift apart.
+  var FRACTION = {
+    furniture: 0.030,     // water and region names
+    peakLabel: 0.026,
+    peakSmall: 0.016,     // half-width of a peak triangle
+    peakTall: 0.022,      // ... and of one over 2000 m
+    halo: 0.010,          // the page-coloured outline that keeps a label legible
+    river: 0.0035,
+    lake: 0.0025,
+    locator: 0.003,
+    pinDot: 0.030,
+    pinHalo: 0.045,
+    pinRing: 0.006,       // the page-coloured ring round the dot
+  };
+
+  function sizes(name) {
+    var h = height(name);
+    var out = {};
+    Object.keys(FRACTION).forEach(function (k) {
+      out[k] = Math.round(FRACTION[k] * h * 100) / 100;
+    });
+    return out;
+  }
+
   function project(name, lon, lat) {
     var win = extent(name).window;
     return {
@@ -118,6 +153,7 @@
   function draw(name, lang) {
     var e = extent(name);
     var h = height(name);
+    var z = sizes(name);
     var svg = node('svg', {
       viewBox: '0 0 ' + WIDTH + ' ' + h,
       // Letterbox rather than stretch: a distorted coastline is a wrong map.
@@ -133,20 +169,28 @@
     svg.appendChild(group('land', e.land.map(function (ring) {
       return node('path', { d: pathOf(name, ring, true) });
     })));
-    svg.appendChild(group('lakes', e.lakes.map(function (l) {
+    var lakes = group('lakes', e.lakes.map(function (l) {
       return node('path', { d: pathOf(name, l, true) });
-    })));
-    svg.appendChild(group('rivers', e.rivers.map(function (r) {
+    }));
+    lakes.setAttribute('stroke-width', z.lake);
+    svg.appendChild(lakes);
+    var rivers = group('rivers', e.rivers.map(function (r) {
       return node('path', { d: pathOf(name, r, false) });
-    })));
+    }));
+    rivers.setAttribute('stroke-width', z.river);
+    svg.appendChild(rivers);
 
     svg.appendChild(group('peaks', e.peaks.map(function (pk) {
       var q = project(name, pk.at[0], pk.at[1]);
-      var s = pk.m > 2000 ? 16 : 11;
+      var s = pk.m > 2000 ? z.peakTall : z.peakSmall;
       var g = node('g', {});
-      g.appendChild(node('path', { d: 'M' + (q.x - s) + ' ' + q.y
-        + ' L' + q.x + ' ' + (q.y - s) + ' L' + (q.x + s) + ' ' + q.y + ' Z' }));
-      var t = node('text', { x: q.x, y: q.y + s + 4, 'text-anchor': 'middle' });
+      g.appendChild(node('path', { d: 'M' + (q.x - s).toFixed(1) + ' ' + q.y.toFixed(1)
+        + ' L' + q.x.toFixed(1) + ' ' + (q.y - s).toFixed(1)
+        + ' L' + (q.x + s).toFixed(1) + ' ' + q.y.toFixed(1) + ' Z' }));
+      var t = node('text', {
+        x: q.x, y: q.y + s + z.peakLabel * 0.3, 'text-anchor': 'middle',
+        'font-size': z.peakLabel, 'stroke-width': z.halo,
+      });
       t.textContent = (lang === 'fil' && pk.label_fil) ? pk.label_fil : pk.label;
       g.appendChild(t);
       return g;
@@ -160,12 +204,17 @@
       var b = project(name, w[1], w[2]);
       svg.appendChild(node('rect', {
         x: a.x, y: a.y, width: b.x - a.x, height: b.y - a.y, 'class': 'locator',
+        'stroke-width': z.locator,
+        'stroke-dasharray': (z.locator * 4) + ' ' + (z.locator * 3),
       }));
     }
 
     svg.appendChild(group('furniture', e.furniture.map(function (f) {
       var q = project(name, f.at[0], f.at[1]);
-      var t = node('text', { x: q.x, y: q.y, 'text-anchor': 'middle' });
+      var t = node('text', {
+        x: q.x, y: q.y, 'text-anchor': 'middle',
+        'font-size': z.furniture, 'stroke-width': z.halo,
+      });
       t.textContent = (lang === 'fil' && f.label_fil) ? f.label_fil : f.label;
       return t;
     })));
@@ -178,6 +227,7 @@
   atlas.project = project;
   atlas.unproject = unproject;
   atlas.height = height;
+  atlas.sizes = sizes;
   atlas.fits = fits;
   atlas.draw = draw;
 })(typeof globalThis !== 'undefined' ? globalThis : window);

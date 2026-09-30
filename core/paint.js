@@ -158,14 +158,18 @@
       // The pin goes in the group the atlas left empty for exactly this.
       var pins = map.querySelector('.pins');
       var at = BibleGames.atlas.project(view.extent, view.at[0], view.at[1]);
+      var z = BibleGames.atlas.sizes(view.extent);
       ['pin-halo', 'pin-dot'].forEach(function (cls) {
         var c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
         c.setAttribute('cx', at.x);
         c.setAttribute('cy', at.y);
-        // In viewBox units, so they scale with the map. The pin is the
-        // question: at 1080p the close map is drawn at about half size, and
-        // the dot has to be seen from the back of a hall.
-        c.setAttribute('r', cls === 'pin-halo' ? 30 : 20);
+        // In viewBox units, from the atlas: a fraction of the map's HEIGHT, so
+        // the pin is the same size on screen on both maps. The pin is the
+        // question, and it has to be seen from the back of a hall. A fixed
+        // radius was 13 px on a projector on the close map (portrait, so it
+        // is fitted by height and drawn small) and twice that on the wide one.
+        c.setAttribute('r', cls === 'pin-halo' ? z.pinHalo : z.pinDot);
+        if (cls === 'pin-dot') { c.setAttribute('stroke-width', z.pinRing); }
         c.setAttribute('class', cls);
         pins.appendChild(c);
       });

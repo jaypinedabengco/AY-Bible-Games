@@ -412,3 +412,83 @@ test('the ridges are empty, and stay empty', () => {
       + 'may read as borders, and this map must never appear to draw one');
   });
 });
+
+// THE RULE: every in-map size is a fraction of the viewBox HEIGHT.
+//
+// On a wide screen a map is fitted by height, so height decides how many pixels
+// one viewBox unit is. holyland is 1000x1249 - portrait, inside a landscape box
+// - so a unit is about 0.33 px there and about 0.8 px on bibleworld (1000x539).
+// A FIXED size in units is therefore a different size on screen on each map:
+// at 1600x700 a 17-unit label was 5.6 px on the close map and a 13-unit peak
+// label was 4.2 px, unreadable from anywhere in a hall. Scaling with height
+// makes a label the same share of the screen on both.
+test('in-map text is sized from the viewBox height, so the portrait map stays legible', () => {
+  const a = loadAtlas();
+  const names = ['holyland', 'bibleworld'];
+  // The map box on a projector: the body is ~700 px high at 1600x700 and the
+  // map gets ~62% of it. Measured on the real page: holyland drawn 408 px tall.
+  const BOX_H = 420;
+  const px = (name, units) => units * BOX_H / a.height(name);
+
+  names.forEach((name) => {
+    const h = a.height(name);
+    const svg = a.draw(name, 'en');
+    const fonts = (cls) => svg.children.filter((c) => c.attrs['class'] === cls)[0]
+      .children.map((c) => c.tagName === 'g' ? c.children[1] : c)
+      .map((t) => Number(t.attrs['font-size']));
+    const furniture = fonts('furniture');
+    const peaks = fonts('peaks');
+    assert.ok(furniture.length > 0, name + ' has furniture labels to check');
+    if (name === 'holyland') { assert.ok(peaks.length > 0, 'holyland has peak labels to check'); }
+
+    furniture.concat(peaks).forEach((f) => assert.ok(f > 0, name + ' a label has no font-size'));
+    furniture.forEach((f) => {
+      assert.ok(Math.abs(f / h - 0.030) < 0.001, name + ' furniture is ' + f
+        + ' units on a map ' + h + ' tall; it must be ~3% of the HEIGHT. A fixed size '
+        + 'makes the portrait map unreadable on a projector (5.6 px at 1600x700).');
+      assert.ok(px(name, f) >= 11, name + ' furniture would be ' + px(name, f).toFixed(1)
+        + ' px on a projector; it must be at least 11 to be read from a hall');
+    });
+    peaks.forEach((f) => {
+      assert.ok(Math.abs(f / h - 0.026) < 0.001, name + ' peak label is ' + f
+        + ' units on a map ' + h + ' tall; it must be ~2.6% of the HEIGHT');
+      assert.ok(px(name, f) >= 10, name + ' peak label would be ' + px(name, f).toFixed(1)
+        + ' px on a projector');
+    });
+
+    // Everything else that has a size: halo, strokes, the pin.
+    const z = a.sizes(name);
+    Object.keys(z).forEach((k) => assert.ok(z[k] > 0, name + ' size ' + k));
+    assert.ok(2 * px(name, z.pinDot) >= 20, name + ' pin dot would be ' + (2 * px(name, z.pinDot)).toFixed(1)
+      + ' px across on a projector; it must stay visible from the back of a hall');
+  });
+
+  // The relationship itself, across maps: same fraction, different units.
+  const [c, w] = names.map((n) => a.sizes(n));
+  Object.keys(c).forEach((k) => {
+    const ratio = (c[k] / a.height('holyland')) / (w[k] / a.height('bibleworld'));
+    assert.ok(Math.abs(ratio - 1) < 0.05, k + ' does not scale with viewBox height: '
+      + c[k] + ' on holyland vs ' + w[k] + ' on bibleworld. A fixed size is unreadable '
+      + 'on the portrait map on a projector.');
+  });
+  assert.ok(c.furniture > 2 * w.furniture,
+    'the close map is more than twice as tall, so its labels are in bigger units');
+});
+
+// A rule in the stylesheet beats the attribute atlas.js sets, so a font-size
+// or stroke-width written for map text there would quietly put the fixed size
+// back and undo all of the above.
+test('the stylesheet leaves the size of map text and pins to the atlas', () => {
+  const css = fs.readFileSync(path.join(ROOT, 'core', 'theme.css'), 'utf8')
+    .replace(/\/\*[\s\S]*?\*\//g, '');
+  const bad = [];
+  css.replace(/([^{}]+)\{([^{}]*)\}/g, (m, sel, body) => {
+    if (/\.(furniture|peaks|rivers|lakes|locator|pin-dot|pin-halo)\b/.test(sel)
+      && /\b(font-size|stroke-width|stroke-dasharray|r)\s*:/.test(body)) {
+      bad.push(sel.trim() + ' { ' + body.trim() + ' }');
+    }
+    return m;
+  });
+  assert.deepEqual(bad, [], 'map sizes must come from atlas.sizes() as attributes, '
+    + 'not from CSS: a fixed size makes the portrait map unreadable on a projector');
+});

@@ -790,6 +790,7 @@ test('painting a map puts the pin in .pins and marks the body fixed', () => {
   globalThis.BibleGames.atlas = {
     draw: (extent, lang) => { asked.push([extent, lang]); return svg; },
     project: () => ({ x: 412, y: 267 }),
+    sizes: () => ({ pinDot: 37, pinHalo: 56, pinRing: 7 }),
   };
   try {
     require('../core/paint.js');
@@ -813,7 +814,11 @@ test('painting a map puts the pin in .pins and marks the body fixed', () => {
       assert.equal(c.attrs.cy, '267');
     });
     assert.deepEqual(pins.children.map((c) => c.attrs.class), ['pin-halo', 'pin-dot']);
-    assert.ok(Number(pins.children[1].attrs.r) >= 20, 'the dot is big enough to see');
+    // The radii come from the atlas (a fraction of the map's height), not from
+    // a number in paint.js.
+    assert.equal(pins.children[0].attrs.r, '56', 'the halo takes its radius from the atlas');
+    assert.equal(pins.children[1].attrs.r, '37', 'the dot takes its radius from the atlas');
+    assert.equal(pins.children[1].attrs['stroke-width'], '7');
     assert.ok(!body.children.some((c) => c.className === 'masked'),
       'no mask before its beat');
     const wrap = body.children.find((c) => c.className === 'mapwrap');
