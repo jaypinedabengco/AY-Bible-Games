@@ -302,12 +302,27 @@ test('the locator rectangle is actually where the close map is', () => {
   assert.ok(Math.abs(Number(rect.attrs.height) - (botRight.y - topLeft.y)) < 0.5, 'height');
 });
 
-test('no extent draws a border, ever', () => {
+// NO BORDERS, EVER. This was a deny-regex over the class names - /border|
+// country|admin/ - against a list of hardcoded string literals, so it could
+// only fail if somebody RENAMED a layer to contain the word "border". Adding a
+// ridges layer back, or any other new layer of lines, passed it untouched.
+//
+// An allow-list is the only shape that works: a new layer has to be added here,
+// by hand, by somebody who has read this comment.
+const DRAWN_LAYERS = {
+  holyland:   ['sea', 'land', 'lakes', 'rivers', 'peaks', 'furniture', 'pins'],
+  bibleworld: ['sea', 'land', 'lakes', 'rivers', 'peaks', 'locator', 'furniture', 'pins'],
+};
+
+test('no extent draws a border, ever: the drawn layers are an exact allow-list', () => {
   const a = loadAtlas();
-  ['holyland', 'bibleworld'].forEach((name) => {
-    const classes = a.draw(name).children.map((c) => c.attrs['class']).join(' ');
-    assert.ok(!/border|country|admin/.test(classes),
-      name + ' drew something border-shaped');
+  Object.keys(DRAWN_LAYERS).forEach((name) => {
+    assert.deepEqual(a.draw(name).children.map((c) => c.attrs['class']),
+      DRAWN_LAYERS[name],
+      name + ' draws a layer this list does not name. Borders differ by era and '
+      + 'political lines on the modern Levant are not something a church '
+      + 'projector should assert - so a new layer of LINES is very likely wrong. '
+      + 'If it is right, add it here deliberately.');
   });
 });
 
@@ -534,20 +549,68 @@ test('in-map text is sized from the viewBox height, so the portrait map stays le
     'the close map is more than twice as tall, so its labels are in bigger units');
 });
 
+// Every rule in the stylesheet, as { selector, declarations }, with comments
+// stripped. Both stylesheet tests below read it.
+function rules() {
+  const css = fs.readFileSync(path.join(ROOT, 'core', 'theme.css'), 'utf8')
+    .replace(/\/\*[\s\S]*?\*\//g, '');
+  const out = [];
+  css.replace(/([^{}]+)\{([^{}]*)\}/g, (m, sel, body) => {
+    out.push({ sel: sel.trim(), body: body.trim() });
+    return m;
+  });
+  return out;
+}
+
 // A rule in the stylesheet beats the attribute atlas.js sets, so a font-size
 // or stroke-width written for map text there would quietly put the fixed size
 // back and undo all of the above.
 test('the stylesheet leaves the size of map text and pins to the atlas', () => {
-  const css = fs.readFileSync(path.join(ROOT, 'core', 'theme.css'), 'utf8')
-    .replace(/\/\*[\s\S]*?\*\//g, '');
   const bad = [];
-  css.replace(/([^{}]+)\{([^{}]*)\}/g, (m, sel, body) => {
-    if (/\.(furniture|peaks|rivers|lakes|locator|pin-dot|pin-halo)\b/.test(sel)
+  rules().forEach(({ sel, body }) => {
+    // .land is in the list because `.land path { stroke-width: 1 }` is the
+    // exact forbidden failure mode, and it was not here before.
+    if (/\.(land|furniture|peaks|rivers|lakes|locator|pin-dot|pin-halo)\b/.test(sel)
       && /\b(font-size|stroke-width|stroke-dasharray|r)\s*:/.test(body)) {
-      bad.push(sel.trim() + ' { ' + body.trim() + ' }');
+      bad.push(sel + ' { ' + body + ' }');
     }
-    return m;
   });
   assert.deepEqual(bad, [], 'map sizes must come from atlas.sizes() as attributes, '
     + 'not from CSS: a fixed size makes the portrait map unreadable on a projector');
+});
+
+// The three mutants this was written against, each of which the old deny-regex
+// let through - it listed neither .land nor a bare `stroke`:
+//   .land path      { stroke: #8899aa; stroke-width: 1; }
+//   .ridges path    { stroke: #666; }
+//   .furniture text { stroke: #123456; }
+// The first is the exact failure this project has already had on a projector: a
+// faint frame along three window edges, read from the hall as a border.
+test('the stylesheet cannot draw a border either', () => {
+  const bad = [];
+  rules().forEach(({ sel, body }) => {
+    // Land is FILLED, never stroked. Clipping a continent to a rectangle leaves
+    // segments lying exactly along the window edge; stroking those draws a
+    // frame round three sides of the map.
+    if (/\.land\b/.test(sel) && /\bstroke(-[a-z]+)?\s*:/.test(body)) {
+      bad.push(sel + ' strokes the land: ' + body);
+    }
+    // There is no ridges layer, and two faint lines through the hill country
+    // were read on a real projector as borders. Nothing may style one back.
+    if (/\.ridges\b/.test(sel)) {
+      bad.push(sel + ' styles a ridges layer, which must not exist');
+    }
+    // Map text may carry exactly ONE stroke: the page-coloured halo that keeps
+    // a label legible over a river. Any other colour is a visible outline - a
+    // line drawn on the map by the stylesheet.
+    if (/\.(furniture|peaks)\b/.test(sel)) {
+      const strokes = body.match(/\bstroke\s*:\s*([^;]+)/g) || [];
+      strokes.forEach((s) => {
+        if (!/var\(--bg\)/.test(s)) {
+          bad.push(sel + ' outlines map text in a colour of its own: ' + s.trim());
+        }
+      });
+    }
+  });
+  assert.deepEqual(bad, [], bad.join('\n'));
 });
