@@ -234,6 +234,60 @@ numbers it is "STATED in the text, and the same in any common translation".
 That is what put Job, Jonah, Goliath's height, "seventy times seven" and the
 ten plagues outside the decks.
 
+**Name the Place is the seventh game, and it brought the first new core module
+since the original engine.** `core/atlas.js` draws a map and projects
+coordinates onto it, and knows nothing about puzzles - which is what will let a
+future journey game reuse it untouched: it appends legs to the empty `.pins`
+group the atlas leaves, exactly as this game appends a dot. Its geometry
+(`core/atlas-holyland.js`, `core/atlas-bibleworld.js`) is built by
+`tools/make-atlas.js` from `tools/atlas-source/`, and that source is COMMITTED,
+so everything downstream of it builds offline. Only `tools/fetch-atlas-source.js`
+needs the network, and it is run by hand, rarely, if ever.
+
+**Three decks are GENERATED now.** The third is Name the Place, from
+`tools/places.json` via `tools/make-name-the-place.js`, and it has a wrinkle:
+there is NO hand-written `extent` field. The generator asks `atlas.fits` which
+map is the tightest one that holds each coordinate. A hand-tagged extent could
+disagree with its own coordinates, and what that draws is a map with no pin
+visible on it - a silent failure in front of a room.
+
+**Two standing rules in the atlas.**
+1. *No borders, ever.* They differ by era, so any line is wrong for most of the
+   Bible, and political lines on the modern Levant are not something a church
+   projector should assert. Two faint ridge lines through the hill country were
+   read as borders by a reviewer on a real screen and were removed; the `ridges`
+   key stays, empty, and a test keeps it that way. Land is filled, never
+   stroked, because clipping to the window leaves segments on the window edge
+   that a stroke would draw as a frame.
+2. *Where the modern landscape differs from the ancient one, say which was
+   drawn and why.* The Dead Sea is drawn as ONE body; Natural Earth gives two,
+   because the lake split in the 1970s. The comment in `make-atlas.js` is the
+   place to record the next such case.
+
+**Every in-map size is a fraction of the viewBox HEIGHT** (`FRACTION` in
+`core/atlas.js`; the pin in `core/paint.js` reads it via `atlas.sizes`). On a
+wide screen the map is fitted by height, and the close map is portrait
+(1000x1249) inside a landscape box, so a fixed size came out at 5.6 px on a
+1600x700 projector, where the same size on the wide map was fine. Measured after
+the change, at 1600x700, on both maps: furniture labels 12.2 px, peak labels
+10.6 px, the pin 24.5 px across. Do not write a `font-size`, `stroke-width` or
+radius for map elements in `theme.css` - a stylesheet rule beats the attribute
+and puts the fixed size back; a test checks this. Known limit: on a PORTRAIT
+screen (a phone) the wide map is fitted by width and its labels are about 5.6 px.
+That was true before and the rule does not fix it.
+
+**The on-land test uses a PER-EXTENT tolerance** (0.05 degrees close, 0.5 wide;
+`LAND_TOLERANCE` in `tests/name-the-place.test.js`) because the coastline is
+simplified for drawing. Coastal places such as Malta and Patmos sit outside the
+simplified shoreline and are still correct. A coordinate must NEVER be moved to
+satisfy that test; a place that fails is checked against a real source, and the
+tolerance or the shoreline changes, never the true location.
+
+**Tagalog place names were checked against the 1905 Ang Dating Biblia**,
+fetched from `api.getbible.net/v2/tagalog`, not recalled. Of eleven checked,
+six were wrong from memory. Fetching the real text beats recalling it, and it
+is cheap - do it for any new Tagalog name.
+
 **"Before or After" was built as What Came First?, and the rename records a
 real decision.** A two-way question is a coin flip: half a hall shouts each way
 and somebody is always right by luck, so the room never converges. Three items

@@ -11,6 +11,14 @@ tested during the rebuild and have never been used.
 
 ---
 
+**BUILT since this was written: Name the Place**, the map game — a dot on a map
+of the Bible world, five beats, 53 places in English and Tagalog, two map
+extents. See `docs/superpowers/specs/2026-09-15-bible-map-design.md` for the
+design and `core/atlas.js` for the component a future journey game (Trace the
+Journey) can reuse untouched.
+
+---
+
 ## What the engine already gives you
 
 Before proposing anything, this is what a new game inherits for free:
