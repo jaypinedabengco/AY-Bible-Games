@@ -382,10 +382,25 @@ html, body {
 /* Nearly the answer, so it is sized like the answer. The wide tracking is what
    makes the underscores read as separate slots - one per letter, countable from
    the back of a hall - rather than one long rule.
-   Sized in vw, not vmin: this is a WIDTH-constrained line - it never wraps - and
-   on a 16:9 projector vmin is the height, which says nothing about whether it
-   fits across. vw is allowed by the projector rule for exactly this case. */
-.masked { font-size: 7vw; font-weight: 700; letter-spacing: 0.35em;
+
+   BOUNDED ON BOTH AXES, and this rule has now been got wrong in each direction
+   once. Plain vmin ignores width: on a narrow screen a long mask runs off the
+   side. Plain vw ignores height: at 7vw on 16:9 the line wrapped and the second
+   row fell off the BOTTOM - T__ S__ O_ with G______ cut off - at 1600x900,
+   1920x1080 and 1024x768 alike. min() takes whichever dimension is scarce.
+
+   The bare 8vmin below it is not redundant. min() is Chrome 79 / Firefox 75 /
+   Safari 13.1, later than anything else this stylesheet needs, and a browser
+   that does not understand it drops the whole declaration - so the fallback has
+   to be the value that is known to fit a projector, which 8vmin is. On 16:9
+   min() resolves to that same 8vmin anyway; it only bites when the screen is
+   narrow, which is exactly the case vmin could not see.
+
+   MEASURED, not reasoned about, on the four longest masks in the deck plus
+   BUNDOK CARMELO - see the note in tests/atlas.test.js for the numbers. */
+.masked { font-size: 8vmin;
+          font-size: min(8vmin, 4.2vw);
+          font-weight: 700; letter-spacing: 0.35em;
           padding-left: 0.35em; /* balances the trailing tracking so it centres */
           max-width: 92vw; overflow-wrap: break-word;
           color: var(--accent); white-space: pre-wrap; text-align: center; }

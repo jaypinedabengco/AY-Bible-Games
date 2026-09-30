@@ -549,6 +549,65 @@ test('in-map text is sized from the viewBox height, so the portrait map stays le
     'the close map is more than twice as tall, so its labels are in bigger units');
 });
 
+// THE MASKED BEAT MUST FIT ON A PROJECTOR, and this rule has now been got
+// wrong once in each direction by reasoning about it rather than measuring.
+//
+//   8vmin alone  - ignores WIDTH. On a narrow screen a long mask runs off the
+//                  side, which is what sending it to vw was meant to fix.
+//   7vw alone    - ignores HEIGHT. The line wrapped and the second row fell
+//                  off the BOTTOM of the screen: THE SEA OF GALILEE rendered
+//                  as "T__ S__ O_" with "G______" cut off, at 1600x900
+//                  (box bottom 966 of 900), 1920x1080 (1159 of 1080) and
+//                  1024x768 (769 of 768). Four names and one Tagalog name
+//                  were affected on every one of those sizes.
+//
+// THIS CANNOT BE TESTED HEADLESSLY. It is a text-layout question - how wide a
+// string is in a particular font at a particular size - and there is no layout
+// engine here: this project has zero dependencies and node has no DOM. So this
+// test guards the SHAPE of the rule, which is what went wrong both times, and
+// the numbers below are from a real browser and have to be re-measured by hand
+// if the rule changes.
+//
+// MEASURED in Chrome against the live page, all 102 masked variants in the
+// deck, at min(8vmin, 4.2vw). Worst box bottom against viewport height:
+//
+//   1920x1080   font 81px   worst 993  (87 px spare)   0 wrapped
+//   1600x900    font 67px   worst 827  (73 px spare)   0 wrapped
+//   1280x720    font 54px   worst 662  (58 px spare)   0 wrapped
+//   1024x768    font 43px   worst 690  (78 px spare)   0 wrapped
+//
+// 4.2vw is derived, not picked: the longest mask in the deck is
+// T__ M________ O_ A_____ (THE MOUNTAINS OF ARARAT), which measures 21.3x its
+// own font-size, and 0.92/21.3 is 4.32vw. 4.2 leaves a little margin. A longer
+// place name added to places.json will need this re-measured - there is no way
+// for a test to notice that for you.
+test('the masked beat is bounded on BOTH axes, with a fallback that fits', () => {
+  const masked = rules().filter((r) => /(^|,|\s)\.masked\b/.test(r.sel));
+  assert.equal(masked.length, 1, 'exactly one .masked rule to reason about');
+  const sizes = (masked[0].body.match(/font-size\s*:\s*[^;]+/g) || [])
+    .map((d) => d.split(':')[1].trim());
+
+  // Two declarations, in this order. min() is Chrome 79 / Firefox 75 / Safari
+  // 13.1 - later than anything else this stylesheet needs - and a browser that
+  // does not understand it drops the whole declaration, so the one before it
+  // has to be a value that is known to fit a projector on its own.
+  assert.equal(sizes.length, 2,
+    '.masked needs a plain fallback AND a capped size, in that order; got: '
+    + JSON.stringify(sizes));
+  assert.match(sizes[0], /^[\d.]+vmin$/,
+    'the fallback must be a plain vmin, the value that has always fitted 16:9: '
+    + 'a bare vw here is what pushed the second line off the bottom of the screen');
+  assert.match(sizes[1], /^min\(/, 'the real size must be capped');
+  assert.ok(/[\d.]+vmin/.test(sizes[1]) && /[\d.]+vw/.test(sizes[1]),
+    'the cap must name BOTH axes - vmin alone runs off the side of a narrow '
+    + 'screen, vw alone wraps and falls off the bottom of a 16:9 one: ' + sizes[1]);
+
+  // And the line must be allowed to be as wide as the screen lets it, or the
+  // cap above is fighting a max-width that wraps it anyway.
+  assert.match(masked[0].body, /max-width\s*:\s*9[0-9]vw/,
+    '.masked needs a max-width in vw for the derivation above to hold');
+});
+
 // Every rule in the stylesheet, as { selector, declarations }, with comments
 // stripped. Both stylesheet tests below read it.
 function rules() {
