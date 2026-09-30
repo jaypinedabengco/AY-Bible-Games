@@ -282,3 +282,25 @@ test('a map puzzle reaches the game master with its map, its verse and its clue'
 test('a deck with no maps has no places on any row', () => {
   assert.ok(rows(deck()).every((r) => Array.isArray(r.places) && r.places.length === 0));
 });
+
+// gm.js was the only core module that captured `var BG = root.BibleGames` as
+// the file was evaluated. That made it depend on its <script> tag coming after
+// normalize.js and views.js - and there is no build step to keep script tags in
+// order. The failure would be a Game Master page showing no answers at all, on
+// a phone, in a dark hall, with the round already running.
+test('gm reads BibleGames when it is used, not when the file loads', () => {
+  const fs = require('fs');
+  const path = require('path');
+  const g = {};
+  g.window = g;
+  const load = (m) => new Function('window', 'globalThis', fs.readFileSync(
+    path.join(__dirname, '..', 'core', m + '.js'), 'utf8')).call(g, g, g);
+
+  load('gm');                       // FIRST, with nothing yet to capture
+  const early = g.BibleGames.gm.rows;
+  ['normalize', 'views'].forEach(load);   // and only then what it needs
+
+  assert.doesNotThrow(() => early(deck()),
+    'gm.js must not depend on being loaded last');
+  assert.deepEqual(early(deck()).map((r) => r.id), rows(deck()).map((r) => r.id));
+});

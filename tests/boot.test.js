@@ -357,3 +357,37 @@ test('a half-illustrated trail plays with the pictures it has', async () => {
   assert.equal(s.srcFor('abraham-firewood.webp'), 'images/abraham-firewood.webp');
   assert.equal(s.srcFor('abraham-knife.jpg'), null);
 });
+
+// A map variant missing its extent or its pin is DORMANT, exactly as a quote
+// with no text is. Not reachable from the generated deck - the extent is
+// derived and the coordinate is checked - but the deck manager can hand-author
+// a map puzzle, and the failure mode is the worst one there is: paint.js
+// throws AFTER host.innerHTML has been cleared and boot's draw() has no
+// try/catch, so the room gets a black rectangle in the middle of a round.
+test('a map variant with no extent or no pin is dormant and is never drawn', async () => {
+  const mapDeck = (over) => ({
+    id: 'name-the-place', imageDirs: ['images/'], languages: ['en'], shuffle: false,
+    puzzles: [{
+      id: 'np-01', answer: 'JERICHO',
+      variants: [
+        Object.assign({ type: 'map', extent: 'holyland', at: [35.44, 31.87] }, over),
+        { type: 'map', extent: 'holyland', at: [35.21, 31.77], verse: 'fallback' },
+      ],
+    }],
+  });
+  for (const broken of [{ extent: null }, { at: null }, { extent: null, at: null }]) {
+    const s = await buildSession(mapDeck(broken), allPresent, seeded(1));
+    assert.equal(s.items.length, 1, JSON.stringify(broken));
+    assert.equal(s.items[0].variant.verse, 'fallback',
+      'the broken variant must never be picked: ' + JSON.stringify(broken));
+  }
+  // With a language asked for, a puzzle whose only map variant is broken drops
+  // out of the round entirely - which is the path a real game takes, because
+  // Name the Place always picks a language on the start screen.
+  const only = {
+    id: 'name-the-place', imageDirs: ['images/'], languages: ['en'], shuffle: false,
+    puzzles: [{ id: 'np-01', answer: 'JERICHO', type: 'map', extent: 'holyland', at: null }],
+  };
+  assert.deepEqual((await buildSession(only, allPresent, seeded(1), { lang: 'en' })).items, [],
+    'a puzzle with nothing drawable is not in the round');
+});

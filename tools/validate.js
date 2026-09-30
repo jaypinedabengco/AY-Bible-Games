@@ -16,6 +16,16 @@
 
   function sortedCopy(list) { return list.slice().sort(); }
 
+  // The atlas, but only when it actually carries extents. "Not loaded" and
+  // "loaded but empty" are the same thing to every check below, and treating
+  // them as one is what lets the report say plainly that the map checks were
+  // skipped rather than reporting every real extent as unknown.
+  function atlasHere() {
+    var atlas = root.BibleGames && root.BibleGames.atlas;
+    return (atlas && atlas.extents && Object.keys(atlas.extents).length)
+      ? atlas : null;
+  }
+
   function checkVariant(p, v, i, errors) {
     var where = '"' + p.answer + '" variant ' + (i + 1);
     if (TYPES.indexOf(v.type) === -1) {
@@ -107,20 +117,41 @@
     }
 
     if (v.type === 'map') {
-      var atlas = root.BibleGames && root.BibleGames.atlas;
+      var atlas = atlasHere();
+      var known = atlas && atlas.extents[v.extent];
       if (!v.extent) {
         errors.push(where + ': map needs an extent');
-      } else if (atlas && atlas.extents && !atlas.extents[v.extent]) {
+      } else if (atlas && !known) {
         // Only checkable where the atlas is loaded (the CLI loads it). The name
         // is looked up rather than listed here so the two cannot drift.
         errors.push(where + ': unknown map extent "' + v.extent + '"');
       }
+      var goodAt = false;
       if (!v.at || v.at.length !== 2) {
         errors.push(where + ': map needs at [lon, lat]');
       } else if (typeof v.at[0] !== 'number' || typeof v.at[1] !== 'number'
           || !isFinite(v.at[0]) || !isFinite(v.at[1])) {
         errors.push(where + ': map at must be two finite numbers (got ' +
           JSON.stringify(v.at) + ')');
+      } else {
+        goodAt = true;
+      }
+      // THE PIN HAS TO BE ON THE MAP. Babylon on the close map - a perfectly
+      // well-formed extent and a perfectly well-formed coordinate - drew a map
+      // with no pin anywhere on it, and nothing said a word.
+      //
+      // Containment only, NOT equality with atlas.fits(): a hand-written deck
+      // may legitimately ask a close-map place on the wide map (a journey that
+      // wants the whole Mediterranean in one picture). Asking for a place that
+      // is not in the picture at all is the mistake.
+      if (known && goodAt) {
+        var w = known.window;
+        if (!(v.at[0] >= w[0] && v.at[0] <= w[1]
+              && v.at[1] >= w[2] && v.at[1] <= w[3])) {
+          errors.push(where + ': at [' + v.at + '] is outside the "' + v.extent
+            + '" map, whose window is [' + w + ']'
+            + ' - the map would be drawn with no pin on it');
+        }
       }
     }
 
@@ -213,6 +244,20 @@
         }
       });
     });
+
+    // A green report must not be mistaken for a checked one. Every map check in
+    // checkVariant - the extent name, and whether the pin falls on that map at
+    // all - is skipped when the atlas is not loaded, and in the browser it
+    // often is not. Say so rather than passing quietly.
+    var maps = 0;
+    normalized.puzzles.forEach(function (p) {
+      p.variants.forEach(function (v) { if (v.type === 'map') { maps += 1; } });
+    });
+    if (maps && !atlasHere()) {
+      notices.push(maps + ' map variants were NOT checked against the atlas - it '
+        + 'is not loaded here, so neither the extent name nor whether the pin '
+        + 'lands on that map was verified. Run: node tools/validate.js <deck>');
+    }
 
     // Drafted scripture is not checked scripture, and a half-translated deck
     // is a normal state to be in. Both are notices rather than errors: nobody

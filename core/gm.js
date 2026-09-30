@@ -9,7 +9,13 @@
 (function (root) {
   'use strict';
 
-  var BG = root.BibleGames;
+  // NOT captured at load time. Every other core module reads root.BibleGames
+  // where it uses it; this one took a reference as the file was evaluated, so
+  // it depended on gm.js being loaded after normalize.js and views.js and on
+  // nothing ever replacing root.BibleGames afterwards. There is no build step
+  // to keep script tags in order, and the failure would be a Game Master page
+  // that shows no answers in a dark hall.
+  function bg() { return root.BibleGames; }
 
   // FNV-1a, 32-bit. NOT cryptographic and not pretending to be: knowing the
   // code is the whole gate, and the threat model is a curious teenager with a
@@ -74,6 +80,7 @@
   }
 
   function rows(deck) {
+    var BG = bg();
     var normalized = BG.normalize.normalizeDeck(deck);
     return normalized.puzzles.map(function (p) {
       var flags = [];

@@ -9,7 +9,7 @@
   'use strict';
 
   var VARIANT_KEYS = ['type', 'clues', 'img', 'prompt', 'options', 'items',
-                      'correct', 'quote', 'verse', 'clue', 'items',
+                      'correct', 'quote', 'verse', 'clue',
                       'extent', 'at',
                       'lang', 'answer', 'ref', 'flag', 'spoken', 'weight', 'difficulty'];
 

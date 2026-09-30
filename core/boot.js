@@ -142,6 +142,13 @@
         // rather than broken. Requiring them would make every unfinished trail
         // vanish from the deck.
         if (variant.type === 'trail') { return (variant.items || []).length > 0; }
+        // A map with no extent or no pin is dormant for the same reason. This
+        // one is not reachable from the generated deck - the extent is derived
+        // and the coordinate is checked - but the deck manager can hand-author
+        // a map puzzle, and the failure is ugly: paint.js throws AFTER
+        // host.innerHTML has been cleared, and draw() has no try/catch, so the
+        // room gets a black rectangle in the middle of a round.
+        if (variant.type === 'map') { return !!(variant.extent && variant.at); }
         var names = imageNames(variant);
         if (!names.length) { return true; }   // text and order need no picture
         return names.every(function (n) { return srcFor(n) !== null; });
