@@ -330,6 +330,65 @@ test('the peaks are named in the language being played, too', () => {
   assert.ok(!peaks('fil').includes('CARMEL'));
 });
 
+// THE ANSWER MUST NOT BE PRINTED UNDER THE PIN. Five of the six named peaks
+// are themselves Name the Place puzzles, and before hideLabelAt the map said
+// CARMEL beside the pin from the first beat, in both languages.
+test('hideLabelAt drops the label under the pin and keeps its mountain', () => {
+  const a = loadAtlas();
+  const carmel = a.extents.holyland.peaks.filter((p) => p.label === 'CARMEL')[0];
+  const peaks = (opts) => a.draw('holyland', 'en', opts).children
+    .filter((c) => c.attrs['class'] === 'peaks')[0];
+
+  const plain = peaks();
+  assert.ok(plain.children.some((g) => g.children.some((c) => c.textContent === 'CARMEL')),
+    'without the option the map names every peak, as it should');
+
+  const hidden = peaks({ hideLabelAt: carmel.at });
+  assert.equal(hidden.children.length, plain.children.length,
+    'every mountain is still drawn - only a name was dropped');
+  const texts = [];
+  hidden.children.forEach((g) => g.children.forEach((c) => {
+    if (c.tagName === 'text') { texts.push(c.textContent); }
+    else { assert.equal(c.tagName, 'path', 'the triangle stays'); }
+  }));
+  assert.ok(!texts.includes('CARMEL'), 'CARMEL is the answer; it must not be on the map');
+  assert.ok(texts.includes('TABOR') && texts.includes('NEBO'),
+    'only the label under the pin goes, not every label');
+  assert.equal(hidden.children.filter((g) => g.children.length === 1).length, 1,
+    'exactly one peak lost its text');
+
+  // Tagalog too: CARMEL is CARMELO, and a bilingual room reads both.
+  const fil = a.draw('holyland', 'fil', { hideLabelAt: carmel.at }).children
+    .filter((c) => c.attrs['class'] === 'peaks')[0];
+  const filTexts = [];
+  fil.children.forEach((g) => g.children.forEach((c) => {
+    if (c.tagName === 'text') { filTexts.push(c.textContent); }
+  }));
+  assert.ok(!filTexts.includes('CARMELO'), 'the Tagalog name gives it away just as fast');
+});
+
+test('hideLabelAt suppresses furniture as well as peaks, and only when close', () => {
+  const a = loadAtlas();
+  const jordan = a.extents.holyland.furniture.filter((f) => f.label === 'THE JORDAN')[0];
+  const labels = (opts) => a.draw('holyland', 'en', opts).children
+    .filter((c) => c.attrs['class'] === 'furniture')[0]
+    .children.map((t) => t.textContent);
+  assert.ok(labels().includes('THE JORDAN'));
+  assert.ok(!labels({ hideLabelAt: jordan.at }).includes('THE JORDAN'));
+  assert.ok(labels({ hideLabelAt: jordan.at }).includes('THE GREAT SEA'),
+    'the far label stays');
+  // The radius is the pin halo's, and no more: a label a halo and a half away
+  // is not under the pin and must survive.
+  const z = a.sizes('holyland');
+  const win = a.extents.holyland.window;
+  const wide = a.unproject('holyland',
+    a.project('holyland', jordan.at[0], jordan.at[1]).x,
+    a.project('holyland', jordan.at[0], jordan.at[1]).y + z.pinHalo * 1.5);
+  assert.ok(wide.lat > win[2] && wide.lat < win[3], 'the probe point is on the map');
+  assert.ok(labels({ hideLabelAt: [wide.lon, wide.lat] }).includes('THE JORDAN'),
+    'a label further than one halo radius away is not hidden');
+});
+
 test('furniture labels are centred on their coordinate', () => {
   const a = loadAtlas();
   ['holyland', 'bibleworld'].forEach((name) => {

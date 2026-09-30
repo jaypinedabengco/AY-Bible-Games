@@ -403,8 +403,22 @@ html, body {
 .pin-halo { fill: var(--accent); opacity: 0.25; }
 /* The pulse is a transform, not an animated radius: the halo's radius is set in
    viewBox units per map, and a keyframe that named a radius would be the wrong
-   size on one of them. Scaling is relative to whatever the radius is. */
+   size on one of them. Scaling is relative to whatever the radius is.
+
+   The origin is 0 0, and the halo is a circle at cx=0 cy=0 inside a <g> that
+   paint.js TRANSLATES to the pin - so the scale is about the pin's own centre
+   in plain SVG coordinates, with no transform-box: fill-box. fill-box is
+   Chrome 64 / Firefox 55 / Safari 11, and a church laptop older than that
+   still honours the transform but resolves `center` against the WHOLE map: the
+   halo would scale about the middle of the map and slide off the pin, forever,
+   on a loop. Worse than no animation at all. */
 @keyframes pin-pulse { from { transform: scale(1); opacity: 0.45; }
                        to   { transform: scale(2.5); opacity: 0; } }
-.pin-halo { transform-box: fill-box; transform-origin: center;
+.pin-halo { transform-origin: 0 0;
             animation: pin-pulse 1.8s ease-out infinite; }
+/* A pulsing dot on a projector is one of the things a person with vestibular
+   trouble or photosensitivity asks to be turned off, and the browser already
+   carries the answer. The pin stays exactly where it is; only the loop stops. */
+@media (prefers-reduced-motion: reduce) {
+  .pin-halo { animation: none; opacity: 0.35; }
+}

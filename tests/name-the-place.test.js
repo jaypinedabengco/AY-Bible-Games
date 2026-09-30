@@ -8,11 +8,15 @@ const ROOT = path.join(__dirname, '..');
 const src = JSON.parse(fs.readFileSync(path.join(ROOT, 'tools', 'places.json'), 'utf8'));
 
 // Shadows globalThis as well as window - see the note in tests/atlas.test.js.
+// The stub RECORDS text, because the giveaway test below reads the words the
+// map puts on screen rather than trusting a description of them.
 function loadAtlas() {
   const g = { BibleGames: { atlas: { extents: {} } } };
   g.window = g;
-  g.document = { createElementNS: () => ({
-    setAttribute() {}, appendChild(c) { return c; }, children: [] }) };
+  g.document = { createElementNS: (ns, tag) => ({
+    tagName: tag, attrs: {}, children: [], textContent: '',
+    setAttribute(k, v) { this.attrs[k] = String(v); },
+    appendChild(c) { this.children.push(c); return c; } }) };
   ['atlas-holyland', 'atlas-bibleworld', 'atlas'].forEach((f) => {
     new Function('window', 'document', 'globalThis', fs.readFileSync(
       path.join(ROOT, 'core', f + '.js'), 'utf8')).call(g, g, g.document, g);
@@ -198,7 +202,13 @@ test('a city is on land, and a lake is in water', () => {
   assert.deepEqual(wrong, [], wrong.join('\n'));
 });
 
+// THE MAP IS PART OF THE SCREEN, and it carries text. This test read only the
+// clue and the verse, and so could not see that five of the six named peaks -
+// CARMEL, TABOR, NEBO, HERMON, GILBOA - are themselves answers, printed beside
+// the pin in both languages from the first beat. It draws the real map now,
+// through the real hideLabelAt path, and reads the words off it.
 test('nothing on screen gives the place away, in either language', () => {
+  const atlas = loadAtlas();
   const stop = { THE: 1, OF: 1, MOUNT: 1, SEA: 1, ANG: 1, NG: 1, SA: 1, DAGAT: 1, BUNDOK: 1 };
   const words = (s) => {
     const all = s.split(/[ ,]+/).map((w) => w.replace(/[^A-Za-z]/g, ''))
@@ -208,30 +218,57 @@ test('nothing on screen gives the place away, in either language', () => {
     // that IS short - UR, and one day AI - must still be caught.
     return long.length ? long : all;
   };
+  // words() strips the non-letters out of the ANSWER, so BETH-SHAN becomes
+  // BETHSHAN - and matching that against a raw clue meant a clue spelling
+  // "Beth-shan" sailed through. Both sides are flattened the same way. Split on
+  // WHITESPACE first so a comma still separates two names.
+  const flatten = (s) => s.split(/\s+/)
+    .map((w) => w.replace(/[^A-Za-z]/g, '')).filter(Boolean).join(' ').toLowerCase();
+  const says = (text, w) => new RegExp('\\b' + w.toLowerCase() + '\\b').test(text);
+
+  // Every word the drawn map puts on screen for this variant: water, regions
+  // and the peaks that still have their names.
+  const onMap = (v) => {
+    const svg = atlas.draw(v.extent, v.lang || 'en', { hideLabelAt: v.at });
+    const out = [];
+    const walk = (n) => {
+      if (n.tagName === 'text') { out.push(n.textContent); }
+      (n.children || []).forEach(walk);
+    };
+    svg.children.forEach(walk);
+    return out.join(' ');
+  };
+
   const all = [];
   deck().puzzles.forEach((p) => {
     p.variants.forEach((v) => { all.push(v.answer || p.answer); });
   });
   const leaks = [];
+  let mapsRead = 0;
   deck().puzzles.forEach((p) => {
     const own = [p.answer].concat(p.variants.map((v) => v.answer).filter(Boolean));
     p.variants.forEach((v, i) => {
-      const shown = ((v.clue || '') + ' ' + (v.verse || '')).toLowerCase();
+      const shown = flatten((v.clue || '') + ' ' + (v.verse || ''));
+      // The map is checked against this puzzle's OWN answer only. Naming a
+      // DIFFERENT place is what a map is for - TABOR is on screen while the
+      // room is asked about the Sea of Galilee, and should be.
+      const drawn = v.extent && v.at ? flatten(onMap(v)) : '';
+      if (drawn) { mapsRead += 1; }
       own.forEach((name) => words(name).forEach((w) => {
-        if (new RegExp('\\b' + w.toLowerCase() + '\\b').test(shown)) {
-          leaks.push(p.id + ' #' + i + ': says "' + w + '"');
+        if (says(shown, w)) { leaks.push(p.id + ' #' + i + ': says "' + w + '"'); }
+        if (says(drawn, w)) {
+          leaks.push(p.id + ' #' + i + ': the MAP prints "' + w + '" under the pin');
         }
       }));
       all.forEach((other) => {
         if (own.indexOf(other) !== -1) { return; }
         words(other).forEach((w) => {
-          if (new RegExp('\\b' + w.toLowerCase() + '\\b').test(shown)) {
-            leaks.push(p.id + ' #' + i + ': names "' + other + '"');
-          }
+          if (says(shown, w)) { leaks.push(p.id + ' #' + i + ': names "' + other + '"'); }
         });
       });
     });
   });
+  assert.ok(mapsRead > 0, 'no map was drawn - the test is not looking at anything');
   assert.deepEqual(leaks, [], leaks.join('\n'));
 });
 

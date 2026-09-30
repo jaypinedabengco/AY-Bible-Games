@@ -788,7 +788,7 @@ test('painting a map puts the pin in .pins and marks the body fixed', () => {
     createElementNS: (ns, tag) => node(tag),
   };
   globalThis.BibleGames.atlas = {
-    draw: (extent, lang) => { asked.push([extent, lang]); return svg; },
+    draw: (extent, lang, opts) => { asked.push([extent, lang, opts]); return svg; },
     project: () => ({ x: 412, y: 267 }),
     sizes: () => ({ pinDot: 37, pinHalo: 56, pinRing: 7 }),
   };
@@ -804,25 +804,74 @@ test('painting a map puts the pin in .pins and marks the body fixed', () => {
     const body = host.children.find((c) => /\bbody\b/.test(c.className));
     assert.ok(body, 'the body was added to the host');
     assert.match(body.className, /\bbody-map\b/);
-    assert.deepEqual(asked, [['holyland', 'en']]);
+    // The pin's own coordinate is handed to the atlas so it can drop any label
+    // sitting under the pin. Five of the six named peaks ARE answers.
+    assert.deepEqual(asked, [['holyland', 'en', { hideLabelAt: [35.44, 31.87] }]]);
     assert.equal(svg.children[svg.children.length - 1], pins,
       'nothing is appended after the pins group');
-    assert.equal(pins.children.length, 2, 'a halo and a dot');
-    pins.children.forEach((c) => {
+    // One anchor group, TRANSLATED to the pin, with the two circles at its
+    // origin. The pulse scales about 0 0, so it needs no transform-box:
+    // fill-box - see the note beside @keyframes pin-pulse in theme.css.
+    assert.equal(pins.children.length, 1, 'one translated anchor');
+    const anchor = pins.children[0];
+    assert.equal(anchor.tagName, 'g');
+    assert.equal(anchor.attrs.transform, 'translate(412,267)');
+    assert.equal(anchor.children.length, 2, 'a halo and a dot');
+    anchor.children.forEach((c) => {
       assert.equal(c.tagName, 'circle');
-      assert.equal(c.attrs.cx, '412');
-      assert.equal(c.attrs.cy, '267');
+      assert.equal(c.attrs.cx, '0', 'the circle sits at the anchor origin, not at cx/cy');
+      assert.equal(c.attrs.cy, '0');
     });
-    assert.deepEqual(pins.children.map((c) => c.attrs.class), ['pin-halo', 'pin-dot']);
+    assert.deepEqual(anchor.children.map((c) => c.attrs.class), ['pin-halo', 'pin-dot']);
     // The radii come from the atlas (a fraction of the map's height), not from
     // a number in paint.js.
-    assert.equal(pins.children[0].attrs.r, '56', 'the halo takes its radius from the atlas');
-    assert.equal(pins.children[1].attrs.r, '37', 'the dot takes its radius from the atlas');
-    assert.equal(pins.children[1].attrs['stroke-width'], '7');
+    assert.equal(anchor.children[0].attrs.r, '56', 'the halo takes its radius from the atlas');
+    assert.equal(anchor.children[1].attrs.r, '37', 'the dot takes its radius from the atlas');
+    assert.equal(anchor.children[1].attrs['stroke-width'], '7');
     assert.ok(!body.children.some((c) => c.className === 'masked'),
       'no mask before its beat');
     const wrap = body.children.find((c) => c.className === 'mapwrap');
     assert.ok(wrap && wrap.children[0] === svg, 'the svg sits in the map wrapper');
+  } finally {
+    if (saved.document === undefined) { delete globalThis.document; }
+    else { globalThis.document = saved.document; }
+    globalThis.BibleGames.atlas = saved.atlas;
+  }
+});
+
+// host.innerHTML has already been cleared by the time the map is drawn, and
+// boot.js's draw() has no try/catch, so anything that throws in here leaves a
+// black rectangle on a projector in the middle of a round. A map with no pin
+// is a far smaller failure than no map at all.
+test('painting a map with no .pins group draws the map instead of throwing', () => {
+  function node(tag) {
+    return {
+      tagName: tag, className: '', textContent: '', children: [], attrs: {},
+      setAttribute(k, v) { this.attrs[k] = String(v); },
+      appendChild(c) { this.children.push(c); return c; },
+    };
+  }
+  const svg = node('svg');
+  svg.querySelector = () => null;              // an atlas that drew no pins group
+  const saved = { document: globalThis.document, atlas: globalThis.BibleGames.atlas };
+  globalThis.document = { createElement: node, createElementNS: (ns, tag) => node(tag) };
+  globalThis.BibleGames.atlas = {
+    draw: () => svg,
+    project: () => ({ x: 412, y: 267 }),
+    sizes: () => ({ pinDot: 37, pinHalo: 56, pinRing: 7 }),
+  };
+  try {
+    require('../core/paint.js');
+    const host = node('div');
+    const p = normalizePuzzle({
+      id: 'np-08', answer: 'JERICHO', type: 'map', extent: 'holyland',
+      at: [35.44, 31.87], verse: 'Joshua 6:20',
+    });
+    assert.doesNotThrow(() => globalThis.BibleGames.paint.render(
+      host, byType.map.view(p, p.variants[0], 1), null, null));
+    const body = host.children.find((c) => /\bbody\b/.test(c.className));
+    assert.ok(body && body.children.some((c) => c.className === 'mapwrap'),
+      'the map is still on screen');
   } finally {
     if (saved.document === undefined) { delete globalThis.document; }
     else { globalThis.document = saved.document; }

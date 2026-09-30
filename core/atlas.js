@@ -150,10 +150,35 @@
     return g;
   }
 
-  function draw(name, lang) {
+  // THE LABEL UNDER THE PIN. Five of the six named peaks - Carmel, Tabor,
+  // Nebo, Hermon, Gilboa - are themselves puzzles in Name the Place, and the
+  // map printed the answer beside the pin from the first beat, in both
+  // languages. The verse, the clue and the masked beat were dead air.
+  //
+  // opts.hideLabelAt is the pin's [lon, lat]. Any peak or furniture label
+  // whose own coordinate falls within one pin-halo radius of it loses its
+  // TEXT and keeps its triangle: the map furniture is what makes the map
+  // readable, and a nameless mountain under a pin is still a mountain. The
+  // radius is the halo's, because a label that close is underneath the pulsing
+  // halo anyway - so nothing legible is being taken away.
+  //
+  // It also fixes the neighbours: Shechem's pin sat 4.4 units from GERIZIM and
+  // read as though it were labelling Gerizim.
+  function hiddenLabels(name, z, at) {
+    if (!at) { return function () { return false; }; }
+    var pin = project(name, at[0], at[1]);
+    return function (where) {
+      var q = project(name, where[0], where[1]);
+      var dx = q.x - pin.x, dy = q.y - pin.y;
+      return Math.sqrt(dx * dx + dy * dy) <= z.pinHalo;
+    };
+  }
+
+  function draw(name, lang, opts) {
     var e = extent(name);
     var h = height(name);
     var z = sizes(name);
+    var hidden = hiddenLabels(name, z, opts && opts.hideLabelAt);
     var svg = node('svg', {
       viewBox: '0 0 ' + WIDTH + ' ' + h,
       // Letterbox rather than stretch: a distorted coastline is a wrong map.
@@ -187,12 +212,15 @@
       g.appendChild(node('path', { d: 'M' + (q.x - s).toFixed(1) + ' ' + q.y.toFixed(1)
         + ' L' + q.x.toFixed(1) + ' ' + (q.y - s).toFixed(1)
         + ' L' + (q.x + s).toFixed(1) + ' ' + q.y.toFixed(1) + ' Z' }));
-      var t = node('text', {
-        x: q.x, y: q.y + s + z.peakLabel * 0.3, 'text-anchor': 'middle',
-        'font-size': z.peakLabel, 'stroke-width': z.halo,
-      });
-      t.textContent = (lang === 'fil' && pk.label_fil) ? pk.label_fil : pk.label;
-      g.appendChild(t);
+      // The triangle stays whatever happens; only the name goes.
+      if (!hidden(pk.at)) {
+        var t = node('text', {
+          x: q.x, y: q.y + s + z.peakLabel * 0.3, 'text-anchor': 'middle',
+          'font-size': z.peakLabel, 'stroke-width': z.halo,
+        });
+        t.textContent = (lang === 'fil' && pk.label_fil) ? pk.label_fil : pk.label;
+        g.appendChild(t);
+      }
       return g;
     })));
 
@@ -209,7 +237,9 @@
       }));
     }
 
-    svg.appendChild(group('furniture', e.furniture.map(function (f) {
+    svg.appendChild(group('furniture', e.furniture.filter(function (f) {
+      return !hidden(f.at);
+    }).map(function (f) {
       var q = project(name, f.at[0], f.at[1]);
       var t = node('text', {
         x: q.x, y: q.y, 'text-anchor': 'middle',
