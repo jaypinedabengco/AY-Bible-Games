@@ -147,12 +147,77 @@
         opts.appendChild(el('div', chosen ? 'option option-correct' : 'option', o));
       });
       body.appendChild(opts);
+    } else if (view.kind === 'map') {
+      // A fixed-height body, so the map holds still while the verse, clue and
+      // answer arrive beneath it - see .body-map in theme.css.
+      body.className = 'body body-map';
+      // hideLabelAt is the answer-protection rule: the map must not print the
+      // name of the place under the pin. Five of the six named peaks ARE
+      // puzzles, so without this the answer was on screen from beat one. See
+      // hiddenLabels in atlas.js.
+      var map = BibleGames.atlas.draw(view.extent, view.lang,
+        { hideLabelAt: view.at });
+      var wrap = el('div', 'mapwrap');
+      wrap.appendChild(map);
+      body.appendChild(wrap);
+      // The pin goes in the group the atlas left empty for exactly this. The
+      // guard is not paranoia: host.innerHTML has already been cleared by the
+      // time we get here, so a throw leaves a black rectangle on a projector
+      // mid-round. A map with no pin is a lesser failure than no map at all.
+      var pins = map.querySelector && map.querySelector('.pins');
+      var at = BibleGames.atlas.project(view.extent, view.at[0], view.at[1]);
+      var z = BibleGames.atlas.sizes(view.extent);
+      if (pins) {
+        // The halo pulses. It is drawn at the origin of a group TRANSLATED to
+        // the pin rather than at cx/cy, so the scale in the keyframes has the
+        // pin as its origin without needing transform-box: fill-box - which an
+        // older church laptop may not honour, and whose fallback scales the
+        // halo about the middle of the whole map, forever, on a loop.
+        var anchor = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        anchor.setAttribute('class', 'pin');
+        anchor.setAttribute('transform', 'translate(' + at.x + ',' + at.y + ')');
+        pins.appendChild(anchor);
+        ['pin-halo', 'pin-dot'].forEach(function (cls) {
+          var c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          c.setAttribute('cx', 0);
+          c.setAttribute('cy', 0);
+          // In viewBox units, from the atlas: a fraction of the map's HEIGHT, so
+          // the pin is the same size on screen on both maps. The pin is the
+          // question, and it has to be seen from the back of a hall. A fixed
+          // radius was 13 px on a projector on the close map (portrait, so it
+          // is fitted by height and drawn small) and twice that on the wide one.
+          c.setAttribute('r', cls === 'pin-halo' ? z.pinHalo : z.pinDot);
+          if (cls === 'pin-dot') { c.setAttribute('stroke-width', z.pinRing); }
+          c.setAttribute('class', cls);
+          anchor.appendChild(c);
+        });
+      }
+      if (view.verse) { body.appendChild(el('div', 'verse', view.verse)); }
+      if (view.clue) { body.appendChild(el('div', 'clue-text', view.clue)); }
+      // The first letter and a slot for each of the rest.
+      if (view.masked) { body.appendChild(el('div', 'masked', view.masked)); }
     } else if (view.kind === 'order') {
-      var list = el('div', 'order-list');
-      (view.correct || view.items).forEach(function (item, i) {
-        list.appendChild(el('div', 'order-item', (i + 1) + '. ' + item));
-      });
-      body.appendChild(list);
+      if (view.prompt) { body.appendChild(el('div', 'prompt', view.prompt)); }
+      if (view.correct) {
+        var list = el('div', 'order-list');
+        view.correct.forEach(function (row, i) {
+          var line = el('div', 'order-item');
+          line.appendChild(el('span', 'order-rank', String(i + 1)));
+          line.appendChild(el('span', 'order-label', row.label));
+          // A date is optional: an ordering can be worth showing without one.
+          line.appendChild(el('span', 'order-when', row.when || ''));
+          list.appendChild(line);
+        });
+        body.appendChild(list);
+      } else {
+        // The scramble. A ROW rather than a list, and with no numbers at all -
+        // a numbered column reads as an answer, and this one would be wrong.
+        var scramble = el('div', 'order-scramble');
+        (view.items || []).forEach(function (item) {
+          scramble.appendChild(el('div', 'order-chip', item));
+        });
+        body.appendChild(scramble);
+      }
     }
 
     if (view.answered && view.kind !== 'binary') {

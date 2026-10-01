@@ -255,3 +255,52 @@ test('a trail carries whatever pictures have been sourced for it', () => {
   assert.deepEqual(out[0].trails[0][1].imgs, [],
     'a step with no picture yet simply has none');
 });
+
+test('a map puzzle reaches the game master with its map, its verse and its clue', () => {
+  const d = {
+    id: 'name-the-place',
+    puzzles: [{
+      id: 'np-02', answer: 'BETHLEHEM',
+      variants: [
+        { type: 'map', lang: 'en', answer: 'BETHLEHEM', extent: 'holyland',
+          at: [35.2, 31.7], verse: 'Micah 5:2', clue: 'little among the thousands' },
+        { type: 'map', lang: 'fil', answer: 'BETLEHEM', extent: 'holyland',
+          at: [35.2, 31.7], verse: 'Micah 5:2', clue: 'maliit sa mga angkan' },
+      ],
+    }],
+  };
+  const row = rows(d)[0];
+  assert.equal(row.places.length, 2);
+  assert.deepEqual(row.places.map((p) => p.answer), ['BETHLEHEM', 'BETLEHEM']);
+  assert.equal(row.places[0].extent, 'holyland');
+  assert.deepEqual(row.places[0].at, [35.2, 31.7]);
+  assert.equal(row.places[1].lang, 'fil');
+  // The room is looking at a dot, so the clue is the working.
+  assert.deepEqual(row.workings, ['little among the thousands', 'maliit sa mga angkan']);
+});
+
+test('a deck with no maps has no places on any row', () => {
+  assert.ok(rows(deck()).every((r) => Array.isArray(r.places) && r.places.length === 0));
+});
+
+// gm.js was the only core module that captured `var BG = root.BibleGames` as
+// the file was evaluated. That made it depend on its <script> tag coming after
+// normalize.js and views.js - and there is no build step to keep script tags in
+// order. The failure would be a Game Master page showing no answers at all, on
+// a phone, in a dark hall, with the round already running.
+test('gm reads BibleGames when it is used, not when the file loads', () => {
+  const fs = require('fs');
+  const path = require('path');
+  const g = {};
+  g.window = g;
+  const load = (m) => new Function('window', 'globalThis', fs.readFileSync(
+    path.join(__dirname, '..', 'core', m + '.js'), 'utf8')).call(g, g, g);
+
+  load('gm');                       // FIRST, with nothing yet to capture
+  const early = g.BibleGames.gm.rows;
+  ['normalize', 'views'].forEach(load);   // and only then what it needs
+
+  assert.doesNotThrow(() => early(deck()),
+    'gm.js must not depend on being loaded last');
+  assert.deepEqual(early(deck()).map((r) => r.id), rows(deck()).map((r) => r.id));
+});

@@ -1,0 +1,377 @@
+{
+  "_about": [
+    "The one hand-written thing behind What Came First?. Every puzzle in",
+    "games/what-came-first/deck.js is DERIVED from this list by",
+    "tools/make-what-came-first.js - so a date corrected here corrects every",
+    "puzzle that uses it, and no puzzle can contradict another.",
+    "",
+    "`year` is a signed integer used ONLY for sorting and is never shown.",
+    "`display` is what the room reads, and is always hedged, because the year",
+    "is not the claim being made - the ORDER is.",
+    "",
+    "The bar for being in this list is not 'we know the date'. It is 'the",
+    "ORDER survives the argument'. The Exodus is dated to about 1446 BC or",
+    "about 1260 BC depending on who you ask, and it belongs here because",
+    "either way it is after Abraham and before David."
+  ],
+  "_caveats": [
+    "DEBORAH, GIDEON and SAMSON are not independently dated. Their order is",
+    "the order of the book of Judges and the spacing between them is imposed.",
+    "That is the ordinary convention for a Bible game and it is what a room",
+    "would reason from, but it is narrative order, not archaeology.",
+    "",
+    "THE FLOOD and THE TOWER OF BABEL carry conventional numbers with no",
+    "external support. Only their relative position is solid.",
+    "",
+    "THE CREATION has no date at all: a sentinel year for sorting, and 'the",
+    "beginning' on the screen. Inventing a number for it would be the one",
+    "kind of confident wrong answer this game exists to avoid.",
+    "",
+    "PENTECOST is the only entry whose `year` and `display` disagree: it is",
+    "fifty days after THE CROSS, so it sorts as 32 and displays as the same",
+    "year. The generator refuses any triple whose three displayed dates are",
+    "not distinct, which is what keeps that pair off one screen - two",
+    "identical dates beside numbers claiming an order read as a bug.",
+    "",
+    "The Tagalog is a translation of our own labels, not of scripture, so it",
+    "needed no licence and no fetched text. Dates hedge with 'mga' rather than",
+    "the Latin 'c.', which means nothing to a Filipino reader."
+  ],
+  "_excluded": [
+    {
+      "what": "JOB",
+      "why": "proposals span a thousand years"
+    },
+    {
+      "what": "JONAH",
+      "why": "the man anchors to c. 780 BC, but much scholarship dates the book to the Persian or Hellenistic period, which flips him against Isaiah"
+    },
+    {
+      "what": "JOEL, OBADIAH, NAHUM, HABAKKUK, ZEPHANIAH, MALACHI",
+      "why": "century argued; several could flip against Isaiah, Jeremiah or Esther"
+    },
+    {
+      "what": "THE GOSPELS ARE WRITTEN",
+      "why": "dating spans AD 60-100, which flips against the fall of Jerusalem"
+    },
+    {
+      "what": "AMOS, HOSEA, MICAH, ELISHA, HEZEKIAH, JOSIAH, EZEKIEL, THE FALL OF SAMARIA, THE KINGDOM DIVIDES",
+      "why": "safe, but all land within 40 years of a better-known neighbour"
+    },
+    {
+      "what": "EZRA, NEHEMIAH REBUILDS THE WALL",
+      "why": "Esther, Ezra and Nehemiah sit inside 33 years of each other, so only one can be in. Esther was kept as the most recognisable; swapping her for Nehemiah is equally safe"
+    },
+    {
+      "what": "THE RETURN FROM EXILE",
+      "why": "538 BC, one year from Daniel and the lions"
+    },
+    {
+      "what": "RUTH, SAMUEL",
+      "why": "both land about 1100 BC, on top of Samson"
+    },
+    {
+      "what": "THE TEN COMMANDMENTS, THE PASSOVER, THE BURNING BUSH, THE LAST SUPPER, THE RESURRECTION, JESUS IS BAPTIZED, STEPHEN",
+      "why": "same year as an entry already in the list"
+    }
+  ],
+  "anchors": [
+    {
+      "label": "THE CREATION",
+      "kind": "event",
+      "year": -1000000,
+      "display": "the beginning",
+      "note": "Genesis 1; deliberately given no number - the year field is a sort sentinel only",
+      "label_fil": "ANG PAGLIKHA",
+      "display_fil": "ang simula"
+    },
+    {
+      "label": "THE FLOOD",
+      "kind": "event",
+      "year": -2400,
+      "display": "c. 2400 BC",
+      "note": "Noah's flood; the number is traditional, but the order (after creation, long before Abraham) is not in dispute",
+      "label_fil": "ANG MALAKING BAHA",
+      "display_fil": "mga 2400 BC"
+    },
+    {
+      "label": "THE TOWER OF BABEL",
+      "kind": "event",
+      "year": -2200,
+      "display": "c. 2200 BC",
+      "note": "Genesis 11, between the flood and the call of Abraham",
+      "label_fil": "ANG TORE NG BABEL",
+      "display_fil": "mga 2200 BC"
+    },
+    {
+      "label": "ABRAHAM",
+      "kind": "person",
+      "year": -2000,
+      "display": "c. 2000 BC",
+      "note": "the call to leave Haran for Canaan",
+      "label_fil": "ABRAHAM",
+      "display_fil": "mga 2000 BC"
+    },
+    {
+      "label": "ISAAC",
+      "kind": "person",
+      "year": -1950,
+      "display": "c. 1950 BC",
+      "note": "born to Abraham and Sarah in their old age",
+      "label_fil": "ISAAC",
+      "display_fil": "mga 1950 BC"
+    },
+    {
+      "label": "JACOB",
+      "kind": "person",
+      "year": -1900,
+      "display": "c. 1900 BC",
+      "note": "wrestles at Peniel and is renamed Israel",
+      "label_fil": "JACOB",
+      "display_fil": "mga 1900 BC"
+    },
+    {
+      "label": "JOSEPH",
+      "kind": "person",
+      "year": -1800,
+      "display": "c. 1800 BC",
+      "note": "sold by his brothers and taken into Egypt",
+      "label_fil": "JOSE",
+      "display_fil": "mga 1800 BC"
+    },
+    {
+      "label": "SLAVERY IN EGYPT",
+      "kind": "event",
+      "year": -1600,
+      "display": "c. 1600 BC",
+      "note": "the new king who did not know Joseph puts Israel under forced labour",
+      "label_fil": "PAGKAALIPIN SA EGIPTO",
+      "display_fil": "mga 1600 BC"
+    },
+    {
+      "label": "MOSES IS BORN",
+      "kind": "person",
+      "year": -1525,
+      "display": "c. 1500 BC",
+      "note": "birth, 80 years before the exodus; moves with the exodus date, order unaffected",
+      "label_fil": "ISINILANG SI MOISES",
+      "display_fil": "mga 1500 BC"
+    },
+    {
+      "label": "THE EXODUS",
+      "kind": "event",
+      "year": -1446,
+      "display": "c. 1450 BC",
+      "note": "Israel leaves Egypt; early date 1446 vs late date 1260 is argued, but either way it is after Abraham and before David",
+      "label_fil": "ANG EXODO",
+      "display_fil": "mga 1450 BC"
+    },
+    {
+      "label": "THE WALLS OF JERICHO",
+      "kind": "event",
+      "year": -1400,
+      "display": "c. 1400 BC",
+      "note": "Joshua takes the city, 40 years after the exodus; shifts with the exodus date but never past it",
+      "label_fil": "ANG PADER NG JERICO",
+      "display_fil": "mga 1400 BC"
+    },
+    {
+      "label": "DEBORAH",
+      "kind": "person",
+      "year": -1200,
+      "display": "c. 1200 BC",
+      "note": "judges Israel and defeats Sisera; early in the book of Judges",
+      "label_fil": "DEBORA",
+      "display_fil": "mga 1200 BC"
+    },
+    {
+      "label": "GIDEON",
+      "kind": "person",
+      "year": -1150,
+      "display": "c. 1150 BC",
+      "note": "the 300 men against Midian; middle of Judges, after Deborah",
+      "label_fil": "GEDEON",
+      "display_fil": "mga 1150 BC"
+    },
+    {
+      "label": "SAMSON",
+      "kind": "person",
+      "year": -1100,
+      "display": "c. 1100 BC",
+      "note": "his judgeship, last in Judges, in the Philistine era just before the monarchy",
+      "label_fil": "SAMSON",
+      "display_fil": "mga 1100 BC"
+    },
+    {
+      "label": "SAUL BECOMES KING",
+      "kind": "person",
+      "year": -1050,
+      "display": "c. 1050 BC",
+      "note": "anointed by Samuel as Israel's first king",
+      "label_fil": "NAGING HARI SI SAUL",
+      "display_fil": "mga 1050 BC"
+    },
+    {
+      "label": "DAVID BECOMES KING",
+      "kind": "person",
+      "year": -1010,
+      "display": "c. 1000 BC",
+      "note": "begins to reign after Saul's death",
+      "label_fil": "NAGING HARI SI DAVID",
+      "display_fil": "mga 1000 BC"
+    },
+    {
+      "label": "SOLOMON",
+      "kind": "person",
+      "year": -966,
+      "display": "c. 960 BC",
+      "note": "builds the first temple, in the fourth year of his reign",
+      "label_fil": "SOLOMON",
+      "display_fil": "mga 960 BC"
+    },
+    {
+      "label": "ELIJAH",
+      "kind": "person",
+      "year": -860,
+      "display": "c. 860 BC",
+      "note": "the contest with the prophets of Baal on Mount Carmel, under Ahab",
+      "label_fil": "ELIAS",
+      "display_fil": "mga 860 BC"
+    },
+    {
+      "label": "ISAIAH",
+      "kind": "person",
+      "year": -740,
+      "display": "c. 740 BC",
+      "note": "his call, in the year King Uzziah died",
+      "label_fil": "ISAIAS",
+      "display_fil": "mga 740 BC"
+    },
+    {
+      "label": "JEREMIAH",
+      "kind": "person",
+      "year": -627,
+      "display": "c. 620 BC",
+      "note": "his call, in the thirteenth year of Josiah",
+      "label_fil": "JEREMIAS",
+      "display_fil": "mga 620 BC"
+    },
+    {
+      "label": "THE EXILE TO BABYLON",
+      "kind": "event",
+      "year": -586,
+      "display": "c. 590 BC",
+      "note": "Jerusalem and the first temple fall to Nebuchadnezzar",
+      "label_fil": "PAGKATAPON SA BABILONIA",
+      "display_fil": "mga 590 BC"
+    },
+    {
+      "label": "DANIEL AND THE LIONS",
+      "kind": "person",
+      "year": -539,
+      "display": "c. 540 BC",
+      "note": "the lions' den under Darius, just after Babylon falls to Persia",
+      "label_fil": "DANIEL AT ANG MGA LEON",
+      "display_fil": "mga 540 BC"
+    },
+    {
+      "label": "ESTHER",
+      "kind": "person",
+      "year": -478,
+      "display": "c. 480 BC",
+      "note": "becomes queen to Xerxes (Ahasuerus) of Persia",
+      "label_fil": "ESTER",
+      "display_fil": "mga 480 BC"
+    },
+    {
+      "label": "ALEXANDER THE GREAT",
+      "kind": "person",
+      "year": -332,
+      "display": "c. 330 BC",
+      "note": "conquers the Persian empire and the Holy Land; the goat of Daniel 8",
+      "label_fil": "ALEJANDRONG DAKILA",
+      "display_fil": "mga 330 BC"
+    },
+    {
+      "label": "ROME TAKES JERUSALEM",
+      "kind": "event",
+      "year": -63,
+      "display": "c. 60 BC",
+      "note": "Pompey enters the city; why Rome rules Judea in the Gospels",
+      "label_fil": "PAGSAKOP NG ROMA SA JERUSALEM",
+      "display_fil": "mga 60 BC"
+    },
+    {
+      "label": "JESUS IS BORN",
+      "kind": "person",
+      "year": -5,
+      "display": "c. 5 BC",
+      "note": "birth in Bethlehem, before Herod's death in 4 BC",
+      "label_fil": "ISINILANG SI JESUS",
+      "display_fil": "mga 5 BC"
+    },
+    {
+      "label": "JOHN THE BAPTIST",
+      "kind": "person",
+      "year": 28,
+      "display": "c. AD 28",
+      "note": "begins preaching in the desert, the fifteenth year of Tiberius",
+      "label_fil": "JUAN BAUTISTA",
+      "display_fil": "mga AD 28"
+    },
+    {
+      "label": "THE CROSS",
+      "kind": "event",
+      "year": 31,
+      "display": "c. AD 31",
+      "note": "the crucifixion; AD 30/31/33 are all argued, order never moves",
+      "label_fil": "ANG KRUS",
+      "display_fil": "mga AD 31"
+    },
+    {
+      "label": "PENTECOST",
+      "kind": "event",
+      "year": 32,
+      "display": "c. AD 31",
+      "note": "fifty days after the cross - SAME YEAR; year bumped by one for sorting only",
+      "label_fil": "ANG PENTECOSTES",
+      "display_fil": "mga AD 31"
+    },
+    {
+      "label": "PAUL IS CONVERTED",
+      "kind": "person",
+      "year": 34,
+      "display": "c. AD 34",
+      "note": "on the road to Damascus",
+      "label_fil": "NAGBALIK-LOOB SI PABLO",
+      "display_fil": "mga AD 34"
+    },
+    {
+      "label": "PAUL WRITES ROMANS",
+      "kind": "event",
+      "year": 57,
+      "display": "c. AD 57",
+      "note": "written from Corinth near the end of the third journey",
+      "label_fil": "SULAT NI PABLO SA ROMA",
+      "display_fil": "mga AD 57"
+    },
+    {
+      "label": "THE FALL OF JERUSALEM",
+      "kind": "event",
+      "year": 70,
+      "display": "c. AD 70",
+      "note": "Rome destroys the city and the second temple",
+      "label_fil": "PAGBAGSAK NG JERUSALEM",
+      "display_fil": "mga AD 70"
+    },
+    {
+      "label": "JOHN WRITES REVELATION",
+      "kind": "event",
+      "year": 95,
+      "display": "c. AD 95",
+      "note": "exiled on Patmos, late in Domitian's reign",
+      "label_fil": "ANG APOCALIPSIS",
+      "display_fil": "mga AD 95"
+    }
+  ]
+}

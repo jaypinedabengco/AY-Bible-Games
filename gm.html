@@ -144,6 +144,12 @@
 <script>window.DECKS.push({ slug: 'object-trail', deck: window.DECK });</script>
 <script src="games/who-did-it/deck.js"></script>
 <script>window.DECKS.push({ slug: 'who-did-it', deck: window.DECK });</script>
+<script src="games/what-came-first/deck.js"></script>
+<script>window.DECKS.push({ slug: 'what-came-first', deck: window.DECK });</script>
+<script src="games/name-the-place/deck.js"></script>
+<script>window.DECKS.push({ slug: 'name-the-place', deck: window.DECK });</script>
+<script src="games/higher-or-lower/deck.js"></script>
+<script>window.DECKS.push({ slug: 'higher-or-lower', deck: window.DECK });</script>
 
 <script>
   (function () {
@@ -335,6 +341,52 @@
           box.appendChild(block);
         });
 
+        // Each way this number can be asked, with the right option marked. A
+        // bet and a guess have different answers for the same number, so the
+        // row's single answer line cannot carry both.
+        (r.choices || []).forEach(function (ch) {
+          var block = el('div', 'gmquote');
+          block.appendChild(el('div', 'gmq', ch.prompt || ''));
+          var row = el('div', 'gmv');
+          row.textContent = ch.options.map(function (o) {
+            return o === ch.answer ? '\u2713 ' + o : o;
+          }).join('   ·   ');
+          block.appendChild(row);
+          if (ch.ref) { block.appendChild(el('div', 'gmc', ch.ref)); }
+          box.appendChild(block);
+        });
+
+        // An ordering puzzle's sequence, with the dates. The game master is
+        // being asked "were they right?", so the order is the whole row.
+        (r.orders || []).forEach(function (ord) {
+          var block = el('div', 'gmquote');
+          if (ord.prompt) { block.appendChild(el('div', 'gmv', ord.prompt)); }
+          ord.steps.forEach(function (step, i) {
+            var line = el('div', 'gmq', (i + 1) + '.  ' + step.label);
+            line.style.fontSize = '0.95rem';
+            block.appendChild(line);
+            if (step.when) { block.appendChild(el('div', 'gmc', step.when)); }
+          });
+          box.appendChild(block);
+        });
+
+        // A map puzzle: the answer, which map it is on, and the clue. The room
+        // is looking at a dot; this is what says what the dot is.
+        (r.places || []).forEach(function (pl) {
+          var block = el('div', 'gmquote');
+          // Lead with what the ROOM sees, as the quote, trail and order blocks do:
+          // the answer is already the row's own line, and repeating it here
+          // put a bilingual place's name on screen four times.
+          block.appendChild(el('div', 'gmq', pl.clue || pl.verse || ''));
+          var meta = [pl.extent === 'holyland' ? 'close map'
+            : pl.extent === 'bibleworld' ? 'wide map'
+            : String(pl.extent)];
+          if (pl.verse) { meta.push(pl.verse); }
+          if (pl.lang === 'fil') { meta.push('Tagalog'); }
+          block.appendChild(el('div', 'gmv', meta.join('  \u00b7  ')));
+          box.appendChild(block);
+        });
+
         box.appendChild(el('div', 'ranswer', r.answer));
         // Every other language this puzzle is asked in, named.
         Object.keys(r.names || {}).forEach(function (lang) {
@@ -344,8 +396,11 @@
           line.appendChild(document.createTextNode(r.names[lang]));
           box.appendChild(line);
         });
-        // On a quote or trail deck the working is already shown above.
-        if (!r.quotes.length && !(r.trails || []).length) {
+        // On a quote, trail, ordering or binary deck the working is already
+        // shown above.
+        if (!r.quotes.length && !(r.trails || []).length
+            && !(r.orders || []).length && !(r.choices || []).length
+            && !(r.places || []).length) {
           r.workings.forEach(function (w) { box.appendChild(el('div', 'rwork', w)); });
         }
         if (r.ref) { box.appendChild(el('div', 'rref', r.ref)); }

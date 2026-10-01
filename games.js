@@ -32,7 +32,7 @@ window.GAMES = [
     title: 'Who Did It?',
     href: 'games/who-did-it/index.html',
     blurb: 'A deed instead of a line. Cut off a soldier’s ear. Climbed a tree.',
-    meta: '46 people · English',
+    meta: '46 people · English and Tagalog',
     status: 'ready',
   },
   {
@@ -45,6 +45,25 @@ window.GAMES = [
     status: 'ready',
   },
   {
+    // The one game here with a gambling shape: the room commits before it
+    // knows - which is exactly why a two-way question is right here and was
+    // wrong for What Came First?.
+    title: 'Higher or Lower',
+    href: 'games/higher-or-lower/index.html',
+    blurb: 'A number from scripture, then a second one to bet on. Noah or Methuselah?',
+    meta: '34 numbers · English',
+    status: 'ready',
+  },
+  {
+    // Grew out of the "Before or After" proposal, and outgrew its name: a
+    // two-way question is a coin flip, so it asks for an ORDER of three.
+    title: 'What Came First?',
+    href: 'games/what-came-first/index.html',
+    blurb: 'Three things from the Bible, scrambled. The room puts them in order.',
+    meta: '50 puzzles · English and Tagalog',
+    status: 'ready',
+  },
+  {
     // Built and wired, deliberately greyed out: the deck is empty until it has
     // pictures. Set status to 'ready' once it can fill a round.
     title: 'Bible Character Names',
@@ -54,17 +73,12 @@ window.GAMES = [
     status: 'parked',
   },
   {
-    title: 'Before or After',
-    href: 'games/before-or-after/index.html',
-    blurb: 'Two people, two events. Which came first? The timeline nobody is sure of.',
-    meta: 'Proposed',
-    status: 'parked',
-  },
-  {
-    title: 'Higher or Lower',
-    href: 'games/higher-or-lower/index.html',
-    blurb: 'A number from scripture, then a second one to bet on. Noah or Methuselah?',
-    meta: 'Proposed',
-    status: 'parked',
+    // The first game with a map. Two extents, and the deck picks the tighter
+    // one automatically from each place's coordinates.
+    title: 'Name the Place',
+    href: 'games/name-the-place/index.html',
+    blurb: 'A dot on the map of the Bible world. The room says what place it is.',
+    meta: '53 places · English and Tagalog',
+    status: 'ready',
   },
 ];

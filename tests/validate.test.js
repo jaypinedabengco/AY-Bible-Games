@@ -190,3 +190,70 @@ test('a reference is never rewritten or refused, whatever its book', () => {
   ));
   assert.deepEqual(r.errors, []);
 });
+
+// --- map variants ------------------------------------------------------------
+// The atlas is what knows which extents exist, so it is loaded for these.
+globalThis.window = globalThis;
+['atlas-holyland', 'atlas-bibleworld', 'atlas'].forEach((f) => {
+  require('../core/' + f + '.js');
+});
+
+const mapDeck = (over) => ({
+  id: 'name-the-place',
+  puzzles: [{ id: 'np-01', answer: 'JERICHO', variants: [Object.assign(
+    { type: 'map', difficulty: 1, extent: 'holyland', at: [35.44, 31.87],
+      verse: 'Joshua 6:20', clue: 'the walls fell' }, over)] }],
+});
+
+test('a well-formed map variant has no errors', () => {
+  assert.deepEqual(validate(mapDeck({})).errors, []);
+});
+
+test('a map extent the atlas does not know is an error', () => {
+  assert.match(errs(mapDeck({ extent: 'atlantis' })), /unknown map extent "atlantis"/);
+});
+
+test('a map coordinate that is not two finite numbers is an error', () => {
+  [['35.44', '31.87'], [NaN, 31.87], [35.44, Infinity], [35.44, null], [35.44]]
+    .forEach((at) => {
+      assert.match(errs(mapDeck({ at })), /map (needs at|at must be)/,
+        JSON.stringify(at));
+    });
+});
+
+// Babylon on the CLOSE map. Both fields are well formed and both are known, and
+// the projector draws a map with no pin anywhere on it.
+test('a pin outside the map it names is an error', () => {
+  assert.match(errs(mapDeck({ extent: 'holyland', at: [44.42, 32.54] })),
+    /outside the "holyland" map/);
+  assert.match(errs(mapDeck({ extent: 'bibleworld', at: [-60, 0] })),
+    /outside the "bibleworld" map/);
+});
+
+test('the wide map is allowed for a place the close map also holds', () => {
+  // NOT atlas.fits equality: a hand-written deck may legitimately ask a
+  // close-map place on the wide map - a journey that wants the whole
+  // Mediterranean in one picture. Only a pin off the picture is a mistake.
+  assert.deepEqual(validate(mapDeck({ extent: 'bibleworld', at: [35.44, 31.87] })).errors, []);
+  // A point exactly on the boundary is inside it, as it is in atlas.fits.
+  const w = globalThis.BibleGames.atlas.extents.holyland.window;
+  assert.deepEqual(validate(mapDeck({ at: [w[0], w[3]] })).errors, []);
+});
+
+test('a green report says when the atlas was not there to check against', () => {
+  // Every map check above is skipped without the atlas, and in the browser it
+  // often is not loaded. A report that passes silently would be read as one
+  // that checked.
+  const saved = globalThis.BibleGames.atlas;
+  try {
+    globalThis.BibleGames.atlas = undefined;
+    const r = validate(mapDeck({}));
+    assert.deepEqual(r.errors, []);
+    assert.match(r.notices.join(' | '), /1 map variants were NOT checked against the atlas/);
+    // And no such notice when it IS there.
+    globalThis.BibleGames.atlas = saved;
+    assert.ok(!/NOT checked against the atlas/.test(validate(mapDeck({})).notices.join(' | ')));
+  } finally {
+    globalThis.BibleGames.atlas = saved;
+  }
+});

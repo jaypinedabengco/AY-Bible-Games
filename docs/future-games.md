@@ -11,6 +11,14 @@ tested during the rebuild and have never been used.
 
 ---
 
+**BUILT since this was written: Name the Place**, the map game — a dot on a map
+of the Bible world, five beats, 53 places in English and Tagalog, two map
+extents. See `docs/superpowers/specs/2026-09-15-bible-map-design.md` for the
+design and `core/atlas.js` for the component a future journey game (Trace the
+Journey) can reuse untouched.
+
+---
+
 ## What the engine already gives you
 
 Before proposing anything, this is what a new game inherits for free:
@@ -62,6 +70,20 @@ below, and any new drafting brief should quote them.
 ---
 
 ## 1. Before or After
+
+> **BUILT, and renamed** — `games/what-came-first/`, 50 puzzles in English and
+> Tagalog. What follows is the proposal it was built from, kept as a record of
+> the intent. It changed shape on the way, for a reason worth keeping: a
+> two-way question is a COIN FLIP. Half a hall shouts each way and somebody is
+> always right by luck, so the moment where a room converges and knows never
+> arrives - the same objection that killed Old or New?, reached by a different
+> route. Asking for the ORDER of three has six answers and cannot be fluked.
+>
+> Two other things went differently. The `order` renderer had a passing test
+> but had never been on a projector, and needed a prompt, an unnumbered
+> scramble, a date column and its own CSS - so "Effort: Small" below was
+> wrong. And the deck is GENERATED from `tools/chronology.json` rather than
+> written by hand: see that file, and the top of the generator, for why.
 
 **The idea.** Two people, two events, or one of each. Which came first?
 
@@ -115,6 +137,19 @@ genuinely disagrees does not belong in a youth game.
 
 ## 2. Higher or Lower
 
+> **BUILT** — `games/higher-or-lower/`, 34 numbers asked two ways each. What
+> follows is the proposal it was built from, kept as a record of the intent.
+>
+> The coin-flip objection that reshaped Before or After was deliberately NOT
+> applied here, and the distinction is worth keeping: there the room is meant
+> to know, so luck robs them of the moment of knowing; here nobody is expected
+> to know, and the bet IS the game. So this one keeps its two options - and
+> gains a three-way guess as well, which costs nothing because the renderer
+> always drew any number of options.
+>
+> Like What Came First?, the deck is GENERATED - from `tools/numbers.json` -
+> because the content is facts rather than writing.
+
 **The idea.** A number from scripture, then a second one to bet on.
 
 This is the only proposal with a gambling shape — the room commits before it
@@ -164,12 +199,15 @@ game, and the deck should be honest about that: fifty puzzles, not two hundred.
 
 ## 3. Who Did It?
 
-> **BUILT** — `games/who-did-it/`, 46 people and 94 deeds, English. What
-> follows is the proposal it was built from, kept as a record of the intent.
-> Two things went differently: it reuses the `quote` renderer untouched rather
-> than getting one of its own, and a deck-level `spoken: false` drops the
-> quotation marks, since a deed is our sentence and marks around it send the
-> room hunting for a speaker.
+> **BUILT** — `games/who-did-it/`, 46 people and 94 deeds in each of English
+> and Tagalog. What follows is the proposal it was built from, kept as a
+> record of the intent. Three things went differently: it reuses the `quote`
+> renderer untouched rather than getting one of its own; a deck-level
+> `spoken: false` drops the quotation marks, since a deed is our sentence and
+> marks around it send the room hunting for a speaker; and the Tagalog side
+> cost almost nothing, because translating our own prose needs neither a
+> licence nor a fetched text — which is the strongest argument for writing a
+> game's words yourself where you can.
 
 **The idea.** The sibling of Who Said It?, with an **action** instead of a
 quote.

@@ -9,7 +9,13 @@
 (function (root) {
   'use strict';
 
-  var BG = root.BibleGames;
+  // NOT captured at load time. Every other core module reads root.BibleGames
+  // where it uses it; this one took a reference as the file was evaluated, so
+  // it depended on gm.js being loaded after normalize.js and views.js and on
+  // nothing ever replacing root.BibleGames afterwards. There is no build step
+  // to keep script tags in order, and the failure would be a Game Master page
+  // that shows no answers in a dark hall.
+  function bg() { return root.BibleGames; }
 
   // FNV-1a, 32-bit. NOT cryptographic and not pretending to be: knowing the
   // code is the whole gate, and the threat model is a curious teenager with a
@@ -53,11 +59,28 @@
       }).filter(Boolean);
       return steps.length ? steps.join(' \u2192 ') : null;
     }
+    // A binary puzzle's working is the question, because that is what the room
+    // is staring at. The answer itself is the row's own answer line.
+    if (variant.type === 'binary') { return variant.prompt || null; }
+    // An ordering puzzle's working is the SEQUENCE. The game master is being
+    // asked "was the room right?", and the only way to answer that is to see
+    // the order, so a row showing anything else is useless here.
+    if (variant.type === 'order') {
+      var seq = (variant.correct || []).map(function (entry) {
+        return typeof entry === 'string' ? entry : entry.label;
+      });
+      return seq.length ? seq.join(' \u2192 ') : null;
+    }
+    // A map puzzle's working is the CLUE, because the game master is looking
+    // at a page of text while the room looks at a dot - the clue is the only
+    // thing that connects the two.
+    if (variant.type === 'map') { return variant.clue || variant.verse || null; }
     if (!variant.clues) { return null; }
     return variant.clues.map(function (c) { return c.word; }).join(' + ');
   }
 
   function rows(deck) {
+    var BG = bg();
     var normalized = BG.normalize.normalizeDeck(deck);
     return normalized.puzzles.map(function (p) {
       var flags = [];
@@ -111,6 +134,45 @@
         // Each trail as the game master needs it: the objects of every step
         // with the verse they came from, so they can answer "where is that
         // from" without leaving the page.
+        // Every way this puzzle can be asked, with the right option marked -
+        // a bet and a guess have DIFFERENT answers for the same number, so a
+        // single answer line on the row would be wrong half the time.
+        choices: p.variants.filter(function (v) { return v.type === 'binary'; })
+          .map(function (v) {
+            return {
+              prompt: v.prompt || null,
+              lang: v.lang || 'en',
+              answer: v.answer || p.answer,
+              options: (v.options || []).slice(),
+              ref: v.ref || null,
+            };
+          }),
+        // Where the pin is, and on which map, so an argument can be settled
+        // from this page without opening the deck.
+        places: p.variants.filter(function (v) { return v.type === 'map'; })
+          .map(function (v) {
+            return {
+              lang: v.lang || 'en',
+              answer: v.answer || p.answer,
+              extent: v.extent,
+              at: v.at && v.at.slice(),
+              verse: v.verse || null,
+              clue: v.clue || null,
+            };
+          }),
+        // The sequence with its dates, so an argument in the room can be
+        // settled from this page without opening the deck file.
+        orders: p.variants.filter(function (v) { return v.type === 'order'; })
+          .map(function (v) {
+            return {
+              prompt: v.prompt || null,
+              steps: (v.correct || []).map(function (entry) {
+                return typeof entry === 'string'
+                  ? { label: entry, when: null }
+                  : { label: entry.label, when: entry.when || null };
+              }),
+            };
+          }),
         trails: p.variants.filter(function (v) { return v.type === 'trail'; })
           .map(function (v) {
             return (v.items || []).map(function (step) {

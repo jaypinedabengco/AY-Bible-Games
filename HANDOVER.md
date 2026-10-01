@@ -122,12 +122,20 @@ the deck ship complete except the copyrighted line. It is also a rule with a
 scar — before it existed, a Tagalog scaffold was drawn in a test round and
 painted the word "null" across the projector.
 
-**Tagalog is back, for the quote game only.** It was removed from Bible Book
-Names deliberately and that still stands: there, a Tagalog book changed the
+**Tagalog is back, for the two quote-shaped games.** It was removed from Bible
+Book Names deliberately and that still stands: there, a Tagalog book changed the
 puzzle itself, because Santiago is not "Jam + S" and the pictures stopped
-working. Here a Tagalog quote is another line by the same person, which is what
-a variant already is. Language sits on the VARIANT, with its own answer, so
-PEDRO and PETER are one puzzle and one game-master row.
+working. In Who Said It? and Who Did It? a Tagalog line is another line by the
+same person, which is what a variant already is. Language sits on the VARIANT,
+with its own answer, so PEDRO and PETER are one puzzle and one game-master row.
+
+**What the two Tagalog halves cost is very different, and it is worth knowing
+why before adding a third.** In Who Said It? the line IS scripture, so the
+Tagalog had to be fetched from a public-domain source, cut out of narration by
+hand and checked as a genuine substring of its own verse. In Who Did It? the
+sentence is ours, so the Tagalog is simply a translation of it: no licence, no
+fetching, no substring check, and no credit line on the screen. Where a game's
+words can be written rather than quoted, write them.
 
 **Noah is not in the quote deck.** His only substantial recorded speech is
 Genesis 9:25, the curse of Canaan — obscure as a quotation and the verse abused
@@ -202,23 +210,121 @@ then removed as the deck changed. They are small, and `deck.js` carries a
 commented example, so switching one on is deck data — but don't be surprised
 they're dormant.
 
-**Three games are listed on the front page, greyed out.** Bible Character Names
-is built and wired but its deck is empty until it has pictures; its start screen
-says so rather than failing. The other two — Before or After and Higher or
-Lower — are PROPOSALS, and `docs/future-games.md` sets out how each is meant to
-work, which renderer it needs, what its deck looks like and what would make it
-fail. Both want the `binary` renderer, which is built and idle.
+**One game is listed on the front page, greyed out.** Bible Character Names is
+built and wired but its deck is empty until it has pictures; its start screen
+says so rather than failing.
 
-Who Did It? and The Object Trail were proposals in that document and are now
-built; their sections are kept as a record of what was intended, with a note at
-the top of each saying so.
+Every proposal in `docs/future-games.md` has now been built. The sections are
+kept as a record of what was intended, each with a note at the top saying how
+the built thing differs.
+
+**Two decks are GENERATED, and the rest are not.** What Came First? comes from
+`tools/chronology.json`, Higher or Lower from `tools/numbers.json`. The rule is
+about what KIND of content it is: a pun or a clue is writing, and a person is
+the right author of it. An ordering and a number are facts, and a person typing
+fifty of those will eventually type one backwards - which looks perfectly fine
+on the page and only looks wrong on a projector, in front of a room, once. So
+the hand-written thing is one short list, and everything else is derived. Run
+the matching `tools/make-*.js` after editing a list; a test fails if the
+committed deck has drifted from it.
+
+Both lists carry the same shape of accuracy rule, and both record what was
+excluded and why. For chronology it is "the ORDER survives the argument"; for
+numbers it is "STATED in the text, and the same in any common translation".
+That is what put Job, Jonah, Goliath's height, "seventy times seven" and the
+ten plagues outside the decks.
+
+**Name the Place is the seventh game, and it brought the first new core module
+since the original engine.** `core/atlas.js` draws a map and projects
+coordinates onto it, and knows nothing about puzzles - which is what will let a
+future journey game reuse it untouched: it appends legs to the empty `.pins`
+group the atlas leaves, exactly as this game appends a dot. Its geometry
+(`core/atlas-holyland.js`, `core/atlas-bibleworld.js`) is built by
+`tools/make-atlas.js` from `tools/atlas-source/`, and that source is COMMITTED,
+so everything downstream of it builds offline. Only `tools/fetch-atlas-source.js`
+needs the network, and it is run by hand, rarely, if ever.
+
+**Three decks are GENERATED now.** The third is Name the Place, from
+`tools/places.json` via `tools/make-name-the-place.js`, and it has a wrinkle:
+there is NO hand-written `extent` field. The generator asks `atlas.fits` which
+map is the tightest one that holds each coordinate. A hand-tagged extent could
+disagree with its own coordinates, and what that draws is a map with no pin
+visible on it - a silent failure in front of a room.
+
+**Two standing rules in the atlas.**
+1. *No borders, ever.* They differ by era, so any line is wrong for most of the
+   Bible, and political lines on the modern Levant are not something a church
+   projector should assert. Two faint ridge lines through the hill country were
+   read as borders by a reviewer on a real screen and were removed; the `ridges`
+   key stays, empty, and a test keeps it that way. Land is filled, never
+   stroked, because clipping to the window leaves segments on the window edge
+   that a stroke would draw as a frame.
+2. *Where the modern landscape differs from the ancient one, say which was
+   drawn and why.* The Dead Sea is drawn as ONE body; Natural Earth gives two,
+   because the lake split in the 1970s. The comment in `make-atlas.js` is the
+   place to record the next such case.
+
+**Every in-map size is a fraction of the viewBox HEIGHT** (`FRACTION` in
+`core/atlas.js`; the pin in `core/paint.js` reads it via `atlas.sizes`). On a
+wide screen the map is fitted by height, and the close map is portrait
+(1000x1249) inside a landscape box, so a fixed size came out at 5.6 px on a
+1600x700 projector, where the same size on the wide map was fine. Measured after
+the change, at 1600x700, on both maps: furniture labels 12.2 px, peak labels
+10.6 px, the pin 24.5 px across. Do not write a `font-size`, `stroke-width` or
+radius for map elements in `theme.css` - a stylesheet rule beats the attribute
+and puts the fixed size back; a test checks this. Known limit: on a PORTRAIT
+screen (a phone) the wide map is fitted by width and its labels are about 5.6 px.
+That was true before and the rule does not fix it.
+
+**The on-land test uses a PER-EXTENT tolerance** (0.05 degrees close, 0.5 wide;
+`LAND_TOLERANCE` in `tests/name-the-place.test.js`) because the coastline is
+simplified for drawing. Coastal places such as Malta and Patmos sit outside the
+simplified shoreline and are still correct. A coordinate must NEVER be moved to
+satisfy that test; a place that fails is checked against a real source, and the
+tolerance or the shoreline changes, never the true location.
+
+**Tagalog place names were checked against the 1905 Ang Dating Biblia**,
+fetched from `api.getbible.net/v2/tagalog`, not recalled. Of eleven checked,
+six were wrong from memory. Fetching the real text beats recalling it, and it
+is cheap - do it for any new Tagalog name.
+
+**"Before or After" was built as What Came First?, and the rename records a
+real decision.** A two-way question is a coin flip: half a hall shouts each way
+and somebody is always right by luck, so the room never converges. Three items
+have six orderings. That is the same objection that killed Old or New?, and it
+is worth applying to any future proposal that offers the room a binary.
+
+**What Came First? is the one GENERATED deck.** `tools/chronology.json` holds
+one dated list of 33 anchors, and `tools/make-what-came-first.js` derives every
+triple from it. Every other deck is hand-written, and rightly - a person is the
+right author of a pun or a clue. This one is a list of ORDERINGS, and a person
+typing fifty of those will eventually type one backwards, which looks perfectly
+fine on the page and only looks wrong on a projector, in front of a room, once.
+So the only hand-written thing is the anchor list, short enough to check
+properly. `tests/what-came-first.test.js` checks every sequence back against
+that list in BOTH languages, and checks the committed deck is still what the
+generator produces - run `node tools/make-what-came-first.js` after editing a
+date.
+
+The accuracy bar there is not "we know the date" but "the ORDER survives the
+argument". Job, Jonah and six minor prophets are excluded on exactly that
+basis, and `chronology.json` records what was left out and why.
 
 Old or New? was removed from that list: for most of the 66 books it is a coin
 flip the room wins instantly. Finish the Verse was removed earlier — Who Said
 It? does the same job better.
 
-Three renderers are built, tested and unused: `binary`, `order` and `text`.
-Three of the four proposals need no renderer work because of it.
+One renderer is built, tested and unused: `text`. `order` was in
+that list until What Came First? used it, and `binary` until Higher or Lower
+did. The lesson is worth keeping, because it held BOTH times: a passing unit
+test meant nowhere near usable, since nothing had ever rendered either on a
+screen. `order` had no prompt, numbered the scrambled items (asserting an
+order, and the wrong one), printed `puzzle.answer` at projector size where
+there is no name to shout, and `.order-item` had no CSS at all. `binary` read
+the answer off the puzzle, so a bilingual reveal - where the OPTIONS are
+per-variant - would have highlighted nothing; it drew its options in `--dim`,
+which is the wrong half of the screen to make hard to read; and its row could
+not wrap. Treat `text` as a sketch, not as finished work.
 
 **Who Said It? is drafted, not verified.** All 113 quotes carry
 `flag: 'unverified'` until a human has compared the wording to an NKJV Bible.
@@ -239,7 +345,20 @@ second centurion and a second Herod that collided with entries already there,
 and the demon-possessed man whose line is "My name is Legion" — which answers
 itself. If a third pass is ever drafted, put that rule in the brief.
 
-**Tagalog is playable, in Ang Dating Biblia (1905).**
+**Who Did It? holds 46 people and 94 deeds, in both languages.** Every English
+deed has a Tagalog sibling, so the two rounds are the same length. Names use
+Ang Dating Biblia spelling, because that is what a congregation reading along
+recognises; where the two forms are one word spelled two ways (JESUS, not
+HESUS) the deck gives the same string, so the reveal prints it once instead of
+looking like a mistake.
+
+Its 188 deeds are flagged `unverified` too, but that flag means something much
+smaller here: the words are ours, so only the REFERENCE is a claim about the
+Bible. `validate.js` says which job a deck is asking for - `quoteNoun` and
+`verifyJob` on the deck - rather than demanding a wording audit this one does
+not need.
+
+**Tagalog scripture is playable in Who Said It?, in Ang Dating Biblia (1905).**
 
 The text was FETCHED from a public API, not written from memory. That
 distinction is the whole reason there is Tagalog scripture in this repository

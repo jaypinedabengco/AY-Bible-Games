@@ -1,0 +1,383 @@
+'use strict';
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('fs');
+const path = require('path');
+
+const ROOT = path.join(__dirname, '..');
+const src = JSON.parse(fs.readFileSync(path.join(ROOT, 'tools', 'places.json'), 'utf8'));
+
+// Shadows globalThis as well as window - see the note in tests/atlas.test.js.
+// The stub RECORDS text, because the giveaway test below reads the words the
+// map puts on screen rather than trusting a description of them.
+function loadAtlas() {
+  const g = { BibleGames: { atlas: { extents: {} } } };
+  g.window = g;
+  g.document = { createElementNS: (ns, tag) => ({
+    tagName: tag, attrs: {}, children: [], textContent: '',
+    setAttribute(k, v) { this.attrs[k] = String(v); },
+    appendChild(c) { this.children.push(c); return c; } }) };
+  ['atlas-holyland', 'atlas-bibleworld', 'atlas'].forEach((f) => {
+    new Function('window', 'document', 'globalThis', fs.readFileSync(
+      path.join(ROOT, 'core', f + '.js'), 'utf8')).call(g, g, g.document, g);
+  });
+  return g.BibleGames.atlas;
+}
+
+function deck() {
+  const g = { window: {} };
+  g.window = g;
+  new Function('window', fs.readFileSync(
+    path.join(ROOT, 'games', 'name-the-place', 'deck.js'), 'utf8'))(g);
+  return g.DECK;
+}
+
+// Ray casting. A city in the sea is the one error nothing else would notice -
+// not the validator, not a reader, not a glance at the deck file.
+function inside(ring, pt) {
+  let hit = false;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const [xi, yi] = ring[i], [xj, yj] = ring[j];
+    if ((yi > pt[1]) !== (yj > pt[1])
+      && pt[0] < ((xj - xi) * (pt[1] - yi)) / (yj - yi) + xi) { hit = !hit; }
+  }
+  return hit;
+}
+
+test('every place is on the tightest map that contains it', () => {
+  const atlas = loadAtlas();
+  const wrong = [];
+  deck().puzzles.forEach((p) => {
+    p.variants.forEach((v) => {
+      const want = atlas.fits(v.at[0], v.at[1]);
+      if (want === null) {
+        wrong.push(p.id + ': ' + v.at + ' is outside BOTH maps — the puzzle is unreachable');
+      } else if (v.extent !== want) {
+        wrong.push(p.id + ': on ' + v.extent + ', should be ' + want);
+      }
+    });
+  });
+  assert.deepEqual(wrong, [], wrong.join('\n'));
+});
+
+// An INDEPENDENT record of where each place is, written from the world and not
+// copied out of places.json. "Is this point on some land" is a weaker claim than
+// "is this point where it should be": Mount Carmel with its coordinates swapped
+// lands on Cyprus, which is real land, and a region is never checked against
+// land at all. This asks the second question, with no geometry involved.
+const EXPECTED = {
+  'jerusalem':      [35.21, 31.77],
+  'bethlehem':      [35.20, 31.70],
+  'jericho':        [35.46, 31.87],
+  'nazareth':       [35.30, 32.70],
+  'sea-of-galilee': [35.59, 32.82],
+  'dead-sea':       [35.47, 31.50],
+  'joppa':          [34.75, 32.05],
+  'mount-carmel':   [35.04, 32.73],
+  'egypt-goshen':   [31.90, 30.70],
+  'babylon':        [44.42, 32.54],
+  'nineveh':        [43.15, 36.36],
+  'ur':             [46.10, 30.96],
+  'hebron':         [35.10, 31.53],
+  'shechem':        [35.28, 32.21],
+  'bethel':         [35.24, 31.94],
+  'shiloh':         [35.29, 32.06],
+  'beersheba':      [34.79, 31.25],
+  'gaza':           [34.46, 31.50],
+  'ashdod':         [34.65, 31.80],
+  'lachish':        [34.85, 31.56],
+  'megiddo':        [35.18, 32.58],
+  'samaria':        [35.20, 32.28],
+  'dan':            [35.65, 33.25],
+  'tyre':           [35.20, 33.27],
+  'sidon':          [35.37, 33.56],
+  'mount-hermon':   [35.85, 33.41],
+  'caesarea':       [34.90, 32.50],
+  'damascus':       [36.30, 33.51],
+  'mount-tabor':    [35.40, 32.69],
+  'mount-gilboa':   [35.41, 32.47],
+  'mount-nebo':     [35.72, 31.77],
+  'dothan':         [35.24, 32.42],
+  'capernaum':      [35.575, 32.88],
+  'rabbah':         [35.93, 31.95],
+  'beth-shan':      [35.50, 32.50],
+  'rome':           [12.49, 41.89],
+  'athens':         [23.73, 37.98],
+  'corinth':        [22.88, 37.91],
+  'ephesus':        [27.34, 37.94],
+  'philippi':       [24.29, 41.01],
+  'thessalonica':   [22.94, 40.64],
+  'berea':          [22.20, 40.52],
+  'troas':          [26.14, 39.76],
+  'antioch-syria':  [36.16, 36.20],
+  'antioch-pisidia': [31.19, 38.31],
+  'tarsus':         [34.89, 36.92],
+  'lystra':         [32.45, 37.58],
+  'patmos':         [26.55, 37.31],
+  'malta':          [14.51, 35.90],
+  'paphos':         [32.41, 34.76],
+  'memphis':        [31.25, 29.85],
+  'haran':          [39.03, 36.86],
+  'ararat':         [44.30, 39.70],
+};
+const TOLERANCE = 0.5;   // degrees, each axis
+
+test('every place is where the world says it is', () => {
+  const wrong = [];
+  const ids = src.places.map((pl) => pl.id);
+  Object.keys(EXPECTED).forEach((id) => {
+    if (ids.indexOf(id) === -1) { wrong.push(id + ' is in the fixture but not in places.json'); }
+  });
+  src.places.forEach((pl) => {
+    const want = EXPECTED[pl.id];
+    if (!want) {
+      wrong.push(pl.id + ' has no expected coordinate: add it to EXPECTED, from a map');
+      return;
+    }
+    if (Math.abs(pl.at[0] - want[0]) > TOLERANCE || Math.abs(pl.at[1] - want[1]) > TOLERANCE) {
+      wrong.push(pl.id + ' is at [' + pl.at + '], expected about [' + want + ']'
+        + ' - longitude comes FIRST');
+    }
+  });
+  assert.deepEqual(wrong, [], wrong.join('\n'));
+});
+
+// Distance from a point to the nearest edge of a ring, in degrees.
+function edgeDistance(ring, pt) {
+  let best = Infinity;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const ax = ring[j][0], ay = ring[j][1], bx = ring[i][0], by = ring[i][1];
+    const dx = bx - ax, dy = by - ay;
+    const len2 = dx * dx + dy * dy;
+    let t = len2 ? ((pt[0] - ax) * dx + (pt[1] - ay) * dy) / len2 : 0;
+    t = Math.max(0, Math.min(1, t));
+    best = Math.min(best, Math.hypot(pt[0] - (ax + t * dx), pt[1] - (ay + t * dy)));
+  }
+  return best;
+}
+const near = (rings, pt) => rings.reduce((m, r) => Math.min(m, edgeDistance(r, pt)), Infinity);
+
+// The question this asks is "is the place where a room would expect it", NOT
+// "does it fall inside a polygon we simplified for drawing". Each shoreline is
+// simplified, so a coastal or island place can sit a little off the drawn
+// coast while its coordinate is exactly right; moving the coordinate to please
+// the polygon would put the pin somewhere the place is not. So a place counts
+// as on land - or on a lake shore - if it is inside the ring OR within the
+// simplification band of that extent's data:
+//   holyland    10m data, close to the true shoreline; the tightest genuine
+//               margin is Joppa at 0.007 degrees
+//   bibleworld  50m data at this scale; Paphos, Malta, Troas and Patmos sit
+//               0.04 to 0.41 degrees from the drawn coast, and are correct
+// This is a gross-error detector (a city in the mid-Mediterranean, a mountain
+// in the Arabian desert). Swapped coordinates are caught by the EXPECTED
+// fixture above, which is the check that matters for those.
+const LAND_TOLERANCE = { holyland: 0.05, bibleworld: 0.5 };   // degrees
+
+test('a city is on land, and a lake is in water', () => {
+  const atlas = loadAtlas();
+  const wrong = [];
+  src.places.forEach((pl) => {
+    const name = atlas.fits(pl.at[0], pl.at[1]);
+    if (name === null) {
+      wrong.push(pl.id + ' at [' + pl.at + '] is outside BOTH maps');
+      return;
+    }
+    // Against the place's OWN extent, with that extent's tolerance.
+    const e = atlas.extents[name];
+    const tol = LAND_TOLERANCE[name];
+    const onLand = e.land.some((ring) => inside(ring, pl.at)) || near(e.land, pl.at) <= tol;
+    const inLake = e.lakes.some((ring) => inside(ring, pl.at)) || near(e.lakes, pl.at) <= tol;
+    if (pl.kind === 'city' || pl.kind === 'mountain') {
+      if (!onLand) { wrong.push(pl.id + ' (' + pl.kind + ') is not on land'); }
+      // Lakes are not carved out of land, so a city in the Sea of Galilee is
+      // inside a land ring AND a lake ring and would otherwise pass. A city
+      // ON the shore (Capernaum) is within the band of the lake edge and is
+      // fine; one well out in the water is not.
+      const deep = e.lakes.some((ring) => inside(ring, pl.at)) && near(e.lakes, pl.at) > tol;
+      if (deep) { wrong.push(pl.id + ' (' + pl.kind + ') is in a lake'); }
+    } else if (pl.kind === 'water') {
+      if (!inLake) { wrong.push(pl.id + ' is a water place but not inside any lake'); }
+    }
+  });
+  assert.deepEqual(wrong, [], wrong.join('\n'));
+});
+
+// THE MAP IS PART OF THE SCREEN, and it carries text. This test read only the
+// clue and the verse, and so could not see that five of the six named peaks -
+// CARMEL, TABOR, NEBO, HERMON, GILBOA - are themselves answers, printed beside
+// the pin in both languages from the first beat. It draws the real map now,
+// through the real hideLabelAt path, and reads the words off it.
+test('nothing on screen gives the place away, in either language', () => {
+  const atlas = loadAtlas();
+  const stop = { THE: 1, OF: 1, MOUNT: 1, SEA: 1, ANG: 1, NG: 1, SA: 1, DAGAT: 1, BUNDOK: 1 };
+  const words = (s) => {
+    const all = s.split(/[ ,]+/).map((w) => w.replace(/[^A-Za-z]/g, ''))
+      .filter((w) => w && !stop[w.toUpperCase()]);
+    const long = all.filter((w) => w.length > 3);
+    // A short word is ignored inside a longer name ("ANG", "NG") but a name
+    // that IS short - UR, and one day AI - must still be caught.
+    return long.length ? long : all;
+  };
+  // words() strips the non-letters out of the ANSWER, so BETH-SHAN becomes
+  // BETHSHAN - and matching that against a raw clue meant a clue spelling
+  // "Beth-shan" sailed through. Both sides are flattened the same way. Split on
+  // WHITESPACE first so a comma still separates two names.
+  const flatten = (s) => s.split(/\s+/)
+    .map((w) => w.replace(/[^A-Za-z]/g, '')).filter(Boolean).join(' ').toLowerCase();
+  const says = (text, w) => new RegExp('\\b' + w.toLowerCase() + '\\b').test(text);
+
+  // Every word the drawn map puts on screen for this variant: water, regions
+  // and the peaks that still have their names.
+  const onMap = (v) => {
+    const svg = atlas.draw(v.extent, v.lang || 'en', { hideLabelAt: v.at });
+    const out = [];
+    const walk = (n) => {
+      if (n.tagName === 'text') { out.push(n.textContent); }
+      (n.children || []).forEach(walk);
+    };
+    svg.children.forEach(walk);
+    return out.join(' ');
+  };
+
+  const all = [];
+  deck().puzzles.forEach((p) => {
+    p.variants.forEach((v) => { all.push(v.answer || p.answer); });
+  });
+  const leaks = [];
+  let mapsRead = 0;
+  deck().puzzles.forEach((p) => {
+    const own = [p.answer].concat(p.variants.map((v) => v.answer).filter(Boolean));
+    p.variants.forEach((v, i) => {
+      const shown = flatten((v.clue || '') + ' ' + (v.verse || ''));
+      // The map is checked against this puzzle's OWN answer only. Naming a
+      // DIFFERENT place is what a map is for - TABOR is on screen while the
+      // room is asked about the Sea of Galilee, and should be.
+      const drawn = v.extent && v.at ? flatten(onMap(v)) : '';
+      if (drawn) { mapsRead += 1; }
+      own.forEach((name) => words(name).forEach((w) => {
+        if (says(shown, w)) { leaks.push(p.id + ' #' + i + ': says "' + w + '"'); }
+        if (says(drawn, w)) {
+          leaks.push(p.id + ' #' + i + ': the MAP prints "' + w + '" under the pin');
+        }
+      }));
+      all.forEach((other) => {
+        if (own.indexOf(other) !== -1) { return; }
+        words(other).forEach((w) => {
+          if (says(shown, w)) { leaks.push(p.id + ' #' + i + ': names "' + other + '"'); }
+        });
+      });
+    });
+  });
+  assert.ok(mapsRead > 0, 'no map was drawn - the test is not looking at anything');
+  assert.deepEqual(leaks, [], leaks.join('\n'));
+});
+
+// REVIEW FOCUS 5. UR is UR in both languages; the reveal must print it once.
+test('a name identical in both languages is printed once', () => {
+  const p = deck().puzzles.filter((x) => x.answer === 'UR')[0];
+  assert.ok(p, 'the starter set includes UR');
+  const fil = p.variants.filter((v) => v.lang === 'fil')[0];
+  assert.equal(fil.answer, 'UR');
+  // otherName suppresses an alt identical to the answer, as it does for JESUS
+  // in Who Did It?. Exercised through the real view, not asserted about data.
+  ['../core/normalize.js', '../core/views.js'].forEach((m) => require(m));
+  const { normalizeDeck } = globalThis.BibleGames.normalize;
+  const norm = normalizeDeck(deck());
+  const np = norm.puzzles.filter((x) => x.answer === 'UR')[0];
+  const nv = np.variants.filter((v) => v.lang === 'fil')[0];
+  const view = globalThis.BibleGames.views.byType.map.view(np, nv, 9);
+  assert.equal(view.answered.alt, null,
+    'UR and UR are one word; printing it twice reads as a mistake');
+});
+
+// The pin is a dot 40 viewBox units across inside a halo of radius 30
+// (core/paint.js), so 45 is roughly the distance at which two pins would clear
+// each other. It was 20 when the pin was 18 units across.
+const MIN_SEPARATION = 45;
+
+test('pin separation is measured, and close pairs are named', () => {
+  const atlas = loadAtlas();
+  const close = [];
+  const byExtent = {};
+  src.places.forEach((pl) => {
+    const e = atlas.fits(pl.at[0], pl.at[1]);
+    (byExtent[e] = byExtent[e] || []).push(pl);
+  });
+  Object.keys(byExtent).forEach((e) => {
+    const list = byExtent[e];
+    for (let i = 0; i < list.length; i++) {
+      for (let j = i + 1; j < list.length; j++) {
+        const a = atlas.project(e, list[i].at[0], list[i].at[1]);
+        const b = atlas.project(e, list[j].at[0], list[j].at[1]);
+        const d = Math.hypot(a.x - b.x, a.y - b.y);
+        if (d < MIN_SEPARATION) { close.push(list[i].id + ' / ' + list[j].id + ': ' + d.toFixed(1)); }
+      }
+    }
+  });
+  // Allowing a pair is a deliberate act: name it here, with the reason.
+  //
+  // These pairs are closer than a pin, and every one is a real place pair a
+  // room could be asked about. They are not live defects: exactly ONE pin is
+  // drawn per puzzle, so two pins never overlap on screen. What closeness costs
+  // is that the pin alone barely separates the two, so the clue and the verse
+  // have to do the telling apart - which is why each pair below has clues that
+  // point different ways. A NEW close pair still fails until it is named here.
+  const ALLOWED = [
+    'jerusalem / bethlehem',      // 28: the two most famous towns of Judah
+    'nazareth / mount-tabor',     // 26
+    'sea-of-galilee / capernaum', // 27: a lake and its own shore town
+    'shechem / samaria',          // 35
+    'bethel / shiloh',            // 43
+    'mount-gilboa / beth-shan',   // 28: Saul's last battle and where his body hung
+    'egypt-goshen / memphis',     // 36
+    'athens / corinth',           // 22: Paul's two Greek cities
+    'ephesus / patmos',           // 31
+    'philippi / thessalonica',    // 40
+    'thessalonica / berea',       // 21
+    'antioch-syria / tarsus',     // 43
+    'antioch-pisidia / lystra',   // 43
+  ];
+  const surprise = close.filter((c) => ALLOWED.indexOf(c.split(':')[0]) === -1);
+  assert.deepEqual(surprise, [], 'pins too close to tell apart:\n' + surprise.join('\n'));
+});
+
+// A pin at the very edge is drawn with its halo cut off by the viewBox, which
+// on a projector reads as a smudge in the corner rather than a dot on a place.
+// Rome projected to (28, 20) on a wide map whose halo is 24 units across and
+// was clipped by the top-left corner.
+//
+// This test DICTATES THE WINDOW rather than the other way round: when a new
+// place fails it, the window moves (tools/fetch-atlas-source.js, then
+// tools/make-atlas.js), because moving the coordinate would put the pin
+// somewhere the place is not.
+test('every pin clears the edge of its map by a whole halo', () => {
+  const atlas = loadAtlas();
+  const tight = [];
+  src.places.forEach((pl) => {
+    const name = atlas.fits(pl.at[0], pl.at[1]);
+    if (name === null) { tight.push(pl.id + ' is outside both maps'); return; }
+    const h = atlas.height(name);
+    const r = atlas.sizes(name).pinHalo;
+    const p = atlas.project(name, pl.at[0], pl.at[1]);
+    const clear = Math.min(p.x, 1000 - p.x, p.y, h - p.y);
+    if (clear < r) {
+      tight.push(pl.id + ' on ' + name + ': ' + clear.toFixed(1)
+        + ' units from the nearest edge, and the pin halo is ' + r.toFixed(1)
+        + ' - the halo would be cut off. Move the window, not the place.');
+    }
+  });
+  assert.deepEqual(tight, [], tight.join('\n'));
+});
+
+test('the committed deck is what the generator produces', () => {
+  // The generator's own HEADER, not one sliced out of the file under test.
+  // Slicing meant the comment block was compared against itself, so any change
+  // to the generator's header - or any hand-edit of the deck's - passed. That
+  // is how "Four beats: the pin, the verse, a clue, the name" survived the
+  // arrival of a fifth beat. make-atlas.js already got this right.
+  const { build, render, HEADER } = require('../tools/make-name-the-place.js');
+  const file = fs.readFileSync(
+    path.join(ROOT, 'games', 'name-the-place', 'deck.js'), 'utf8');
+  assert.equal(render(build(), HEADER), file,
+    'run: node tools/make-name-the-place.js');
+});

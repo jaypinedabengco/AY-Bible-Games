@@ -9,8 +9,9 @@
   'use strict';
 
   var VARIANT_KEYS = ['type', 'clues', 'img', 'prompt', 'options', 'items',
-                      'correct', 'quote', 'verse', 'clue', 'items',
-                      'lang', 'answer', 'flag', 'spoken', 'weight', 'difficulty'];
+                      'correct', 'quote', 'verse', 'clue',
+                      'extent', 'at',
+                      'lang', 'answer', 'ref', 'flag', 'spoken', 'weight', 'difficulty'];
 
   function normalizeVariant(v, puzzleDifficulty, spokenDefault) {
     return {
@@ -21,6 +22,9 @@
       options: v.options || null,
       items: v.items || null,
       correct: v.correct || null,
+      // Name the Place: which map, and where the pin drops on it.
+      extent: v.extent || null,
+      at: v.at || null,
       quote: v.quote || null,
       verse: v.verse || null,
       clue: v.clue || null,
@@ -29,6 +33,9 @@
       // the puzzle's own values, so every existing deck is unaffected.
       lang: v.lang || null,
       answer: v.answer || null,
+      // A bilingual deck translates the reveal note too, so ref may sit on
+      // the variant as well as the puzzle.
+      ref: v.ref === undefined ? null : v.ref,
       flag: v.flag || null,
       // Whether the text on screen is something somebody SAID. Who Said It?
       // shows scripture and wants quotation marks; Who Did It? shows a

@@ -129,19 +129,41 @@ html, body {
                margin-top: -0.6vmin; }
 .ref { font-size: 2.6vmin; color: var(--dim); letter-spacing: 0.14em; text-transform: uppercase; }
 
-.options { display: flex; gap: 4vmin; }
+/* Higher or Lower. Two options for a bet, three for a guess - so the row has
+   to wrap rather than run off the side of the screen. */
+.options { display: flex; gap: 4vmin; flex-wrap: wrap;
+           justify-content: center; max-width: 90vw; }
 
 .option {
   font-size: 6vmin;
   padding: 1.5vmin 4vmin;
   border-radius: 2vmin;
   background: var(--card);
-  color: var(--dim);
+  /* Full brightness, not --dim. Before the reveal these ARE the question, and
+     a room reading them from the back needs them as legible as the prompt.
+     The correct one is marked by its background, which needs no help from
+     making the others hard to read. */
+  color: var(--fg);
 }
 
 .option-correct { background: var(--good); color: var(--bg); }
 
-.order-list { display: flex; flex-direction: column; gap: 1.2vmin; font-size: 5vmin; }
+/* What Came First? Two screens: the scramble, then the sequence.
+   The scramble is a ROW of chips, so nothing about it suggests an order. */
+.order-scramble { display: flex; gap: 3vmin; flex-wrap: wrap;
+                  justify-content: center; max-width: 90vw; }
+.order-chip { border: 0.35vmin solid var(--dim); border-radius: 1.2vmin;
+              padding: 1.6vmin 3vmin; font-size: 4.6vmin; letter-spacing: 0.04em; }
+
+/* The answer. A three-column grid so the ranks, the names and the dates each
+   line up down the screen - ragged columns are hard to read from the back. */
+.order-list { display: grid; grid-template-columns: auto auto auto;
+              gap: 1.4vmin 3vmin; align-items: baseline; font-size: 5vmin; }
+.order-item { display: contents; }
+.order-rank { color: var(--dim); font-size: 3.6vmin; text-align: right; }
+.order-label { font-weight: 700; letter-spacing: 0.02em; }
+.order-when { color: var(--accent); font-size: 3.4vmin; letter-spacing: 0.1em;
+              white-space: nowrap; }
 
 /* Startup failure, shown on the projector rather than hidden in a console. */
 .startup-error {
@@ -324,3 +346,102 @@ html, body {
 .source-words { font-size: 2.2vmin; color: var(--dim); }
 .source-verse { font-size: 2.2vmin; color: var(--accent); letter-spacing: 0.1em;
                 text-transform: uppercase; }
+
+/* Map labels: a halo in the page colour, so a label that ends up over a river
+   or a ridge stays readable. The rest of the map styling follows below.
+   NO SIZES in here: font-size, stroke-width and radii are set as attributes by
+   atlas.js and paint.js, as fractions of the viewBox height, because a fixed
+   size is unreadable on the portrait map on a projector (see FRACTION in
+   atlas.js). A size written here would silently override them. */
+.furniture text, .peaks text {
+  paint-order: stroke fill;
+  stroke: var(--bg);
+  stroke-linejoin: round;
+}
+
+/* Name the Place. The map is the question, so it gets the screen; the reveal
+   lines take what is left. 62% of the body is a starting point checked on a
+   screen, not a derivation - all four beats have to fit without the map
+   moving.
+   The body FILLS the host (flex: 1, not a vh height: on a phone whose toolbar
+   collapses, vh is the large viewport and would overflow and clip the answer)
+   and packs from the top. The host centres its contents, so a body that grew
+   as the verse, clue and answer arrived would push the map upward on every
+   press. */
+.body-map { flex: 1; min-height: 0; justify-content: flex-start; }
+.mapwrap { width: 92vw; height: 62%; max-height: 62%; flex: none;
+           display: flex; justify-content: center; }
+/* The svg letterboxes (preserveAspectRatio meet) inside this box: a stretched
+   coastline is a wrong map. */
+.mapwrap svg { width: 100%; height: 100%; }
+/* Both of these are one long line with nothing to wrap on, and neither had a
+   max-width while seven other long-text rules did. A long place name overflowed
+   the screen sideways. SEA OF GALILEE masks to S__ O_ G_______, which with the
+   tracking below is wider again than the name it stands for. */
+.body-map .answer { font-size: 9vmin; max-width: 92vw; overflow-wrap: break-word; }
+/* Nearly the answer, so it is sized like the answer. The wide tracking is what
+   makes the underscores read as separate slots - one per letter, countable from
+   the back of a hall - rather than one long rule.
+
+   BOUNDED ON BOTH AXES, and this rule has now been got wrong in each direction
+   once. Plain vmin ignores width: on a narrow screen a long mask runs off the
+   side. Plain vw ignores height: at 7vw on 16:9 the line wrapped and the second
+   row fell off the BOTTOM - T__ S__ O_ with G______ cut off - at 1600x900,
+   1920x1080 and 1024x768 alike. min() takes whichever dimension is scarce.
+
+   The bare 8vmin below it is not redundant. min() is Chrome 79 / Firefox 75 /
+   Safari 13.1, later than anything else this stylesheet needs, and a browser
+   that does not understand it drops the whole declaration - so the fallback has
+   to be the value that is known to fit a projector, which 8vmin is. On 16:9
+   min() resolves to that same 8vmin anyway; it only bites when the screen is
+   narrow, which is exactly the case vmin could not see.
+
+   MEASURED, not reasoned about, on the four longest masks in the deck plus
+   BUNDOK CARMELO - see the note in tests/atlas.test.js for the numbers. */
+.masked { font-size: 8vmin;
+          font-size: min(8vmin, 4.2vw);
+          font-weight: 700; letter-spacing: 0.35em;
+          padding-left: 0.35em; /* balances the trailing tracking so it centres */
+          max-width: 92vw; overflow-wrap: break-word;
+          color: var(--accent); white-space: pre-wrap; text-align: center; }
+
+.sea  { fill: #0b1119; }
+/* Filled, NOT stroked. Clipping a continent to a rectangle leaves segments
+   lying exactly along the window edge, and stroking those draws a faint frame
+   round three sides of the map - an artifact of the clip, not a coastline.
+   The land/sea contrast is what shows the coast, which is how the probe read.
+   If the coast needs more definition on a real projector, give it back a
+   stroke built from the non-boundary segments only. */
+.land path { fill: #3b4657; }
+.lakes path  { fill: #16324f; stroke: #4d7fb0; }
+.rivers path { fill: none; stroke: #4d7fb0;
+               stroke-linejoin: round; stroke-linecap: round; }
+.peaks path  { fill: #7d8ba1; }
+.peaks text  { fill: #9fb0c6; letter-spacing: 0.06em; }
+.furniture text { fill: #8fa0b8; letter-spacing: 0.12em; }
+/* Where the close map sits, so the two read as one world at two zooms. */
+.locator { fill: none; stroke: var(--dim); opacity: 0.55; }
+
+.pin-dot  { fill: var(--accent); stroke: var(--bg); }
+.pin-halo { fill: var(--accent); opacity: 0.25; }
+/* The pulse is a transform, not an animated radius: the halo's radius is set in
+   viewBox units per map, and a keyframe that named a radius would be the wrong
+   size on one of them. Scaling is relative to whatever the radius is.
+
+   The origin is 0 0, and the halo is a circle at cx=0 cy=0 inside a <g> that
+   paint.js TRANSLATES to the pin - so the scale is about the pin's own centre
+   in plain SVG coordinates, with no transform-box: fill-box. fill-box is
+   Chrome 64 / Firefox 55 / Safari 11, and a church laptop older than that
+   still honours the transform but resolves `center` against the WHOLE map: the
+   halo would scale about the middle of the map and slide off the pin, forever,
+   on a loop. Worse than no animation at all. */
+@keyframes pin-pulse { from { transform: scale(1); opacity: 0.45; }
+                       to   { transform: scale(2.5); opacity: 0; } }
+.pin-halo { transform-origin: 0 0;
+            animation: pin-pulse 1.8s ease-out infinite; }
+/* A pulsing dot on a projector is one of the things a person with vestibular
+   trouble or photosensitivity asks to be turned off, and the browser already
+   carries the answer. The pin stays exactly where it is; only the loop stops. */
+@media (prefers-reduced-motion: reduce) {
+  .pin-halo { animation: none; opacity: 0.35; }
+}

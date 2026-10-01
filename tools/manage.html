@@ -4,7 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Deck manager — Bible Book Names</title>
-<link rel="stylesheet" href="/core/theme.css">
+<!-- Relative, like every other path in this repository. A leading slash means
+     "the server root", which is right only when the manager is served from the
+     repository root: on GitHub Pages the site lives under a project subpath and
+     this 404s, and from file:// it points at the root of the disk. Either way
+     the page loads unstyled. -->
+<link rel="stylesheet" href="../core/theme.css">
 <style>
   body { overflow: auto; }
   .bar { position: sticky; top: 0; z-index: 5; background: var(--bg);

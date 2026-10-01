@@ -31,19 +31,36 @@
 
   function badgeFor(lang) { return BADGES[lang] || BADGES.en; }
 
-  function answered(puzzle, stage, revealAt) {
+  function answered(puzzle, stage, revealAt, variant) {
     if (stage < revealAt) { return null; }
+    // The VARIANT's answer wins where it has one, for the same reason the
+    // badge reads the variant: in a bilingual deck the answer is a different
+    // word in each language. It matters more here than it looks - the binary
+    // renderer marks the correct option by comparing this string against the
+    // options, which are also per-variant, so an answer taken off the puzzle
+    // matches nothing and the reveal highlights NOTHING at all.
     return {
-      answer: puzzle.answer,
-      ref: formatRef(puzzle.ref),
+      answer: (variant && variant.answer) || puzzle.answer,
+      ref: formatRef((variant && variant.ref) || puzzle.ref),
     };
   }
 
-  function base(kind, puzzle) {
+  function base(kind, puzzle, variant) {
     // `id` rides on every view because the projector prints it in a corner:
     // it is how the Game Master finds this puzzle's answer on their phone
     // without needing to know the running order at all (spec 16).
-    return { kind: kind, id: puzzle.id, badge: badgeFor(puzzle.lang) };
+    //
+    // The badge reads the VARIANT's language first. Language lives on the
+    // variant in every bilingual game - PEDRO and PETER are one puzzle - so
+    // taking it off the puzzle labelled a Tagalog round ENGLISH. That was
+    // fixed once inside the quote renderer alone, and came straight back the
+    // next time a bilingual game was built on a different one. It belongs
+    // here, where no renderer can forget it.
+    return {
+      kind: kind,
+      id: puzzle.id,
+      badge: badgeFor((variant && variant.lang) || puzzle.lang),
+    };
   }
 
   // The same person's name in the OTHER language, when it differs. A bilingual
@@ -73,35 +90,73 @@
     return 1 + (variant.verse ? 1 : 0) + (variant.clue ? 1 : 0);
   }
 
+  // The first letter of each SPACE-SEPARATED word, every other LETTER an
+  // underscore. A hyphen deliberately does NOT start a new word - BETH-SHAN
+  // masks to B___-____, not B___-S___ - because the second half of a compound
+  // name is usually the half that gives it away. The count is part of the hint,
+  // so runs are not collapsed; spaces, apostrophes and hyphens stay as they
+  // are. A letter is anything with a case, which is how to say so without a
+  // Unicode-aware regex in code that has to run in ES5.
+  function maskAnswer(answer) {
+    if (!answer) { return null; }
+    return String(answer).split(' ').map(function (word) {
+      return word.split('').map(function (ch, i) {
+        var letter = ch.toLowerCase() !== ch.toUpperCase();
+        return (i === 0 || !letter) ? ch : '_';
+      }).join('');
+    }).join(' ');
+  }
+
+  // The masked beat, or null when there is no point in having one. UR masks to
+  // U_ and AI to A_: half the name, handed over for free, on a beat that is
+  // supposed to be a hint held back. Three letters or fewer and the beat is
+  // skipped altogether - one beat FEWER, exactly as a place with no clue
+  // written yet already produces, rather than a beat that does nothing.
+  //
+  // Counting LETTERS, not characters, so a name with a hyphen or an apostrophe
+  // is judged on the part that gets hidden.
+  var MIN_MASKABLE = 4;
+  function maskBeat(puzzle, variant) {
+    // The VARIANT's answer where it has one, as everywhere else: JERICO masks
+    // as J_____ and not as JERICHO.
+    var answer = (variant && variant.answer) || (puzzle && puzzle.answer);
+    if (!answer) { return null; }
+    var letters = 0;
+    String(answer).split('').forEach(function (ch) {
+      if (ch.toLowerCase() !== ch.toUpperCase()) { letters += 1; }
+    });
+    return letters >= MIN_MASKABLE ? maskAnswer(answer) : null;
+  }
+
   var byType = {
     rebus: {
       stages: function () { return 2; },
       view: function (puzzle, variant, stage) {
-        var v = base('rebus', puzzle);
+        var v = base('rebus', puzzle, variant);
         var words = variant.clues.map(function (c) { return c.word; });
         v.clues = variant.clues.map(function (c) {
           return { img: c.img, word: stage >= 1 ? c.word : null };
         });
         v.working = stage >= 1 ? words.join(' + ') : null;
-        v.answered = answered(puzzle, stage, 2);
+        v.answered = answered(puzzle, stage, 2, variant);
         return v;
       },
     },
     image: {
       stages: function () { return 1; },
       view: function (puzzle, variant, stage) {
-        var v = base('image', puzzle);
+        var v = base('image', puzzle, variant);
         v.img = variant.img;
-        v.answered = answered(puzzle, stage, 1);
+        v.answered = answered(puzzle, stage, 1, variant);
         return v;
       },
     },
     text: {
       stages: function () { return 1; },
       view: function (puzzle, variant, stage) {
-        var v = base('text', puzzle);
+        var v = base('text', puzzle, variant);
         v.prompt = variant.prompt;
-        v.answered = answered(puzzle, stage, 1);
+        v.answered = answered(puzzle, stage, 1, variant);
         return v;
       },
     },
@@ -111,11 +166,10 @@
       // The machine asks the variant, so nothing here is special-cased there.
       stages: function (variant) { return revealStage(variant); },
       view: function (puzzle, variant, stage) {
-        var v = base('quote', puzzle);
+        var v = base('quote', puzzle, variant);
         // Language lives on the VARIANT here, so the badge has to read it from
         // there - taking it off the puzzle labelled a Tagalog round ENGLISH.
         var lang = variant.lang || puzzle.lang || 'en';
-        v.badge = badgeFor(lang);
         var clueAt = variant.verse ? 2 : 1;
         v.quote = variant.quote;
         // Whether to put quotation marks round it - see `spoken` in
@@ -143,11 +197,11 @@
     binary: {
       stages: function () { return 1; },
       view: function (puzzle, variant, stage) {
-        var v = base('binary', puzzle);
+        var v = base('binary', puzzle, variant);
         v.prompt = variant.prompt;
         v.img = variant.img;
         v.options = variant.options;
-        v.answered = answered(puzzle, stage, 1);
+        v.answered = answered(puzzle, stage, 1, variant);
         return v;
       },
     },
@@ -162,7 +216,7 @@
     trail: {
       stages: function (variant) { return (variant.items || []).length; },
       view: function (puzzle, variant, stage) {
-        var v = base('trail', puzzle);
+        var v = base('trail', puzzle, variant);
         var steps = variant.items || [];
         var done = stage >= steps.length;
 
@@ -190,24 +244,96 @@
             })
           : null;
 
-        v.answered = answered(puzzle, stage, steps.length);
+        v.answered = answered(puzzle, stage, steps.length, variant);
         return v;
       },
     },
+    // Three things on the screen; the room shouts which order they go in. Two
+    // beats: the scramble, then the sequence with its dates.
+    //
+    // Chosen over a two-way "before or after" because a binary question is a
+    // coin flip - half a hall shouts each way and somebody is always right by
+    // luck, so there is never the moment where the room converges and KNOWS.
+    // Three items have six orderings, which cannot be flukes.
     order: {
       stages: function () { return 1; },
       view: function (puzzle, variant, stage) {
-        var v = base('order', puzzle);
+        var v = base('order', puzzle, variant);
+        var done = stage >= 1;
+        // Without this the screen is three words and no task.
+        v.prompt = variant.prompt || null;
         v.items = variant.items;
-        v.correct = stage >= 1 ? variant.correct : null;
-        v.answered = answered(puzzle, stage, 1);
+        // Numbering the SCRAMBLE would assert an order, and the order it
+        // asserts is the wrong one. The numbers arrive with the answer.
+        v.numbered = done;
+        v.correct = done ? (variant.correct || []).map(orderRow) : null;
+        // No answer block. The ordered list is the answer; puzzle.answer
+        // exists only to give the game master page a row label, and printing
+        // it underneath at projector size would say the same thing worse.
+        v.answered = null;
+        return v;
+      },
+    },
+    // Name the Place. A pin drops on the map and the room shouts where it is.
+    // Five beats at most - pin, verse, clue, the first letter with the rest
+    // hidden, then the name - and the map is on screen for all of them,
+    // because the pin IS the question and the room is still looking at it
+    // when the answer lands.
+    //
+    // A place with no clue written yet has one beat FEWER, not one blank one:
+    // the count comes from revealStage, exactly as the quote games do it. The
+    // masked beat needs nothing from the deck - it is derived from the answer -
+    // so it is there for every name long enough to be worth masking. See
+    // maskBeat: UR would mask to U_, and that is not a beat.
+    //
+    // stages() takes the PUZZLE as well, because in a bilingual deck the
+    // English variant carries no answer of its own and the length of the name
+    // is what decides the count.
+    map: {
+      stages: function (variant, puzzle) {
+        return revealStage(variant) + (maskBeat(puzzle, variant) ? 1 : 0);
+      },
+      view: function (puzzle, variant, stage) {
+        var v = base('map', puzzle, variant);
+        var mask = maskBeat(puzzle, variant);
+        var maskAt = mask ? revealStage(variant) : -1;
+        var reveal = revealStage(variant) + (mask ? 1 : 0);
+        var clueAt = variant.verse ? 2 : 1;
+        v.extent = variant.extent;
+        v.at = variant.at;
+        // The map names its own water in the language being played.
+        v.lang = variant.lang || puzzle.lang || 'en';
+        // Dropped at the reveal, as on the quote games: the answer block
+        // prints it under the name, and twice on one screen reads as a mistake.
+        v.verse = (variant.verse && stage >= 1 && stage < reveal) ? variant.verse : null;
+        v.clue = (variant.clue && stage >= clueAt) ? variant.clue : null;
+        // On its own beat only. Earlier it would give the answer's shape away
+        // for free; at the reveal the answer itself has replaced it.
+        v.masked = stage === maskAt ? mask : null;
+        v.answered = answered(puzzle, stage, reveal, variant);
+        if (v.answered) {
+          // JERICHO / JERICO for free, and the verse moves down here.
+          v.answered.alt = otherName(puzzle, variant);
+          v.answered.ref = v.answered.ref || variant.verse || null;
+        }
         return v;
       },
     },
   };
 
+  // An ordered item is a label and, usually, a date. A plain string is still
+  // accepted: it is an item with no date, not a crash.
+  function orderRow(entry) {
+    return typeof entry === 'string'
+      ? { label: entry, when: null }
+      : { label: entry.label, when: entry.when || null };
+  }
+
   function stagesForItem(item) {
-    return byType[item.variant.type].stages(item.variant);
+    // The puzzle goes too: a bilingual deck keeps the answer on the puzzle for
+    // the language it was written in, and Name the Place's beat count depends
+    // on how long that answer is. Every other type ignores the second argument.
+    return byType[item.variant.type].stages(item.variant, item.puzzle);
   }
 
   function viewForItem(item, stage) {
@@ -219,6 +345,7 @@
     formatRef: formatRef,
     badgeFor: badgeFor,
     byType: byType,
+    maskAnswer: maskAnswer,
     stagesForItem: stagesForItem,
     viewForItem: viewForItem,
   };

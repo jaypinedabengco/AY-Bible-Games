@@ -10,11 +10,21 @@
 (function (root) {
   'use strict';
 
-  var TYPES = ['rebus', 'image', 'text', 'binary', 'order', 'quote', 'trail'];
+  var TYPES = ['rebus', 'image', 'text', 'binary', 'order', 'quote', 'trail', 'map'];
   var LANGS = ['en', 'fil'];
   var SLOTS = ['early', 'middle', 'late', 'anywhere'];
 
   function sortedCopy(list) { return list.slice().sort(); }
+
+  // The atlas, but only when it actually carries extents. "Not loaded" and
+  // "loaded but empty" are the same thing to every check below, and treating
+  // them as one is what lets the report say plainly that the map checks were
+  // skipped rather than reporting every real extent as unknown.
+  function atlasHere() {
+    var atlas = root.BibleGames && root.BibleGames.atlas;
+    return (atlas && atlas.extents && Object.keys(atlas.extents).length)
+      ? atlas : null;
+  }
 
   function checkVariant(p, v, i, errors) {
     var where = '"' + p.answer + '" variant ' + (i + 1);
@@ -51,10 +61,25 @@
     }
     if (v.type === 'binary') {
       if (!v.prompt && !v.img) { errors.push(where + ': binary needs prompt or img'); }
-      if (!v.options || v.options.length !== 2) {
-        errors.push(where + ': binary needs exactly 2 options');
-      } else if (v.options.indexOf(p.answer) === -1) {
-        errors.push(where + ': answer "' + p.answer + '" is not one of its options');
+      // Two options for a bet, three for a guess. The renderer always drew any
+      // number of them - this check was the only thing insisting on two, and
+      // it was written before anything used the type at all.
+      if (!v.options || v.options.length < 2) {
+        errors.push(where + ': binary needs at least 2 options');
+      } else {
+        // The VARIANT's answer where it has one. The options are per-variant
+        // too - LONGER/SHORTER against MAS MAHABA/MAS MAIKLI - so checking a
+        // puzzle-level answer against them fails on every bilingual deck.
+        var ans = v.answer || p.answer;
+        if (v.options.indexOf(ans) === -1) {
+          errors.push(where + ': answer "' + ans + '" is not one of its options');
+        }
+        var dupes = v.options.filter(function (o, i) {
+          return v.options.indexOf(o) !== i;
+        });
+        if (dupes.length) {
+          errors.push(where + ': the same option twice (' + dupes[0] + ')');
+        }
       }
     }
     if (v.type === 'quote') {
@@ -91,11 +116,72 @@
       });
     }
 
+    if (v.type === 'map') {
+      var atlas = atlasHere();
+      var known = atlas && atlas.extents[v.extent];
+      if (!v.extent) {
+        errors.push(where + ': map needs an extent');
+      } else if (atlas && !known) {
+        // Only checkable where the atlas is loaded (the CLI loads it). The name
+        // is looked up rather than listed here so the two cannot drift.
+        errors.push(where + ': unknown map extent "' + v.extent + '"');
+      }
+      var goodAt = false;
+      if (!v.at || v.at.length !== 2) {
+        errors.push(where + ': map needs at [lon, lat]');
+      } else if (typeof v.at[0] !== 'number' || typeof v.at[1] !== 'number'
+          || !isFinite(v.at[0]) || !isFinite(v.at[1])) {
+        errors.push(where + ': map at must be two finite numbers (got ' +
+          JSON.stringify(v.at) + ')');
+      } else {
+        goodAt = true;
+      }
+      // THE PIN HAS TO BE ON THE MAP. Babylon on the close map - a perfectly
+      // well-formed extent and a perfectly well-formed coordinate - drew a map
+      // with no pin anywhere on it, and nothing said a word.
+      //
+      // Containment only, NOT equality with atlas.fits(): a hand-written deck
+      // may legitimately ask a close-map place on the wide map (a journey that
+      // wants the whole Mediterranean in one picture). Asking for a place that
+      // is not in the picture at all is the mistake.
+      if (known && goodAt) {
+        var w = known.window;
+        if (!(v.at[0] >= w[0] && v.at[0] <= w[1]
+              && v.at[1] >= w[2] && v.at[1] <= w[3])) {
+          errors.push(where + ': at [' + v.at + '] is outside the "' + v.extent
+            + '" map, whose window is [' + w + ']'
+            + ' - the map would be drawn with no pin on it');
+        }
+      }
+    }
+
     if (v.type === 'order') {
       if (!v.items || !v.correct) {
         errors.push(where + ': order needs items and correct');
-      } else if (String(sortedCopy(v.items)) !== String(sortedCopy(v.correct))) {
-        errors.push(where + ': correct is not a permutation of items');
+      } else {
+        // An entry is a label with a date, or a bare label. Compare on the
+        // label: an item missing from the answer, or an answer inventing one,
+        // is a puzzle that cannot be got right.
+        var labels = v.correct.map(function (c) {
+          return typeof c === 'string' ? c : c.label;
+        });
+        if (String(sortedCopy(v.items)) !== String(sortedCopy(labels))) {
+          errors.push(where + ': correct is not a permutation of items');
+        }
+        // Showing the answer and asking for it gives the game away.
+        if (String(v.items) === String(labels)) {
+          errors.push(where + ': the scramble IS the answer');
+        }
+        // Two rows printing the same date, with numbers beside them claiming
+        // an order, read from the back of a hall as a mistake.
+        var shown = v.correct.map(function (c) {
+          return typeof c === 'string' ? null : c.when;
+        }).filter(Boolean);
+        if (shown.length && sortedCopy(shown).some(function (w, i, a) {
+          return i > 0 && a[i - 1] === w;
+        })) {
+          errors.push(where + ': two items show the same date');
+        }
       }
     }
   }
@@ -158,6 +244,20 @@
         }
       });
     });
+
+    // A green report must not be mistaken for a checked one. Every map check in
+    // checkVariant - the extent name, and whether the pin falls on that map at
+    // all - is skipped when the atlas is not loaded, and in the browser it
+    // often is not. Say so rather than passing quietly.
+    var maps = 0;
+    normalized.puzzles.forEach(function (p) {
+      p.variants.forEach(function (v) { if (v.type === 'map') { maps += 1; } });
+    });
+    if (maps && !atlasHere()) {
+      notices.push(maps + ' map variants were NOT checked against the atlas - it '
+        + 'is not loaded here, so neither the extent name nor whether the pin '
+        + 'lands on that map was verified. Run: node tools/validate.js <deck>');
+    }
 
     // Drafted scripture is not checked scripture, and a half-translated deck
     // is a normal state to be in. Both are notices rather than errors: nobody
@@ -230,6 +330,11 @@ if (typeof require !== 'undefined' && typeof module !== 'undefined' && require.m
     require(path.resolve(__dirname, '../core/normalize.js'));
     require(path.resolve(__dirname, '../core/order.js'));
     globalThis.window = globalThis;          // deck.js assigns window.DECK
+    // Loaded so a map's extent can be checked against the names the atlas
+    // actually has. Drawing needs a document; nothing here draws.
+    ['atlas-holyland', 'atlas-bibleworld', 'atlas'].forEach(function (f) {
+      require(path.resolve(__dirname, '../core/' + f + '.js'));
+    });
     require(path.resolve(process.cwd(), target));
 
     var result = globalThis.BibleGames.validate.validate(globalThis.DECK);

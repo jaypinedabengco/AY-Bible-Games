@@ -142,6 +142,13 @@
         // rather than broken. Requiring them would make every unfinished trail
         // vanish from the deck.
         if (variant.type === 'trail') { return (variant.items || []).length > 0; }
+        // A map with no extent or no pin is dormant for the same reason. This
+        // one is not reachable from the generated deck - the extent is derived
+        // and the coordinate is checked - but the deck manager can hand-author
+        // a map puzzle, and the failure is ugly: paint.js throws AFTER
+        // host.innerHTML has been cleared, and draw() has no try/catch, so the
+        // room gets a black rectangle in the middle of a round.
+        if (variant.type === 'map') { return !!(variant.extent && variant.at); }
         var names = imageNames(variant);
         if (!names.length) { return true; }   // text and order need no picture
         return names.every(function (n) { return srcFor(n) !== null; });
@@ -511,6 +518,11 @@
     function drawStart(counts) {
       var byLang = counts.left;
       var everything = counts.all;
+      // Read everything BEFORE clearing the screen. This function once threw
+      // between the clear and the redraw, and the result was a black
+      // rectangle in front of a room. Anything that throws up here now leaves
+      // the previous screen standing, which is always the better failure.
+      var langs = langOptions(normalized.languages, byLang);
       host.innerHTML = '';
       var card = el('div', 'startcard');
       card.appendChild(el('div', 'start-church', 'San Fernando Adventist Church'));
@@ -519,7 +531,6 @@
         card.appendChild(el('div', 'start-how', line));
       });
 
-      var langs = langOptions(normalized.languages, byLang);
       var lang = langs.length
         ? remembered('round-lang', langs[0].value)
         : (normalized.languages.length > 1 ? normalized.languages[0] : null);
@@ -569,7 +580,12 @@
           remember('round-lang', langSel.value);
           // A different language means a different count, so the size dropdown
           // is rebuilt rather than left showing a stale one.
-          chosen = drawStart(byLang);
+          //
+          // `counts`, not `byLang`: byLang is one FIELD of counts, and passing
+          // it meant the redraw read counts.left off a plain map, got
+          // undefined, and threw - after the screen had already been cleared.
+          // Changing the language blanked the projector.
+          chosen = drawStart(counts);
         });
         lrow.appendChild(langSel);
         card.appendChild(lrow);
