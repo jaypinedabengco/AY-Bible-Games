@@ -291,8 +291,15 @@ test('the first note is scheduled before any tick, not left at the 440 Hz defaul
 test('each tick advances the loop: a repeated first note cannot pass', () => {
   // The notes are chosen so a repeat is visible. LEAD[0] (523.25) and LEAD[1]
   // (659.25) differ, so the lead shows whether the first note was doubled. BASS[0]
-  // and BASS[1] are both 130.81, so the bass cannot show that on its own: its
-  // third note, BASS[2] = 164.81, is checked after a second tick instead.
+  // and BASS[1] are both 130.81, so the bass cannot show that on its own.
+  //
+  // WHY bass index 1, and not 0 or 2: BASS doubles every note (130.81, 130.81,
+  // 164.81, 164.81, ...), so most indices cannot tell a correct bass line from
+  // one shifted by a step. Index 0 holds 130.81 whether it reads BASS[0] or
+  // BASS[1]; index 2 holds 164.81 whether it reads BASS[2] or BASS[3]. Index 1
+  // is the one place where the correct note (BASS[1], 130.81) and a one-step
+  // shifted note (BASS[2], 164.81) differ. Do not "simplify" this back to 0 or
+  // 2: a phase error would then pass unseen.
   const saved = saveGlobals();
   try {
     const fake = fakeAudio(-1);
@@ -308,6 +315,8 @@ test('each tick advances the loop: a repeated first note cannot pass', () => {
       const bass = oscs.find((n) => n.type === 'sine');
       assert.deepEqual(lead.frequency.scheduled[1], [659.25, 0], 'after one tick, LEAD[1]');
       assert.deepEqual(lead.frequency.scheduled[2], [783.99, 0], 'after two ticks, LEAD[2]');
+      assert.deepEqual(bass.frequency.scheduled[1], [130.81, 0],
+        'after one tick, BASS[1]: the index that catches a one-step phase shift');
       assert.deepEqual(bass.frequency.scheduled[2], [164.81, 0], 'after two ticks, BASS[2]');
     } finally { sound.stop(); }
   } finally { restoreGlobals(saved); }
