@@ -450,10 +450,12 @@ html, body {
 
 /* The object going round. One orbiting dot rather than a ring of pulsing
    ones: the motion reads as travel from the back of a hall, and there is no
-   luminance change anywhere in the cycle. NO STROBE - see spec. */
+   luminance change anywhere in the cycle. NO STROBE - see spec.
+   The ring is --dim at 55%, set on the border colour rather than as opacity on
+   the element, so the gold dot inside keeps full strength from the back of a hall. */
 .hp-ring { position: relative; width: 38vmin; height: 38vmin;
-           border: 0.6vmin solid var(--dim); border-radius: 50%;
-           margin: 0 auto; opacity: 0.55; }
+           border: 0.6vmin solid rgba(154, 163, 178, 0.55); border-radius: 50%;
+           margin: 0 auto; }
 .hp-orbit { position: absolute; top: 0; right: 0; bottom: 0; left: 0;
             animation: hp-spin 1.6s linear infinite; }
 .hp-orbit::after { content: ''; position: absolute; top: -1.8vmin; left: 50%;
@@ -464,20 +466,38 @@ html, body {
 
 /* Capped on BOTH axes. Name the Place shipped a masked beat sized in vw alone
    and it clipped its last line at 16:9; a single-axis cap is how that happens.
-   The pop runs ONCE and does not flash. */
-.hp-stop { font-size: min(18vmin, 13vw); font-weight: 800;
+   The pop runs ONCE and does not flash. The bare 18vmin is the fallback for a
+   browser that does not understand min() - see .masked for why. */
+.hp-stop { font-size: 18vmin;
+           font-size: min(18vmin, 13vw); font-weight: 800;
            letter-spacing: 0.12em; color: var(--accent); text-align: center;
            animation: hp-pop 320ms ease-out 1; }
 @keyframes hp-pop { from { transform: scale(0.82); opacity: 0; }
                     to   { transform: none; opacity: 1; } }
 
 /* The challenge. Long enough to wrap, so this is capped on both axes too. */
-.hp-card { font-size: min(9vmin, 6vw); line-height: 1.25; max-width: 86vw;
+.hp-card { font-size: 9vmin;
+           font-size: min(9vmin, 6vw); line-height: 1.25; max-width: 86vw;
+           overflow-wrap: break-word;
            text-align: center; text-wrap: balance; }
 
-/* Someone who has asked their system for less movement gets the ring without
-   the orbit, and the STOP word without the pop. Both still say what they mean. */
+/* Someone who has asked their system for less movement gets no motion at all.
+   The orbit is replaced by four gold dots set on the ring at 12, 3, 6 and 9
+   o'clock: a static circle of people with the object at four places round it,
+   which reads as "going round" and not as a spinner that has hung. The dots sit
+   on the border's centreline (0.3vmin in from the outer edge). Nothing moves
+   and nothing changes brightness, so there is no strobe risk. STOP keeps its
+   word and loses only the pop. */
 @media (prefers-reduced-motion: reduce) {
+  .hp-ring {
+    background-origin: border-box;
+    background-image:
+      radial-gradient(circle 1.7vmin at 50% 0.3vmin, var(--accent) 1.7vmin, transparent 1.75vmin),
+      radial-gradient(circle 1.7vmin at calc(100% - 0.3vmin) 50%, var(--accent) 1.7vmin, transparent 1.75vmin),
+      radial-gradient(circle 1.7vmin at 50% calc(100% - 0.3vmin), var(--accent) 1.7vmin, transparent 1.75vmin),
+      radial-gradient(circle 1.7vmin at 0.3vmin 50%, var(--accent) 1.7vmin, transparent 1.75vmin);
+  }
   .hp-orbit { animation: none; }
+  .hp-orbit::after { display: none; }
   .hp-stop { animation: none; }
 }
