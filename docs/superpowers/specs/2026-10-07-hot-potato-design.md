@@ -26,7 +26,10 @@ they managed it: the hall already knows both.
 | --- | --- | --- |
 | 0 | Animation, music playing | **the app itself**, after a random delay |
 | 1 | A STOP graphic, music cut dead | spacebar |
-| 2 | The challenge | spacebar, into the next card |
+| 2 | The challenge | spacebar |
+| 3 | The answer — **knowledge cards only** | spacebar, into the next card |
+
+A **task** card ends at stage 2 and the next press starts the next round.
 
 Stage 1 exists on purpose and costs one spacebar press. Without it the card
 appears at the same instant the room erupts, and nobody reads it. The pause
@@ -88,8 +91,17 @@ Both render identically on the projector — one large line of text.
 - **Task.** "Recite two verses from memory." "Sing a hymn with the person on
   your left." "Name five things carried into the ark." No answer exists; the
   room judges.
-- **Knowledge.** A question, with the answer carried to the Game Master's phone
-  through the existing `gm.js` view.
+- **Knowledge.** A question, with the answer on a **fourth screen**, and also
+  on the Game Master's phone through the existing `gm.js` view.
+
+  *Revised after the design was approved.* The design originally put the
+  answer on the phone alone. That is wrong for this game: nobody opens a
+  Game Master phone for a filler game, so a knowledge card's answer would
+  frequently have nowhere to go and the room could not resolve it. The quote
+  type already varies its stage count per variant, so a card that has
+  something to give back simply has one more screen, and a task card — which
+  has nothing to give back — still has three. The phone still works and is
+  still useful for whoever wants to check ahead.
 
 ### The `answer` field carries the Game Master's line
 
