@@ -445,3 +445,39 @@ html, body {
 @media (prefers-reduced-motion: reduce) {
   .pin-halo { animation: none; opacity: 0.35; }
 }
+
+/* Hot Potato ------------------------------------------------------------- */
+
+/* The object going round. One orbiting dot rather than a ring of pulsing
+   ones: the motion reads as travel from the back of a hall, and there is no
+   luminance change anywhere in the cycle. NO STROBE - see spec. */
+.hp-ring { position: relative; width: 38vmin; height: 38vmin;
+           border: 0.6vmin solid var(--muted); border-radius: 50%;
+           margin: 0 auto; opacity: 0.55; }
+.hp-orbit { position: absolute; top: 0; right: 0; bottom: 0; left: 0;
+            animation: hp-spin 1.6s linear infinite; }
+.hp-orbit::after { content: ''; position: absolute; top: -1.8vmin; left: 50%;
+                   width: 3.4vmin; height: 3.4vmin; margin-left: -1.7vmin;
+                   border-radius: 50%; background: var(--accent); }
+@keyframes hp-spin { from { transform: rotate(0deg); }
+                     to   { transform: rotate(360deg); } }
+
+/* Capped on BOTH axes. Name the Place shipped a masked beat sized in vw alone
+   and it clipped its last line at 16:9; a single-axis cap is how that happens.
+   The pop runs ONCE and does not flash. */
+.hp-stop { font-size: min(18vmin, 13vw); font-weight: 800;
+           letter-spacing: 0.12em; color: var(--accent); text-align: center;
+           animation: hp-pop 320ms ease-out 1; }
+@keyframes hp-pop { from { transform: scale(0.82); opacity: 0; }
+                    to   { transform: none; opacity: 1; } }
+
+/* The challenge. Long enough to wrap, so this is capped on both axes too. */
+.hp-card { font-size: min(9vmin, 6vw); line-height: 1.25; max-width: 86vw;
+           text-align: center; text-wrap: balance; }
+
+/* Someone who has asked their system for less movement gets the ring without
+   the orbit, and the STOP word without the pop. Both still say what they mean. */
+@media (prefers-reduced-motion: reduce) {
+  .hp-orbit { animation: none; }
+  .hp-stop { animation: none; }
+}

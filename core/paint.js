@@ -120,6 +120,19 @@
       body.appendChild(clueRow([{ img: view.img, word: null }], srcFor));
     } else if (view.kind === 'text') {
       body.appendChild(el('div', 'prompt', view.prompt));
+    } else if (view.kind === 'card') {
+      if (view.phase === 'playing') {
+        // An object going round, with no abrupt change in brightness. A dark
+        // hall, a projector at full output and a room full of young people is
+        // not a place to put a strobe.
+        var ring = el('div', 'hp-ring');
+        ring.appendChild(el('div', 'hp-orbit'));
+        body.appendChild(ring);
+      } else if (view.phase === 'stop') {
+        body.appendChild(el('div', 'hp-stop', 'STOP'));
+      } else {
+        body.appendChild(el('div', 'hp-card', view.prompt));
+      }
     } else if (view.kind === 'trail') {
       // The count drives the size, the same way the rebus row does it: one step
       // can fill a projector, four have to share it with the answer and the
