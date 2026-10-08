@@ -1,5 +1,8 @@
 'use strict';
 const test = require('node:test');
+const fs = require('node:fs');
+const path = require('node:path');
+const ROOT = path.join(__dirname, '..');
 const assert = require('node:assert/strict');
 const seeded = require('./helpers/rng.js');
 require('../core/normalize.js');
@@ -390,4 +393,78 @@ test('a map variant with no extent or no pin is dormant and is never drawn', asy
   };
   assert.deepEqual((await buildSession(only, allPresent, seeded(1), { lang: 'en' })).items, [],
     'a puzzle with nothing drawable is not in the round');
+});
+
+test('a view that does not ask for a clock does not get one', () => {
+  // The assertion protecting the seven games that already work. If boot ever
+  // sets a timer unconditionally, every existing game starts moving on its own
+  // in front of a room, and no existing test would notice.
+  const src = fs.readFileSync(path.join(ROOT, 'core', 'boot.js'), 'utf8');
+  assert.ok(/autoDelayMs\(view, deck\)/.test(src),
+    'draw() must ask autoDelayMs whether this screen gets a clock');
+});
+
+test('every redraw cancels the pending advance and the music first', () => {
+  // A timer that survives a redraw fires into a screen that has moved on, and
+  // a loop that survives one plays over the next game. draw() is the single
+  // point every route passes through, so the cancel belongs at its top.
+  const src = fs.readFileSync(path.join(ROOT, 'core', 'boot.js'), 'utf8');
+  const draw = src.slice(src.indexOf('function draw()'));
+  const firstLines = draw.slice(0, draw.indexOf('BG.paint.render'));
+  assert.ok(/clearAuto\(\)/.test(firstLines),
+    'draw() must clear the pending timer before it renders anything');
+  assert.ok(/function clearAuto\(\)[\s\S]{0,260}clearTimeout/.test(src),
+    'clearAuto must actually clear the timeout');
+  assert.ok(/function clearAuto\(\)[\s\S]{0,260}sound[\s\S]{0,40}stop\(\)/.test(src),
+    'clearAuto must stop the music too');
+});
+
+test('leaving the game entirely stops the music', () => {
+  // S tears the host down and goes back to the start screen. Without this the
+  // loop plays on underneath a page that no longer has a game on it.
+  const src = fs.readFileSync(path.join(ROOT, 'core', 'boot.js'), 'utf8');
+  const setup = src.slice(src.indexOf('setup: function ()'));
+  assert.ok(/clearAuto\(\)/.test(setup.slice(0, setup.indexOf('},'))),
+    'the setup action must clear the timer and the music');
+});
+
+test('the round-done card stops the music', () => {
+  const src = fs.readFileSync(path.join(ROOT, 'core', 'boot.js'), 'utf8');
+  const done = src.slice(src.indexOf('function drawDone('));
+  assert.ok(/clearAuto\(\)/.test(done.slice(0, done.indexOf('\n    }'))),
+    'drawDone must clear the timer and the music');
+});
+
+test('a missing sound module does not stop the game advancing', () => {
+  // core/sound.js is only loaded by the one page that needs it. If boot
+  // reaches for it unguarded, every other game throws on its first draw.
+  const src = fs.readFileSync(path.join(ROOT, 'core', 'boot.js'), 'utf8');
+  const lines = src.split('\n');
+  // Every call site must sit behind a guard on the same line or the line above.
+  lines.forEach((line, i) => {
+    if (!/BG\.sound\./.test(line)) { return; }
+    const context = (lines[i - 1] || '') + line;
+    assert.ok(/BG\.sound\s*(&&|\?)/.test(context) || /if\s*\(\s*BG\.sound/.test(context),
+      'unguarded BG.sound at line ' + (i + 1) + ': ' + line.trim());
+  });
+});
+
+test('the clock is armed only by a view that asks for one', () => {
+  const { autoDelayMs } = globalThis.BibleGames.boot;
+  // The behaviour the seven existing games depend on, stated as behaviour.
+  assert.equal(autoDelayMs({ kind: 'quote' }, { musicSeconds: [6, 20] }), null);
+  assert.equal(autoDelayMs({ kind: 'card', autoAdvance: false }, {}), null);
+  assert.equal(autoDelayMs(null, {}), null);
+
+  // A view that asks gets a number inside the deck's own range.
+  for (let i = 0; i < 100; i += 1) {
+    const ms = autoDelayMs({ kind: 'card', autoAdvance: true },
+                           { musicSeconds: [6, 20] });
+    assert.ok(ms >= 6000 && ms <= 20000, 'drew ' + ms);
+  }
+
+  // A deck that says nothing still gets a usable delay rather than NaN - a
+  // timer that never fires is a game stopped dead in front of a room.
+  const fallback = autoDelayMs({ kind: 'card', autoAdvance: true }, {});
+  assert.ok(Number.isFinite(fallback) && fallback > 0);
 });

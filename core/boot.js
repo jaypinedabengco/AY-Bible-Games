@@ -226,6 +226,19 @@
     });
   }
 
+  // Whether this screen is one that moves on its own, and for how long.
+  // Pure, and deliberately OUTSIDE draw(): draw is a closure inside play()
+  // that no test in this project can reach, and "only a view that asks gets
+  // a clock" is the behaviour all seven existing games depend on. That is
+  // worth one exported function to be able to assert by running it.
+  function autoDelayMs(view, deck) {
+    if (!view || !view.autoAdvance) { return null; }
+    // core/sound.js is loaded by ONE page. Without it the game runs silently
+    // and still advances - audio never blocks play.
+    var snd = root.BibleGames && root.BibleGames.sound;
+    return snd ? snd.delayMs(deck && deck.musicSeconds) : 12000;
+  }
+
   // Playing one evening: the rounds, the painting, the keys. Split out of
   // start() because start() now has a job before this one - showing the start
   // screen and asking how long the round should be and in which language.
@@ -247,7 +260,20 @@
     var finished = false;
     var deckEmpty = false;
 
+    // The only timer in this project. It belongs to whichever screen is up,
+    // and dies with it: a timer that outlives its screen fires into a room
+    // that has already moved on.
+    var autoTimer = null;
+
+    function clearAuto() {
+      if (autoTimer) { clearTimeout(autoTimer); autoTimer = null; }
+      // Guarded because core/sound.js is loaded by ONE page. Every other game
+      // would throw on its first draw if this reached for it unconditionally.
+      if (BG.sound) { BG.sound.stop(); }
+    }
+
     function drawDone(nextCount) {
+      clearAuto();
       finished = true;
       host.innerHTML = '';
       var box = document.createElement('div');
@@ -305,6 +331,7 @@
     }
 
     function draw() {
+      clearAuto();
       finished = false;
       var s = machine.state();
 
@@ -318,7 +345,8 @@
         saveAsked(deckId, seen);
       }
 
-      BG.paint.render(host, BG.views.viewForItem(s.item, s.stage), session.srcFor, {
+      var view = BG.views.viewForItem(s.item, s.stage);
+      BG.paint.render(host, view, session.srcFor, {
         position: s.index + 1,
         total: items.length,
         round: round,
@@ -326,6 +354,23 @@
         stages: s.stages,
         showBadge: session.deck.languages.length > 1,
       });
+
+      // The one screen that moves without a keypress. The view says only THAT
+      // it wants a clock; the length is drawn here, where the deck is in
+      // scope, and is re-rolled every single time this runs - including when
+      // ArrowLeft brings the room back to it. A driver who backs up has
+      // usually done so because the round went wrong, and replaying the same
+      // interval would be worse than no interval at all.
+      var wait = autoDelayMs(view, deck);
+      if (wait !== null) {
+        if (BG.sound) { BG.sound.play(); }
+        autoTimer = setTimeout(function () {
+          autoTimer = null;
+          if (BG.sound) { BG.sound.stop(); }
+          machine.advance();
+          draw();
+        }, wait);
+      }
     }
 
     function rebuild(shuffle) {
@@ -438,6 +483,7 @@
       // It starts the evening over rather than resuming: a round of a
       // different length, or in another language, is a different round.
       setup: function () {
+        clearAuto();
         hideLegend();
         legend.remove();
         back.remove();
@@ -691,6 +737,7 @@
 
   BG.boot = {
     buildSession: buildSession,
+    autoDelayMs: autoDelayMs,
     sizeOptions: sizeOptions,
     langOptions: langOptions,
     start: start,
