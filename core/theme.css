@@ -452,7 +452,7 @@ html, body {
    ones: the motion reads as travel from the back of a hall, and there is no
    luminance change anywhere in the cycle. NO STROBE - see spec. */
 .hp-ring { position: relative; width: 38vmin; height: 38vmin;
-           border: 0.6vmin solid var(--muted); border-radius: 50%;
+           border: 0.6vmin solid var(--dim); border-radius: 50%;
            margin: 0 auto; opacity: 0.55; }
 .hp-orbit { position: absolute; top: 0; right: 0; bottom: 0; left: 0;
             animation: hp-spin 1.6s linear infinite; }
