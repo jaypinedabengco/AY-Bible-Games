@@ -375,16 +375,29 @@ test('NO OTHER TYPE advances itself', () => {
   // This is the test protecting the seven games that already work. boot.js
   // only sets a timer when a view asks for one; if any other renderer ever
   // starts asking, those games begin moving on their own in front of a room.
+  //
+  // It COUNTS what it probed. An earlier draft swallowed a throw and carried
+  // on, so a wrong probe shape skipped that renderer in silence - and a wrong
+  // probe table skipped EVERY renderer, found no offenders and went green
+  // while checking nothing. A test whose two halves share the thing under
+  // test is the failure that has cost this project the most.
+  const others = Object.keys(byType).filter((k) => k !== 'card');
+  const noShape = others.filter((k) => !probeFor(k));
+  assert.deepEqual(noShape, [],
+    'no probe shape for: ' + noShape.join(', ') + ' - add one, do not skip it');
+
   const offenders = [];
-  Object.keys(byType).filter((k) => k !== 'card').forEach((kind) => {
-    const probe = { id: 'x-01', answer: 'A', kind: kind };
+  let probed = 0;
+  others.forEach((kind) => {
     for (let stage = 0; stage < 5; stage += 1) {
-      let v;
-      try { v = byType[kind].view(probeFor(kind), probeFor(kind).variants[0], stage); }
-      catch (e) { continue; }   // a renderer that needs richer data is not an offender
+      const p = probeFor(kind);
+      const v = byType[kind].view(p, p.variants[0], stage);
+      probed += 1;
       if (v && v.autoAdvance) { offenders.push(kind + ' at stage ' + stage); }
     }
   });
+  assert.equal(probed, others.length * 5,
+    'probed ' + probed + ' of ' + (others.length * 5) + ' renderer/stage pairs');
   assert.deepEqual(offenders, [], offenders.join('\n'));
 });
 ```
@@ -395,6 +408,9 @@ Add this helper above that last test, in the same file:
 // Minimal but VALID input per renderer. A renderer handed the wrong shape
 // throws, and a test that swallowed the throw would report "no offenders"
 // about a renderer it never actually ran.
+// It must NOT throw and must NOT return undefined for a registered type.
+// views.test.js does not load the atlas, so if the map renderer needs it,
+// that surfaces here as a FAILURE rather than as a silent skip.
 function probeFor(kind) {
   const shapes = {
     rebus: { variants: [{ type: 'rebus', clues: [{ img: 'a.png', word: 'A' }] }] },
@@ -409,8 +425,14 @@ function probeFor(kind) {
     map: { variants: [{ type: 'map', at: [35, 32], extent: 'holyland' }] },
     card: { variants: [{ type: 'card', kind: 'task' }] },
   };
+  if (!shapes[kind]) { return null; }
   return normalizePuzzle(Object.assign({ id: 'x-01', answer: 'A' }, shapes[kind]));
 }
+
+// If the map renderer needs the atlas loaded, add
+// `require('../core/atlas-holyland.js')` and `require('../core/atlas.js')` at
+// the top of this file. Do NOT reintroduce a try/catch: a renderer this test
+// cannot run is a renderer this test is not protecting.
 ```
 
 - [ ] **Step 2: Run test to verify it fails**
@@ -599,8 +621,8 @@ test('a view that does not ask for a clock does not get one', () => {
   // sets a timer unconditionally, every existing game starts moving on its own
   // in front of a room, and no existing test would notice.
   const src = fs.readFileSync(path.join(ROOT, 'core', 'boot.js'), 'utf8');
-  assert.ok(/if\s*\(\s*view\.autoAdvance\s*\)/.test(src),
-    'boot.js must set its timer only when the view asks for one');
+  assert.ok(/autoDelayMs\(view, deck\)/.test(src),
+    'draw() must ask autoDelayMs whether this screen gets a clock');
 });
 
 test('every redraw cancels the pending advance and the music first', () => {
@@ -638,16 +660,41 @@ test('a missing sound module does not stop the game advancing', () => {
   // core/sound.js is only loaded by the one page that needs it. If boot
   // reaches for it unguarded, every other game throws on its first draw.
   const src = fs.readFileSync(path.join(ROOT, 'core', 'boot.js'), 'utf8');
-  const unguarded = src.match(/(?<!BG\.sound && )BG\.sound\.\w+\(/g) || [];
-  assert.deepEqual(unguarded.filter((m) => !/^BG\.sound\.(play|stop|delayMs)\($/.test(m)),
-    [], 'unexpected sound call shape');
+  const lines = src.split('\n');
   // Every call site must sit behind a guard on the same line or the line above.
-  src.split('\n').forEach((line, i) => {
+  lines.forEach((line, i) => {
     if (!/BG\.sound\./.test(line)) { return; }
-    const context = (src.split('\n')[i - 1] || '') + line;
+    const context = (lines[i - 1] || '') + line;
     assert.ok(/BG\.sound\s*(&&|\?)/.test(context) || /if\s*\(\s*BG\.sound/.test(context),
       'unguarded BG.sound at line ' + (i + 1) + ': ' + line.trim());
   });
+});
+```
+
+Then add the one test here that RUNS code instead of reading it. The four
+above read `boot.js` as text, because `draw` is a closure inside an unexported
+function and this project has no DOM harness — they are structural tripwires
+and they break on reformatting. This is the real assertion:
+
+```js
+test('the clock is armed only by a view that asks for one', () => {
+  const { autoDelayMs } = globalThis.BibleGames.boot;
+  // The behaviour the seven existing games depend on, stated as behaviour.
+  assert.equal(autoDelayMs({ kind: 'quote' }, { musicSeconds: [6, 20] }), null);
+  assert.equal(autoDelayMs({ kind: 'card', autoAdvance: false }, {}), null);
+  assert.equal(autoDelayMs(null, {}), null);
+
+  // A view that asks gets a number inside the deck's own range.
+  for (let i = 0; i < 100; i += 1) {
+    const ms = autoDelayMs({ kind: 'card', autoAdvance: true },
+                           { musicSeconds: [6, 20] });
+    assert.ok(ms >= 6000 && ms <= 20000, 'drew ' + ms);
+  }
+
+  // A deck that says nothing still gets a usable delay rather than NaN - a
+  // timer that never fires is a game stopped dead in front of a room.
+  const fallback = autoDelayMs({ kind: 'card', autoAdvance: true }, {});
+  assert.ok(Number.isFinite(fallback) && fallback > 0);
 });
 ```
 
@@ -656,11 +703,32 @@ If `tests/boot.test.js` does not already define `fs`, `path` and `ROOT`, add the
 - [ ] **Step 2: Run test to verify it fails**
 
 Run: `node --test tests/boot.test.js`
-Expected: FAIL on all five — none of `clearAuto`, `view.autoAdvance` or `BG.sound` exists yet.
+Expected: FAIL on all six — none of `clearAuto`, `autoDelayMs` or `BG.sound` exists yet.
 
 - [ ] **Step 3: Write the implementation**
 
-In `core/boot.js`, inside `play`, declare the handle beside `finished` and `deckEmpty`:
+First, at module level in `core/boot.js` — outside `play`, beside the other
+top-level helpers — add the pure decision and export it:
+
+```js
+  // Whether this screen is one that moves on its own, and for how long.
+  // Pure, and deliberately OUTSIDE draw(): draw is a closure inside play()
+  // that no test in this project can reach, and "only a view that asks gets
+  // a clock" is the behaviour all seven existing games depend on. That is
+  // worth one exported function to be able to assert by running it.
+  function autoDelayMs(view, deck) {
+    if (!view || !view.autoAdvance) { return null; }
+    // core/sound.js is loaded by ONE page. Without it the game runs silently
+    // and still advances - audio never blocks play.
+    var snd = root.BibleGames && root.BibleGames.sound;
+    return snd ? snd.delayMs(deck && deck.musicSeconds) : 12000;
+  }
+```
+
+Add `autoDelayMs: autoDelayMs,` to the object `boot.js` attaches to
+`root.BibleGames.boot`, beside `buildSession`.
+
+Then, inside `play`, declare the handle beside `finished` and `deckEmpty`:
 
 ```js
     // The only timer in this project. It belongs to whichever screen is up,
@@ -706,14 +774,15 @@ Change `draw` so it clears first, keeps the view in a variable, and arms the clo
       // ArrowLeft brings the room back to it. A driver who backs up has
       // usually done so because the round went wrong, and replaying the same
       // interval would be worse than no interval at all.
-      if (view.autoAdvance) {
+      var wait = autoDelayMs(view, deck);
+      if (wait !== null) {
         if (BG.sound) { BG.sound.play(); }
         autoTimer = setTimeout(function () {
           autoTimer = null;
           if (BG.sound) { BG.sound.stop(); }
           machine.advance();
           draw();
-        }, BG.sound ? BG.sound.delayMs(deck.musicSeconds) : 12000);
+        }, wait);
       }
     }
 ```
