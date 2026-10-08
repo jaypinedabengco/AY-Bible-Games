@@ -24,9 +24,11 @@
   var MIN_SECONDS = 1;
   var MAX_SECONDS = 60;
 
-  function seconds(value, fallback) {
+  // null for anything that is not a usable number of seconds, so the caller
+  // decides what a bad endpoint means for the pair as a whole.
+  function seconds(value) {
     var n = Number(value);
-    if (!isFinite(n) || n < MIN_SECONDS || n > MAX_SECONDS) { return fallback; }
+    if (!isFinite(n) || n < MIN_SECONDS || n > MAX_SECONDS) { return null; }
     return n;
   }
 
@@ -36,8 +38,12 @@
   // timer that never fires and a game that stops dead in front of a room.
   function delayMs(range) {
     var raw = range || [];
-    var lo = seconds(raw[0], DEFAULT_RANGE[0]);
-    var hi = seconds(raw[1], DEFAULT_RANGE[1]);
+    var lo = seconds(raw[0]);
+    var hi = seconds(raw[1]);
+    // One bad endpoint discards the whole pair. Patching a single endpoint
+    // with a default would turn [NaN, 5] into a 5-6 second window that nobody
+    // wrote.
+    if (lo === null || hi === null) { lo = DEFAULT_RANGE[0]; hi = DEFAULT_RANGE[1]; }
     if (hi < lo) { var swap = lo; lo = hi; hi = swap; }
     return Math.round((lo + Math.random() * (hi - lo)) * 1000);
   }
@@ -49,7 +55,7 @@
   var BASS = [130.81, 130.81, 164.81, 164.81, 146.83, 146.83, 174.61, 174.61];
 
   var ctx = null;
-  var parts = null;
+  var parts = null;   // { nodes: every node created for the current play() }
   var ticker = null;
 
   function context() {
@@ -60,9 +66,18 @@
     return ctx;
   }
 
-  function voice(c, out, type, gain) {
-    var osc = c.createOscillator();
-    var amp = c.createGain();
+  // Each node is recorded the moment it exists, so a throw partway through
+  // building the graph still leaves stop() able to reach everything that was
+  // created. The alternative, assigning parts only once the graph is complete,
+  // left a started oscillator running for the life of the context.
+  function track(graph, node) {
+    graph.nodes.push(node);
+    return node;
+  }
+
+  function voice(c, graph, out, type, gain) {
+    var osc = track(graph, c.createOscillator());
+    var amp = track(graph, c.createGain());
     osc.type = type;
     amp.gain.value = gain;
     osc.connect(amp);
@@ -71,10 +86,27 @@
     return { osc: osc, amp: amp };
   }
 
+  // One note of the loop. Called once synchronously from play(), before the
+  // interval is armed, so the first note is already scheduled. Without that,
+  // both oscillators sit at their default 440 Hz until the first tick, and a
+  // 440 Hz blip goes through the hall PA at the start of every round.
+  function pluck(c, lead, bass, step) {
+    var now = c.currentTime;
+    lead.osc.frequency.setValueAtTime(LEAD[step % LEAD.length], now);
+    bass.osc.frequency.setValueAtTime(BASS[step % BASS.length], now);
+    // A plucked envelope rather than a held tone, so eight notes read as
+    // eight notes from the back of a hall.
+    lead.amp.gain.cancelScheduledValues(now);
+    lead.amp.gain.setValueAtTime(0.5, now);
+    lead.amp.gain.exponentialRampToValueAtTime(0.01, now + 0.16);
+  }
+
   function play() {
     stop();
     var c = context();
     if (!c) { return false; }
+    var graph = { nodes: [] };
+    parts = graph;
     try {
       // Browsers suspend a context created outside a gesture. The spacebar
       // that starts the round IS the gesture, so this resume is the one that
@@ -83,25 +115,22 @@
         var resumed = c.resume();
         if (resumed && resumed.catch) { resumed.catch(function () {}); }
       }
-      var master = c.createGain();
+      var master = track(graph, c.createGain());
       master.gain.value = 0.09;
       master.connect(c.destination);
-      var lead = voice(c, master, 'triangle', 0.0);
-      var bass = voice(c, master, 'sine', 0.35);
-      parts = { master: master, lead: lead, bass: bass };
+      var lead = voice(c, graph, master, 'triangle', 0.0);
+      var bass = voice(c, graph, master, 'sine', 0.35);
 
       var step = 0;
+      pluck(c, lead, bass, step);
+      step += 1;
       ticker = setInterval(function () {
-        if (!parts) { return; }
-        var now = c.currentTime;
-        parts.lead.osc.frequency.setValueAtTime(LEAD[step % LEAD.length], now);
-        parts.bass.osc.frequency.setValueAtTime(BASS[step % BASS.length], now);
-        // A plucked envelope rather than a held tone, so eight notes read as
-        // eight notes from the back of a hall.
-        parts.lead.amp.gain.cancelScheduledValues(now);
-        parts.lead.amp.gain.setValueAtTime(0.5, now);
-        parts.lead.amp.gain.exponentialRampToValueAtTime(0.01, now + 0.16);
-        step += 1;
+        try {
+          pluck(c, lead, bass, step);
+          step += 1;
+        } catch (e) {
+          stop();
+        }
       }, STEP_MS);
       return true;
     } catch (e) {
@@ -118,14 +147,11 @@
     if (!parts) { return; }
     var dead = parts;
     parts = null;
-    try {
-      [dead.lead, dead.bass].forEach(function (v) {
-        try { v.osc.stop(); } catch (e) { /* already stopped */ }
-        try { v.osc.disconnect(); } catch (e) { /* already gone */ }
-        try { v.amp.disconnect(); } catch (e) { /* already gone */ }
-      });
-      dead.master.disconnect();
-    } catch (e) { /* tearing down a dead graph is not a failure */ }
+    dead.nodes.forEach(function (node) {
+      // Oscillators that never reached start() throw here. That is expected.
+      try { if (typeof node.stop === 'function') { node.stop(); } } catch (e) { /* never started */ }
+      try { node.disconnect(); } catch (e) { /* already gone */ }
+    });
   }
 
   root.BibleGames = root.BibleGames || {};
