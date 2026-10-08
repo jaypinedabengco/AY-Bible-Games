@@ -150,3 +150,16 @@ test('a variant with no kind gets null, not undefined', () => {
                               variants: [{ type: 'text', prompt: 'A?' }] });
   assert.equal(p.variants[0].kind, null);
 });
+
+test('a BARE card puzzle (no variants array) keeps kind and prompt too', () => {
+  // The lift path copies keys named in VARIANT_KEYS onto a synthetic variant.
+  // Explicit-variants puzzles never touch it, so a `kind` missing from that
+  // list passes every other test and silently turns knowledge cards into
+  // tasks. book-names writes its puzzles bare, so this path is live.
+  const p = normalizePuzzle({ id: 'hp-09', type: 'card', kind: 'knowledge',
+                              prompt: 'Which king?', answer: 'Belshazzar' });
+  assert.equal(p.variants.length, 1);
+  assert.equal(p.variants[0].type, 'card');
+  assert.equal(p.variants[0].kind, 'knowledge');
+  assert.equal(p.variants[0].prompt, 'Which king?');
+});

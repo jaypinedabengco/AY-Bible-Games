@@ -954,6 +954,13 @@ test('only the music screen advances itself', () => {
   const phases = [0, 1, 2].map((s) => byType.card.view(p, p.variants[0], s));
   assert.deepEqual(phases.map((v) => v.phase), ['playing', 'stop', 'card']);
   assert.deepEqual(phases.map((v) => v.autoAdvance), [true, false, false]);
+  // paint.js dispatches on view.kind; a wrong value here paints nothing, and
+  // the failure would surface as a Task 3 bug in a different file.
+  phases.forEach((v) => {
+    assert.equal(v.kind, 'card');
+    assert.equal(v.id, 'hp-01');
+    assert.ok(v.badge, 'badge is populated');
+  });
 });
 
 test('the card text is withheld until the third screen', () => {
@@ -1032,6 +1039,10 @@ test('NO OTHER TYPE advances itself', () => {
       if (v && v.autoAdvance) { offenders.push(kind + ' at stage ' + stage); }
     }
   });
+  // A TRIPWIRE, not a live assertion: it cannot fail on today's code, because
+  // `probed` increments unconditionally and a throw already fails the test.
+  // It exists so that anyone who reintroduces a skip (try/catch ... continue)
+  // before the increment trips it. Do not delete it as dead weight.
   assert.equal(probed, others.length * 5,
     'probed ' + probed + ' of ' + (others.length * 5) + ' renderer/stage pairs');
   assert.deepEqual(offenders, [], offenders.join('\n'));
