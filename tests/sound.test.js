@@ -14,6 +14,12 @@ const { delayMs } = globalThis.BibleGames.sound;
 // reach the top of a range exactly.
 const HIGH = 1 - 1e-12;
 
+// Values in this file are chosen so that the right answer and each plausible
+// wrong answer print as different numbers. The default range is 6-20 seconds,
+// so any test about a supplied range uses [10, 30] instead: a version that
+// ignored the range and used the default would otherwise pass by coincidence.
+// Malformed inputs are the one place the default is the expected answer.
+
 function draws(range, n) {
   const out = [];
   for (let i = 0; i < n; i += 1) { out.push(delayMs(range)); }
@@ -143,16 +149,16 @@ function runningOscillators(log) {
 }
 
 test('the delay stays inside the range it was given', () => {
-  const out = draws([6, 20], 500);
-  const bad = out.filter((ms) => ms < 6000 || ms > 20000);
-  assert.deepEqual(bad, [], 'drew outside 6-20s: ' + bad.join(', '));
+  const out = draws([10, 30], 500);
+  const bad = out.filter((ms) => ms < 10000 || ms > 30000);
+  assert.deepEqual(bad, [], 'drew outside 10-30s: ' + bad.join(', '));
 });
 
 test('the delay is drawn fresh: 500 draws are not a handful of values', () => {
   // This is a sanity check on the output. It cannot prove there is no seed,
   // because a seeded PRNG also gives many distinct values. The stub test below
   // is the one that proves the source.
-  assert.ok(new Set(draws([6, 20], 500)).size > 50,
+  assert.ok(new Set(draws([10, 30], 500)).size > 50,
     'the delay repeats itself - it must be drawn fresh every round');
 });
 
@@ -160,29 +166,30 @@ test('delayMs reads Math.random fresh on every call', () => {
   // A seeded implementation has its own generator and never consults
   // Math.random, so it cannot produce these three values in this order.
   const { result, calls } = withRandom([0, 0.5, HIGH],
-    () => [delayMs([6, 20]), delayMs([6, 20]), delayMs([6, 20])]);
+    () => [delayMs([10, 30]), delayMs([10, 30]), delayMs([10, 30])]);
   assert.equal(calls, 3, 'Math.random was not consulted once per call');
-  assert.deepEqual(result, [6000, 13000, 20000]);
+  assert.deepEqual(result, [10000, 20000, 30000]);
 });
 
 test('Math.random at 0 gives the low bound exactly, and near 1 the high bound', () => {
-  assert.equal(withRandom([0], () => delayMs([6, 20])).result, 6000);
-  assert.equal(withRandom([HIGH], () => delayMs([6, 20])).result, 20000);
+  assert.equal(withRandom([0], () => delayMs([10, 30])).result, 10000);
+  assert.equal(withRandom([HIGH], () => delayMs([10, 30])).result, 30000);
   assert.equal(withRandom([0.25], () => delayMs([10, 30])).result, 15000);
 });
 
 test('the delay uses the whole range, not a corner of it', () => {
-  const out = draws([6, 20], 500);
-  assert.ok(Math.min(...out) < 9000, 'never draws near the short end');
-  assert.ok(Math.max(...out) > 17000, 'never draws near the long end');
+  const out = draws([10, 30], 500);
+  assert.ok(Math.min(...out) < 15000, 'never draws near the short end');
+  assert.ok(Math.max(...out) > 25000, 'never draws near the long end');
 });
 
 test('a malformed range falls back to the 6-20 second default, at both ends', () => {
-  // These come from a hand-written deck, where a mistake is a reversed pair or
-  // a missing field - not a crash. A NaN delay never fires and the game stops
-  // dead in front of a room. Checked at the extremes so that a constant 1000
-  // ms, or a single half-patched endpoint, cannot pass.
-  const bad = [undefined, null, [], [0, 0], ['a', 'b'], [NaN, 5], [30, 90], [10], [20, 6]];
+  // These come from a hand-written deck, where a mistake is a missing field or
+  // a value that is not a number - not a crash. A NaN delay never fires and the
+  // game stops dead in front of a room. A range patched endpoint by endpoint
+  // ([10] becoming 10-20 s) gives a wrong answer at the low end, so both ends
+  // are checked. A reversed pair is not malformed; it is tested separately.
+  const bad = [undefined, null, [], [0, 0], ['a', 'b'], [NaN, 5], [30, 90], [10]];
   bad.forEach((range) => {
     const low = withRandom([0], () => delayMs(range)).result;
     const high = withRandom([HIGH], () => delayMs(range)).result;
@@ -191,10 +198,15 @@ test('a malformed range falls back to the 6-20 second default, at both ends', ()
   });
 });
 
-test('a reversed range is read as a range, not rejected', () => {
-  const out = draws([20, 6], 200);
-  const bad = out.filter((ms) => ms < 6000 || ms > 20000);
-  assert.deepEqual(bad, [], 'a reversed pair should still mean 6-20s');
+test('a reversed pair with two valid ends is swapped, not defaulted', () => {
+  // [30, 10] is chosen because its swapped answer (10-30 s) matches neither the
+  // default (6-20 s) nor the unswapped pair. Without the swap, the low stub
+  // gives 30000 rather than 10000. With a default fallback, it gives 6000.
+  // Each wrong behaviour prints a visibly different number at one end or the other.
+  const low = withRandom([0], () => delayMs([30, 10])).result;
+  const high = withRandom([HIGH], () => delayMs([30, 10])).result;
+  assert.equal(low, 10000, 'the low end should be 10 s, the swapped lower bound');
+  assert.equal(high, 30000, 'the high end should be 30 s, the swapped upper bound');
 });
 
 test('no AudioContext in the environment: play() says so and does not throw', () => {
@@ -276,7 +288,11 @@ test('the first note is scheduled before any tick, not left at the 440 Hz defaul
   } finally { restoreGlobals(saved); }
 });
 
-test('a tick that fires after play() keeps the loop going without throwing', () => {
+test('each tick advances the loop: a repeated first note cannot pass', () => {
+  // The notes are chosen so a repeat is visible. LEAD[0] (523.25) and LEAD[1]
+  // (659.25) differ, so the lead shows whether the first note was doubled. BASS[0]
+  // and BASS[1] are both 130.81, so the bass cannot show that on its own: its
+  // third note, BASS[2] = 164.81, is checked after a second tick instead.
   const saved = saveGlobals();
   try {
     const fake = fakeAudio(-1);
@@ -286,10 +302,13 @@ test('a tick that fires after play() keeps the loop going without throwing', () 
     try {
       assert.equal(sound.play(), true);
       const [tick] = [...fake.log.intervals.values()];
-      assert.doesNotThrow(() => tick());
+      assert.doesNotThrow(() => { tick(); tick(); });
       const oscs = fake.log.nodes.filter((n) => n.kind === 'oscillator');
+      const lead = oscs.find((n) => n.type === 'triangle');
       const bass = oscs.find((n) => n.type === 'sine');
-      assert.deepEqual(bass.frequency.scheduled[1], [130.81, 0], 'second note, BASS[1]');
+      assert.deepEqual(lead.frequency.scheduled[1], [659.25, 0], 'after one tick, LEAD[1]');
+      assert.deepEqual(lead.frequency.scheduled[2], [783.99, 0], 'after two ticks, LEAD[2]');
+      assert.deepEqual(bass.frequency.scheduled[2], [164.81, 0], 'after two ticks, BASS[2]');
     } finally { sound.stop(); }
   } finally { restoreGlobals(saved); }
 });
