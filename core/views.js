@@ -319,6 +319,36 @@
         return v;
       },
     },
+    card: {
+      // Three screens for a task - music, STOP, the card - and a fourth for a
+      // knowledge card, which has an answer to give back. The quote type
+      // already varies its stage count per variant; this is the same idea, and
+      // for the same reason: a beat that would say nothing is not shown.
+      //
+      // Without that fourth screen a knowledge card's answer lives only on the
+      // Game Master's phone, and nobody opens a phone for a filler game.
+      stages: function (variant) {
+        return (variant && variant.kind === 'knowledge') ? 3 : 2;
+      },
+      view: function (puzzle, variant, stage) {
+        var v = base('card', puzzle, variant);
+        v.phase = stage === 0 ? 'playing' : (stage === 1 ? 'stop' : 'card');
+        // The ONLY screen in this project that moves without a keypress. This
+        // function stays pure and says only THAT it wants a clock; boot.js
+        // owns the clock, because the deck - and so the range - is in scope
+        // there and the randomness must not leak into a view builder every
+        // other test in this file assumes is deterministic.
+        v.autoAdvance = stage === 0;
+        // A task card IS its answer. "Recite two verses from memory" is both
+        // the instruction on screen and the identity validate.js dedupes on,
+        // so it is written once, in `answer`, and read back here.
+        v.prompt = stage >= 2
+          ? (variant.kind === 'knowledge' ? variant.prompt : puzzle.answer)
+          : null;
+        v.answered = answered(puzzle, stage, 3, variant);
+        return v;
+      },
+    },
   };
 
   // An ordered item is a label and, usually, a date. A plain string is still
