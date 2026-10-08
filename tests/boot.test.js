@@ -11,6 +11,7 @@ require('../core/order.js');
 require('../core/machine.js');
 require('../core/views.js');
 require('../core/images.js');
+require('../core/sound.js');
 require('../core/boot.js');
 const { buildSession } = globalThis.BibleGames.boot;
 const { normalizePuzzle } = globalThis.BibleGames.normalize;
@@ -400,7 +401,10 @@ test('a view that does not ask for a clock does not get one', () => {
   // sets a timer unconditionally, every existing game starts moving on its own
   // in front of a room, and no existing test would notice.
   const src = fs.readFileSync(path.join(ROOT, 'core', 'boot.js'), 'utf8');
-  assert.ok(/autoDelayMs\(view, deck\)/.test(src),
+  // Anchored on the assignment: the bare call text also appears in the
+  // function's own declaration, so an unanchored match passes with draw()
+  // never asking at all.
+  assert.ok(/=\s*autoDelayMs\(view, deck\)/.test(src),
     'draw() must ask autoDelayMs whether this screen gets a clock');
 });
 
@@ -451,20 +455,47 @@ test('a missing sound module does not stop the game advancing', () => {
 
 test('the clock is armed only by a view that asks for one', () => {
   const { autoDelayMs } = globalThis.BibleGames.boot;
+  assert.ok(globalThis.BibleGames.sound, 'core/sound.js must be loaded for this test');
   // The behaviour the seven existing games depend on, stated as behaviour.
   assert.equal(autoDelayMs({ kind: 'quote' }, { musicSeconds: [6, 20] }), null);
   assert.equal(autoDelayMs({ kind: 'card', autoAdvance: false }, {}), null);
   assert.equal(autoDelayMs(null, {}), null);
+});
 
-  // A view that asks gets a number inside the deck's own range.
+test('a view that asks gets a real draw from the deck\'s own range', () => {
+  const { autoDelayMs } = globalThis.BibleGames.boot;
+  const card = { kind: 'card', autoAdvance: true };
+
+  // A fallback returns the same number every time; a real draw does not. The
+  // band 6000-20000 contains the 12000 fallback, so range alone proves nothing.
+  const wide = new Set();
   for (let i = 0; i < 100; i += 1) {
-    const ms = autoDelayMs({ kind: 'card', autoAdvance: true },
-                           { musicSeconds: [6, 20] });
+    const ms = autoDelayMs(card, { musicSeconds: [6, 20] });
     assert.ok(ms >= 6000 && ms <= 20000, 'drew ' + ms);
+    wide.add(ms);
   }
+  assert.ok(wide.size > 1, 'every draw was identical: ' + Array.from(wide));
 
-  // A deck that says nothing still gets a usable delay rather than NaN - a
-  // timer that never fires is a game stopped dead in front of a room.
-  const fallback = autoDelayMs({ kind: 'card', autoAdvance: true }, {});
-  assert.ok(Number.isFinite(fallback) && fallback > 0);
+  // A range that does NOT contain 12000, so the fallback cannot hide inside it.
+  for (let i = 0; i < 100; i += 1) {
+    const ms = autoDelayMs(card, { musicSeconds: [2, 4] });
+    assert.ok(ms >= 2000 && ms <= 4000, 'drew ' + ms + ' for a 2-4 second deck');
+  }
+});
+
+test('without the sound module the clock still arms, at a fixed fallback', () => {
+  // core/sound.js is loaded by one page; every other page lacks it. Reach the
+  // fallback on purpose, and put the module back so nothing else sees this.
+  const { autoDelayMs } = globalThis.BibleGames.boot;
+  const real = globalThis.BibleGames.sound;
+  try {
+    delete globalThis.BibleGames.sound;
+    assert.equal(autoDelayMs({ kind: 'card', autoAdvance: true }, {}), 12000);
+    assert.equal(autoDelayMs({ kind: 'card', autoAdvance: true },
+                             { musicSeconds: [2, 4] }), 12000);
+    assert.equal(autoDelayMs({ kind: 'quote' }, {}), null);
+  } finally {
+    globalThis.BibleGames.sound = real;
+  }
+  assert.ok(globalThis.BibleGames.sound, 'the sound module must be restored');
 });
