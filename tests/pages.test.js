@@ -207,6 +207,13 @@ test('a page whose deck has cards loads the sound module', () => {
     const src = fs.readFileSync(page, 'utf8');
     const soundAt = src.search(/<script[^>]*src="\.\.\/\.\.\/core\/sound\.js"/);
     const bootAt = src.search(/<script[^>]*src="\.\.\/\.\.\/core\/boot\.js"/);
+    // The inline guard is what puts "This game did not start" on the projector
+    // when a script is missing. Without 'sound' in it, a lost sound.js is a
+    // SILENT game with nothing on screen saying why.
+    const needed = /var needed = \[([^\]]*)\]/.exec(src);
+    if (!needed || !/['"]sound['"]/.test(needed[1])) {
+      problems.push(slug + ' does not list sound in its inline needed guard');
+    }
     if (soundAt === -1) { problems.push(slug + ' does not load sound.js'); }
     else if (bootAt !== -1 && soundAt > bootAt) {
       problems.push(slug + ' loads sound.js after boot.js');

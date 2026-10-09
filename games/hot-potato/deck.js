@@ -49,7 +49,7 @@ window.DECK = {
     { id: 'hp-05', answer: 'Belshazzar', ref: 'Daniel 5:5',
       variants: [{ type: 'card', kind: 'knowledge',
                    prompt: 'Which king saw a hand writing on the wall?' }] },
-    { id: 'hp-06', answer: 'Melita', ref: 'Acts 28:1',
+    { id: 'hp-06', answer: 'Melita (Malta)', ref: 'Acts 28:1',
       variants: [{ type: 'card', kind: 'knowledge',
                    prompt: 'On which island was Paul shipwrecked?' }] },
   ],
