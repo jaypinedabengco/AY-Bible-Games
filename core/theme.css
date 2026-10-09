@@ -538,6 +538,19 @@ html, body {
                        line-height: 1.3; letter-spacing: 0.02em;
                        max-width: 88vw; overflow-wrap: break-word; }
 
+/* A passage to read along with - Psalm 23, the Beatitudes - rather than a
+   handful of names. MEASURED in the real game page with the longest passage in
+   the deck, Psalm 23 at 595 characters: at 4vmin it clears the bottom of the
+   screen by 230px at 1920x1080, 192px at 1600x900 and 106px at 1024x768, and
+   renders at 43px on a 1080p projector. 4.5vmin left only 54px at 1024x768,
+   which is too close. Capped on BOTH axes and with a bare fallback first, for
+   the reason .masked carries one. */
+.answer-passage .answer { font-size: 4vmin;
+                          font-size: min(4vmin, 3.2vw);
+                          line-height: 1.35; letter-spacing: 0;
+                          font-weight: 400; max-width: 88vw;
+                          overflow-wrap: break-word; }
+
 /* The challenge. Long enough to wrap, so this is capped on both axes too. */
 .hp-card { font-size: 9vmin;
            font-size: min(9vmin, 6vw); line-height: 1.25; max-width: 86vw;

@@ -317,9 +317,19 @@
     }
 
     if (view.answered && view.kind !== 'binary') {
-      // A list card's answer is several names and is sized for that, in CSS,
-      // off this class - .answer itself is shared by every other game.
-      body.appendChild(answerBlock(view.answered, view.list ? 'answer-list' : null));
+      // A list card's answer is sized in CSS off these classes; .answer itself
+      // is shared by every other game and is left alone. Two sizes, because
+      // two different things arrive here: a handful of NAMES, and a whole
+      // PASSAGE to read along with. Psalm 23 is 595 characters and will not
+      // fit at the size a dozen names want. The split is by length rather
+      // than by a deck field, so a card that grows is resized by the renderer
+      // instead of needing someone to remember to re-flag it.
+      var answerCls = null;
+      if (view.list) {
+        answerCls = String(view.answered.answer).length > 200
+          ? 'answer-passage' : 'answer-list';
+      }
+      body.appendChild(answerBlock(view.answered, answerCls));
       // Where each object came from - after the answer, because the answer is
       // what the room is waiting for and this is the bit they read afterwards.
       if (view.kind === 'trail' && view.sources && view.sources.length) {

@@ -162,28 +162,30 @@ test('a list answer is short enough to fit on the projector', () => {
   // the validator, the renderer or any other test would notice one that ran
   // off the screen.
   //
-  // MEASURED in the real game page (not a harness), rendering the longest list
-  // answer through core/paint.js at four viewport sizes, comparing the box
-  // bottom against window.innerHeight:
+  // MEASURED in the real game page (not a harness), rendering through
+  // core/paint.js and comparing the answer box bottom to window.innerHeight.
   //
-  //   130 chars - 1920x1080: bottom 804, clear 276px, 3 lines, 64.8px
-  //               1600x900:  bottom 670, clear 230px, 3 lines, 54.0px
-  //               1280x720:  bottom 536, clear 184px, 3 lines, 43.2px
-  //               1024x768:  bottom 584, clear 184px, 4 lines, 43.0px
-  //   at 1024x768, the tightest: 160 and 180 chars clear by 194px,
-  //   200 by 166px, 240 by 138px.
+  // Two sizes arrive here. paint.js picks by length: up to 200 characters is a
+  // handful of NAMES at 6vmin; beyond that it is a PASSAGE at 4vmin, because
+  // Psalm 23 is 595 characters and will not fit at the size a dozen names want.
   //
-  // So OVERFLOW is not what sets this limit - 240 characters still fits. The
-  // limit is READABILITY: a room has to scan these names off a projector in a
-  // few seconds, and past about four lines it stops being a list and becomes a
-  // wall of text. 180 is four lines at the tightest size, with 194px to spare.
-  // If a future card needs more, re-measure; do not just raise the number.
+  //   names, 130 chars @6vmin - 1920x1080 clear 276px, 1600x900 230px,
+  //                             1280x720 184px, 1024x768 184px
+  //   passage, 595 chars @4vmin - 1920x1080 clear 230px, 1600x900 192px,
+  //                               1024x768 106px
+  //   ceiling at 1024x768 @4vmin (31px): 400 chars clears 168px, 600 clears
+  //   85px, 800 clears 2px, 900 OVERFLOWS by 39px.
+  //
+  // 700 is the limit, leaving about 80px of margin at the tightest size. Every
+  // complete list in this deck is far under it - all fourteen judges is 110
+  // characters, every king of Israel and Judah about 400 - so nothing has to be
+  // cut to fit. If a future card needs more, RE-MEASURE; do not raise this.
   const wrong = [];
   let checked = 0;
   deck().puzzles.forEach((p) => {
     if (!p.variants.some((v) => v.kind === 'list')) { return; }
     checked += 1;
-    if (String(p.answer).length > 180) {
+    if (String(p.answer).length > 700) {
       wrong.push(p.id + ': answer is ' + String(p.answer).length + ' characters');
     }
   });
@@ -198,7 +200,14 @@ test('a list card is as hard as it has few answers', () => {
   const wrong = [];
   let checked = 0;
   deck().puzzles.forEach((p) => {
-    if (!p.variants.some((v) => v.kind === 'list')) { return; }
+    // Only the LETTER family. "Name a king whose name starts with J" is easy
+    // or hard according to how many names qualify. The "name N of" family is
+    // not: "name two of the twelve disciples" and "name as many as you can"
+    // show the SAME twelve names and are a 1 and a 3, because there the
+    // difficulty is the number ASKED FOR, not the number that exist.
+    const letter = p.variants.some((v) => v.kind === 'list'
+      && /starts with/i.test(String(v.prompt || '')));
+    if (!letter) { return; }
     checked += 1;
     const n = listNames(p.answer).length;
     if (n >= 6 && p.difficulty !== 1) { wrong.push(p.id + ': ' + n + ' answers but difficulty ' + p.difficulty); }
@@ -258,7 +267,13 @@ test('no two cards say the same thing', () => {
   const seen = new Map();
   const dupes = [];
   deck().puzzles.forEach((p) => {
-    const key = p.answer.toLowerCase().replace(/[^a-z ]/g, '').replace(/\s+/g, ' ').trim();
+    // A list card's ANSWER is a reference list several cards share on purpose -
+    // "name two judges" and "name four judges" both show the same fourteen
+    // names. What must be unique is the CHALLENGE. validate.js draws the same
+    // distinction; see the comment there.
+    const prompt = (p.variants.find((v) => v.kind === 'list') || {}).prompt;
+    const ident = prompt || p.answer;
+    const key = ident.toLowerCase().replace(/[^a-z ]/g, '').replace(/\s+/g, ' ').trim();
     if (seen.has(key)) { dupes.push(p.id + ' repeats ' + seen.get(key)); }
     seen.set(key, p.id);
   });
@@ -296,4 +311,39 @@ test('every card has a difficulty, and the mix is playable', () => {
   assert.ok(count[3] >= 15, 'only ' + count[3] + ' hard recall cards');
   assert.ok(count[1] / n >= 0.3, 'easy cards are only ' + count[1] + ' of ' + n);
   assert.ok(count[3] / n <= 0.3, 'hard cards are ' + count[3] + ' of ' + n + ' - too exposing');
+});
+
+test('a card that asks for a fixed answer is not left as a task', () => {
+  // THE BUG THIS EXISTS TO STOP REOPENING. 55 cards once said "Recite Psalm 23
+  // from memory" or "Name two of the ten plagues" and were marked `task`, which
+  // has no fourth screen - so the room performed the card and then saw nothing,
+  // with no way to check whether an answer counted. It was only found by
+  // someone playing the game.
+  //
+  // A task asking for recall is fine when the answer is the person's own:
+  // "recite ANY two verses", "one sentence of encouragement". What it must not
+  // do is name a PASSAGE ("Recite Psalm 23") or a KNOWN SET ("two of the ten
+  // plagues"), because those have a right answer the room cannot see.
+  //
+  // An earlier version of this test asked whether the card mentioned you/your/
+  // any, and wrongly flagged "Give the room one sentence of encouragement for
+  // the week ahead" - which has no fixed answer at all. The tell is not the
+  // pronoun; it is whether the card points at something specific.
+  const book = /\b(Genesis|Exodus|Leviticus|Numbers|Deuteronomy|Joshua|Judges|Ruth|Samuel|Kings|Chronicles|Ezra|Nehemiah|Esther|Job|Psalm|Psalms|Proverbs|Ecclesiastes|Isaiah|Jeremiah|Ezekiel|Daniel|Hosea|Joel|Amos|Obadiah|Jonah|Micah|Nahum|Habakkuk|Zephaniah|Haggai|Zechariah|Malachi|Matthew|Mark|Luke|John|Acts|Romans|Corinthians|Galatians|Ephesians|Philippians|Colossians|Thessalonians|Timothy|Titus|Philemon|Hebrews|James|Peter|Jude|Revelation|Beatitudes|Commandments)\b/;
+  const knownSet = /\bof the\b/i;
+  const recall = /^(Recite|Name|Say the|Say as|List|Quote|Give)\b/;
+  const wrong = [];
+  let checked = 0;
+  deck().puzzles.forEach((p) => {
+    const task = p.variants.find((v) => v.kind === 'task');
+    if (!task) { return; }
+    if (!recall.test(p.answer)) { return; }
+    checked += 1;
+    if (book.test(p.answer) || knownSet.test(p.answer)) {
+      wrong.push(p.id + ': "' + p.answer + '" names a passage or a known set '
+        + 'but shows no answer - it should be a list card');
+    }
+  });
+  assert.ok(checked > 0, 'no recall-shaped task cards, so this checked nothing');
+  assert.deepEqual(wrong, [], wrong.join('\n'));
 });

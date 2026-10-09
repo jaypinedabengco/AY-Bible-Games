@@ -79,6 +79,18 @@
   // full of people.
   function askedKey(deckId) { return 'asked:' + (deckId || 'deck'); }
 
+  // Most decks here are CONSUMED by being played: Who Said It? holds 322
+  // quotes and the room should work through them rather than hear the same
+  // one twice, so what has been asked is remembered across evenings.
+  //
+  // An EVERGREEN deck is the opposite. Hot Potato's cards are performances -
+  // "give two verses that have helped you" is a different answer every time
+  // because it is a different person - so remembering them does not prevent a
+  // repeat, it just empties the deck. After 162 cards the game would report
+  // itself finished and stop, which is exactly wrong for a game whose whole
+  // point is that it never runs out. Such a deck sets `remembers: false`.
+  function remembers(deck) { return !deck || deck.remembers !== false; }
+
   function loadAsked(deckId) {
     try {
       var raw = localStorage.getItem(askedKey(deckId));
@@ -244,7 +256,7 @@
   // screen and asking how long the round should be and in which language.
   function play(deck, host, resolver, rng, choice, toStart) {
     var deckId = (deck && deck.id) || 'deck';
-    var seen = loadAsked(deckId);
+    var seen = remembers(deck) ? loadAsked(deckId) : new Set();
     var round = 0;
 
     return buildSession(deck, resolver, rng, {
@@ -342,7 +354,9 @@
       var key = s.item.puzzle.id + '#' + s.item.puzzle.variants.indexOf(s.item.variant);
       if (!seen.has(key)) {
         seen.add(key);
-        saveAsked(deckId, seen);
+        // Still tracked WITHIN the evening, so one round does not show the
+        // same card twice - only not written down for the next one.
+        if (remembers(deck)) { saveAsked(deckId, seen); }
       }
 
       var view = BG.views.viewForItem(s.item, s.stage);
@@ -673,7 +687,9 @@
       card.appendChild(go);
       card.appendChild(el('div', 'start-go', 'or press Space'));
 
-      if (asked > 0) {
+      // Nothing to say about a deck that does not remember: none of its cards
+      // is ever "not coming back".
+      if (asked > 0 && remembers(deck)) {
         card.appendChild(el('div', 'start-asked',
           asked + ' of ' + total + ' already asked, and not coming back.'));
       }
@@ -706,7 +722,7 @@
     var begin = function () {};
 
     function toStart() {
-      return countByLang(loadAsked(normalized.id)).then(function (counts) {
+      return countByLang(remembers(deck) ? loadAsked(normalized.id) : new Set()).then(function (counts) {
         chosen = drawStart(counts);
         if (!chosen) { return null; }   // nothing to play; the card says so
         return new Promise(function (resolve) {

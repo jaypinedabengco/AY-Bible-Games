@@ -246,9 +246,23 @@
       if ([1, 2, 3].indexOf(p.difficulty) === -1) {
         errors.push('"' + p.answer + '": difficulty must be 1, 2 or 3');
       }
-      var key = p.lang + '::' + p.answer;
+      // Two puzzles must not be the same puzzle twice. What makes them the
+      // same depends on the kind: normally the ANSWER is the identity, but a
+      // `list` card's answer is a reference list that several cards share on
+      // purpose - "name two judges" and "name four judges" both show the same
+      // fourteen names and are plainly different cards. For those the identity
+      // is the CHALLENGE. Narrowed to list cards so nothing else changes.
+      var listPrompt = null;
+      p.variants.forEach(function (v) {
+        if (v.type === 'card' && v.kind === 'list' && v.prompt && !listPrompt) {
+          listPrompt = v.prompt;
+        }
+      });
+      var ident = listPrompt || p.answer;
+      var key = p.lang + '::' + ident;
       if (seen[key]) {
-        errors.push('duplicate answer "' + p.answer + '" in ' + p.lang);
+        errors.push('duplicate ' + (listPrompt ? 'challenge' : 'answer')
+          + ' "' + ident + '" in ' + p.lang);
       }
       seen[key] = true;
 
