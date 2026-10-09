@@ -10,7 +10,8 @@
 (function (root) {
   'use strict';
 
-  var TYPES = ['rebus', 'image', 'text', 'binary', 'order', 'quote', 'trail', 'map'];
+  var TYPES = ['rebus', 'image', 'text', 'binary', 'order', 'quote', 'trail',
+               'map', 'card'];
   var LANGS = ['en', 'fil'];
   var SLOTS = ['early', 'middle', 'late', 'anywhere'];
 
