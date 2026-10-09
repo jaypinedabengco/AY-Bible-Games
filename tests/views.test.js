@@ -927,3 +927,190 @@ test('painting a map with no .pins group draws the map instead of throwing', () 
     globalThis.BibleGames.atlas = saved.atlas;
   }
 });
+
+const card = (over) => normalizePuzzle(Object.assign({
+  id: 'hp-01', answer: 'Recite two verses from memory',
+  variants: [{ type: 'card', kind: 'task' }],
+}, over));
+
+const knowledge = () => normalizePuzzle({
+  id: 'hp-02', answer: 'Belshazzar', ref: 'Daniel 5',
+  variants: [{ type: 'card', kind: 'knowledge',
+               prompt: 'Which king saw writing on a wall?' }],
+});
+
+test('a task card is three screens and a knowledge card is four', () => {
+  // A task has nothing to give back - the room judges. A knowledge card does,
+  // and without that fourth screen its answer lives only on a phone nobody
+  // opened for a filler game.
+  const task = card();
+  const know = knowledge();
+  assert.equal(byType.card.stages(task.variants[0]), 2);
+  assert.equal(byType.card.stages(know.variants[0]), 3);
+});
+
+test('only the music screen advances itself', () => {
+  const p = card();
+  const phases = [0, 1, 2].map((s) => byType.card.view(p, p.variants[0], s));
+  assert.deepEqual(phases.map((v) => v.phase), ['playing', 'stop', 'card']);
+  assert.deepEqual(phases.map((v) => v.autoAdvance), [true, false, false]);
+  // paint.js dispatches on view.kind; a wrong value here paints nothing, and
+  // the failure would surface as a Task 3 bug in a different file.
+  phases.forEach((v) => {
+    assert.equal(v.kind, 'card');
+    assert.equal(v.id, 'hp-01');
+    assert.ok(v.badge, 'badge is populated');
+  });
+});
+
+test('the card text is withheld until the third screen', () => {
+  const p = card();
+  assert.equal(byType.card.view(p, p.variants[0], 0).prompt, null);
+  assert.equal(byType.card.view(p, p.variants[0], 1).prompt, null);
+  assert.equal(byType.card.view(p, p.variants[0], 2).prompt,
+    'Recite two verses from memory');
+});
+
+test('a task card IS its answer, so the text is written once', () => {
+  // validate.js already rejects two puzzles sharing an answer, so putting the
+  // task text there buys duplicate-card detection for nothing.
+  const p = card();
+  const v = byType.card.view(p, p.variants[0], 2);
+  assert.equal(v.prompt, p.answer);
+  assert.equal(v.answered, null, 'a task has no answer to reveal');
+});
+
+test('a knowledge card asks one thing and answers another', () => {
+  const p = knowledge();
+  assert.equal(byType.card.view(p, p.variants[0], 2).prompt,
+    'Which king saw writing on a wall?');
+  assert.equal(byType.card.view(p, p.variants[0], 2).answered, null);
+  const end = byType.card.view(p, p.variants[0], 3);
+  assert.equal(end.answered.answer, 'Belshazzar');
+  assert.equal(end.answered.ref, 'Daniel 5');
+});
+
+const list = (over) => normalizePuzzle(Object.assign({
+  id: 'hp-03', answer: 'Jeroboam, Jehu, Jehoram (Joram), Josiah',
+  variants: [{ type: 'card', kind: 'list',
+               prompt: 'Name a king of Israel or Judah whose name starts with J' }],
+}, over));
+
+test('a list card is four screens, like a knowledge card and unlike a task', () => {
+  // The room needs the valid answers to settle "does that count?". Without the
+  // fourth screen they live only on a phone nobody opened for a filler game -
+  // and it fails silently, as a card that simply never reveals.
+  assert.equal(byType.card.stages(list().variants[0]), 3);
+  assert.equal(byType.card.stages(knowledge().variants[0]), 3);
+  assert.equal(byType.card.stages(card().variants[0]), 2);
+});
+
+test('a list card asks the challenge first and gives the valid answers last', () => {
+  const p = list();
+  const v = p.variants[0];
+  const views = [0, 1, 2, 3].map((s) => byType.card.view(p, v, s));
+  assert.deepEqual(views.map((x) => x.phase), ['playing', 'stop', 'card', 'card']);
+  assert.equal(views[0].prompt, null);
+  assert.equal(views[1].prompt, null);
+  // The challenge, NOT the answer: a task card shows puzzle.answer here, and a
+  // list card doing the same would put the answer on screen before anyone had
+  // tried to give it.
+  assert.equal(views[2].prompt,
+    'Name a king of Israel or Judah whose name starts with J');
+  assert.equal(views[2].answered, null, 'the answers wait for the fourth screen');
+  assert.equal(views[3].answered.answer, 'Jeroboam, Jehu, Jehoram (Joram), Josiah');
+});
+
+test('a list card renders exactly as a knowledge card does', () => {
+  // "Stages and renders exactly like knowledge" is the whole contract, so say
+  // it as one: the same text through both kinds gives the same view at every
+  // screen. A list that drifted - a different stage count, a prompt read from
+  // the wrong field - fails here whichever screen it drifted on.
+  const text = { id: 'hp-09', answer: 'Belshazzar', ref: 'Daniel 5' };
+  const k = normalizePuzzle(Object.assign({
+    variants: [{ type: 'card', kind: 'knowledge', prompt: 'Which king?' }] }, text));
+  const l = normalizePuzzle(Object.assign({
+    variants: [{ type: 'card', kind: 'list', prompt: 'Which king?' }] }, text));
+  assert.equal(byType.card.stages(l.variants[0]), byType.card.stages(k.variants[0]));
+  [0, 1, 2, 3].forEach((s) => {
+    const lv = byType.card.view(l, l.variants[0], s);
+    const kv = byType.card.view(k, k.variants[0], s);
+    // ONE intended difference: a list view carries `list`, which paint.js reads
+    // to size the answer smaller - a list is a dozen names where every other
+    // answer in this project is one word. Everything else must still match, so
+    // the flag is stripped and the rest compared whole. A list that drifted in
+    // any OTHER way - a different stage count, a prompt read from the wrong
+    // field - still fails here, on the screen it drifted on.
+    assert.equal(lv.list, true, 'screen ' + s + ': a list view must say so');
+    assert.equal(kv.list, undefined, 'screen ' + s + ': a knowledge view must not');
+    delete lv.list;
+    assert.deepEqual(lv, kv, 'screen ' + s);
+  });
+});
+
+test('adding the list kind did not change knowledge or task cards', () => {
+  const t = card();
+  assert.equal(byType.card.view(t, t.variants[0], 2).prompt, t.answer);
+  const k = knowledge();
+  assert.equal(byType.card.view(k, k.variants[0], 2).prompt,
+    'Which king saw writing on a wall?');
+  assert.equal(byType.card.view(k, k.variants[0], 3).answered.answer, 'Belshazzar');
+});
+
+// Minimal but VALID input per renderer. A renderer handed the wrong shape
+// throws, and a test that swallowed the throw would report "no offenders"
+// about a renderer it never actually ran.
+// It must NOT throw and must NOT return undefined for a registered type.
+// views.test.js does not load the atlas, so if the map renderer needs it,
+// that surfaces here as a FAILURE rather than as a silent skip.
+function probeFor(kind) {
+  const shapes = {
+    rebus: { variants: [{ type: 'rebus', clues: [{ img: 'a.png', word: 'A' }] }] },
+    image: { variants: [{ type: 'image', img: 'a.png' }] },
+    text: { variants: [{ type: 'text', prompt: 'A?' }] },
+    quote: { variants: [{ type: 'quote', quote: 'A', verse: 'John 1:1' }] },
+    binary: { variants: [{ type: 'binary', prompt: 'A?', options: ['A', 'B'], answer: 'A' }] },
+    trail: { variants: [{ type: 'trail', items: [{ pictures: [{ img: 'a.png' }] }] }] },
+    order: { variants: [{ type: 'order', items: ['A', 'B', 'C'],
+             correct: [{ label: 'A', when: '1' }, { label: 'B', when: '2' },
+                       { label: 'C', when: '3' }] }] },
+    map: { variants: [{ type: 'map', at: [35, 32], extent: 'holyland' }] },
+    card: { variants: [{ type: 'card', kind: 'task' }] },
+  };
+  if (!shapes[kind]) { return null; }
+  return normalizePuzzle(Object.assign({ id: 'x-01', answer: 'A' }, shapes[kind]));
+}
+
+test('NO OTHER TYPE advances itself', () => {
+  // This is the test protecting the seven games that already work. boot.js
+  // only sets a timer when a view asks for one; if any other renderer ever
+  // starts asking, those games begin moving on their own in front of a room.
+  //
+  // It COUNTS what it probed. An earlier draft swallowed a throw and carried
+  // on, so a wrong probe shape skipped that renderer in silence - and a wrong
+  // probe table skipped EVERY renderer, found no offenders and went green
+  // while checking nothing. A test whose two halves share the thing under
+  // test is the failure that has cost this project the most.
+  const others = Object.keys(byType).filter((k) => k !== 'card');
+  const noShape = others.filter((k) => !probeFor(k));
+  assert.deepEqual(noShape, [],
+    'no probe shape for: ' + noShape.join(', ') + ' - add one, do not skip it');
+
+  const offenders = [];
+  let probed = 0;
+  others.forEach((kind) => {
+    for (let stage = 0; stage < 5; stage += 1) {
+      const p = probeFor(kind);
+      const v = byType[kind].view(p, p.variants[0], stage);
+      probed += 1;
+      if (v && v.autoAdvance) { offenders.push(kind + ' at stage ' + stage); }
+    }
+  });
+  // A TRIPWIRE, not a live assertion: it cannot fail on today's code, because
+  // `probed` increments unconditionally and a throw already fails the test.
+  // It exists so that anyone who reintroduces a skip (try/catch ... continue)
+  // before the increment trips it. Do not delete it as dead weight.
+  assert.equal(probed, others.length * 5,
+    'probed ' + probed + ' of ' + (others.length * 5) + ' renderer/stage pairs');
+  assert.deepEqual(offenders, [], offenders.join('\n'));
+});

@@ -15,6 +15,91 @@
     return node;
   }
 
+  // The ring of people the potato is passed round. Eight small figures, a head
+  // and shoulders each, set evenly on a circle (percentages of the ring box, so
+  // the geometry lives in one place and the CSS sizes it). The potato rides a
+  // container that steps between eight positions; see .hp-orbit in theme.css.
+  var SVG_NS = 'http://www.w3.org/2000/svg';
+  var PEOPLE = 8;
+
+  function svgNode(tag, attrs) {
+    var node = document.createElementNS(SVG_NS, tag);
+    Object.keys(attrs).forEach(function (k) { node.setAttribute(k, attrs[k]); });
+    return node;
+  }
+
+  function personSvg() {
+    var svg = svgNode('svg', { viewBox: '0 0 24 32', 'aria-hidden': 'true',
+                               focusable: 'false' });
+    svg.appendChild(svgNode('circle', { cx: '12', cy: '8', r: '6' }));
+    svg.appendChild(svgNode('path',
+      { d: 'M1 32 C1 21 5 16.5 12 16.5 C19 16.5 23 21 23 32 Z' }));
+    return svg;
+  }
+
+  // A lumpy oval with a few eyes. Brown on the dark ground with a thin gold rim
+  // so it stays the brightest thing on screen from the back of the hall.
+  function potatoSvg() {
+    var svg = svgNode('svg', { viewBox: '0 0 40 28', 'aria-hidden': 'true',
+                               focusable: 'false' });
+    svg.appendChild(svgNode('path', { 'class': 'hp-skin',
+      stroke: 'currentColor', 'stroke-width': '1.2', 'stroke-linejoin': 'round',
+      d: 'M5 15 C3 8 11 2.5 19 4 C25 1.5 34 4.5 35.5 12.5 C37.5 20 30.5 26.5 21 25 ' +
+         'C14 27.5 6.5 23 5 15 Z' }));
+    [[13, 11.5, 1.8, 1.2], [25, 8.5, 1.5, 1], [28, 17.5, 1.7, 1.1],
+     [17.5, 19, 1.3, 0.9], [9.5, 17, 1.1, 0.8]].forEach(function (s) {
+      svg.appendChild(svgNode('ellipse', { 'class': 'hp-eye',
+        cx: String(s[0]), cy: String(s[1]), rx: String(s[2]), ry: String(s[3]) }));
+    });
+    return svg;
+  }
+
+  // Three wisps of steam: it is a HOT potato. Drawn as lines so they read as
+  // vapour, and given their rim colour by CSS (stroke="currentColor"). Each
+  // fades in and out slowly on its own delay; see .hp-wisp in theme.css.
+  function steamSvg() {
+    var svg = svgNode('svg', { 'class': 'hp-steam', viewBox: '0 0 30 20',
+                               'aria-hidden': 'true', focusable: 'false' });
+    [[7, 0], [15, 1], [23, 2]].forEach(function (w) {
+      var x = w[0];
+      svg.appendChild(svgNode('path', { 'class': 'hp-wisp hp-wisp-' + w[1],
+        d: 'M' + x + ' 19 C' + (x - 4) + ' 14 ' + (x + 4) + ' 10 ' + x + ' 5 ' +
+           'C' + (x - 2) + ' 3 ' + x + ' 1 ' + x + ' 0',
+        fill: 'none', stroke: 'currentColor', 'stroke-width': '1.8',
+        'stroke-linecap': 'round' }));
+    });
+    return svg;
+  }
+
+  function passingRing() {
+    var ring = el('div', 'hp-ring');
+    var i, angle, person;
+    for (i = 0; i < PEOPLE; i++) {
+      angle = (i * 2 * Math.PI) / PEOPLE;
+      person = el('div', 'hp-person');
+      person.style.left = (50 + 38 * Math.sin(angle)).toFixed(2) + '%';
+      person.style.top = (50 - 38 * Math.cos(angle)).toFixed(2) + '%';
+      person.appendChild(personSvg());
+      ring.appendChild(person);
+    }
+    // The potato rides three nested boxes. .hp-orbit steps round the ring;
+    // .hp-hand is a zero-size anchor at the top figure; .hp-turn turns back the
+    // other way in the same steps, so everything inside stays upright and its
+    // offsets are in screen terms; .hp-hop is the toss, straight up the screen.
+    // The steam is inside .hp-hop so it rises with the potato.
+    var orbit = el('div', 'hp-orbit');
+    var hand = el('div', 'hp-hand');
+    var turn = el('div', 'hp-turn');
+    var hop = el('div', 'hp-hop');
+    hop.appendChild(steamSvg());
+    hop.appendChild(potatoSvg());
+    turn.appendChild(hop);
+    hand.appendChild(turn);
+    orbit.appendChild(hand);
+    ring.appendChild(orbit);
+    return ring;
+  }
+
   function clueCard(name, word, srcFor) {
     var card = el('div', 'clue');
     var src = srcFor(name);
@@ -68,8 +153,8 @@
     return row;
   }
 
-  function answerBlock(a) {
-    var block = el('div', 'answer-block');
+  function answerBlock(a, cls) {
+    var block = el('div', 'answer-block' + (cls ? ' ' + cls : ''));
     block.appendChild(el('div', 'answer', a.answer));
     // The same name in the other language, where the two differ. Small, because
     // the answer is the one in the language being played.
@@ -120,6 +205,17 @@
       body.appendChild(clueRow([{ img: view.img, word: null }], srcFor));
     } else if (view.kind === 'text') {
       body.appendChild(el('div', 'prompt', view.prompt));
+    } else if (view.kind === 'card') {
+      if (view.phase === 'playing') {
+        // An object going round, with no abrupt change in brightness. A dark
+        // hall, a projector at full output and a room full of young people is
+        // not a place to put a strobe.
+        body.appendChild(passingRing());
+      } else if (view.phase === 'stop') {
+        body.appendChild(el('div', 'hp-stop', 'STOP'));
+      } else {
+        body.appendChild(el('div', 'hp-card', view.prompt));
+      }
     } else if (view.kind === 'trail') {
       // The count drives the size, the same way the rebus row does it: one step
       // can fill a projector, four have to share it with the answer and the
@@ -221,7 +317,19 @@
     }
 
     if (view.answered && view.kind !== 'binary') {
-      body.appendChild(answerBlock(view.answered));
+      // A list card's answer is sized in CSS off these classes; .answer itself
+      // is shared by every other game and is left alone. Two sizes, because
+      // two different things arrive here: a handful of NAMES, and a whole
+      // PASSAGE to read along with. Psalm 23 is 595 characters and will not
+      // fit at the size a dozen names want. The split is by length rather
+      // than by a deck field, so a card that grows is resized by the renderer
+      // instead of needing someone to remember to re-flag it.
+      var answerCls = null;
+      if (view.list) {
+        answerCls = String(view.answered.answer).length > 200
+          ? 'answer-passage' : 'answer-list';
+      }
+      body.appendChild(answerBlock(view.answered, answerCls));
       // Where each object came from - after the answer, because the answer is
       // what the room is waiting for and this is the bit they read afterwards.
       if (view.kind === 'trail' && view.sources && view.sources.length) {

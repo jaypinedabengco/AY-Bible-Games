@@ -81,4 +81,13 @@ window.GAMES = [
     meta: '53 places · English and Tagalog',
     status: 'ready',
   },
+  {
+    // The first deck here that is not used up by being played. The room
+    // supplies the performance; the deck supplies only the prompt.
+    title: 'Hot Potato',
+    href: 'games/hot-potato/index.html',
+    blurb: 'Pass something round while the music plays. It stops when it likes.',
+    meta: '162 cards · English',
+    status: 'ready',
+  },
 ];

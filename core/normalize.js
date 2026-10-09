@@ -10,7 +10,7 @@
 
   var VARIANT_KEYS = ['type', 'clues', 'img', 'prompt', 'options', 'items',
                       'correct', 'quote', 'verse', 'clue',
-                      'extent', 'at',
+                      'extent', 'at', 'kind',
                       'lang', 'answer', 'ref', 'flag', 'spoken', 'weight', 'difficulty'];
 
   function normalizeVariant(v, puzzleDifficulty, spokenDefault) {
@@ -25,6 +25,10 @@
       // Name the Place: which map, and where the pin drops on it.
       extent: v.extent || null,
       at: v.at || null,
+      // Hot Potato: whether this card is something to DO or something to
+      // ANSWER. It decides how many screens the card has, so a dropped `kind`
+      // is a knowledge card that never reveals - silently, in a hall.
+      kind: v.kind || null,
       quote: v.quote || null,
       verse: v.verse || null,
       clue: v.clue || null,
