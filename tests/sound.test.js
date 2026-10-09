@@ -71,8 +71,9 @@ function restoreGlobals(saved) {
 }
 
 // A stand-in for the Web Audio API that records everything the module does.
-// failAt makes the N-th operation (createGain, createOscillator or start) throw,
-// so a test can stop play() at every point in the graph build. Pass -1 for no
+// failAt makes the N-th operation (any create* call, or start of an oscillator
+// or buffer source) throw, so a test can stop play() at every point in the
+// graph build. Pass -1 for no
 // failure. log.ops counts operations, so a run with no failure gives the total.
 function fakeAudio(failAt) {
   const log = { nodes: [], ops: 0 };
@@ -86,7 +87,9 @@ function fakeAudio(failAt) {
       scheduled: [],
       setValueAtTime(v, t) { this.value = v; this.scheduled.push([v, t]); },
       cancelScheduledValues() {},
-      exponentialRampToValueAtTime() {},
+      linearRampToValueAtTime(v, t) { this.ramps.push(['linear', v, t]); },
+      exponentialRampToValueAtTime(v, t) { this.ramps.push(['exp', v, t]); },
+      ramps: [],
     };
   }
   function node(kind) {
@@ -104,12 +107,39 @@ function fakeAudio(failAt) {
   function FakeAudioContext() {
     this.state = 'running';
     this.currentTime = 0;
+    this.sampleRate = 8000; // small, so building the noise buffer is cheap
     this.destination = node('destination');
+    log.ctx = this;
   }
   FakeAudioContext.prototype.createGain = function () {
     op();
     const n = node('gain');
     n.gain = param(1);
+    return n;
+  };
+  FakeAudioContext.prototype.createBiquadFilter = function () {
+    op();
+    const n = node('filter');
+    n.type = 'lowpass';
+    n.frequency = param(350);
+    n.Q = param(1);
+    return n;
+  };
+  FakeAudioContext.prototype.createBuffer = function (channels, length) {
+    op();
+    return { getChannelData() { return new Float32Array(length); } };
+  };
+  FakeAudioContext.prototype.createBufferSource = function () {
+    op();
+    const n = node('bufferSource');
+    n.start = function () {
+      op();
+      n.started = true;
+    };
+    n.stop = function () {
+      if (!n.started) { throw new Error('stop() before start()'); }
+      n.stopped = true;
+    };
     return n;
   };
   FakeAudioContext.prototype.createOscillator = function () {
@@ -143,10 +173,22 @@ function fakeTimers(log) {
   globalThis.clearInterval = function (id) { log.intervals.delete(id); };
 }
 
-// Oscillators that were started and never stopped: the leak the teardown must prevent.
+// Sources (oscillators and the noise buffer) that were started and never
+// stopped: the leak the teardown must prevent.
 function runningOscillators(log) {
-  return log.nodes.filter((n) => n.kind === 'oscillator' && n.started && !n.stopped);
+  return log.nodes.filter((n) => (n.kind === 'oscillator' || n.kind === 'bufferSource')
+    && n.started && !n.stopped);
 }
+
+// The four oscillators, in the order play() creates them: lead, arp, bass, kick.
+function voices(log) {
+  const [lead, arp, bass, kick] = log.nodes.filter((n) => n.kind === 'oscillator');
+  return { lead, arp, bass, kick };
+}
+
+// Frequency of a MIDI note, written out here rather than imported so the tests
+// do not share a mistake with the module.
+function midiHz(m) { return 440 * Math.pow(2, (m - 69) / 12); }
 
 test('the delay stays inside the range it was given', () => {
   const out = draws([10, 30], 500);
@@ -261,15 +303,16 @@ test('calling play() twice leaves one ticker, and the first graph is torn down',
       assert.equal(sound.play(), true);
       assert.equal(fake.log.intervals.size, 1, 'a second play() must not add a ticker');
       const started = fake.log.nodes.filter((n) => n.kind === 'oscillator' && n.started);
-      assert.equal(started.length, 4, 'two plays start two oscillators each');
-      assert.equal(runningOscillators(fake.log).length, 2, 'only the second play may still run');
+      assert.equal(started.length, 8, 'two plays start four oscillators each');
+      // Four oscillators and the noise source from the second play only.
+      assert.equal(runningOscillators(fake.log).length, 5, 'only the second play may still run');
     } finally { sound.stop(); }
     assert.equal(fake.log.intervals.size, 0);
     assert.equal(runningOscillators(fake.log).length, 0);
   } finally { restoreGlobals(saved); }
 });
 
-test('the first note is scheduled before any tick, not left at the 440 Hz default', () => {
+test('the first notes are scheduled before any tick, not left at the 440 Hz default', () => {
   const saved = saveGlobals();
   try {
     const fake = fakeAudio(-1);
@@ -279,27 +322,45 @@ test('the first note is scheduled before any tick, not left at the 440 Hz defaul
     try {
       assert.equal(sound.play(), true);
       assert.equal(fake.log.intervals.size, 1, 'the tick should be armed, not yet fired');
-      const oscs = fake.log.nodes.filter((n) => n.kind === 'oscillator');
-      const lead = oscs.find((n) => n.type === 'triangle');
-      const bass = oscs.find((n) => n.type === 'sine');
-      assert.deepEqual(lead.frequency.scheduled[0], [523.25, 0]);
-      assert.deepEqual(bass.frequency.scheduled[0], [130.81, 0]);
+      const v = voices(fake.log);
+      // Step 0 of the tune: lead C5, arpeggio C4, bass C3, and a kick.
+      const first = (osc) => osc.frequency.scheduled[0];
+      assert.ok(Math.abs(first(v.lead)[0] - 523.25) < 0.01, 'lead should open on C5');
+      assert.ok(Math.abs(first(v.arp)[0] - 261.63) < 0.01, 'arpeggio should open on C4');
+      assert.ok(Math.abs(first(v.bass)[0] - 130.81) < 0.01, 'bass should open on C3');
+      assert.equal(first(v.kick)[0], 150, 'the kick should start from its own pitch');
+      [v.lead, v.arp, v.bass, v.kick].forEach((osc) => {
+        assert.ok(first(osc)[1] >= 0, 'a note must not be scheduled in the past');
+        assert.notEqual(first(osc)[0], 440, 'an oscillator was left at its default pitch');
+      });
     } finally { sound.stop(); }
   } finally { restoreGlobals(saved); }
 });
 
-test('each tick advances the loop: a repeated first note cannot pass', () => {
-  // The notes are chosen so a repeat is visible. LEAD[0] (523.25) and LEAD[1]
-  // (659.25) differ, so the lead shows whether the first note was doubled. BASS[0]
-  // and BASS[1] are both 130.81, so the bass cannot show that on its own.
-  //
-  // WHY bass index 1, and not 0 or 2: BASS doubles every note (130.81, 130.81,
-  // 164.81, 164.81, ...), so most indices cannot tell a correct bass line from
-  // one shifted by a step. Index 0 holds 130.81 whether it reads BASS[0] or
-  // BASS[1]; index 2 holds 164.81 whether it reads BASS[2] or BASS[3]. Index 1
-  // is the one place where the correct note (BASS[1], 130.81) and a one-step
-  // shifted note (BASS[2], 164.81) differ. Do not "simplify" this back to 0 or
-  // 2: a phase error would then pass unseen.
+test('every voice starts silent, so nothing sounds before its first note', () => {
+  const saved = saveGlobals();
+  try {
+    const fake = fakeAudio(-1);
+    globalThis.AudioContext = fake.FakeAudioContext;
+    fakeTimers(fake.log);
+    const sound = freshSound();
+    try {
+      assert.equal(sound.play(), true);
+      // The fake's gains start at 1. A voice or drum gain that play() forgot to
+      // zero would still be at 1 here; the master is set well below that and every
+      // other gain to 0, so nothing may be left above 0.5.
+      const loud = fake.log.nodes.filter((n) => n.kind === 'gain' && n.gain.scheduled.length === 0
+        && n.gain.value > 0.5);
+      assert.equal(loud.length, 0, 'a gain was left at its default of 1');
+    } finally { sound.stop(); }
+  } finally { restoreGlobals(saved); }
+});
+
+test('each tick advances the tune: no note is repeated and none is skipped', () => {
+  // Time is moved by hand. The first play() schedules a little way ahead of the
+  // clock; ticks then schedule only what the clock has caught up to. A first
+  // note that played twice would show as a repeated time, and a skipped note as
+  // a lead frequency missing from the song's own order.
   const saved = saveGlobals();
   try {
     const fake = fakeAudio(-1);
@@ -309,24 +370,143 @@ test('each tick advances the loop: a repeated first note cannot pass', () => {
     try {
       assert.equal(sound.play(), true);
       const [tick] = [...fake.log.intervals.values()];
-      assert.doesNotThrow(() => { tick(); tick(); });
-      const oscs = fake.log.nodes.filter((n) => n.kind === 'oscillator');
-      const lead = oscs.find((n) => n.type === 'triangle');
-      const bass = oscs.find((n) => n.type === 'sine');
-      assert.deepEqual(lead.frequency.scheduled[1], [659.25, 0], 'after one tick, LEAD[1]');
-      assert.deepEqual(lead.frequency.scheduled[2], [783.99, 0], 'after two ticks, LEAD[2]');
-      assert.deepEqual(bass.frequency.scheduled[1], [130.81, 0],
-        'after one tick, BASS[1]: the index that catches a one-step phase shift');
-      assert.deepEqual(bass.frequency.scheduled[2], [164.81, 0], 'after two ticks, BASS[2]');
+      const song = sound.song;
+      const stepS = song.stepMs / 1000;
+      const lead = voices(fake.log).lead;
+
+      tick();
+      tick();
+      const beforeTime = lead.frequency.scheduled.length;
+      // Ten seconds on, more than a whole loop, in the 50 ms steps of a timer.
+      assert.doesNotThrow(() => {
+        for (let ms = 50; ms <= 10000; ms += 50) {
+          fake.log.ctx.currentTime = ms / 1000;
+          tick();
+        }
+      });
+      assert.ok(lead.frequency.scheduled.length > beforeTime, 'time moved on and nothing was scheduled');
+
+      const scheduled = lead.frequency.scheduled;
+      for (let i = 1; i < scheduled.length; i += 1) {
+        assert.ok(scheduled[i][1] > scheduled[i - 1][1],
+          'lead note ' + i + ' is not later than the one before it');
+      }
+      // The sequence of pitches is the song's lead line, in order, from the start.
+      scheduled.forEach((entry, i) => {
+        const expected = song.lead[i % song.lead.length];
+        assert.ok(Math.abs(entry[0] - midiHz(expected.midi)) < 1e-6,
+          'lead note ' + i + ' should be MIDI ' + expected.midi + ', got ' + entry[0] + ' Hz');
+      });
+      // Timing: each note sits on the sixteenth-note grid from the first one.
+      const t0 = scheduled[0][1];
+      scheduled.forEach((entry, i) => {
+        const wantStep = song.lead[i % song.lead.length].step
+          + Math.floor(i / song.lead.length) * song.steps;
+        assert.ok(Math.abs(entry[1] - (t0 + wantStep * stepS)) < 1e-9,
+          'lead note ' + i + ' is off the grid');
+      });
     } finally { sound.stop(); }
   } finally { restoreGlobals(saved); }
+});
+
+test('a timer that was held up does not answer with a burst of notes in the past', () => {
+  const saved = saveGlobals();
+  try {
+    const fake = fakeAudio(-1);
+    globalThis.AudioContext = fake.FakeAudioContext;
+    fakeTimers(fake.log);
+    const sound = freshSound();
+    try {
+      assert.equal(sound.play(), true);
+      const [tick] = [...fake.log.intervals.values()];
+      const lead = voices(fake.log).lead;
+      fake.log.ctx.currentTime = 600;   // a laptop that slept for ten minutes
+      tick();
+      const late = lead.frequency.scheduled.filter((e) => e[1] < 600);
+      assert.equal(late.length, lead.frequency.scheduled.filter((e) => e[1] < 1).length,
+        'notes were scheduled in the past after a stall');
+    } finally { sound.stop(); }
+  } finally { restoreGlobals(saved); }
+});
+
+test('a failure inside a tick stops the music and does not throw into the page', () => {
+  const saved = saveGlobals();
+  try {
+    const fake = fakeAudio(-1);
+    globalThis.AudioContext = fake.FakeAudioContext;
+    fakeTimers(fake.log);
+    const sound = freshSound();
+    try {
+      assert.equal(sound.play(), true);
+      const [tick] = [...fake.log.intervals.values()];
+      voices(fake.log).lead.frequency.setValueAtTime = () => { throw new Error('context lost'); };
+      fake.log.ctx.currentTime = 5;
+      assert.doesNotThrow(() => tick());
+      assert.equal(fake.log.intervals.size, 0, 'the ticker survived a failed tick');
+      assert.equal(runningOscillators(fake.log).length, 0, 'a failed tick left a source running');
+    } finally { sound.stop(); }
+  } finally { restoreGlobals(saved); }
+});
+
+// What the owner asked for, pinned as structure. These do not prove the tune
+// sounds good; they prove it cannot quietly go back to eight identical notes.
+test('the tune is a long phrase with real rhythm: varied lengths, rests, no overlaps', () => {
+  const { song } = freshSound();
+  const loopSeconds = song.steps * song.stepMs / 1000;
+  assert.ok(loopSeconds >= 12, 'the loop repeats after ' + loopSeconds + ' s; it should outlast most rounds');
+  assert.ok(song.lead.length >= 40, 'too few lead notes for a phrase this long');
+
+  const lengths = new Set(song.lead.map((n) => n.len));
+  assert.ok(lengths.size >= 4, 'only ' + lengths.size + ' distinct note lengths: it is a stream again');
+
+  const pitches = new Set(song.lead.map((n) => n.midi));
+  assert.ok(pitches.size >= 8, 'too few distinct pitches');
+
+  let rests = 0;
+  song.lead.forEach((n, i) => {
+    const next = song.lead[(i + 1) % song.lead.length];
+    const nextStart = next.step + (i + 1 === song.lead.length ? song.steps : 0);
+    assert.ok(n.step + n.len <= nextStart, 'note at step ' + n.step + ' runs into the next');
+    if (n.step + n.len < nextStart) { rests += 1; }
+  });
+  assert.ok(rests >= 6, 'only ' + rests + ' rests');
+});
+
+test('the tune is bright and in key: major scale only, chord tones on beats 1 and 3', () => {
+  const { song } = freshSound();
+  const C_MAJOR = [0, 2, 4, 5, 7, 9, 11];
+  song.lead.forEach((n) => {
+    assert.ok(C_MAJOR.includes(n.midi % 12), 'MIDI ' + n.midi + ' at step ' + n.step + ' is out of C major');
+    assert.ok(n.midi >= 67 && n.midi <= 84, 'MIDI ' + n.midi + ' is outside a comfortable range');
+    const inBar = n.step % song.barSteps;
+    if (inBar === 0 || inBar === 8) {
+      const chord = song.chords[Math.floor(n.step / song.barSteps)];
+      assert.ok(chord.pitchClasses.includes(n.midi % 12),
+        'step ' + n.step + ' (' + chord.name + ') lands on a note that is not in the chord');
+    }
+  });
+  const key = (c) => c.name;
+  assert.equal(song.chords.length * song.barSteps, song.steps);
+  assert.ok(new Set(song.chords.map(key)).size >= 5, 'the harmony barely moves');
+  assert.ok(song.chords.some((c) => c.name === 'C') && song.chords.some((c) => c.name === 'G'));
+});
+
+test('the bass and arpeggio follow the chords, and the bass has a bar-length pattern', () => {
+  const { song } = freshSound();
+  song.chords.forEach((c, b) => {
+    assert.equal(c.bass % 12, c.pitchClasses[0], 'bar ' + (b + 1) + ' bass is not the chord root');
+    assert.ok(c.bass >= 38 && c.bass <= 57, 'bar ' + (b + 1) + ' bass is out of range');
+    c.arp.forEach((m) => assert.ok(c.pitchClasses.includes(m % 12),
+      'bar ' + (b + 1) + ' arpeggio plays a note outside ' + c.name));
+  });
 });
 
 test('a graph that fails at any point while being built leaves nothing running', () => {
   // The module builds the graph in order, so a failure at operation k leaves
   // k-1 operations' worth of nodes behind. Before the fix, a failure after the
-  // lead oscillator had started (operations 5-7, while building the bass) left
-  // that oscillator playing for the life of the context.
+  // lead oscillator had started (while building a later voice) left that
+  // oscillator playing for the life of the context. Every create* call and
+  // every start() counts, including the noise buffer and its filters.
   const saved = saveGlobals();
   try {
     const dry = fakeAudio(-1);
@@ -336,7 +516,7 @@ test('a graph that fails at any point while being built leaves nothing running',
     assert.equal(dryRun.play(), true, 'the unbroken build should succeed');
     dryRun.stop();
     const total = dry.log.ops;
-    assert.ok(total >= 7, 'expected at least 7 operations, saw ' + total);
+    assert.ok(total >= 20, 'expected the whole graph (four oscillators, noise, filters, gains), saw ' + total);
 
     for (let k = 1; k <= total; k += 1) {
       const fake = fakeAudio(k);
