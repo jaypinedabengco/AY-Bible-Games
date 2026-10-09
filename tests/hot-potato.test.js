@@ -1,3 +1,58 @@
+// WHAT THESE TESTS CANNOT COVER, and what was done instead.
+//
+// Three claims in the spec have no headless test: that the music plays, that
+// the potato reads as being passed round a ring, and that the stop feels
+// unpredictable. Node has no DOM and no audio, and this project has zero
+// dependencies by design, so nothing here can notice if one of them breaks.
+//
+// They were checked by hand, in a real browser (Chrome, driven over the
+// DevTools protocol), against games/hot-potato/index.html opened over file://
+// - the way it runs off the USB stick - at 1600x900 and at 1920x1080, on
+// 2026-10-09. What was measured:
+//
+//   Music plays. AudioContext 'running', 2 oscillators live, one interval, and
+//   a signal on the output (RMS about 0.023) at both sizes. It stops at the
+//   same instant STOP appears: the oscillators were stopped 0.3 to 1.6 ms
+//   BEFORE the STOP screen was painted, in the same task, on all 20 rounds,
+//   with 0 oscillators, 0 intervals and silence 150 ms later.
+//
+//   The potato is passed, not slid. Eight figures; the potato sits in the
+//   top figure's hands for 0.55 s, then jumps a full 45 degrees to the next
+//   figure at the TOP of its toss, and so on round: 8 resting positions, 9
+//   instant jumps in 4.6 s, never between two figures. Brightness never
+//   changes: mean frame luminance moved by at most 0.03% across 60 frames,
+//   and no wisp of steam changed opacity by more than 0.021 in a frame.
+//
+//   The stop is unpredictable. Ten consecutive delays, in seconds, in the
+//   order they happened (deck range is 6 to 20):
+//     1600x900   12.72  6.98  15.90  11.35  15.32  6.17  17.69  8.49  13.90  13.10
+//     1920x1080  16.72  18.11  19.74  13.48  14.25  10.02  16.19  8.69  19.26  9.14
+//   Spread 11.5 s and 11.0 s, standard deviation 3.7 s and 3.9 s (a uniform
+//   draw over 14 s would give 4.0), no two within 0.38 s of each other, and
+//   100000 draws of sound.delayMs fall 14.2 to 14.5 percent into each 2 s band.
+//   They do not cluster.
+//
+//   The longest card (hp-033, 136 characters) wraps to 4 lines and its text
+//   bottom clears the viewport bottom by 247.5 px at 1600x900 (box bottom
+//   652.5 of 900) and by 297.0 px at 1920x1080 (box bottom 783.0 of 1080). It
+//   is also the worst of all 120 cards, which were each measured; 0 overflow
+//   sideways or past the bottom, and none touches the key legend or id stamp.
+//
+//   Also confirmed: ArrowLeft re-rolls the delay (6 presses, 6 different
+//   delays); R, O and Home tear the old music down and start the new round's;
+//   S leaves it silent with no timer, and nothing fired when the old delay
+//   ran out; a card moves on at the third press; with AudioContext missing,
+//   throwing, or its oscillators throwing, STOP arrived within 3 ms of the
+//   timer; with prefers-reduced-motion the figures and the potato in the top
+//   figure's hands stay, nothing moves, and STOP is still legible (contrast
+//   9.83:1, inside the viewport).
+//
+// Name the Place carries the same kind of note (see tests/atlas.test.js, on
+// the masked beat) for the same reason: a text size that regressed TWICE while
+// it looked covered. If a card is added that is longer than hp-033, if the
+// ring or the delay range changes, or if core/sound.js changes, these
+// measurements are taken again by hand - no test will notice.
+//
 'use strict';
 // Hot Potato is the first deck here that is not consumed by being played, so
 // what these tests guard is different: not whether a fact is right, but

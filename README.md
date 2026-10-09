@@ -71,7 +71,7 @@ laptop driving the projector. Clearing it has to be done there too: open
 `gm.html` on that laptop, sign in, and clear. Doing it from a phone clears that
 phone's record, which is not the one the game is reading.
 
-### The seven games
+### The nine games
 
 - **Bible Book Names** — pictures combine into a book of the Bible.
   Jeans + sis. XO + dos. 43 books, three rounds.
@@ -109,6 +109,14 @@ phone's record, which is not the one the game is reading.
 - **Bible Character Names** — the same idea as the book game, with people.
   Greyed out on the front page until it has pictures; its start screen says so
   rather than failing.
+- **Hot Potato** — music plays while a potato is passed round a ring of
+  people on screen and round the hall; it stops without warning, somewhere
+  between 6 and 20 seconds in, and whoever is holding it does what the
+  screen says. 120 tasks, each one something you do with a Bible and the people
+  next to you — no questions, so nothing is spent once the room has heard it.
+  Easy ones first, harder ones last within a round. The music is made in the
+  browser, so there is no audio file to carry; with no sound at all, the game
+  still stops on time.
 
 Press `R` at any point for a completely fresh evening, or `O` to walk the deck
 in file order when you're rehearsing.
