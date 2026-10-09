@@ -153,8 +153,8 @@
     return row;
   }
 
-  function answerBlock(a) {
-    var block = el('div', 'answer-block');
+  function answerBlock(a, cls) {
+    var block = el('div', 'answer-block' + (cls ? ' ' + cls : ''));
     block.appendChild(el('div', 'answer', a.answer));
     // The same name in the other language, where the two differ. Small, because
     // the answer is the one in the language being played.
@@ -317,7 +317,9 @@
     }
 
     if (view.answered && view.kind !== 'binary') {
-      body.appendChild(answerBlock(view.answered));
+      // A list card's answer is several names and is sized for that, in CSS,
+      // off this class - .answer itself is shared by every other game.
+      body.appendChild(answerBlock(view.answered, view.list ? 'answer-list' : null));
       // Where each object came from - after the answer, because the answer is
       // what the room is waiting for and this is the bit they read afterwards.
       if (view.kind === 'trail' && view.sources && view.sources.length) {

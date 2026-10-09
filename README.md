@@ -112,11 +112,15 @@ phone's record, which is not the one the game is reading.
 - **Hot Potato** — music plays while a potato is passed round a ring of
   people on screen and round the hall; it stops without warning, somewhere
   between 6 and 20 seconds in, and whoever is holding it does what the
-  screen says. 120 tasks, each one something you do with a Bible and the people
-  next to you — no questions, so nothing is spent once the room has heard it.
-  Easy ones first, harder ones last within a round. The music is made in the
-  browser, so there is no audio file to carry; with no sound at all, the game
-  still stops on time.
+  screen says. 162 cards: 120 tasks, each one something you do with a Bible and
+  the people next to you, and 42 recall challenges — "name a king of Israel or
+  Judah whose name starts with J" — which then show the valid answers so the
+  room can settle whether it counted. Neither kind is spent by being played:
+  a task is a different performance every time, and a recall challenge is a
+  different person attempting it, so the list is a referee rather than an
+  answer to learn. Easy ones first, harder ones last within a round. The music
+  is made in the browser, so there is no audio file to carry; with no sound at
+  all, the game still stops on time.
 
 Press `R` at any point for a completely fresh evening, or `O` to walk the deck
 in file order when you're rehearsing.

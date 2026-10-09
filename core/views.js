@@ -356,6 +356,10 @@
           ? (hasAnswer(variant) ? variant.prompt : puzzle.answer)
           : null;
         v.answered = answered(puzzle, stage, 3, variant);
+        // A list's answer is a LIST of names, not one word, so the renderer
+        // sets it smaller than every other answer in the project. Said only
+        // when true, so a task or knowledge view is exactly what it was.
+        if (variant && variant.kind === 'list') { v.list = true; }
         return v;
       },
     },

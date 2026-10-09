@@ -526,6 +526,18 @@ html, body {
 @keyframes hp-pop { from { transform: scale(0.82); opacity: 0; }
                     to   { transform: none; opacity: 1; } }
 
+/* A list card's answer: several names, comma-separated, and it wraps. .answer is
+   12vmin and shared by every other game, where one word is all it ever holds, so
+   a list has its own size and the shared rule is left alone. Capped on BOTH axes
+   for the reason .hp-stop and .masked are: a size in vmin alone cannot see a
+   narrow screen. The bare 6vmin is the fallback for a browser that does not
+   understand min() - see .masked. MEASURED in the real game page, not reasoned
+   about - see the note in tests/hot-potato.test.js for the numbers. */
+.answer-list .answer { font-size: 6vmin;
+                       font-size: min(6vmin, 4.2vw);
+                       line-height: 1.3; letter-spacing: 0.02em;
+                       max-width: 88vw; overflow-wrap: break-word; }
+
 /* The challenge. Long enough to wrap, so this is capped on both axes too. */
 .hp-card { font-size: 9vmin;
            font-size: min(9vmin, 6vw); line-height: 1.25; max-width: 86vw;

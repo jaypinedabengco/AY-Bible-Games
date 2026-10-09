@@ -158,16 +158,32 @@ test('a list card that asks for a letter only offers names that start with it', 
 });
 
 test('a list answer is short enough to fit on the projector', () => {
-  // Not a style rule: the answer is set at 12vmin and does not shrink, so a
-  // long list wraps off the top and bottom of the screen and nothing in the
-  // validator, the renderer or the other tests would say so. 75 characters is
-  // the measured limit (see the note at the top of this file).
+  // Not a style rule. A list answer is several names and it wraps; nothing in
+  // the validator, the renderer or any other test would notice one that ran
+  // off the screen.
+  //
+  // MEASURED in the real game page (not a harness), rendering the longest list
+  // answer through core/paint.js at four viewport sizes, comparing the box
+  // bottom against window.innerHeight:
+  //
+  //   130 chars - 1920x1080: bottom 804, clear 276px, 3 lines, 64.8px
+  //               1600x900:  bottom 670, clear 230px, 3 lines, 54.0px
+  //               1280x720:  bottom 536, clear 184px, 3 lines, 43.2px
+  //               1024x768:  bottom 584, clear 184px, 4 lines, 43.0px
+  //   at 1024x768, the tightest: 160 and 180 chars clear by 194px,
+  //   200 by 166px, 240 by 138px.
+  //
+  // So OVERFLOW is not what sets this limit - 240 characters still fits. The
+  // limit is READABILITY: a room has to scan these names off a projector in a
+  // few seconds, and past about four lines it stops being a list and becomes a
+  // wall of text. 180 is four lines at the tightest size, with 194px to spare.
+  // If a future card needs more, re-measure; do not just raise the number.
   const wrong = [];
   let checked = 0;
   deck().puzzles.forEach((p) => {
     if (!p.variants.some((v) => v.kind === 'list')) { return; }
     checked += 1;
-    if (String(p.answer).length > 75) {
+    if (String(p.answer).length > 180) {
       wrong.push(p.id + ': answer is ' + String(p.answer).length + ' characters');
     }
   });

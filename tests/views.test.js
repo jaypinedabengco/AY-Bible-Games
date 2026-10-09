@@ -1033,8 +1033,18 @@ test('a list card renders exactly as a knowledge card does', () => {
     variants: [{ type: 'card', kind: 'list', prompt: 'Which king?' }] }, text));
   assert.equal(byType.card.stages(l.variants[0]), byType.card.stages(k.variants[0]));
   [0, 1, 2, 3].forEach((s) => {
-    assert.deepEqual(byType.card.view(l, l.variants[0], s),
-      byType.card.view(k, k.variants[0], s), 'screen ' + s);
+    const lv = byType.card.view(l, l.variants[0], s);
+    const kv = byType.card.view(k, k.variants[0], s);
+    // ONE intended difference: a list view carries `list`, which paint.js reads
+    // to size the answer smaller - a list is a dozen names where every other
+    // answer in this project is one word. Everything else must still match, so
+    // the flag is stripped and the rest compared whole. A list that drifted in
+    // any OTHER way - a different stage count, a prompt read from the wrong
+    // field - still fails here, on the screen it drifted on.
+    assert.equal(lv.list, true, 'screen ' + s + ': a list view must say so');
+    assert.equal(kv.list, undefined, 'screen ' + s + ': a knowledge view must not');
+    delete lv.list;
+    assert.deepEqual(lv, kv, 'screen ' + s);
   });
 });
 
