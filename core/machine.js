@@ -13,7 +13,16 @@
     var index = 0;
     var stage = 0;
 
-    function lastStage() { return stagesFor(items[index]); }
+    // No item means no stages. An empty list reaches here when a round is
+    // drawn from a deck with nothing left to draw, and stagesFor READS the
+    // item, so without this guard state() throws - and then every keypress
+    // after it throws again, leaving a dead screen in front of a room. The
+    // real fix is for boot.js not to build a round out of nothing; this is
+    // the backstop, because no path should be able to kill the machine.
+    function lastStage() {
+      var item = items[index];
+      return item === undefined ? 0 : stagesFor(item);
+    }
 
     return {
       state: function () {

@@ -325,13 +325,30 @@
       }).then(function (rest) { return rest.items.length; });
     }
 
+    // One deal, with one retry for a deck that does not remember. Such a deck
+    // is meant to be played forever, so running out WITHIN an evening is the
+    // same false promise as running out between them: the in-memory `seen`
+    // still fills up as cards are shown. When it empties the deck, forget it
+    // and deal again rather than telling a room of 162 cards that there are
+    // none left. A deck that DOES remember keeps its ending, which is the
+    // point of remembering.
+    function dealing(d) {
+      return buildSession(d || deck, resolver, rng, {
+        seen: seen, sessionSize: choice.size, lang: choice.lang,
+      }).then(function (next) {
+        if (next.items.length || remembers(deck)) { return next; }
+        seen.clear();
+        return buildSession(d || deck, resolver, rng, {
+          seen: seen, sessionSize: choice.size, lang: choice.lang,
+        });
+      });
+    }
+
     function nextRound() {
       // The choice made on the start screen holds for the evening, so every
       // round after the first is the length the host asked for - not the
       // deck's own default, which is what round 2 quietly reverted to.
-      return buildSession(deck, resolver, rng, {
-        seen: seen, sessionSize: choice.size, lang: choice.lang,
-      }).then(function (next) {
+      return dealing().then(function (next) {
         if (!next.items.length) { drawDone(0); return; }
         round++;
         items = next.items;
@@ -393,9 +410,11 @@
       // hand anything back, because only the puzzles actually SHOWN are
       // recorded - the ones this round had not reached were never marked.
       deckEmpty = false;
-      return buildSession(d, resolver, rng, {
-        seen: seen, sessionSize: choice.size, lang: choice.lang,
-      }).then(function (next) {
+      return dealing(d).then(function (next) {
+        // Nothing left to deal. Say so instead of building a round out of an
+        // empty list - which crashed on the next keypress, and was reached by
+        // pressing the very key the deck-empty card tells you to press.
+        if (!next.items.length) { drawDone(0); return; }
         items = next.items;
         machine = BG.machine.createMachine(items, BG.views.stagesForItem);
         session.srcFor = next.srcFor;
