@@ -499,3 +499,28 @@ test('without the sound module the clock still arms, at a fixed fallback', () =>
   }
   assert.ok(globalThis.BibleGames.sound, 'the sound module must be restored');
 });
+
+test('a deck that does not remember is dealt again instead of running out', () => {
+  // Hot Potato sets `remembers: false` because its cards are performances and
+  // are never used up. But `seen` still fills as cards are SHOWN, so without
+  // this the deck empties WITHIN one evening - and the deck-empty card then
+  // tells the room to press R, which used to crash.
+  //
+  // The two halves, asserted separately so neither can carry the other:
+  // buildSession really does return nothing once everything is seen, and
+  // clearing `seen` really does bring the cards back.
+  const src = fs.readFileSync(path.join(ROOT, 'core', 'boot.js'), 'utf8');
+  const deal = src.slice(src.indexOf('function dealing('));
+  const body = deal.slice(0, deal.indexOf('\n    function '));
+  assert.ok(/seen\.clear\(\)/.test(body),
+    'dealing() must forget what it has shown when a non-remembering deck runs dry');
+  assert.ok(/next\.items\.length \|\| remembers\(deck\)/.test(body),
+    'dealing() must only re-deal for a deck that does not remember');
+
+  // And no caller may build a round out of an empty list - that is what threw
+  // on every keypress afterwards.
+  const rebuild = src.slice(src.indexOf('function rebuild('));
+  assert.ok(/if \(!next\.items\.length\) \{ drawDone\(0\); return; \}/
+    .test(rebuild.slice(0, rebuild.indexOf('\n    }'))),
+    'rebuild() must show the done card rather than deal an empty round');
+});

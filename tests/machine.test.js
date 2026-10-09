@@ -88,3 +88,24 @@ test('the state says how many stages this item has', () => {
   m.next();
   assert.equal(m.state().stages, 2, 'and it follows the item, not the round');
 });
+
+test('an empty item list does not explode', () => {
+  // A machine over no items used to throw on state(): lastStage() read
+  // items[0].  The deck-empty card in boot.js says "R for a fresh set", R
+  // rebuilds from whatever is unasked, and when that is nothing the machine
+  // was built over []. draw() threw, and then EVERY later keypress threw
+  // again - a dead screen in front of a room, caused by pressing the key the
+  // screen told you to press.
+  //
+  // The guard in boot.js is the real fix. This is the backstop: no path may
+  // make the machine itself throw.
+  // stagesFor the way views.stagesForItem really behaves: it reads the item,
+  // so it throws when handed undefined. A stub that ignored its argument would
+  // pass this test while the real engine still crashed.
+  const realistic = (item) => item.variant.stages;
+  const m = createMachine([], realistic);
+  assert.doesNotThrow(() => m.state());
+  assert.equal(m.state().item, undefined);
+  assert.equal(m.state().stages, 0);
+  assert.doesNotThrow(() => { m.advance(); m.back(); m.next(); m.prev(); m.restart(); });
+});
