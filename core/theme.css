@@ -8,7 +8,8 @@
   --good: #5fbf7f;
   --bad: #d9534f;
   --card: #1b202b;
-  --potato: #bb8a58;
+  --potato: #c0794a;
+  --heat: #f2833a;
   --potato-dark: #6e4723;
 }
 
@@ -453,34 +454,51 @@ html, body {
 /* A potato being passed round a ring of people. Eight small figures sit evenly
    on a circle, dim, as context; the potato is the brightest thing on screen.
    The ring is sized by its own font-size so every child can use em: the bare
-   42vmin is the fallback for a browser without min(), and the vw cap keeps it
+   62vmin is the fallback for a browser without min(), and the vw cap keeps it
    inside a portrait window as well as a wide one (see .hp-stop below).
    The pass is made in discrete hops, not a glide. .hp-orbit turns a full circle
    in 4.4s but with steps(8), so it holds at each person and jumps to the next.
-   .hp-hop lifts the potato toward the middle and back every 0.55s, offset by
+   .hp-hop tosses the potato up the screen and back every 0.55s, offset by
    half a beat so the jump falls at the top of the arc: it leaves one pair of
-   hands, goes over, and lands in the next. 0.55s is about the time a real pass
+   hands, goes over, and lands in the next. It is a HOT potato, so it carries
+   steam, and its rim is --heat orange rather than the gold of a selection. 0.55s is about the time a real pass
    takes; the whole thing runs at under 2 Hz. The potato never changes colour or
-   brightness, so there is nothing to strobe. NO STROBE - see spec. */
-.hp-ring { position: relative; font-size: 42vmin; font-size: min(42vmin, 46vw);
+   brightness and the steam only ever eases, so there is nothing to strobe. NO STROBE - see spec. */
+.hp-ring { position: relative; font-size: 62vmin; font-size: min(62vmin, 70vw);
            width: 1em; height: 1em; margin: 0 auto; }
-.hp-person { position: absolute; width: 0.17em; height: 0.227em;
+.hp-person { position: absolute; width: 0.19em; height: 0.253em;
              transform: translate(-50%, -50%); }
 .hp-person svg { display: block; width: 100%; height: 100%;
                  fill: var(--dim); opacity: 0.45; }
 .hp-orbit { position: absolute; top: 0; right: 0; bottom: 0; left: 0;
             animation: hp-pass 4.4s steps(8) infinite; }
-.hp-hop { position: absolute; top: 0.185em; left: 50%; width: 0.25em; height: 0.175em;
-          margin-left: -0.125em;
-          animation: hp-hop 0.55s linear infinite; animation-delay: -0.275s; }
-.hp-turn { width: 100%; height: 100%;
+/* A zero-size anchor on the top figure's centre (38% of the ring up from the
+   middle, the same radius the figures are set on). Everything below is placed
+   from it, so the potato lands IN a figure's hands rather than between two. */
+.hp-hand { position: absolute; left: 50%; top: 0.12em; width: 0; height: 0; }
+.hp-turn { position: absolute; left: 0; top: 0; width: 0; height: 0;
            animation: hp-upright 4.4s steps(8) infinite; }
-.hp-turn svg { display: block; width: 100%; height: 100%; overflow: visible;
-               filter: drop-shadow(0 0 0.012em rgba(232, 181, 60, 0.8)); }
-/* The gold rim is set in paint.js as stroke="currentColor", so it takes this
-   colour; the land-stroke test in views.test.js forbids the word in this file. */
-.hp-skin { fill: var(--potato); color: var(--accent); }
+/* Resting place: the figure's belly, a little below its centre. */
+.hp-hop { position: absolute; left: -0.105em; top: -0.01em;
+          width: 0.21em; height: 0.147em;
+          animation: hp-hop 0.55s linear infinite; animation-delay: -0.275s; }
+.hp-hop > svg { display: block; position: absolute; }
+.hp-hop > svg:last-child { left: 0; top: 0; width: 100%; height: 100%;
+                           overflow: visible;
+                           filter: drop-shadow(0 0 0.012em rgba(242, 131, 58, 0.85)); }
+.hp-skin { fill: var(--potato); color: var(--heat); }
 .hp-eye { fill: var(--potato-dark); }
+/* Steam, above the potato and inside .hp-hop so it goes up and down with it.
+   Each wisp fades in, drifts up and fades out over 2.4s, on a different delay
+   from its neighbours. Opacity only ever eases, 0 to 0.6 and back over
+   about a second each way (under 0.5 Hz), so it never blinks. The drift is in
+   px because inside an SVG a transform is in the drawing's own units, not the
+   page's: 0.03em there would be a lurch of several ring-widths. */
+.hp-steam { left: 0; bottom: 92%; width: 100%; height: 0.14em; overflow: visible;
+            color: var(--fg); }
+.hp-wisp { opacity: 0; animation: hp-steam 2.4s ease-in-out infinite; }
+.hp-wisp-1 { animation-delay: -0.8s; }
+.hp-wisp-2 { animation-delay: -1.6s; }
 @keyframes hp-pass { from { transform: rotate(0deg); }
                      to   { transform: rotate(360deg); } }
 /* The potato is carried round by the container; this turns it back the other
@@ -489,8 +507,13 @@ html, body {
                         to   { transform: rotate(-360deg); } }
 @keyframes hp-hop {
   0%   { transform: translateY(0); animation-timing-function: ease-out; }
-  50%  { transform: translateY(0.07em) scale(1.06); animation-timing-function: ease-in; }
+  50%  { transform: translateY(-0.1em); animation-timing-function: ease-in; }
   100% { transform: translateY(0); } }
+@keyframes hp-steam {
+  0%   { opacity: 0;   transform: translateY(3px); }
+  35%  { opacity: 0.6; }
+  70%  { opacity: 0.35; }
+  100% { opacity: 0;   transform: translateY(-4px); } }
 
 /* Capped on BOTH axes. Name the Place shipped a masked beat sized in vw alone
    and it clipped its last line at 16:9; a single-axis cap is how that happens.
@@ -510,10 +533,11 @@ html, body {
            text-align: center; text-wrap: balance; }
 
 /* Someone who has asked their system for less movement gets no motion at all.
-   The potato stops and rests in front of the figure at the top of the ring;
-   the ring of people stays, so the screen still says "pass the potato".
+   The potato stops and rests in the hands of the figure at the top of the ring,
+   its steam still showing but still; the ring of people stays, so the screen still says "pass the potato".
    STOP keeps its word and loses only the pop. */
 @media (prefers-reduced-motion: reduce) {
   .hp-orbit, .hp-hop, .hp-turn { animation: none; }
+  .hp-wisp { animation: none; opacity: 0.5; }
   .hp-stop { animation: none; }
 }

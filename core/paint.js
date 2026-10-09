@@ -54,6 +54,23 @@
     return svg;
   }
 
+  // Three wisps of steam: it is a HOT potato. Drawn as lines so they read as
+  // vapour, and given their rim colour by CSS (stroke="currentColor"). Each
+  // fades in and out slowly on its own delay; see .hp-wisp in theme.css.
+  function steamSvg() {
+    var svg = svgNode('svg', { 'class': 'hp-steam', viewBox: '0 0 30 20',
+                               'aria-hidden': 'true', focusable: 'false' });
+    [[7, 0], [15, 1], [23, 2]].forEach(function (w) {
+      var x = w[0];
+      svg.appendChild(svgNode('path', { 'class': 'hp-wisp hp-wisp-' + w[1],
+        d: 'M' + x + ' 19 C' + (x - 4) + ' 14 ' + (x + 4) + ' 10 ' + x + ' 5 ' +
+           'C' + (x - 2) + ' 3 ' + x + ' 1 ' + x + ' 0',
+        fill: 'none', stroke: 'currentColor', 'stroke-width': '1.8',
+        'stroke-linecap': 'round' }));
+    });
+    return svg;
+  }
+
   function passingRing() {
     var ring = el('div', 'hp-ring');
     var i, angle, person;
@@ -65,12 +82,20 @@
       person.appendChild(personSvg());
       ring.appendChild(person);
     }
+    // The potato rides three nested boxes. .hp-orbit steps round the ring;
+    // .hp-hand is a zero-size anchor at the top figure; .hp-turn turns back the
+    // other way in the same steps, so everything inside stays upright and its
+    // offsets are in screen terms; .hp-hop is the toss, straight up the screen.
+    // The steam is inside .hp-hop so it rises with the potato.
     var orbit = el('div', 'hp-orbit');
-    var hop = el('div', 'hp-hop');
+    var hand = el('div', 'hp-hand');
     var turn = el('div', 'hp-turn');
-    turn.appendChild(potatoSvg());
-    hop.appendChild(turn);
-    orbit.appendChild(hop);
+    var hop = el('div', 'hp-hop');
+    hop.appendChild(steamSvg());
+    hop.appendChild(potatoSvg());
+    turn.appendChild(hop);
+    hand.appendChild(turn);
+    orbit.appendChild(hand);
     ring.appendChild(orbit);
     return ring;
   }
