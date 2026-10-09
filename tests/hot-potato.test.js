@@ -106,3 +106,22 @@ test('a task card asks for something a person can actually finish', () => {
   });
   assert.deepEqual(wrong, [], wrong.join('\n'));
 });
+
+test('every card has a difficulty, and the mix is playable', () => {
+  // Hard recall cards are exposing by nature. A round ramps 1 -> 2 -> 3, and
+  // the deck must hold enough easy, warm cards that a shy person is rarely the
+  // one who draws the Ten Commandments.
+  const d = deck();
+  const count = { 1: 0, 2: 0, 3: 0 };
+  const wrong = [];
+  d.puzzles.forEach((p) => {
+    if (![1, 2, 3].includes(p.difficulty)) {
+      wrong.push(p.id + ': difficulty is ' + JSON.stringify(p.difficulty));
+    } else { count[p.difficulty]++; }
+  });
+  assert.deepEqual(wrong, [], wrong.join('\n'));
+  const n = d.puzzles.length;
+  assert.ok(count[3] >= 15, 'only ' + count[3] + ' hard recall cards');
+  assert.ok(count[1] / n >= 0.3, 'easy cards are only ' + count[1] + ' of ' + n);
+  assert.ok(count[3] / n <= 0.3, 'hard cards are ' + count[3] + ' of ' + n + ' - too exposing');
+});
