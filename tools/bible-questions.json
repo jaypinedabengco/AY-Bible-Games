@@ -1,0 +1,273 @@
+{
+  "_comment": [
+    "Scripture questions saved from the Hot Potato deck when that deck became purely performative.",
+    "Every question was verified against fetched KJV and WEB text (api.getbible.net/v2), cross-checked in ASV and YLT. The NIV was NOT consulted (copyrighted, not in that source).",
+    "Six refs were corrected during that check because the original passage did not state something the question said: Acts 28:1 -> Acts 27:41-28:3; 1 Samuel 17:4 -> 17:4-10; John 2:9 -> 2:1-11; Matthew 26:36 -> 26:36-50; Acts 18:2-3 -> 18:1-3; Genesis 37:3 -> 35:10; 37:1-3. Exodus 4:14-16 gained 4:30, and Daniel 3:23 became 3:20-23, so that the doer is stated rather than inferred.",
+    "Where translations differ on the answer the answer carries both forms: Melita (Malta), Zacchaeus (Zaccheus), Abednego (Abed-nego), Mount Sinai (Horeb).",
+    "The accuracy rule: the answer is STATED in the verse, never inferred, summed or deduced. The \"quoted\" fields are the phrases that carry the answer, as read in each translation.",
+    "Not used by any game yet. The engine's four-screen knowledge path (core/views.js) is what a deck of these would use."
+  ],
+  "questions": [
+    {
+      "question": "Which king saw a hand writing on the wall?",
+      "answer": "Belshazzar",
+      "ref": "Daniel 5:1-5",
+      "quoted": {
+        "kjv": "Belshazzar the king made a great feast",
+        "web": "Belshazzar the king made a great feast; ... the king saw the part of the hand that wrote"
+      }
+    },
+    {
+      "question": "On which island was Paul shipwrecked?",
+      "answer": "Melita (Malta)",
+      "ref": "Acts 27:41-28:3",
+      "quoted": {
+        "kjv": "they ran the ship aground ... willing to save Paul ... the island was called Melita",
+        "web": "they ran the vessel aground ... desiring to save Paul ... the island was called Malta"
+      }
+    },
+    {
+      "question": "Which Philistine champion from Gath challenged the armies of Israel?",
+      "answer": "Goliath",
+      "ref": "1 Samuel 17:4-10",
+      "quoted": {
+        "kjv": "a champion ... named Goliath, of Gath ... I defy the armies of Israel",
+        "web": "a champion ... named Goliath, of Gath ... I defy the armies of Israel"
+      }
+    },
+    {
+      "question": "Who was thrown into the lions’ den?",
+      "answer": "Daniel",
+      "ref": "Daniel 6:16",
+      "quoted": {
+        "kjv": "they brought Daniel, and cast him into the den of lions",
+        "web": "they brought Daniel, and cast him into the den of lions"
+      }
+    },
+    {
+      "question": "How many barley loaves did the boy have?",
+      "answer": "Five",
+      "ref": "John 6:9",
+      "quoted": {
+        "kjv": "a lad here, which hath five barley loaves",
+        "web": "a boy here who has five barley loaves"
+      }
+    },
+    {
+      "question": "Which disciple did Jesus say would deny him three times before the rooster crowed?",
+      "answer": "Peter",
+      "ref": "Matthew 26:33-34",
+      "quoted": {
+        "kjv": "Peter answered ... Jesus said unto him ... before the cock crow, thou shalt deny me thrice",
+        "web": "Peter answered ... before the rooster crows, you will deny me three times"
+      }
+    },
+    {
+      "question": "Which tax collector climbed a tree to see Jesus?",
+      "answer": "Zacchaeus (Zaccheus)",
+      "ref": "Luke 19:2-4",
+      "quoted": {
+        "kjv": "a man named Zaccheus, which was the chief among the publicans ... climbed up into a sycomore tree to see him",
+        "web": "a man named Zacchaeus. He was a chief tax collector ... climbed up into a sycamore tree to see him"
+      }
+    },
+    {
+      "question": "Which prophet was swallowed by a fish?",
+      "answer": "Jonah",
+      "ref": "Jonah 1:17",
+      "quoted": {
+        "kjv": "a great fish to swallow up Jonah",
+        "web": "a great fish to swallow up Jonah"
+      }
+    },
+    {
+      "question": "Which city’s walls fell after the Israelites marched around them for seven days?",
+      "answer": "Jericho",
+      "ref": "Hebrews 11:30",
+      "quoted": {
+        "kjv": "the walls of Jericho fell down, after they were compassed about seven days",
+        "web": "the walls of Jericho fell down, after they had been encircled for seven days"
+      }
+    },
+    {
+      "question": "In which town was Jesus born?",
+      "answer": "Bethlehem",
+      "ref": "Matthew 2:1",
+      "quoted": {
+        "kjv": "Jesus was born in Bethlehem of Judea",
+        "web": "Jesus was born in Bethlehem of Judea"
+      }
+    },
+    {
+      "question": "At the wedding in Cana, what did Jesus turn the water into?",
+      "answer": "Wine",
+      "ref": "John 2:1-11",
+      "quoted": {
+        "kjv": "a marriage in Cana of Galilee ... the water that was made wine ... This beginning of miracles did Jesus in Cana of Galilee",
+        "web": "a marriage in Cana of Galilee ... the water now become wine ... This beginning of his signs Jesus did in Cana of Galilee"
+      }
+    },
+    {
+      "question": "Which brother of Moses spoke to the people for him?",
+      "answer": "Aaron",
+      "ref": "Exodus 4:14-16; 4:30",
+      "quoted": {
+        "kjv": "Is not Aaron the Levite thy brother? ... he shall be thy spokesman unto the people ... Aaron spake all the words which the Lord had spoken unto Moses",
+        "web": "What about Aaron, your brother, the Levite? ... He will be your spokesman to the people ... Aaron spoke all the words which Yahweh had spoken to Moses"
+      }
+    },
+    {
+      "question": "God changed Abraham’s wife’s name from Sarai to what?",
+      "answer": "Sarah",
+      "ref": "Genesis 17:15",
+      "quoted": {
+        "kjv": "thou shalt not call her name Sarai, but Sarah shall her name be",
+        "web": "you shall not call her name Sarai, but her name will be Sarah"
+      }
+    },
+    {
+      "question": "Which prophet went up to heaven in a whirlwind?",
+      "answer": "Elijah",
+      "ref": "2 Kings 2:11",
+      "quoted": {
+        "kjv": "Elijah went up by a whirlwind into heaven",
+        "web": "Elijah went up by a whirlwind into heaven"
+      }
+    },
+    {
+      "question": "On which mountain did the Lord give Moses two tablets of stone?",
+      "answer": "Mount Sinai (Horeb)",
+      "ref": "Exodus 31:18",
+      "quoted": {
+        "kjv": "upon mount Sinai, two tables of testimony, tables of stone (Deuteronomy 5:2 \"in Horeb\" names the same mountain)",
+        "web": "on Mount Sinai, the two tablets of the testimony, stone tablets (Deuteronomy 5:2 \"in Horeb\")"
+      }
+    },
+    {
+      "question": "Shadrach, Meshach and who else were thrown into the blazing furnace?",
+      "answer": "Abednego (Abed-nego)",
+      "ref": "Daniel 3:20-23",
+      "quoted": {
+        "kjv": "to bind Shadrach, Meshach, and Abed-nego, and to cast them into the burning fiery furnace",
+        "web": "to bind Shadrach, Meshach, and Abednego, and to cast them into the burning fiery furnace"
+      }
+    },
+    {
+      "question": "At Jesus’ baptism, the Spirit of God came down like what?",
+      "answer": "A dove",
+      "ref": "Matthew 3:16",
+      "quoted": {
+        "kjv": "descending like a dove",
+        "web": "descending as a dove"
+      }
+    },
+    {
+      "question": "Which disciple said he would not believe unless he saw the nail marks in Jesus’ hands?",
+      "answer": "Thomas",
+      "ref": "John 20:24-25",
+      "quoted": {
+        "kjv": "Thomas ... Except I shall see in his hands the print of the nails ... I will not believe",
+        "web": "Thomas ... Unless I see in his hands the print of the nails ... I will not believe"
+      }
+    },
+    {
+      "question": "Who prayed “Lord Jesus, receive my spirit” while being stoned?",
+      "answer": "Stephen",
+      "ref": "Acts 7:59",
+      "quoted": {
+        "kjv": "they stoned Stephen ... Lord Jesus, receive my spirit",
+        "web": "They stoned Stephen as he called out, saying, Lord Jesus, receive my spirit"
+      }
+    },
+    {
+      "question": "Complete the verse: “The Lord is my ___”",
+      "answer": "Shepherd",
+      "ref": "Psalm 23:1",
+      "quoted": {
+        "kjv": "The Lord is my shepherd",
+        "web": "Yahweh is my shepherd"
+      }
+    },
+    {
+      "question": "Complete the verse: “For God so loved the ___”",
+      "answer": "World",
+      "ref": "John 3:16",
+      "quoted": {
+        "kjv": "For God so loved the world",
+        "web": "For God so loved the world"
+      }
+    },
+    {
+      "question": "How long did the rain fall on the earth in the flood?",
+      "answer": "Forty days and forty nights",
+      "ref": "Genesis 7:12",
+      "quoted": {
+        "kjv": "the rain was upon the earth forty days and forty nights",
+        "web": "It rained on the earth forty days and forty nights"
+      }
+    },
+    {
+      "question": "What was the name of the place where Jesus went to pray before he was arrested?",
+      "answer": "Gethsemane",
+      "ref": "Matthew 26:36-50",
+      "quoted": {
+        "kjv": "a place called Gethsemane ... laid hands on Jesus, and took him",
+        "web": "a place called Gethsemane ... laid hands on Jesus, and took him"
+      }
+    },
+    {
+      "question": "Which woman gave birth to a son and named him Samuel?",
+      "answer": "Hannah",
+      "ref": "1 Samuel 1:20",
+      "quoted": {
+        "kjv": "Hannah had conceived, that she bare a son, and called his name Samuel",
+        "web": "Hannah conceived, and bore a son; and she named him Samuel"
+      }
+    },
+    {
+      "question": "In which river was Jesus baptized by John?",
+      "answer": "The Jordan",
+      "ref": "Mark 1:9",
+      "quoted": {
+        "kjv": "baptized of John in Jordan",
+        "web": "baptized by John in the Jordan"
+      }
+    },
+    {
+      "question": "What trade did Paul share with Aquila and Priscilla?",
+      "answer": "Tentmaking",
+      "ref": "Acts 18:1-3",
+      "quoted": {
+        "kjv": "Paul departed from Athens ... Aquila ... with his wife Priscilla ... by their occupation they were tentmakers",
+        "web": "Paul departed from Athens ... Aquila ... with his wife Priscilla ... by trade they were tent makers"
+      }
+    },
+    {
+      "question": "Which of Jacob’s sons did he love more than the others, making him a special robe?",
+      "answer": "Joseph",
+      "ref": "Genesis 35:10; 37:1-3",
+      "quoted": {
+        "kjv": "but Israel shall be thy name (35:10) ... Israel loved Joseph more than all his children ... a coat of many colours (37:3)",
+        "web": "your name will be Israel (35:10) ... Israel loved Joseph more than all his children ... a coat of many colors (37:3)"
+      }
+    },
+    {
+      "question": "Complete the list: “The fruit of the Spirit is love, joy, ___”",
+      "answer": "Peace",
+      "ref": "Galatians 5:22",
+      "quoted": {
+        "kjv": "love, joy, peace, longsuffering",
+        "web": "love, joy, peace, patience"
+      }
+    },
+    {
+      "question": "Which youngest son of Jesse did Samuel anoint with oil?",
+      "answer": "David",
+      "ref": "1 Samuel 16:11-13",
+      "quoted": {
+        "kjv": "the youngest ... anointed him in the midst of his brethren: and the Spirit of the Lord came upon David",
+        "web": "the youngest ... anointed him in the midst of his brothers: and the Spirit of Yahweh came mightily on David"
+      }
+    }
+  ]
+}

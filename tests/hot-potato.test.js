@@ -16,33 +16,23 @@ function deck() {
   return g.DECK;
 }
 
-test('every card is a task or a knowledge card, and says which', () => {
+test('the deck is deliberately task-only', () => {
+  // Hot Potato is performative: a trivia answer is spent once the room has
+  // heard it, a task is different each time because a different person holds
+  // the potato. The engine still supports knowledge cards, so this test is what
+  // keeps one from arriving by accident. It also cannot pass by checking nothing:
+  // it fails if the deck is empty.
+  const d = deck();
+  assert.ok(d.puzzles.length > 0, 'an empty deck would pass every check below');
   const wrong = [];
-  deck().puzzles.forEach((p) => {
+  d.puzzles.forEach((p) => {
+    if (p.ref) { wrong.push(p.id + ': carries a ref'); }
+    if (!p.answer || !String(p.answer).trim()) { wrong.push(p.id + ': no text'); }
+    if (!p.variants.length) { wrong.push(p.id + ': no variants'); }
     p.variants.forEach((v) => {
       if (v.type !== 'card') { wrong.push(p.id + ': type is ' + v.type); }
-      if (v.kind !== 'task' && v.kind !== 'knowledge') {
-        wrong.push(p.id + ': kind is ' + JSON.stringify(v.kind));
-      }
-    });
-  });
-  assert.deepEqual(wrong, [], wrong.join('\n'));
-});
-
-test('a knowledge card asks something, and a task card does not', () => {
-  // A knowledge card with no prompt paints a BLANK SCREEN in front of a room -
-  // the deck is hand-written, so this is one typo away at all times.
-  const wrong = [];
-  deck().puzzles.forEach((p) => {
-    p.variants.forEach((v) => {
-      if (v.kind === 'knowledge') {
-        if (!v.prompt || !String(v.prompt).trim()) {
-          wrong.push(p.id + ': a knowledge card with no question');
-        }
-        if (!p.ref) { wrong.push(p.id + ': a knowledge card with no reference'); }
-      } else if (v.prompt) {
-        wrong.push(p.id + ': a task card carries a prompt; its text belongs in answer');
-      }
+      if (v.kind !== 'task') { wrong.push(p.id + ': kind is ' + JSON.stringify(v.kind)); }
+      if (v.prompt) { wrong.push(p.id + ': carries a prompt; its text belongs in answer'); }
     });
   });
   assert.deepEqual(wrong, [], wrong.join('\n'));
@@ -89,25 +79,18 @@ test('the shipped deck validates', () => {
 
 test('there are enough cards that an evening does not repeat', () => {
   const d = deck();
-  const tasks = d.puzzles.filter((p) => p.variants[0].kind === 'task');
-  const know = d.puzzles.filter((p) => p.variants[0].kind === 'knowledge');
-  assert.ok(tasks.length >= 30, 'only ' + tasks.length + ' task cards');
-  assert.ok(know.length >= 15, 'only ' + know.length + ' knowledge cards');
+  assert.ok(d.puzzles.length >= 60, 'only ' + d.puzzles.length + ' cards');
 });
 
 test('no two cards say the same thing', () => {
-  // validate.js already rejects duplicate answers, which covers task cards
-  // outright. This catches two knowledge cards asking the same question with
-  // different answers - which validate cannot see.
-  const asked = new Map();
+  // validate.js rejects identical answers; this also catches the same card
+  // written twice with different capitalisation or punctuation.
+  const seen = new Map();
   const dupes = [];
   deck().puzzles.forEach((p) => {
-    p.variants.forEach((v) => {
-      if (!v.prompt) { return; }
-      const key = v.prompt.toLowerCase().replace(/[^a-z ]/g, '').trim();
-      if (asked.has(key)) { dupes.push(p.id + ' repeats ' + asked.get(key)); }
-      asked.set(key, p.id);
-    });
+    const key = p.answer.toLowerCase().replace(/[^a-z ]/g, '').replace(/\s+/g, ' ').trim();
+    if (seen.has(key)) { dupes.push(p.id + ' repeats ' + seen.get(key)); }
+    seen.set(key, p.id);
   });
   assert.deepEqual(dupes, [], dupes.join('\n'));
 });
@@ -118,7 +101,7 @@ test('a task card asks for something a person can actually finish', () => {
   // number the room must reach is bounded, and one that does not is suspect.
   const unbounded = /\b(all|every|the whole|entire)\b/i;
   const wrong = [];
-  deck().puzzles.filter((p) => p.variants[0].kind === 'task').forEach((p) => {
+  deck().puzzles.forEach((p) => {
     if (unbounded.test(p.answer)) { wrong.push(p.id + ': "' + p.answer + '"'); }
   });
   assert.deepEqual(wrong, [], wrong.join('\n'));
