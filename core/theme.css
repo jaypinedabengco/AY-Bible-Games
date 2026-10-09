@@ -8,6 +8,8 @@
   --good: #5fbf7f;
   --bad: #d9534f;
   --card: #1b202b;
+  --potato: #bb8a58;
+  --potato-dark: #6e4723;
 }
 
 * { box-sizing: border-box; }
@@ -448,21 +450,47 @@ html, body {
 
 /* Hot Potato ------------------------------------------------------------- */
 
-/* The object going round. One orbiting dot rather than a ring of pulsing
-   ones: the motion reads as travel from the back of a hall, and there is no
-   luminance change anywhere in the cycle. NO STROBE - see spec.
-   The ring is --dim at 55%, set on the border colour rather than as opacity on
-   the element, so the gold dot inside keeps full strength from the back of a hall. */
-.hp-ring { position: relative; width: 38vmin; height: 38vmin;
-           border: 0.6vmin solid rgba(154, 163, 178, 0.55); border-radius: 50%;
-           margin: 0 auto; }
+/* A potato being passed round a ring of people. Eight small figures sit evenly
+   on a circle, dim, as context; the potato is the brightest thing on screen.
+   The ring is sized by its own font-size so every child can use em: the bare
+   42vmin is the fallback for a browser without min(), and the vw cap keeps it
+   inside a portrait window as well as a wide one (see .hp-stop below).
+   The pass is made in discrete hops, not a glide. .hp-orbit turns a full circle
+   in 4.4s but with steps(8), so it holds at each person and jumps to the next.
+   .hp-hop lifts the potato toward the middle and back every 0.55s, offset by
+   half a beat so the jump falls at the top of the arc: it leaves one pair of
+   hands, goes over, and lands in the next. 0.55s is about the time a real pass
+   takes; the whole thing runs at under 2 Hz. The potato never changes colour or
+   brightness, so there is nothing to strobe. NO STROBE - see spec. */
+.hp-ring { position: relative; font-size: 42vmin; font-size: min(42vmin, 46vw);
+           width: 1em; height: 1em; margin: 0 auto; }
+.hp-person { position: absolute; width: 0.17em; height: 0.227em;
+             transform: translate(-50%, -50%); }
+.hp-person svg { display: block; width: 100%; height: 100%;
+                 fill: var(--dim); opacity: 0.45; }
 .hp-orbit { position: absolute; top: 0; right: 0; bottom: 0; left: 0;
-            animation: hp-spin 1.6s linear infinite; }
-.hp-orbit::after { content: ''; position: absolute; top: -1.8vmin; left: 50%;
-                   width: 3.4vmin; height: 3.4vmin; margin-left: -1.7vmin;
-                   border-radius: 50%; background: var(--accent); }
-@keyframes hp-spin { from { transform: rotate(0deg); }
+            animation: hp-pass 4.4s steps(8) infinite; }
+.hp-hop { position: absolute; top: 0.185em; left: 50%; width: 0.25em; height: 0.175em;
+          margin-left: -0.125em;
+          animation: hp-hop 0.55s linear infinite; animation-delay: -0.275s; }
+.hp-turn { width: 100%; height: 100%;
+           animation: hp-upright 4.4s steps(8) infinite; }
+.hp-turn svg { display: block; width: 100%; height: 100%; overflow: visible;
+               filter: drop-shadow(0 0 0.012em rgba(232, 181, 60, 0.8)); }
+/* The gold rim is set in paint.js as stroke="currentColor", so it takes this
+   colour; the land-stroke test in views.test.js forbids the word in this file. */
+.hp-skin { fill: var(--potato); color: var(--accent); }
+.hp-eye { fill: var(--potato-dark); }
+@keyframes hp-pass { from { transform: rotate(0deg); }
                      to   { transform: rotate(360deg); } }
+/* The potato is carried round by the container; this turns it back the other
+   way, in the same steps, so it stays the right way up at every person. */
+@keyframes hp-upright { from { transform: rotate(0deg); }
+                        to   { transform: rotate(-360deg); } }
+@keyframes hp-hop {
+  0%   { transform: translateY(0); animation-timing-function: ease-out; }
+  50%  { transform: translateY(0.07em) scale(1.06); animation-timing-function: ease-in; }
+  100% { transform: translateY(0); } }
 
 /* Capped on BOTH axes. Name the Place shipped a masked beat sized in vw alone
    and it clipped its last line at 16:9; a single-axis cap is how that happens.
@@ -482,22 +510,10 @@ html, body {
            text-align: center; text-wrap: balance; }
 
 /* Someone who has asked their system for less movement gets no motion at all.
-   The orbit is replaced by four gold dots set on the ring at 12, 3, 6 and 9
-   o'clock: a static circle of people with the object at four places round it,
-   which reads as "going round" and not as a spinner that has hung. The dots sit
-   on the border's centreline (0.3vmin in from the outer edge). Nothing moves
-   and nothing changes brightness, so there is no strobe risk. STOP keeps its
-   word and loses only the pop. */
+   The potato stops and rests in front of the figure at the top of the ring;
+   the ring of people stays, so the screen still says "pass the potato".
+   STOP keeps its word and loses only the pop. */
 @media (prefers-reduced-motion: reduce) {
-  .hp-ring {
-    background-origin: border-box;
-    background-image:
-      radial-gradient(circle 1.7vmin at 50% 0.3vmin, var(--accent) 1.7vmin, transparent 1.75vmin),
-      radial-gradient(circle 1.7vmin at calc(100% - 0.3vmin) 50%, var(--accent) 1.7vmin, transparent 1.75vmin),
-      radial-gradient(circle 1.7vmin at 50% calc(100% - 0.3vmin), var(--accent) 1.7vmin, transparent 1.75vmin),
-      radial-gradient(circle 1.7vmin at 0.3vmin 50%, var(--accent) 1.7vmin, transparent 1.75vmin);
-  }
-  .hp-orbit { animation: none; }
-  .hp-orbit::after { display: none; }
+  .hp-orbit, .hp-hop, .hp-turn { animation: none; }
   .hp-stop { animation: none; }
 }
