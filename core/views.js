@@ -128,6 +128,16 @@
     return letters >= MIN_MASKABLE ? maskAnswer(answer) : null;
   }
 
+  // Whether a card has something to give back on a fourth screen. A knowledge
+  // card does: a question, then its answer. A LIST card does too, and is laid
+  // out the same way, but it is a different thing - a constrained-recall
+  // challenge ("name a king of Israel whose name starts with J"), then the
+  // valid answers, there to settle "does that count?" rather than to be
+  // learned. `knowledge` is kept, unrenamed, for any deck that still uses it.
+  function hasAnswer(variant) {
+    return !!variant && (variant.kind === 'knowledge' || variant.kind === 'list');
+  }
+
   var byType = {
     rebus: {
       stages: function () { return 2; },
@@ -321,14 +331,14 @@
     },
     card: {
       // Three screens for a task - music, STOP, the card - and a fourth for a
-      // knowledge card, which has an answer to give back. The quote type
+      // knowledge or list card, which has an answer to give back. The quote type
       // already varies its stage count per variant; this is the same idea, and
       // for the same reason: a beat that would say nothing is not shown.
       //
       // Without that fourth screen a knowledge card's answer lives only on the
       // Game Master's phone, and nobody opens a phone for a filler game.
       stages: function (variant) {
-        return (variant && variant.kind === 'knowledge') ? 3 : 2;
+        return hasAnswer(variant) ? 3 : 2;
       },
       view: function (puzzle, variant, stage) {
         var v = base('card', puzzle, variant);
@@ -343,7 +353,7 @@
         // the instruction on screen and the identity validate.js dedupes on,
         // so it is written once, in `answer`, and read back here.
         v.prompt = stage >= 2
-          ? (variant.kind === 'knowledge' ? variant.prompt : puzzle.answer)
+          ? (hasAnswer(variant) ? variant.prompt : puzzle.answer)
           : null;
         v.answered = answered(puzzle, stage, 3, variant);
         return v;

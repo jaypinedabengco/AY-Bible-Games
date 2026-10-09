@@ -5,18 +5,32 @@
  * generated because their content is facts that cannot be proofread by eye.
  * These cards are writing. There is no source to derive them from.
  *
- * EVERY CARD IS A TASK, deliberately. A task is something the holder DOES, and
- * its text goes in `answer` because a task IS its own identity - validate.js
+ * TWO KINDS OF CARD, and no third. A TASK is something the holder DOES, and its
+ * text goes in `answer` because a task IS its own identity - validate.js
  * already rejects two puzzles sharing an answer, so that buys duplicate-card
  * detection for free. No `prompt`, no `ref`.
  *
- * Trivia was dropped on purpose: a question is spent the moment the room hears
- * the answer, but "give two verses that have helped you" is different every
- * time, because a different person is holding the potato. So the test of a
- * card is whether it is still good when it comes up again in three months. The
- * scripture questions that were here are kept, verified, in
- * tools/bible-questions.json. The engine's knowledge-card path still exists in
- * core/views.js for a deck that wants it; this deck just does not use it.
+ * A LIST card is a constrained-recall challenge - "Name a king of Israel or
+ * Judah whose name starts with J" - in `prompt`, followed by a screen showing
+ * the valid answers, in `answer`, so the room can settle "does that count?".
+ * It is NOT trivia and must not turn into it: the challenge is recalling one
+ * under pressure, standing up, and it stays fresh because a different person
+ * holds the potato each time. The list is a referee, not a lesson.
+ *
+ * KNOWLEDGE cards stay out. A question is spent the moment the room hears the
+ * answer, which is what made the deck run dry; the scripture questions that
+ * used to be here are kept, verified, in tools/bible-questions.json. The
+ * engine's knowledge-card path still exists in core/views.js for a deck that
+ * wants it; tests/hot-potato.test.js is what stops one arriving by accident.
+ *
+ * THE LISTS ARE FACTS, so every one was checked against fetched KJV and WEB
+ * text (api.getbible.net/v2), not written from memory; a name that could not
+ * be found in the text was left out. A list that is missing a valid answer is
+ * a small unfairness, so lists drawn from an open set (women, places, animals,
+ * people who met Jesus, prophets) end "and others", and only the closed sets
+ * (kings, books, the twelve, judges) claim to be complete. Where the KJV and
+ * the WEB spell a name differently, or scholars differ, the answer carries both
+ * (Jehoram (Joram), Zacchaeus (Zaccheus), Mars' Hill (Areopagus)).
  *
  * THE RULE FOR A TASK CARD: it must be performable by whoever is holding the
  * mic, with nothing but a Bible and the people next to them. No props, no
@@ -42,10 +56,11 @@ window.DECK = {
     'When it stops, whoever is holding it does what the screen says.',
   ],
   puzzles: [
-    // Every card is a TASK: something the holder does, text in `answer`, no
-    // prompt and no ref. Whether the answer is fixed does not matter - the
-    // challenge is doing it from memory, standing up, in front of everyone, which
-    // is fresh each time a different person holds the potato.
+    // A task is something the holder does: text in `answer`, no prompt and no
+    // ref. A list card (hp-2xx, below) is a challenge in `prompt` with the valid
+    // answers in `answer`. Either way the challenge is doing it from memory,
+    // standing up, in front of everyone, which is fresh each time a different
+    // person holds the potato.
     // difficulty: 1 anyone can do it on the spot, 2 takes some thought or
     // memory, 3 real recall. The order ramps 1 -> 2 -> 3 within a round, so the
     // Ten Commandments never opens it. The scripture questions that used to be
@@ -290,5 +305,180 @@ window.DECK = {
       variants: [{ type: 'card', kind: 'task' }] },
     { id: 'hp-120', answer: 'Name as many miracles of Jesus as you can in 30 seconds', difficulty: 3,
       variants: [{ type: 'card', kind: 'task' }] },
+
+    // LIST CARDS: a challenge, then the valid answers. difficulty follows how
+    // many valid answers exist - six or more is 1, three to five is 2, one or
+    // two is 3 - and a letter is only used if it has answers (checked, not
+    // assumed). The answer is kept to 75 characters because the projector sets
+    // it at 12vmin: longer lists ran off the screen, so a longer set shows its
+    // best-known names and ends "and others".
+    { id: 'hp-201', difficulty: 1,
+      answer: 'Jeroboam, Jehu, Jehoram (Joram), Jehoshaphat, Jotham, Josiah, and others',
+      variants: [{ type: 'card', kind: 'list',
+                   prompt: 'Name a king of Israel or Judah whose name starts with J' }] },
+    { id: 'hp-202', difficulty: 1,
+      answer: 'Ahab, Ahaziah, Asa, Amaziah, Abijah (Abijam), Azariah (Uzziah), and others',
+      variants: [{ type: 'card', kind: 'list',
+                   prompt: 'Name a king of Israel or Judah whose name starts with A' }] },
+    { id: 'hp-203', difficulty: 2,
+      answer: 'Saul, Solomon, Shallum',
+      variants: [{ type: 'card', kind: 'list',
+                   prompt: 'Name a king of Israel or Judah whose name starts with S' }] },
+    { id: 'hp-204', difficulty: 2,
+      answer: 'Zimri, Zechariah (Zachariah), Zedekiah',
+      variants: [{ type: 'card', kind: 'list',
+                   prompt: 'Name a king of Israel or Judah whose name starts with Z' }] },
+    { id: 'hp-205', difficulty: 3,
+      answer: 'Hezekiah, Hoshea',
+      variants: [{ type: 'card', kind: 'list',
+                   prompt: 'Name a king of Israel or Judah whose name starts with H' }] },
+    { id: 'hp-206', difficulty: 3,
+      answer: 'Pekah, Pekahiah',
+      variants: [{ type: 'card', kind: 'list',
+                   prompt: 'Name a king of Israel or Judah whose name starts with P' }] },
+    { id: 'hp-207', difficulty: 3,
+      answer: 'Menahem, Manasseh',
+      variants: [{ type: 'card', kind: 'list',
+                   prompt: 'Name a king of Israel or Judah whose name starts with M' }] },
+    { id: 'hp-208', difficulty: 3,
+      answer: 'Nadab',
+      variants: [{ type: 'card', kind: 'list',
+                   prompt: 'Name a king of Israel or Judah whose name starts with N' }] },
+    { id: 'hp-209', difficulty: 1,
+      answer: 'Exodus, Ezra, Esther, Ecclesiastes, Ezekiel, Ephesians',
+      variants: [{ type: 'card', kind: 'list',
+                   prompt: 'Name a book of the Bible that starts with E' }] },
+    { id: 'hp-210', difficulty: 2,
+      answer: 'Habakkuk, Haggai, Hosea, Hebrews',
+      variants: [{ type: 'card', kind: 'list',
+                   prompt: 'Name a book of the Bible that starts with H' }] },
+    { id: 'hp-211', difficulty: 2,
+      answer: 'Micah, Malachi, Mark, Matthew',
+      variants: [{ type: 'card', kind: 'list',
+                   prompt: 'Name a book of the Bible that starts with M' }] },
+    { id: 'hp-212', difficulty: 2,
+      answer: 'Numbers, Nehemiah, Nahum',
+      variants: [{ type: 'card', kind: 'list',
+                   prompt: 'Name a book of the Bible that starts with N' }] },
+    { id: 'hp-213', difficulty: 3,
+      answer: 'Zephaniah, Zechariah',
+      variants: [{ type: 'card', kind: 'list',
+                   prompt: 'Name a book of the Bible that starts with Z' }] },
+    { id: 'hp-214', difficulty: 3,
+      answer: 'Obadiah',
+      variants: [{ type: 'card', kind: 'list',
+                   prompt: 'Name a book of the Bible that starts with O' }] },
+    { id: 'hp-215', difficulty: 2,
+      answer: 'James, John, Judas (Iscariot, or the son of James)',
+      variants: [{ type: 'card', kind: 'list',
+                   prompt: 'Name one of the twelve disciples whose name starts with J' }] },
+    { id: 'hp-216', difficulty: 3,
+      answer: 'Peter, Philip',
+      variants: [{ type: 'card', kind: 'list',
+                   prompt: 'Name one of the twelve disciples whose name starts with P' }] },
+    { id: 'hp-217', difficulty: 3,
+      answer: 'Thomas, Thaddaeus (Thaddeus)',
+      variants: [{ type: 'card', kind: 'list',
+                   prompt: 'Name one of the twelve disciples whose name starts with T' }] },
+    { id: 'hp-218', difficulty: 2,
+      answer: 'Haggai, Habakkuk, Hosea, Huldah, Hananiah (a false prophet), and others',
+      variants: [{ type: 'card', kind: 'list',
+                   prompt: 'Name a prophet or prophetess whose name starts with H' }] },
+    { id: 'hp-219', difficulty: 1,
+      answer: 'Elijah, Elisha, Ezekiel, Enoch, Eliezer son of Dodavah, Eldad, and others',
+      variants: [{ type: 'card', kind: 'list',
+                   prompt: 'Name a prophet whose name starts with E' }] },
+    { id: 'hp-220', difficulty: 2,
+      answer: 'Jeremiah, Joel, Jonah, Jehu son of Hanani, John the Baptist, and others',
+      variants: [{ type: 'card', kind: 'list',
+                   prompt: 'Name a prophet whose name starts with J' }] },
+    { id: 'hp-221', difficulty: 3,
+      answer: 'Zechariah, Zephaniah, and others',
+      variants: [{ type: 'card', kind: 'list',
+                   prompt: 'Name a prophet whose name starts with Z' }] },
+    { id: 'hp-222', difficulty: 2,
+      answer: 'Ehud, Elon, Eli',
+      variants: [{ type: 'card', kind: 'list',
+                   prompt: 'Name a judge of Israel whose name starts with E' }] },
+    { id: 'hp-223', difficulty: 2,
+      answer: 'Jair, Jephthah, Jerubbaal (Gideon), Joel (a son of Samuel)',
+      variants: [{ type: 'card', kind: 'list',
+                   prompt: 'Name a judge of Israel whose name starts with J' }] },
+    { id: 'hp-224', difficulty: 2,
+      answer: 'Samson, Samuel, Shamgar',
+      variants: [{ type: 'card', kind: 'list',
+                   prompt: 'Name a judge of Israel whose name starts with S' }] },
+    { id: 'hp-225', difficulty: 1,
+      answer: 'Ruth, Rahab, Rebekah (Rebecca), Rachel, Rhoda, Rizpah, Reumah, and others',
+      variants: [{ type: 'card', kind: 'list',
+                   prompt: 'Name a woman in the Bible whose name starts with R' }] },
+    { id: 'hp-226', difficulty: 1,
+      answer: 'Hannah, Hagar, Huldah, Hadassah (Esther), Herodias, Hephzibah, and others',
+      variants: [{ type: 'card', kind: 'list',
+                   prompt: 'Name a woman in the Bible whose name starts with H' }] },
+    { id: 'hp-227', difficulty: 2,
+      answer: 'Priscilla, Phoebe (Phebe), Peninnah, Puah, and others',
+      variants: [{ type: 'card', kind: 'list',
+                   prompt: 'Name a woman in the Bible whose name starts with P' }] },
+    { id: 'hp-228', difficulty: 2,
+      answer: 'Naomi, Naamah, Nehushta, Noadiah, Naarah, and others',
+      variants: [{ type: 'card', kind: 'list',
+                   prompt: 'Name a woman in the Bible whose name starts with N' }] },
+    { id: 'hp-229', difficulty: 3,
+      answer: 'Nicodemus, Nathanael, and others',
+      variants: [{ type: 'card', kind: 'list',
+                   prompt: 'Name someone who met Jesus whose name starts with N' }] },
+    { id: 'hp-230', difficulty: 3,
+      answer: 'Zacchaeus (Zaccheus), and others',
+      variants: [{ type: 'card', kind: 'list',
+                   prompt: 'Name someone who met Jesus whose name starts with Z' }] },
+    { id: 'hp-231', difficulty: 3,
+      answer: 'Bartimaeus (Bartimeus), Bartholomew, and others',
+      variants: [{ type: 'card', kind: 'list',
+                   prompt: 'Name someone who met Jesus whose name starts with B' }] },
+    { id: 'hp-232', difficulty: 2,
+      answer: 'Jairus, John, James, Judas, Joanna, and others',
+      variants: [{ type: 'card', kind: 'list',
+                   prompt: 'Name someone who met Jesus whose name starts with J' }] },
+    { id: 'hp-233', difficulty: 1,
+      answer: 'Antioch, Athens, Antipatris, Amphipolis, Apollonia, Assos, and others',
+      variants: [{ type: 'card', kind: 'list',
+                   prompt: 'Name a place Paul visited that starts with A' }] },
+    { id: 'hp-234', difficulty: 1,
+      answer: 'Malta (Melita), Miletus, Mitylene, Myra, Macedonia, and others',
+      variants: [{ type: 'card', kind: 'list',
+                   prompt: 'Name a place Paul visited that starts with M' }] },
+    { id: 'hp-235', difficulty: 1,
+      answer: 'Troas, Tarsus, Thessalonica, Tyre, Three Taverns, Trogyllium, and others',
+      variants: [{ type: 'card', kind: 'list',
+                   prompt: 'Name a place Paul visited that starts with T' }] },
+    { id: 'hp-236', difficulty: 2,
+      answer: 'Rome, Rhegium, Rhodes, and others',
+      variants: [{ type: 'card', kind: 'list',
+                   prompt: 'Name a place Paul visited that starts with R' }] },
+    { id: 'hp-237', difficulty: 3,
+      answer: 'Damascus, Derbe, and others',
+      variants: [{ type: 'card', kind: 'list',
+                   prompt: 'Name a place Paul visited that starts with D' }] },
+    { id: 'hp-238', difficulty: 2,
+      answer: 'Dog, Dove, Donkey (ass), Deer, Dromedary, and others',
+      variants: [{ type: 'card', kind: 'list',
+                   prompt: 'Name an animal in the Bible that starts with D' }] },
+    { id: 'hp-239', difficulty: 2,
+      answer: 'Ox, Owl, Ostrich, and others',
+      variants: [{ type: 'card', kind: 'list',
+                   prompt: 'Name an animal in the Bible that starts with O' }] },
+    { id: 'hp-240', difficulty: 2,
+      answer: 'Wolf, Whale, Weasel, Worm, and others',
+      variants: [{ type: 'card', kind: 'list',
+                   prompt: 'Name an animal in the Bible that starts with W' }] },
+    { id: 'hp-241', difficulty: 2,
+      answer: 'Fox, Frog, Flea, Fish, and others',
+      variants: [{ type: 'card', kind: 'list',
+                   prompt: 'Name an animal in the Bible that starts with F' }] },
+    { id: 'hp-242', difficulty: 3,
+      answer: 'Quail, and others',
+      variants: [{ type: 'card', kind: 'list',
+                   prompt: 'Name an animal in the Bible that starts with Q' }] },
   ],
 };

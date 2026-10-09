@@ -35,7 +35,7 @@
 //   The longest card (hp-033, 136 characters) wraps to 4 lines and its text
 //   bottom clears the viewport bottom by 247.5 px at 1600x900 (box bottom
 //   652.5 of 900) and by 297.0 px at 1920x1080 (box bottom 783.0 of 1080). It
-//   is also the worst of all 120 cards, which were each measured; 0 overflow
+//   is also the worst of all 120 task cards, which were each measured; 0 overflow
 //   sideways or past the bottom, and none touches the key legend or id stamp.
 //
 //   Also confirmed: ArrowLeft re-rolls the delay (6 presses, 6 different
@@ -46,6 +46,18 @@
 //   timer; with prefers-reduced-motion the figures and the potato in the top
 //   figure's hands stay, nothing moves, and STOP is still legible (contrast
 //   9.83:1, inside the viewport).
+//
+// The LIST cards' fourth screen (the valid answers) was measured separately,
+// on 2026-10-09, by rendering every list card through core/paint.js with the
+// real theme.css in headless Chrome (a harness page, not index.html) at
+// 1920x1080, 1600x900 and 1280x720. The answer is set at 12vmin, so a long list
+// does not shrink - it wraps and runs off the screen: a 130-character list
+// started 40 px above the top and ended 40 px below the bottom at 1600x900, and
+// 124 and 90 characters came within 23 px of an edge. After the lists were cut
+// to at most 75 characters (the longest is 74), the worst case at all three
+// sizes was 85 px clear of the top and 85 px clear of the bottom at 1600x900
+// (prompt top 85, answer bottom 815 of 900). The cap is tested below. If
+// theme.css or paint.js changes how an answer is sized, measure again.
 //
 // Name the Place carries the same kind of note (see tests/atlas.test.js, on
 // the masked beat) for the same reason: a text size that regressed TWICE while
@@ -71,25 +83,112 @@ function deck() {
   return g.DECK;
 }
 
-test('the deck is deliberately task-only', () => {
-  // Hot Potato is performative: a trivia answer is spent once the room has
-  // heard it, a task is different each time because a different person holds
-  // the potato. The engine still supports knowledge cards, so this test is what
-  // keeps one from arriving by accident. It also cannot pass by checking nothing:
-  // it fails if the deck is empty.
+test('the deck holds tasks and lists, and never a knowledge card', () => {
+  // Hot Potato is performative. A TASK is something to do; a LIST card is a
+  // recall challenge followed by the valid answers, there to settle "does that
+  // count?". A KNOWLEDGE card is a question with an answer, which is trivia: it
+  // is spent once the room has heard it. The engine still supports knowledge
+  // cards, so this test is what keeps one from arriving by accident.
+  //
+  // It also cannot pass by checking nothing. The guards below are written per
+  // kind, and a per-kind loop over a deck holding none of that kind is a green
+  // test about nothing - so the deck is required to actually hold both.
   const d = deck();
   assert.ok(d.puzzles.length > 0, 'an empty deck would pass every check below');
+  const tasks = d.puzzles.filter((p) => p.variants.every((v) => v.kind === 'task'));
+  const lists = d.puzzles.filter((p) => p.variants.every((v) => v.kind === 'list'));
+  assert.ok(tasks.length > 0, 'the deck holds no task cards, so the task guards check nothing');
+  assert.ok(lists.length > 0, 'the deck holds no list cards, so the list guards check nothing');
   const wrong = [];
   d.puzzles.forEach((p) => {
-    if (p.ref) { wrong.push(p.id + ': carries a ref'); }
-    if (!p.answer || !String(p.answer).trim()) { wrong.push(p.id + ': no text'); }
+    if (!p.answer || !String(p.answer).trim()) { wrong.push(p.id + ': no answer'); }
     if (!p.variants.length) { wrong.push(p.id + ': no variants'); }
     p.variants.forEach((v) => {
       if (v.type !== 'card') { wrong.push(p.id + ': type is ' + v.type); }
-      if (v.kind !== 'task') { wrong.push(p.id + ': kind is ' + JSON.stringify(v.kind)); }
-      if (v.prompt) { wrong.push(p.id + ': carries a prompt; its text belongs in answer'); }
+      if (v.kind === 'knowledge') {
+        wrong.push(p.id + ': is a knowledge card; the deck is tasks and lists');
+      } else if (v.kind === 'task') {
+        if (p.ref) { wrong.push(p.id + ': a task carries a ref'); }
+        if (v.prompt) { wrong.push(p.id + ': a task carries a prompt; its text belongs in answer'); }
+      } else if (v.kind === 'list') {
+        if (!v.prompt || !String(v.prompt).trim()) {
+          wrong.push(p.id + ': a list card has no prompt, so there is no challenge to show');
+        }
+      } else {
+        wrong.push(p.id + ': kind is ' + JSON.stringify(v.kind));
+      }
     });
   });
+  assert.deepEqual(wrong, [], wrong.join('\n'));
+  assert.equal(tasks.length + lists.length, d.puzzles.length,
+    'every card is exactly one kind');
+});
+
+// The names in a list card's answer, as written: one per comma, with every
+// parenthesis dropped (they carry alternative spellings and notes, and may
+// hold commas of their own) and the "and others" that marks an open set removed.
+function listNames(answer) {
+  return String(answer).replace(/\([^)]*\)/g, '').split(',')
+    .map((n) => n.trim()).filter((n) => n && !/^and others$/i.test(n));
+}
+
+test('a list card that asks for a letter only offers names that start with it', () => {
+  // "A king starting with X" is a cruel joke, and nothing else would catch one:
+  // the card validates, renders and plays. This reads the letter off the
+  // challenge and holds every answer to it, so a name filed under the wrong
+  // letter - or a letter with no answers at all - fails here.
+  const wrong = [];
+  let checked = 0;
+  deck().puzzles.forEach((p) => {
+    p.variants.filter((v) => v.kind === 'list').forEach((v) => {
+      const m = /starts? with ([A-Z])$/.exec(v.prompt);
+      if (!m) { return; }
+      checked += 1;
+      const names = listNames(p.answer);
+      if (!names.length) { wrong.push(p.id + ': no answers for ' + m[1]); }
+      names.forEach((n) => {
+        if (n.charAt(0).toUpperCase() !== m[1]) {
+          wrong.push(p.id + ': "' + n + '" does not start with ' + m[1]);
+        }
+      });
+    });
+  });
+  assert.ok(checked > 0, 'no list card asks for a letter, so this checked nothing');
+  assert.deepEqual(wrong, [], wrong.join('\n'));
+});
+
+test('a list answer is short enough to fit on the projector', () => {
+  // Not a style rule: the answer is set at 12vmin and does not shrink, so a
+  // long list wraps off the top and bottom of the screen and nothing in the
+  // validator, the renderer or the other tests would say so. 75 characters is
+  // the measured limit (see the note at the top of this file).
+  const wrong = [];
+  let checked = 0;
+  deck().puzzles.forEach((p) => {
+    if (!p.variants.some((v) => v.kind === 'list')) { return; }
+    checked += 1;
+    if (String(p.answer).length > 75) {
+      wrong.push(p.id + ': answer is ' + String(p.answer).length + ' characters');
+    }
+  });
+  assert.ok(checked > 0, 'no list cards, so this checked nothing');
+  assert.deepEqual(wrong, [], wrong.join('\n'));
+});
+
+test('a list card is as hard as it has few answers', () => {
+  // Difficulty is judged by how many valid answers exist: many is easy, one or
+  // two is hard. A card that contradicts that puts a one-answer challenge in
+  // the warm-up or a ten-answer one at the end of the round.
+  const wrong = [];
+  let checked = 0;
+  deck().puzzles.forEach((p) => {
+    if (!p.variants.some((v) => v.kind === 'list')) { return; }
+    checked += 1;
+    const n = listNames(p.answer).length;
+    if (n >= 6 && p.difficulty !== 1) { wrong.push(p.id + ': ' + n + ' answers but difficulty ' + p.difficulty); }
+    if (n <= 2 && p.difficulty !== 3) { wrong.push(p.id + ': ' + n + ' answers but difficulty ' + p.difficulty); }
+  });
+  assert.ok(checked > 0, 'no list cards, so this checked nothing');
   assert.deepEqual(wrong, [], wrong.join('\n'));
 });
 
@@ -154,9 +253,11 @@ test('a task card asks for something a person can actually finish', () => {
   // "Recite the book of Psalms" is a card that ends a round. Length is a poor
   // proxy for difficulty, but an unbounded quantity is not: a card naming a
   // number the room must reach is bounded, and one that does not is suspect.
+  // Tasks only: a list card's `answer` is its valid answers, not an instruction.
   const unbounded = /\b(all|every|the whole|entire)\b/i;
   const wrong = [];
   deck().puzzles.forEach((p) => {
+    if (!p.variants.every((v) => v.kind === 'task')) { return; }
     if (unbounded.test(p.answer)) { wrong.push(p.id + ': "' + p.answer + '"'); }
   });
   assert.deepEqual(wrong, [], wrong.join('\n'));

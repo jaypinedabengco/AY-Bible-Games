@@ -990,6 +990,63 @@ test('a knowledge card asks one thing and answers another', () => {
   assert.equal(end.answered.ref, 'Daniel 5');
 });
 
+const list = (over) => normalizePuzzle(Object.assign({
+  id: 'hp-03', answer: 'Jeroboam, Jehu, Jehoram (Joram), Josiah',
+  variants: [{ type: 'card', kind: 'list',
+               prompt: 'Name a king of Israel or Judah whose name starts with J' }],
+}, over));
+
+test('a list card is four screens, like a knowledge card and unlike a task', () => {
+  // The room needs the valid answers to settle "does that count?". Without the
+  // fourth screen they live only on a phone nobody opened for a filler game -
+  // and it fails silently, as a card that simply never reveals.
+  assert.equal(byType.card.stages(list().variants[0]), 3);
+  assert.equal(byType.card.stages(knowledge().variants[0]), 3);
+  assert.equal(byType.card.stages(card().variants[0]), 2);
+});
+
+test('a list card asks the challenge first and gives the valid answers last', () => {
+  const p = list();
+  const v = p.variants[0];
+  const views = [0, 1, 2, 3].map((s) => byType.card.view(p, v, s));
+  assert.deepEqual(views.map((x) => x.phase), ['playing', 'stop', 'card', 'card']);
+  assert.equal(views[0].prompt, null);
+  assert.equal(views[1].prompt, null);
+  // The challenge, NOT the answer: a task card shows puzzle.answer here, and a
+  // list card doing the same would put the answer on screen before anyone had
+  // tried to give it.
+  assert.equal(views[2].prompt,
+    'Name a king of Israel or Judah whose name starts with J');
+  assert.equal(views[2].answered, null, 'the answers wait for the fourth screen');
+  assert.equal(views[3].answered.answer, 'Jeroboam, Jehu, Jehoram (Joram), Josiah');
+});
+
+test('a list card renders exactly as a knowledge card does', () => {
+  // "Stages and renders exactly like knowledge" is the whole contract, so say
+  // it as one: the same text through both kinds gives the same view at every
+  // screen. A list that drifted - a different stage count, a prompt read from
+  // the wrong field - fails here whichever screen it drifted on.
+  const text = { id: 'hp-09', answer: 'Belshazzar', ref: 'Daniel 5' };
+  const k = normalizePuzzle(Object.assign({
+    variants: [{ type: 'card', kind: 'knowledge', prompt: 'Which king?' }] }, text));
+  const l = normalizePuzzle(Object.assign({
+    variants: [{ type: 'card', kind: 'list', prompt: 'Which king?' }] }, text));
+  assert.equal(byType.card.stages(l.variants[0]), byType.card.stages(k.variants[0]));
+  [0, 1, 2, 3].forEach((s) => {
+    assert.deepEqual(byType.card.view(l, l.variants[0], s),
+      byType.card.view(k, k.variants[0], s), 'screen ' + s);
+  });
+});
+
+test('adding the list kind did not change knowledge or task cards', () => {
+  const t = card();
+  assert.equal(byType.card.view(t, t.variants[0], 2).prompt, t.answer);
+  const k = knowledge();
+  assert.equal(byType.card.view(k, k.variants[0], 2).prompt,
+    'Which king saw writing on a wall?');
+  assert.equal(byType.card.view(k, k.variants[0], 3).answered.answer, 'Belshazzar');
+});
+
 // Minimal but VALID input per renderer. A renderer handed the wrong shape
 // throws, and a test that swallowed the throw would report "no offenders"
 // about a renderer it never actually ran.
