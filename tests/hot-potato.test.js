@@ -86,3 +86,40 @@ test('the shipped deck validates', () => {
   const { validate } = globalThis.BibleGames.validate;
   assert.deepEqual(validate(deck()).errors, []);
 });
+
+test('there are enough cards that an evening does not repeat', () => {
+  const d = deck();
+  const tasks = d.puzzles.filter((p) => p.variants[0].kind === 'task');
+  const know = d.puzzles.filter((p) => p.variants[0].kind === 'knowledge');
+  assert.ok(tasks.length >= 30, 'only ' + tasks.length + ' task cards');
+  assert.ok(know.length >= 15, 'only ' + know.length + ' knowledge cards');
+});
+
+test('no two cards say the same thing', () => {
+  // validate.js already rejects duplicate answers, which covers task cards
+  // outright. This catches two knowledge cards asking the same question with
+  // different answers - which validate cannot see.
+  const asked = new Map();
+  const dupes = [];
+  deck().puzzles.forEach((p) => {
+    p.variants.forEach((v) => {
+      if (!v.prompt) { return; }
+      const key = v.prompt.toLowerCase().replace(/[^a-z ]/g, '').trim();
+      if (asked.has(key)) { dupes.push(p.id + ' repeats ' + asked.get(key)); }
+      asked.set(key, p.id);
+    });
+  });
+  assert.deepEqual(dupes, [], dupes.join('\n'));
+});
+
+test('a task card asks for something a person can actually finish', () => {
+  // "Recite the book of Psalms" is a card that ends a round. Length is a poor
+  // proxy for difficulty, but an unbounded quantity is not: a card naming a
+  // number the room must reach is bounded, and one that does not is suspect.
+  const unbounded = /\b(all|every|the whole|entire)\b/i;
+  const wrong = [];
+  deck().puzzles.filter((p) => p.variants[0].kind === 'task').forEach((p) => {
+    if (unbounded.test(p.answer)) { wrong.push(p.id + ': "' + p.answer + '"'); }
+  });
+  assert.deepEqual(wrong, [], wrong.join('\n'));
+});

@@ -87,7 +87,7 @@ window.GAMES = [
     title: 'Hot Potato',
     href: 'games/hot-potato/index.html',
     blurb: 'Pass something round while the music plays. It stops when it likes.',
-    meta: '6 cards · English',
+    meta: '69 cards · English',
     status: 'ready',
   },
 ];
