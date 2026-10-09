@@ -10,7 +10,13 @@
 (function (root) {
   'use strict';
 
-  var TYPES = ['rebus', 'image', 'text', 'binary', 'order', 'quote', 'trail', 'map'];
+  var TYPES = ['rebus', 'image', 'text', 'binary', 'order', 'quote', 'trail',
+               'map', 'card'];
+
+  // task  - something to DO; three screens; its text lives in puzzle.answer
+  // list  - a recall challenge, then the valid answers; four screens
+  // knowledge - a question, then its answer; four screens
+  var CARD_KINDS = ['task', 'list', 'knowledge'];
   var LANGS = ['en', 'fil'];
   var SLOTS = ['early', 'middle', 'late', 'anywhere'];
 
@@ -31,6 +37,16 @@
     if (TYPES.indexOf(v.type) === -1) {
       errors.push(where + ': unknown type "' + v.type + '"');
       return;
+    }
+    // A card's KIND decides how many screens it has and where its on-screen
+    // text comes from. Nothing else checked it, so a typo - kind: 'lst' - was
+    // accepted here and then played as a TASK: the list of valid answers would
+    // have been shown as the challenge, in front of a room, with every test
+    // green. The deck's own tests catch it for the deck that has them; this
+    // catches it for whoever writes the next one.
+    if (v.type === 'card' && CARD_KINDS.indexOf(v.kind) === -1) {
+      errors.push(where + ': unknown card kind "' + v.kind
+        + '" (expected ' + CARD_KINDS.join(', ') + ')');
     }
     if ([1, 2, 3].indexOf(v.difficulty) === -1) {
       errors.push(where + ': difficulty must be 1, 2 or 3 (got ' + v.difficulty + ')');
@@ -230,9 +246,23 @@
       if ([1, 2, 3].indexOf(p.difficulty) === -1) {
         errors.push('"' + p.answer + '": difficulty must be 1, 2 or 3');
       }
-      var key = p.lang + '::' + p.answer;
+      // Two puzzles must not be the same puzzle twice. What makes them the
+      // same depends on the kind: normally the ANSWER is the identity, but a
+      // `list` card's answer is a reference list that several cards share on
+      // purpose - "name two judges" and "name four judges" both show the same
+      // fourteen names and are plainly different cards. For those the identity
+      // is the CHALLENGE. Narrowed to list cards so nothing else changes.
+      var listPrompt = null;
+      p.variants.forEach(function (v) {
+        if (v.type === 'card' && v.kind === 'list' && v.prompt && !listPrompt) {
+          listPrompt = v.prompt;
+        }
+      });
+      var ident = listPrompt || p.answer;
+      var key = p.lang + '::' + ident;
       if (seen[key]) {
-        errors.push('duplicate answer "' + p.answer + '" in ' + p.lang);
+        errors.push('duplicate ' + (listPrompt ? 'challenge' : 'answer')
+          + ' "' + ident + '" in ' + p.lang);
       }
       seen[key] = true;
 

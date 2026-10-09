@@ -130,3 +130,36 @@ test('the deck versions survive normalization, and default to null', () => {
   assert.deepEqual(normalizeDeck({ versions: v }).versions, v);
   assert.equal(normalizeDeck({}).versions, null);
 });
+
+test('a card variant keeps the field that says what kind it is', () => {
+  // normalizeVariant builds a NEW object from a fixed key list rather than
+  // copying - so a key it has not been told about vanishes without a word.
+  // If `kind` vanishes, every card looks like a task, no knowledge card ever
+  // reveals, and nothing anywhere fails.
+  const p = normalizePuzzle({
+    id: 'hp-01', answer: 'Belshazzar',
+    variants: [{ type: 'card', kind: 'knowledge', prompt: 'Which king?' }],
+  });
+  assert.equal(p.variants[0].kind, 'knowledge');
+  assert.equal(p.variants[0].prompt, 'Which king?');
+});
+
+test('a variant with no kind gets null, not undefined', () => {
+  // Every other key in this module is present-but-empty rather than absent.
+  const p = normalizePuzzle({ id: 'x-01', answer: 'A',
+                              variants: [{ type: 'text', prompt: 'A?' }] });
+  assert.equal(p.variants[0].kind, null);
+});
+
+test('a BARE card puzzle (no variants array) keeps kind and prompt too', () => {
+  // The lift path copies keys named in VARIANT_KEYS onto a synthetic variant.
+  // Explicit-variants puzzles never touch it, so a `kind` missing from that
+  // list passes every other test and silently turns knowledge cards into
+  // tasks. book-names writes its puzzles bare, so this path is live.
+  const p = normalizePuzzle({ id: 'hp-09', type: 'card', kind: 'knowledge',
+                              prompt: 'Which king?', answer: 'Belshazzar' });
+  assert.equal(p.variants.length, 1);
+  assert.equal(p.variants[0].type, 'card');
+  assert.equal(p.variants[0].kind, 'knowledge');
+  assert.equal(p.variants[0].prompt, 'Which king?');
+});

@@ -190,3 +190,35 @@ test('core and every inline page script stay ES5 syntax', () => {
   assert.deepEqual(bad, [], 'these must run unbuilt on an old church laptop:\n'
     + bad.join('\n'));
 });
+
+test('a page whose deck has cards loads the sound module', () => {
+  // Same shape as the atlas check above, and for the same reason: plain script
+  // tags, no build step to notice one missing. Without sound.js the game still
+  // runs - audio never blocks play - but it runs SILENTLY, which is the whole
+  // mechanic gone, and nothing else would catch it.
+  const problems = [];
+  let checked = 0;
+  fs.readdirSync(path.join(ROOT, 'games')).forEach((slug) => {
+    const page = path.join(ROOT, 'games', slug, 'index.html');
+    const deck = path.join(ROOT, 'games', slug, 'deck.js');
+    if (!fs.existsSync(page) || !fs.existsSync(deck)) { return; }
+    if (!/type:\s*['"]card['"]/.test(fs.readFileSync(deck, 'utf8'))) { return; }
+    checked += 1;
+    const src = fs.readFileSync(page, 'utf8');
+    const soundAt = src.search(/<script[^>]*src="\.\.\/\.\.\/core\/sound\.js"/);
+    const bootAt = src.search(/<script[^>]*src="\.\.\/\.\.\/core\/boot\.js"/);
+    // The inline guard is what puts "This game did not start" on the projector
+    // when a script is missing. Without 'sound' in it, a lost sound.js is a
+    // SILENT game with nothing on screen saying why.
+    const needed = /var needed = \[([^\]]*)\]/.exec(src);
+    if (!needed || !/['"]sound['"]/.test(needed[1])) {
+      problems.push(slug + ' does not list sound in its inline needed guard');
+    }
+    if (soundAt === -1) { problems.push(slug + ' does not load sound.js'); }
+    else if (bootAt !== -1 && soundAt > bootAt) {
+      problems.push(slug + ' loads sound.js after boot.js');
+    }
+  });
+  assert.ok(checked > 0, 'no card deck found - the test is not looking at anything');
+  assert.deepEqual(problems, [], problems.join('\n'));
+});
